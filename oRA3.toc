@@ -1,16 +1,22 @@
-## Interface: 20300
+## Interface: 30000
 ## Name: oRA3
 ## Notes: Raid and Party Assist
 ## Author: Ammo
 
-## OptDeps: Ace3
+## OptionalDeps: Ace3
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Group: true
 
+#@no-lib-strip@
+libs.xml
+#@end-no-lib-strip@
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
 locales\enUS.lua
 
 oRA3.lua
+modulePrototype.lua
 
 modules\ReadyCheck.lua
 modules\Durability.lua

@@ -2,6 +2,9 @@
 local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
+addon.util = {}
+local util = addon.util
+
 -- Module stuff
 addon:SetDefaultModuleState(false) -- all modules disabled by default
 
@@ -20,6 +23,13 @@ local defaults = {
 	profile = {
 	}
 }
+
+
+local ldb = LibStub("LibDataBroker-1.1"):NewDataObject("oRA3", {
+	type = "launcher",
+	text = "oRA3",
+	icon = [[Interface\Icons\INV_Inscription_MajorGlyph03]],
+})
 
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults)
@@ -170,3 +180,19 @@ end
 function addon:UnregisterOverview(name)
 	-- hide and recycle
 end
+
+
+function util:clearTable(t)
+	for k, v in pairs(t) do
+		t[k] = nil
+	end
+	return t
+end
+
+function util:inTable(t, value)
+	for k, v in pairs(t) do
+		if v == value then return true end
+	end
+	return nil
+end
+

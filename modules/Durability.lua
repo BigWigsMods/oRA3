@@ -1,23 +1,35 @@
 
--- Unlike oRA2 there are no real durability checks.
 -- Durability is transmitted when the player dies or zones or closes a merchant window
 -- Durability information will be available from the oRA3 gui for everyone.
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+local util = oRA.util
 local module = oRA:NewModule("Durability", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
--- TODO: make sure these tables are cleaned up a bit from old members
-
 -- following tables are all indexed by name
+local tname = {} -- names of durability
 local tperc = {} -- average durability %
 local tbroken = {} -- # broken items
 local tminimum = {} -- minimum durability %
 
 -- function pointer for the overview refresh button
-local refreshfunc
+local function refreshfunc()
+	oRA:SendComm("CheckDurability")
+end
+
+function module:OnRegister()
+	-- should register durability table with the oRA3 core GUI for sortable overviews
+	oRA:RegisterOverview(L["Durability"], refreshfunc, L["name"], tname, L["avg"], tperc, L["min"], tminimum, L["broken"], tbroken)
+end
 
 function module:OnEnable()
+	-- clean up old tables
+	util:clearTable(tname)
+	util:clearTable(tperc)
+	util:clearTable(tbroken)
+	util:clearTable(tminimum)
+	
 	-- Durability Events
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
@@ -26,10 +38,6 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
 	oRA.RegisterCallback(self, "OnCommCheckDurability") 
 
-	-- should register durability table with the oRA3 core GUI for sortable overviews
-	-- TODO: localization crapola drek
-	oRA:RegisterOverview(L["Durability"], refreshfunc, L["avg"], tperc, L["min"], tminimum, L["broken"], tbroken)
-	
 	self:CheckDurability()
 end
 
@@ -67,9 +75,15 @@ end
 
 -- Durability answer
 function module:OnCommDurability(commType, sender, perc, minimum, broken)
-	tperc[sender] = perc.."%"
-	tminimum[sender] = minimum.."%"
-	tbroken[sender] = broken
+	local k = util:inTable(tname, sender)
+	if not k then
+		table.insert(tname, sender)
+		k = util:inTable(tname, sender)
+	end
+	tperc[k] = perc.."%"
+	tminimum[k] = minimum.."%"
+	tbroken[k] = broken
+
 	oRA:UpdateGUI()
 end
 
@@ -83,6 +97,3 @@ function module:OnCommCheckDurability(commType, sender)
 	end
 end
 
-function refreshfunc()
-	oRA:SendComm("CheckDurability")
-end
