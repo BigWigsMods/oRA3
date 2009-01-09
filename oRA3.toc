@@ -3,10 +3,14 @@
 ## Notes: Raid and Party Assist
 ## Author: Ammo
 
+## X-Credits: Cladhaire for the sliding/detaching panel
+
+## SavedVariables: oRA3DB
+
 ## OptionalDeps: Ace3
 
 ## LoadManagers: AddonLoader
-## X-LoadOn-Group: true
+## X-LoadOn-Always: true
 
 #@no-lib-strip@
 libs.xml
