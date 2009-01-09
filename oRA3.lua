@@ -325,23 +325,23 @@ function addon:SetupGUI()
 			self:SetScript("OnUpdate", nil)
 			
 			-- Do the frame fading
-			if not oRA.db.profile.open then
+			if not addon.db.profile.open then
 				if oRA3FrameSub.justclosed == true then
 					oRA3FrameSub.justclosed = false
 					oRA3FrameSub:Hide()
 				else
 					UIFrameFadeIn(oRA3FrameSub, 0.25, 0, 1)
 					oRA3FrameSub:Show()
-					oRA.db.profile.open = true
+					addon.db.profile.open = true
 					-- FIXME
 					-- Select last tab
 					-- oRA3:SelectQuestLogEntry()
 				end
 			end
 			return
-		elseif count == 1 and oRA.db.profile.open then
+		elseif count == 1 and addon.db.profile.open then
 			UIFrameFadeOut(oRA3FrameSub, 0.25, 1, 0)
-			oRA.db.profile.open = false
+			addon.db.profile.open = false
 			oRA3FrameSub.justclosed = true
 		end
 		
