@@ -366,11 +366,11 @@ function addon:SetupGUI()
 	frame.handle:RegisterForClicks("AnyUp")
 	frame.handle:SetScript("OnClick", function(self, button)
 											frame:SetScript("OnUpdate", onupdate)
-											if oRA.db.profile.sound then
+											if addon.db.profile.sound then
 												PlaySoundFile("Sound\\Doodad\\Karazahn_WoodenDoors_Close_A.wav")
 											end
 
-											oRA.db.profile.open = not oRA.db.profile.open
+											addon.db.profile.open = not addon.db.profile.open
 										end)
 
 	frame.handle:SetScript("OnEnter", function(self)
