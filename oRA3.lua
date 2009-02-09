@@ -617,6 +617,7 @@ end
 -- refreshfunc - name of the function to call to refresh the overview
 -- .. tuple - name, table  -- contains name of the sortable column and table to get the data from
 function addon:RegisterOverview(name, refreshfunc, ...)
+
 end
 
 function addon:UnregisterOverview(name)

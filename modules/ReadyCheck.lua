@@ -78,8 +78,10 @@ end
 function module:READY_CHECK_FINISHED(event)
 	-- close the frame after 5 seconds
 	self:ScheduleTimer("HideGUI", 5)
-	frame.timer = 0
-	frame.timerText:SetText(READY_CHECK_FINISHED)
+	if frame then
+		frame.timer = 0
+		frame.timerText:SetText(READY_CHECK_FINISHED)
+	end
 	
 	-- report if promoted
 	if not oRA:IsPromoted() then return end
