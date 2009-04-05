@@ -1,5 +1,5 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0")
+local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceConsole-3.0")
 orar = module
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
@@ -74,9 +74,8 @@ end
 
 
 function module:READY_CHECK_FINISHED(event)
-	-- close the frame after 5 seconds
-	self:ScheduleTimer("HideGUI", 5)
 	if frame then
+		frame.fadeTimer = 1
 		frame.timer = 0
 		frame.timerText:SetText(READY_CHECK_FINISHED)
 	end
@@ -116,12 +115,15 @@ end
 
 function module:ShowGUI()
 	self:SetupGUI()
+	frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
+	frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
 	frame:Show()
 end
 
 function module:HideGUI()
 	if not frame then return end
-	
+	frame:SetAlpha(1) -- reset
+	frame.fadeTimer = nil -- reset
 	frame:Hide()
 end
 
@@ -292,6 +294,14 @@ function module:SetupGUI()
 					if this.oldtimer - this.timer >= 1  or this.oldtimer == -1 then
 						this.oldtimer = this.timer
 						timerText:SetText( string.format(RD_READY_CHECK_OVER_IN, floor(this.timer) ) )
+					end
+				end
+				if this.fadeTimer and this.fadeTimer > 0 then
+					this.fadeTimer = this.fadeTimer - elapsed
+					if this.fadeTimer <= 0 then
+						module:HideGUI()
+					else
+						this:SetAlpha(this.fadeTimer)
 					end
 				end
 		end )
