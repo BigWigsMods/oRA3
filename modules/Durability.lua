@@ -12,16 +12,17 @@ local tperc = {} -- average durability %
 local tbroken = {} -- # broken items
 local tminimum = {} -- minimum durability %
 
--- function pointer for the overview refresh button
-local function refreshfunc()
-	oRA:SendComm("CheckDurability")
-end
-
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
-	oRA:RegisterOverview(L["Durability"], "Interface\\Icons\\Trade_BlackSmithing", refreshfunc,
-						L["Name"], tname, L["Average"], tperc, L["Minimum"], tminimum, L["Broken"], tbroken
-						)
+	oRA:RegisterOverview(
+		L["Durability"],
+		"Interface\\Icons\\Trade_BlackSmithing",
+		nil,
+		L["Name"], tname,
+		L["Average"], tperc,
+		L["Minimum"], tminimum,
+		L["Broken"], tbroken
+	)
 end
 
 function module:OnEnable()
