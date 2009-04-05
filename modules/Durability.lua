@@ -27,10 +27,10 @@ end
 
 function module:OnEnable()
 	-- clean up old tables
-	tname = util:clearTable(tname)
-	tperc = util:clearTable(tperc)
-	tbroken = util:clearTable(tbroken)
-	tminimum = util:clearTable(tminimum)
+	wipe(tname)
+	wipe(tperc)
+	wipe(tbroken)
+	wipe(tminimum)
 	
 	-- Durability Events
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")

@@ -24,3 +24,5 @@ modulePrototype.lua
 
 modules\ReadyCheck.lua
 modules\Durability.lua
+modules\Resistance.lua
+
