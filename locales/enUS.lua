@@ -1,7 +1,7 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("oRA3", "enUS", true)
 
 -- Generic
-L["name"] = true
+L["Name"] = true
 L["Config"] = true
 
 -- Ready check module
@@ -14,7 +14,14 @@ L["Offline"] = true
 
 -- Durability module
 L["Durability"] = true
-L["avg"] = true
-L["broken"] = true
-L["min"] = true
+L["Average"] = true
+L["Broken"] = true
+L["Minimum"] = true
 
+-- Resistances module
+L["Resistances"] = true
+L["Frost"] = true
+L["Fire"] = true
+L["Shadow"] = true
+L["Nature"] = true
+L["Arcane"] = true

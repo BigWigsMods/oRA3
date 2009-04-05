@@ -1,7 +1,7 @@
 ## Interface: 30000
 ## Name: oRA3
 ## Notes: Raid and Party Assist
-## Author: Ammo
+## Author: Ammo, Rabbit
 
 ## X-Credits: Cladhaire for the sliding/detaching panel
 
@@ -15,7 +15,6 @@
 #@no-lib-strip@
 libs.xml
 #@end-no-lib-strip@
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 locales\enUS.lua
 

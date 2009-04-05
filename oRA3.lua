@@ -36,13 +36,6 @@ local defaults = {
 	}
 }
 
-
-local ldb = LibStub("LibDataBroker-1.1"):NewDataObject("oRA3", {
-	type = "launcher",
-	text = "oRA3",
-	icon = [[Interface\Icons\INV_Inscription_MajorGlyph03]],
-})
-
 local function openConfig()
 	addon:Print("Omg need to open config")
 end
@@ -734,6 +727,7 @@ function addon:SetupOverview(name)
 	if not contentFrame.tabs[name] then
 		local overview = self.overviews[name]
 		-- create a tab
+		-- FIXME: improve the looks
 		local f = CreateFrame("Button", "oRA3Tab"..tostring(lastTab and lastTab+1 or 0), contentFrame)
 		f:ClearAllPoints()
 		if lastTab then
@@ -776,13 +770,6 @@ function addon:SelectOverview(name)
 		contentFrame.scrollFrame:Show()
 	end
 	
-end
-
-function util:clearTable(t)
-	for k, v in pairs(t) do
-		t[k] = nil
-	end
-	return t
 end
 
 function util:inTable(t, value)

@@ -7,7 +7,6 @@ local util = oRA.util
 local module = oRA:NewModule("Durability", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
--- following tables are all indexed by name
 local tname = {} -- names of durability
 local tperc = {} -- average durability %
 local tbroken = {} -- # broken items
@@ -21,7 +20,7 @@ end
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
 	oRA:RegisterOverview(L["Durability"], "Interface\\Icons\\Trade_BlackSmithing", refreshfunc,
-						L["name"], tname, L["avg"], tperc, L["min"], tminimum, L["broken"], tbroken
+						L["Name"], tname, L["Average"], tperc, L["Minimum"], tminimum, L["Broken"], tbroken
 						)
 end
 
@@ -38,7 +37,6 @@ function module:OnEnable()
 	self:RegisterEvent("MERCHANT_CLOSED", "CheckDurability")
 
 	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
-	oRA.RegisterCallback(self, "OnCommCheckDurability") 
 
 	self:CheckDurability()
 end
@@ -46,12 +44,9 @@ end
 function module:OnDisable()
 	oRA:UnregisterOverview(L["Durability"])
 	oRA.UnregisterCallback(self, "OnCommDurability")
-	oRA.UnregisterCallback(self, "OnCommCheckDurability")
 end
 
 local oldperc, oldbroken, oldminimum = 0,0,0
-local override = false
-local lastCheck = 0
 
 function module:CheckDurability(event)
 	local perc, cur, max, broken, imin, imax, vmin = 0, 0, 0, 0, 0, 0, 100
@@ -61,7 +56,7 @@ function module:CheckDurability(event)
 			vmin = math.min( math.floor(imin/imax * 100), vmin)
 			if imin == 0 then broken = broken + 1 end
 			cur = cur + imin
-			max = max + imax			
+			max = max + imax
 		end
 	end
 	perc = math.floor(cur / max * 100)
@@ -87,15 +82,5 @@ function module:OnCommDurability(commType, sender, perc, minimum, broken)
 	tbroken[k] = broken
 
 	oRA:UpdateGUI(L["Durability"])
-end
-
--- Forced durability check
-function module:OnCommCheckDurability(commType, sender)
-	local t = time()
-	if t - lastCheck > 30 then -- only do this once every 30 seconds.
-		lastCheck = t
-		override = true
-		self:CheckDurability()
-	end
 end
 

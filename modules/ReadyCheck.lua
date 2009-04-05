@@ -36,9 +36,7 @@ function module:READY_CHECK(event, name, duration)
 
 	-- init readycheck handling
 	if not readycheck then readycheck = {} end
-	for k, v in pairs(readycheck) do -- reset
-		readycheck[k] = nil
-	end
+	wipe(readycheck)
 	-- fill with default 'no response' 
 	if oRA:InRaid() then
 		for i = 1, GetNumRaidMembers(), 1 do

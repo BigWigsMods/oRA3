@@ -1,11 +1,11 @@
 
 -- Resistance is transmitted after the player changes his gear.
+-- Resistance information will be available from the oRA3 gui for everyone.
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Resistance", "AceEvent-3.0")
+local module = oRA:NewModule("Resistance")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
--- following tables are all indexed by name
 local names = {}
 local frost = {}
 local nature = {}
@@ -15,15 +15,15 @@ local arcane = {}
 
 function module:OnRegister()
 	oRA:RegisterOverview(
-		"Resistances",
-		"Interface\\Icons\\Trade_BlackSmithing",
+		L["Resistances"],
+		"Interface\\Icons\\Spell_Frost_WizardMark",
 		nil,
-		"Name", names,
-		"Frost", frost,
-		"Fire", fire,
-		"Shadow", shadow,
-		"Nature", nature,
-		"Arcane", arcane
+		L["Name"], names,
+		L["Frost"], frost,
+		L["Fire"], fire,
+		L["Shadow"], shadow,
+		L["Nature"], nature,
+		L["Arcane"], arcane
 	)
 end
 
@@ -33,7 +33,7 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	oRA:UnregisterOverview("Resistances")
+	oRA:UnregisterOverview(L["Resistances"])
 	oRA.UnregisterCallback(self, "OnCommResistance")
 end
 
@@ -82,6 +82,6 @@ function module:OnCommResistance(commType, sender, fr, nr, frr, sr, ar)
 	frost[k] = frr
 	shadow[k] = sr
 	arcane[k] = ar
-	oRA:UpdateGUI("Resistances")
+	oRA:UpdateGUI(L["Resistances"])
 end
 
