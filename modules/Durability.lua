@@ -20,15 +20,17 @@ end
 
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
-	oRA:RegisterOverview(L["Durability"], refreshfunc, L["name"], tname, L["avg"], tperc, L["min"], tminimum, L["broken"], tbroken)
+	oRA:RegisterOverview(L["Durability"], "Interface\\Icons\\Trade_BlackSmithing", refreshfunc,
+						L["name"], tname, L["avg"], tperc, L["min"], tminimum, L["broken"], tbroken
+						)
 end
 
 function module:OnEnable()
 	-- clean up old tables
-	util:clearTable(tname)
-	util:clearTable(tperc)
-	util:clearTable(tbroken)
-	util:clearTable(tminimum)
+	tname = util:clearTable(tname)
+	tperc = util:clearTable(tperc)
+	tbroken = util:clearTable(tbroken)
+	tminimum = util:clearTable(tminimum)
 	
 	-- Durability Events
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
@@ -84,7 +86,7 @@ function module:OnCommDurability(commType, sender, perc, minimum, broken)
 	tminimum[k] = minimum.."%"
 	tbroken[k] = broken
 
-	oRA:UpdateGUI()
+	oRA:UpdateGUI(L["Durability"])
 end
 
 -- Forced durability check

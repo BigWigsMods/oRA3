@@ -2,6 +2,8 @@
 local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
+local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+
 addon.util = {}
 local util = addon.util
 
@@ -18,12 +20,19 @@ local INRAID = 2
 addon.groupStatus = UNGROUPED -- flag indicating groupsize
 local groupStatus = addon.groupStatus -- local upvalue
 
+-- overview drek
+local openedOverview = nil -- name of the current overview
+local contentFrame = nil -- content frame for the views
+local lastTab = nil -- last tab in the list
+
+addon.overviews = {}
+
 local db
 local defaults = {
 	profile = {
 		positions = {},
 		attached = true,
-		open = true,
+		open = false,
 	}
 }
 
@@ -34,12 +43,18 @@ local ldb = LibStub("LibDataBroker-1.1"):NewDataObject("oRA3", {
 	icon = [[Interface\Icons\INV_Inscription_MajorGlyph03]],
 })
 
+local function openConfig()
+	addon:Print("Omg need to open config")
+end
+
 function addon:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults)
+	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
 	db = self.db.profile
 	
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
+	
+	self:RegisterOverview( L["Config"], [[Interface\Icons\INV_Inscription_MajorGlyph03]], openConfig )
 end
 
 
@@ -120,7 +135,7 @@ function addon:IsPromoted(name)
 	return false
 end
 
--- comm
+-- Comm handling
 
 function addon:SendComm( ... )
 	if groupStatus == UNGROUPED then return end
@@ -143,7 +158,7 @@ end
 function addon:ShowGUI()
 	self:SetupGUI()
 	oRA3Frame:Show()
-	self:UpdateGUI()
+	self:UpdateGUI(openedOverview)
 end
 
 function addon:HideGUI()
@@ -325,23 +340,23 @@ function addon:SetupGUI()
 			self:SetScript("OnUpdate", nil)
 			
 			-- Do the frame fading
-			if not addon.db.profile.open then
+			if not db.open then
 				if oRA3FrameSub.justclosed == true then
 					oRA3FrameSub.justclosed = false
 					oRA3FrameSub:Hide()
 				else
 					UIFrameFadeIn(oRA3FrameSub, 0.25, 0, 1)
 					oRA3FrameSub:Show()
-					addon.db.profile.open = true
+					db.open = true
 					-- FIXME
 					-- Select last tab
 					-- oRA3:SelectQuestLogEntry()
 				end
 			end
 			return
-		elseif count == 1 and addon.db.profile.open then
+		elseif count == 1 and db.open then
 			UIFrameFadeOut(oRA3FrameSub, 0.25, 1, 0)
-			addon.db.profile.open = false
+			db.open = false
 			oRA3FrameSub.justclosed = true
 		end
 		
@@ -350,7 +365,7 @@ function addon:SetupGUI()
 	end	
 	
 	-- Flip min and max, if we're supposed to be open
-	if self.db.profile.open then
+	if db.open then
 		min,max = max,min
 	end
 
@@ -366,15 +381,14 @@ function addon:SetupGUI()
 	frame.handle:RegisterForClicks("AnyUp")
 	frame.handle:SetScript("OnClick", function(self, button)
 											frame:SetScript("OnUpdate", onupdate)
-											if addon.db.profile.sound then
+											if db.sound then
 												PlaySoundFile("Sound\\Doodad\\Karazahn_WoodenDoors_Close_A.wav")
 											end
 
-											addon.db.profile.open = not addon.db.profile.open
+											db.oraopen = not db.oraopen --unused for now
 										end)
 
 	frame.handle:SetScript("OnEnter", function(self)
-											--SetCursor("Interface\\AddOns\\oRA3\\images\\cursor")
 											SetCursor("INTERACT_CURSOR")
 											GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 											GameTooltip:SetText("Click to open/close oRA3")
@@ -395,12 +409,47 @@ function addon:SetupGUI()
 	end)
 
 	local subframe = CreateFrame("Frame", "oRA3FrameSub", oRA3Frame)
-	subframe:SetPoint("TOPLEFT", 0, 0)
+	subframe:SetPoint("TOPLEFT", 50, 0)
 	subframe:SetPoint("BOTTOMRIGHT", 0, 0)
 	subframe:SetAlpha(0)
 
+	contentFrame = subframe
+	contentFrame.tabs = {} -- setup the tab listing
+	self:SetupOverviews() -- fill the tab listing
 
+	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
+	contentFrame.title:SetFontObject(GameFontHighlight)
+	contentFrame.title:SetPoint("TOP", 0, -4)
+	contentFrame.title:SetText("oRA3")
 
+	
+	-- Scrolling body
+	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", contentFrame, "FauxScrollFrameTemplate")
+	sframe:SetParent(contentFrame)
+	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 4)
+	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -60)
+	contentFrame.scrollFrame = sframe
+	local function updateScroll()
+		self:UpdateScrollContents()
+	end
+	
+	sframe:SetScript("OnVerticalScroll", function(self, offset)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
+	end)
+	
+	--sframe:SetWidth(295)
+	--sframe:SetHeight(288) -- 18 entries a 16 px
+	--sframe:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -55)
+
+	--local function updateScroll()
+--		self:UpdateWindow()
+--	end
+
+--	sframe:SetScript("OnVerticalScroll", function(self, offset)
+		--FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
+	--end)
+	
+	
 
 	local function resizebg(frame)
 		local width = frame:GetWidth() - 5
@@ -451,6 +500,7 @@ function addon:SetupGUI()
 	
 	self:LockUnlockFrame()
 	
+	self:SelectOverview()
 end
 
 
@@ -459,7 +509,7 @@ function addon:LockUnlockFrame()
 
 	oRA3Frame:ClearAllPoints()
 
-	if self.db.profile.attached then
+	if db.attached then
 		-- Lock the frame
 		oRA3Frame.titlereg:Hide()
 		oRA3Frame.resize:Hide()
@@ -473,7 +523,7 @@ function addon:LockUnlockFrame()
 
 		-- subframe.text:UpdateSize()
 
-		if self.db.profile.open then
+		if db.open then
 			oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
 			subframe:Show()
 			subframe:SetAlpha(1)
@@ -510,10 +560,10 @@ function addon:SavePosition(name)
     
     x,y = x*s,y*s
     
-	local opt = self.db.profile.positions[name]
+	local opt = db.positions[name]
 	if not opt then 
-		self.db.profile.positions[name] = {}
-		opt = self.db.profile.positions[name]
+		db.positions[name] = {}
+		opt = db.positions[name]
 	end
     opt.PosX = x
     opt.PosY = y
@@ -523,10 +573,10 @@ end
 
 function addon:RestorePosition(name)
 	local f = getglobal(name)
-	local opt = self.db.profile.positions[name]
+	local opt = db.positions[name]
 	if not opt then 
-		self.db.profile.positions[name] = {}
-		opt = self.db.profile.positions[name]
+		db.positions[name] = {}
+		opt = db.positions[name]
 	end
 
 	local x = opt.PosX
@@ -561,21 +611,21 @@ end
 function addon:AttachFrame()
 	self:Print("Re-Attaching the oRA3 Frame")
 
-	self.db.profile.attached = true
+	db.attached = true
 	self:LockUnlockFrame()
 end
 
 function addon:DetachFrame()
 	self:Print("Detaching the oRA3 Frame")
 
-	self.db.profile.attached = false
+	db.attached = false
 	self:LockUnlockFrame()
 end
 
 function addon:ChangeBGAlpha(value)
 	value = tonumber(value)
 
-	self.db.profile.bgalpha = value
+	db.bgalpha = value
 
 	local frame = oRA3Frame
 	local textures = {
@@ -603,10 +653,20 @@ function addon:ChangeBGAlpha(value)
 end
 
 
-function addon:UpdateGUI()
+local sortIndex
+local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
+local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
+
+function addon:UpdateScrollContents()
+end
+
+function addon:UpdateGUI( name )
 	self:SetupGUI()
-	if not oRA3Frame:IsVisible() then return end
+	if not openedOverview then openedOverview = L["Config"] end
+	if not oRA3Frame:IsVisible() or (name and openedOverview ~= name) then return end
 	-- update the overviews
+	self:SelectOverview(openedOverview)
+	-- update
 end
 
 
@@ -614,16 +674,109 @@ end
 
 -- register an overview
 -- name (string) - name of the overview Tab
+-- icon (string) - icon path for overview
 -- refreshfunc - name of the function to call to refresh the overview
--- .. tuple - name, table  -- contains name of the sortable column and table to get the data from
-function addon:RegisterOverview(name, refreshfunc, ...)
-
+-- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
+function addon:RegisterOverview(name, icon, refreshfunc, ...)
+	self.overviews[name] = {
+		name = name,
+		icon = icon,
+		refresh = refreshfunc,
+	}
+	if select("#", ...) > 0 then
+		self.overviews[name].cols = {}
+		local col = 0
+		for i = 1, select("#", ...), 2 do
+			local cname, contents = select(i, ...)
+			if cname and contents then
+				col = col + 1
+				self.overviews[name].cols[col] = { name = cname, contents = contents }
+			end
+		end
+	end
+	table.insert(self.overviews, self.overviews[name]) -- used to ipairs loop
+	self:SetupOverview(name)
 end
 
 function addon:UnregisterOverview(name)
-	-- hide and recycle
+	if contentFrame and contentFrame.tabs[name] then
+		contentFrame.tabs[name]:Hide()
+		if openedOverview == name then
+			openedOverview = nil
+			self:UpdateGUI()
+		end
+	end
 end
 
+function addon:SetupOverviews()
+	for k, v in ipairs(self.overviews) do
+		self:SetupOverview(v.name)
+	end
+end
+
+local function selectOverview(self)
+	addon:SelectOverview(self.tabName)
+end
+
+local function tabOnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+	GameTooltip:SetText(self.tabName)
+	GameTooltip:Show()
+end
+
+local function tabOnLeave(self)
+	GameTooltip:Hide()
+end
+
+function addon:SetupOverview(name)
+	if not contentFrame then return end
+
+	if not contentFrame.tabs[name] then
+		local overview = self.overviews[name]
+		-- create a tab
+		local f = CreateFrame("Button", "oRA3Tab"..tostring(lastTab and lastTab+1 or 0), contentFrame)
+		f:ClearAllPoints()
+		if lastTab then
+			f:SetPoint("TOPLEFT", _G["oRA3Tab"..lastTab], "TOPRIGHT", 5, 0)
+			lastTab = lastTab + 1
+		else
+			lastTab = 0
+			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT")
+		end
+		f:SetWidth(24)
+		f:SetHeight(24)
+		f.icon = f:CreateTexture( nil, "OVERLAY")
+		f.icon:SetAllPoints( f )
+		f.icon:SetTexture( overview.icon )
+		f.tabName = name
+		
+		f:SetScript( "onClick", selectOverview )
+		f:SetScript( "onEnter", tabOnEnter )
+		f:SetScript( "onLeave", tabOnLeave )
+		
+		contentFrame.tabs[name] = f
+	end
+	contentFrame.tabs[name]:Show()
+end
+
+function addon:SelectOverview(name)
+	if not contentFrame then return end
+	if not name then name = L["Config"] end
+	local overview = self.overviews[name]
+	if not overview then return end -- should not happen?
+	openedOverview = name
+
+	contentFrame.title:SetText("oRA3 - "..name)
+
+	if not overview.cols then
+		-- nonscroll overview hide sframe
+		contentFrame.scrollFrame:Hide()
+	else
+		-- columns overview -> show sframe
+		contentFrame.scrollFrame:Show()
+	end
+	
+end
 
 function util:clearTable(t)
 	for k, v in pairs(t) do

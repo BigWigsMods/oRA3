@@ -2,6 +2,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("oRA3", "enUS", true)
 
 -- Generic
 L["name"] = true
+L["Config"] = true
 
 -- Ready check module
 L["The following players are not ready: %s"] = true

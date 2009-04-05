@@ -7,3 +7,5 @@ function prototype:OnInitialize()
 		self:OnRegister()
 	end
 end
+
+addon:SetDefaultModulePrototype(prototype)
