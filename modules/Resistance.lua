@@ -17,7 +17,7 @@ function module:OnRegister()
 	oRA:RegisterOverview(
 		L["Resistances"],
 		"Interface\\Icons\\Spell_Frost_WizardMark",
-		nil,
+		nil, nil,
 		L["Name"], names,
 		L["Frost"], frost,
 		L["Fire"], fire,

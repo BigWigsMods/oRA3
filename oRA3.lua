@@ -38,7 +38,9 @@ local defaults = {
 }
 
 local function openConfig()
-	addon:Print("Omg need to open config")
+end
+
+local function closeConfig()
 end
 
 function addon:OnInitialize()
@@ -48,7 +50,7 @@ function addon:OnInitialize()
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
 	
-	self:RegisterOverview( L["Config"], [[Interface\Icons\INV_Inscription_MajorGlyph03]], openConfig )
+	self:RegisterOverview( L["Config"], [[Interface\Icons\INV_Inscription_MajorGlyph03]], openConfig, closeConfig )
 end
 
 
@@ -669,13 +671,15 @@ end
 -- register an overview
 -- name (string) - name of the overview Tab
 -- icon (string) - icon path for overview
--- refreshfunc - name of the function to call to refresh the overview
+-- refresh - function to call to refresh the overview
+-- hide - function to call to hide the overview
 -- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
-function addon:RegisterOverview(name, icon, refreshfunc, ...)
+function addon:RegisterOverview(name, icon, refresh, hide, ...)
 	self.overviews[name] = {
 		name = name,
 		icon = icon,
-		refresh = refreshfunc,
+		refresh = refresh,
+		hide = hide
 	}
 	if select("#", ...) > 0 then
 		self.overviews[name].cols = {}
@@ -761,11 +765,18 @@ function addon:SelectOverview(name)
 	if not overview then return end -- should not happen?
 	openedOverview = name
 
+	for k, v in ipairs(self.overviews) do
+		if v.name ~= name and type(v.hide) == "function" then
+			v.hide()
+		end
+	end
+	
 	contentFrame.title:SetText("oRA3 - "..name)
 
 	if not overview.cols then
 		-- nonscroll overview hide sframe
 		contentFrame.scrollFrame:Hide()
+		overview.refresh()
 	else
 		-- columns overview -> show sframe
 		contentFrame.scrollFrame:Show()

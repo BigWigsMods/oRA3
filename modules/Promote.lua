@@ -13,6 +13,17 @@ local everyone, guild, ranks, add, delete
 local factionDb = nil
 local charDb = nil
 
+local function showConfig()
+	frame.frame:SetParent(_G["oRA3FrameSub"])
+	frame.frame:SetPoint("BOTTOMLEFT", _G["oRA3FrameSub"], "BOTTOMLEFT", 0, 4)
+	frame.frame:SetPoint("TOPRIGHT", _G["oRA3FrameSub"], "TOPRIGHT", -26, -60)
+	frame.frame:Show()
+end
+
+local function hideConfig()
+	frame.frame:Hide()
+end
+
 function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Promote", {
 		factionrealm = {
@@ -28,6 +39,13 @@ function module:OnRegister()
 	charDb = database.char
 	
 	self:CreateFrame()
+	
+	oRA:RegisterOverview(
+		"Promotes",
+		"Interface\\Icons\\INV_Scroll_03",
+		showConfig,
+		hideConfig
+	)
 end
 
 do
@@ -144,8 +162,8 @@ local function onControlLeave() GameTooltip:Hide() end
 function module:CreateFrame()
 	if frame then return end
 
-	local f = AceGUI:Create("Frame")
-	f:SetTitle("Promote")
+	local f = AceGUI:Create("SimpleGroup")
+	--f:SetTitle("Promote")
 	--f:SetLayout("Flow")
 	f:SetWidth(340)
 	f:SetHeight(400)

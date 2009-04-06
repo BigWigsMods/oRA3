@@ -17,7 +17,7 @@ function module:OnRegister()
 	oRA:RegisterOverview(
 		L["Durability"],
 		"Interface\\Icons\\Trade_BlackSmithing",
-		nil,
+		nil, nil,
 		L["Name"], tname,
 		L["Average"], tperc,
 		L["Minimum"], tminimum,
