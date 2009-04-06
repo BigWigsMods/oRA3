@@ -417,7 +417,7 @@ function addon:SetupGUI()
 
 	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
 	contentFrame.title:SetFontObject(GameFontHighlight)
-	contentFrame.title:SetPoint("TOP", 0, -4)
+	contentFrame.title:SetPoint("TOP", 0, -6)
 	contentFrame.title:SetText("oRA3")
 
 	
