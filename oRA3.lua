@@ -657,42 +657,25 @@ local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
 function addon:UpdateScrollContents()
 end
 
+function addon:SetScrollHeaderWidth( nr, width )
+	if not scrollheaders[nr] then return end
+	scrollheaders[nr]:SetWidth(width)
+	getglobal(scrollheaders[nr]:GetName().."Middle"):SetWidth(width-9)
+	-- FIXME: set child widths for the scrollframe itself
+end
 
 function addon:CreateScrollHeader()
-	local f = CreateFrame("Button", nil, contentFrame)
-
+	local nr = #scrollheaders + 1
+	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
+	f:SetScript("OnClick", nil)
+	
 	table.insert( scrollheaders, f)
 	
-	self:Print("creating header ", #scrollheaders)
-	
 	if #scrollheaders == 1 then
-		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 10, -35)
+		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, -32)
 	else
 		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
 	end
-
-	f:SetHeight(16)
-	f:SetWidth(50)
-	f:SetScript("OnClick", function()
-		-- self:SortColumn(nr)
-	end)
-
-	f.text = f:CreateFontString(nil,"OVERLAY")
-	f.text:SetFontObject(GameFontHighlight)
-	f.text:SetJustifyH("LEFT")
-	f.text:SetTextColor(1, 1, 1, 1)
-	f.text:ClearAllPoints()
-	f.text:SetAllPoints(f)
-	f.text:SetText( "Header")
-
-	f.highlight = f:CreateTexture(nil, "BORDER")
-	f.highlight:ClearAllPoints()
-	f.highlight:SetAllPoints(f)
-	f.highlight:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
-	f.highlight:SetBlendMode("ADD")
-	f.highlight:SetGradientAlpha("VERTICAL", .1, .08, 0, 0, .2, .16, 0, 1)
-
-	f:SetHighlightTexture(f.highlight)
 end
 
 
@@ -828,10 +811,13 @@ function addon:SelectOverview(name)
 	else
 		-- columns overview -> show sframe
 		contentFrame.scrollFrame:Show()
+		local count = #overview.cols
+		local totalwidth = contentFrame.scrollFrame:GetWidth()
+		local width = totalwidth/count
 		for k, v in ipairs(overview.cols) do
-			scrollheaders[k].text:SetText(v.name)
+			scrollheaders[k]:SetText(v.name)
+			self:SetScrollHeaderWidth(k, width)
 			scrollheaders[k]:Show()
-			scrollheaders[k]:SetWidth(scrollheaders[k].text:GetStringWidth() + 5)
 		end
 	end
 	
