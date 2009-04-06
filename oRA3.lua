@@ -25,6 +25,8 @@ local groupStatus = addon.groupStatus -- local upvalue
 local openedOverview = nil -- name of the current overview
 local contentFrame = nil -- content frame for the views
 local lastTab = nil -- last tab in the list
+local scrollheaders = {} -- scrollheader frames
+local sortIndex -- current index (scrollheader) being sorted
 
 addon.overviews = {}
 
@@ -649,12 +651,50 @@ function addon:ChangeBGAlpha(value)
 end
 
 
-local sortIndex
 local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
 local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
 
 function addon:UpdateScrollContents()
 end
+
+
+function addon:CreateScrollHeader()
+	local f = CreateFrame("Button", nil, contentFrame)
+
+	table.insert( scrollheaders, f)
+	
+	self:Print("creating header ", #scrollheaders)
+	
+	if #scrollheaders == 1 then
+		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 10, -35)
+	else
+		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
+	end
+
+	f:SetHeight(16)
+	f:SetWidth(50)
+	f:SetScript("OnClick", function()
+		-- self:SortColumn(nr)
+	end)
+
+	f.text = f:CreateFontString(nil,"OVERLAY")
+	f.text:SetFontObject(GameFontHighlight)
+	f.text:SetJustifyH("LEFT")
+	f.text:SetTextColor(1, 1, 1, 1)
+	f.text:ClearAllPoints()
+	f.text:SetAllPoints(f)
+	f.text:SetText( "Header")
+
+	f.highlight = f:CreateTexture(nil, "BORDER")
+	f.highlight:ClearAllPoints()
+	f.highlight:SetAllPoints(f)
+	f.highlight:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
+	f.highlight:SetBlendMode("ADD")
+	f.highlight:SetGradientAlpha("VERTICAL", .1, .08, 0, 0, .2, .16, 0, 1)
+
+	f:SetHighlightTexture(f.highlight)
+end
+
 
 function addon:UpdateGUI( name )
 	self:SetupGUI()
@@ -671,7 +711,7 @@ end
 -- register an overview
 -- name (string) - name of the overview Tab
 -- icon (string) - icon path for overview
--- refresh - function to call to refresh the overview
+-- refresh - function to call to refresh/show the overview
 -- hide - function to call to hide the overview
 -- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
 function addon:RegisterOverview(name, icon, refresh, hide, ...)
@@ -683,12 +723,10 @@ function addon:RegisterOverview(name, icon, refresh, hide, ...)
 	}
 	if select("#", ...) > 0 then
 		self.overviews[name].cols = {}
-		local col = 0
 		for i = 1, select("#", ...), 2 do
 			local cname, contents = select(i, ...)
 			if cname and contents then
-				col = col + 1
-				self.overviews[name].cols[col] = { name = cname, contents = contents }
+				table.insert( self.overviews[name].cols, { name = cname, contents = contents } )
 			end
 		end
 	end
@@ -754,6 +792,11 @@ function addon:SetupOverview(name)
 		f:SetScript( "onLeave", tabOnLeave )
 		
 		contentFrame.tabs[name] = f
+		
+		local col = overview.cols
+		while( col and #col > #scrollheaders ) do
+			self:CreateScrollHeader()
+		end
 	end
 	contentFrame.tabs[name]:Show()
 end
@@ -773,6 +816,11 @@ function addon:SelectOverview(name)
 	
 	contentFrame.title:SetText("oRA3 - "..name)
 
+	-- hide all scrollheaders per default
+	for k, f in ipairs(scrollheaders) do
+		f:Hide()
+	end
+
 	if not overview.cols then
 		-- nonscroll overview hide sframe
 		contentFrame.scrollFrame:Hide()
@@ -780,6 +828,11 @@ function addon:SelectOverview(name)
 	else
 		-- columns overview -> show sframe
 		contentFrame.scrollFrame:Show()
+		for k, v in ipairs(overview.cols) do
+			scrollheaders[k].text:SetText(v.name)
+			scrollheaders[k]:Show()
+			scrollheaders[k]:SetWidth(scrollheaders[k].text:GetStringWidth() + 5)
+		end
 	end
 	
 end
