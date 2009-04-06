@@ -126,11 +126,11 @@ function module:CreateFrame()
 
 	local spacer = AceGUI:Create("Label")
 	spacer:SetText(" ")
-	spacer.width = "fill"
+	spacer:SetFullWidth(true)
 
 	local massHeader = AceGUI:Create("Heading")
 	massHeader:SetText("Mass promotion")
-	massHeader.width = "fill"
+	massHeader:SetFullWidth(true)
 
 	everyone = AceGUI:Create("CheckBox")
 	everyone:SetValue(factionDb.promoteAll)
@@ -146,7 +146,7 @@ function module:CreateFrame()
 		queuePromotes()
 	end)
 	everyone.oRATooltipText = "Promote everyone automatically."
-	everyone.width = "fill"
+	everyone:SetFullWidth(true)
 
 	guild = AceGUI:Create("CheckBox")
 	guild:SetValue(factionDb.promoteGuild)
@@ -160,7 +160,7 @@ function module:CreateFrame()
 	end)
 	guild.oRATooltipText = "Promote all guild members automatically."
 	guild:SetDisabled(factionDb.promoteAll)
-	guild.width = "fill"
+	guild:SetFullWidth(true)
 
 	ranks = AceGUI:Create("Dropdown")
 	ranks:SetMultiselect(true)
@@ -171,15 +171,15 @@ function module:CreateFrame()
 		queuePromotes()
 	end)
 	ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
-	ranks.width = "fill"
+	ranks:SetFullWidth(true)
 
 	local individualHeader = AceGUI:Create("Heading")
 	individualHeader:SetText("Individual promotions")
-	individualHeader.width = "fill"
+	individualHeader:SetFullWidth(true)
 
 	local description = AceGUI:Create("Label")
 	description:SetText("Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below.")
-	description.width = "fill"
+	description:SetFullWidth(true)
 
 	add = AceGUI:Create("EditBox")
 	add:SetLabel("Add")
@@ -194,7 +194,7 @@ function module:CreateFrame()
 		queuePromotes()
 	end)
 	add:SetDisabled(factionDb.promoteAll)
-	add.width = "fill"
+	add:SetFullWidth(true)
 
 	delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
@@ -207,7 +207,7 @@ function module:CreateFrame()
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end)
 	delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
-	delete.width = "fill"
+	delete:SetFullWidth(true)
 
 	f:AddChild(massHeader)
 	f:AddChild(everyone)
