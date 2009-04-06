@@ -15,8 +15,8 @@ local charDb = nil
 
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
-	frame.frame:SetPoint("BOTTOMLEFT", _G["oRA3FrameSub"], "BOTTOMLEFT", 0, 4)
-	frame.frame:SetPoint("TOPRIGHT", _G["oRA3FrameSub"], "TOPRIGHT", -26, -60)
+	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", -28, -58)
+	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -12, 0)
 	frame.frame:Show()
 end
 
@@ -48,6 +48,7 @@ function module:OnRegister()
 	)
 end
 
+local promote
 do
 	local function shouldPromote(name)
 		if factionDb.promoteAll then return true
@@ -72,21 +73,26 @@ do
 			total = 0
 		elseif total > 2 and firedPromotes then
 			self:RegisterEvent("RAID_ROSTER_UPDATE")
+			firedPromotes = nil
 			total = 0
 			self:SetScript("OnUpdate", nil)
 		elseif total > 3 then
-			for i = 1, GetNumRaidMembers() do
-				local n, r = GetRaidRosterInfo(i)
-				if n and r == 0 and shouldPromote(n) then
-					promotes[n] = true
-				end
+			promote()
+		end
+	end
+	function promote()
+		for i = 1, GetNumRaidMembers() do
+			local n, r = GetRaidRosterInfo(i)
+			if n and r == 0 and shouldPromote(n) then
+				promotes[n] = true
 			end
-			total = 0
-			if next(promotes) then
-				self:UnregisterEvent("RAID_ROSTER_UPDATE")
-			else
-				self:SetScript("OnUpdate", nil)
-			end
+		end
+		total = 0
+		if next(promotes) then
+			f:UnregisterEvent("RAID_ROSTER_UPDATE")
+			f:SetScript("OnUpdate", onUpdate)
+		else
+			f:SetScript("OnUpdate", nil)
 		end
 	end
 	f:SetScript("OnEvent", function(self)
@@ -130,26 +136,6 @@ function module:GUILD_ROSTER_UPDATE()
 	end
 end
 
---[[---------------------------------
-
-   --- Mass promotion         ---
-
-   [ ] Everyone
-   [ ] Guild
-
-   By guild rank
-   [ Guild Master    V ]
-   
-   --- Individual promotions  ---
-   
-   Add
-   [                   ]
-   
-   Remove
-   [ <name>          V ]
-
------------------------------------]]
-
 local function onControlEnter(widget, event, value)
 	GameTooltip:ClearLines()
 	GameTooltip:SetOwner(widget.frame, "ANCHOR_BOTTOMRIGHT")
@@ -163,13 +149,16 @@ function module:CreateFrame()
 	if frame then return end
 
 	local f = AceGUI:Create("SimpleGroup")
-	--f:SetTitle("Promote")
-	--f:SetLayout("Flow")
 	f:SetWidth(340)
 	f:SetHeight(400)
 
---[[	local massHeader = AceGUI:Create("Heading")
-	massHeader:SetText("Mass promotion")]]
+	local spacer = AceGUI:Create("Label")
+	spacer:SetText(" ")
+	spacer.width = "fill"
+
+	local massHeader = AceGUI:Create("Heading")
+	massHeader:SetText("Mass promotion")
+	massHeader.width = "fill"
 
 	everyone = AceGUI:Create("CheckBox")
 	everyone:SetValue(factionDb.promoteAll)
@@ -182,8 +171,10 @@ function module:CreateFrame()
 		add:SetDisabled(value)
 		delete:SetDisabled(value or #factionDb.promotes < 1)
 		factionDb.promoteAll = value and true or false
+		promote()
 	end)
 	everyone.oRATooltipText = "Promote everyone automatically."
+	everyone.width = "fill"
 
 	guild = AceGUI:Create("CheckBox")
 	guild:SetValue(factionDb.promoteGuild)
@@ -193,9 +184,11 @@ function module:CreateFrame()
 	guild:SetCallback("OnValueChanged", function(widget, event, value)
 		ranks:SetDisabled(value)
 		factionDb.promoteGuild = value and true or false
+		promote()
 	end)
 	guild.oRATooltipText = "Promote all guild members automatically."
 	guild:SetDisabled(factionDb.promoteAll)
+	guild.width = "fill"
 
 	ranks = AceGUI:Create("Dropdown")
 	ranks:SetMultiselect(true)
@@ -203,11 +196,18 @@ function module:CreateFrame()
 	ranks:SetList(guildRanks)
 	ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
 		charDb.promoteRank[rankIndex] = value and true or nil
+		promote()
 	end)
 	ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
+	ranks.width = "fill"
 
---[[	local individualHeader = AceGUI:Create("Heading")
-	individualHeader:SetText("Individual promotions")]]
+	local individualHeader = AceGUI:Create("Heading")
+	individualHeader:SetText("Individual promotions")
+	individualHeader.width = "fill"
+
+	local description = AceGUI:Create("Label")
+	description:SetText("Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below.")
+	description.width = "fill"
 
 	add = AceGUI:Create("EditBox")
 	add:SetLabel("Add")
@@ -219,8 +219,10 @@ function module:CreateFrame()
 		add:SetText()
 		delete:SetList(factionDb.promotes)
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
+		promote()
 	end)
 	add:SetDisabled(factionDb.promoteAll)
+	add.width = "fill"
 
 	delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
@@ -233,12 +235,15 @@ function module:CreateFrame()
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end)
 	delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
+	delete.width = "fill"
 
-	--f:AddChild(massHeader)
+	f:AddChild(massHeader)
 	f:AddChild(everyone)
 	f:AddChild(guild)
 	f:AddChild(ranks)
-	--f:AddChild(individualHeader)
+	f:AddChild(spacer)
+	f:AddChild(individualHeader)
+	f:AddChild(description)
 	f:AddChild(add)
 	f:AddChild(delete)
 
