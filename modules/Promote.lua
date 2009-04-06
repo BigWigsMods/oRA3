@@ -4,9 +4,6 @@ local module = oRA:NewModule("Promote", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
-local guildMemberList = {}
-local guildRanks = {}
-
 local frame = nil
 -- Widgets (in order of appearance)
 local everyone, guild, ranks, add, delete
@@ -37,7 +34,7 @@ function module:OnRegister()
 	})
 	factionDb = database.factionrealm
 	charDb = database.char
-	
+
 	self:CreateFrame()
 	
 	oRA:RegisterOverview(
@@ -48,12 +45,13 @@ function module:OnRegister()
 	)
 end
 
-local promote
+local queuePromotes
 do
 	local function shouldPromote(name)
+		local gML = oRA:GetGuildMembers()
 		if factionDb.promoteAll then return true
-		elseif factionDb.promoteGuild and guildMemberList[name] then return true
-		elseif guildMemberList[name] and charDb.promoteRank[guildMemberList[name]] then return true
+		elseif factionDb.promoteGuild and gML[name] then return true
+		elseif gML[name] and charDb.promoteRank[gML[name]] then return true
 		elseif factionDb.promotes[name] then return true
 		end
 	end
@@ -64,75 +62,49 @@ do
 	local promotes = {}
 	local function onUpdate(self, elapsed)
 		total = total + elapsed
-		if total > 1 and next(promotes) then
+		if total < 2 then return end
+		if next(promotes) then
 			for k in pairs(promotes) do
 				PromoteToAssistant(k)
 				promotes[k] = nil
 			end
 			firedPromotes = true
 			total = 0
-		elseif total > 2 and firedPromotes then
-			self:RegisterEvent("RAID_ROSTER_UPDATE")
+		elseif firedPromotes then
 			firedPromotes = nil
 			total = 0
 			self:SetScript("OnUpdate", nil)
-		elseif total > 3 then
-			promote()
 		end
 	end
-	function promote()
+	function queuePromotes()
+		if oRA.groupStatus ~= oRA.INRAID then return end
 		for i = 1, GetNumRaidMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then
 				promotes[n] = true
 			end
 		end
-		total = 0
 		if next(promotes) then
-			f:UnregisterEvent("RAID_ROSTER_UPDATE")
 			f:SetScript("OnUpdate", onUpdate)
-		else
-			f:SetScript("OnUpdate", nil)
 		end
 	end
-	f:SetScript("OnEvent", function(self)
-		if total == 0 then
-			self:SetScript("OnUpdate", onUpdate)
-		else
-			total = 0
+	function module:OnGroupChanged(event, status, members)
+		if #members > 0 and total == 0 then
+			queuePromotes()
 		end
-	end)
+	end
 
 	function module:OnEnable()
-		self:RegisterEvent("GUILD_ROSTER_UPDATE")
-		f:RegisterEvent("RAID_ROSTER_UPDATE")
-
-		if IsInGuild() then GuildRoster() end
-	end
-	
-	function module:OnDisable()
-		f:UnregisterEvent("RAID_ROSTER_UPDATE")
+		oRA.RegisterCallback(self, "OnGroupChanged")
+		oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 	end
 end
 
-
-function module:GUILD_ROSTER_UPDATE()
-	wipe(guildRanks)
-	for i = 1, GuildControlGetNumRanks() do
-		table.insert(guildRanks, GuildControlGetRankName(i))
-	end
-	ranks:SetList(guildRanks)
-	for i, v in ipairs(guildRanks) do
+function module:OnGuildRanksUpdate(event, r)
+	ranks:SetList(r)
+	for i, v in ipairs(r) do
 		ranks:SetItemValue(i, charDb.promoteRank[i])
-	end
-
-	wipe(guildMemberList)
-	local numGuildMembers = GetNumGuildMembers()
-	for i = 1, numGuildMembers do
-		local name, rank, rankIndex = GetGuildRosterInfo(i)
-		if name then
-			guildMemberList[name] = rankIndex
-		end
 	end
 end
 
@@ -171,7 +143,7 @@ function module:CreateFrame()
 		add:SetDisabled(value)
 		delete:SetDisabled(value or #factionDb.promotes < 1)
 		factionDb.promoteAll = value and true or false
-		promote()
+		queuePromotes()
 	end)
 	everyone.oRATooltipText = "Promote everyone automatically."
 	everyone.width = "fill"
@@ -184,7 +156,7 @@ function module:CreateFrame()
 	guild:SetCallback("OnValueChanged", function(widget, event, value)
 		ranks:SetDisabled(value)
 		factionDb.promoteGuild = value and true or false
-		promote()
+		queuePromotes()
 	end)
 	guild.oRATooltipText = "Promote all guild members automatically."
 	guild:SetDisabled(factionDb.promoteAll)
@@ -193,10 +165,10 @@ function module:CreateFrame()
 	ranks = AceGUI:Create("Dropdown")
 	ranks:SetMultiselect(true)
 	ranks:SetLabel("By guild rank")
-	ranks:SetList(guildRanks)
+	ranks:SetList(oRA:GetGuildRanks())
 	ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
 		charDb.promoteRank[rankIndex] = value and true or nil
-		promote()
+		queuePromotes()
 	end)
 	ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
 	ranks.width = "fill"
@@ -219,7 +191,7 @@ function module:CreateFrame()
 		add:SetText()
 		delete:SetList(factionDb.promotes)
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
-		promote()
+		queuePromotes()
 	end)
 	add:SetDisabled(factionDb.promoteAll)
 	add.width = "fill"

@@ -13,11 +13,17 @@ addon:SetDefaultModuleState(false) -- all modules disabled by default
 
 -- Locals
 local playerName = UnitName("player")
+local guildMemberList = {} -- Name:RankIndex
+local guildRanks = {} -- Index:RankName
+local groupMembers = {} -- Index:Name
 
 -- couple of local constants used for party size
 local UNGROUPED = 0
 local INPARTY = 1
 local INRAID = 2
+addon.UNGROUPED = UNGROUPED
+addon.INPARTY = INPARTY
+addon.INRAID = INRAID
 addon.groupStatus = UNGROUPED -- flag indicating groupsize
 local groupStatus = addon.groupStatus -- local upvalue
 
@@ -55,38 +61,104 @@ function addon:OnInitialize()
 	self:RegisterOverview( L["Config"], [[Interface\Icons\INV_Inscription_MajorGlyph03]], openConfig, closeConfig )
 end
 
-
 function addon:OnEnable()
 	-- Comm register
 	self:RegisterComm("oRA3")
 	
-	-- Group Status Events
+	-- Roster Status Events
+	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
+	if IsInGuild() then GuildRoster() end
 end
 
 function addon:OnDisable()
 	self:Shutdown()
 end
 
--- keep track of group status
-function addon:RAID_ROSTER_UPDATE()
-	local oldStatus = groupStatus
-	if GetNumRaidMembers() > 0 then
-		groupStatus = INRAID
-	elseif GetNumPartyMembers() > 0 then
-		groupStatus = INPARTY
-	else
-		groupStatus = UNGROUPED
-		-- FIXME:  remove this override
-		groupStatus = INRAID
+do
+	local tmpRanks = {}
+	local tmpMembers = {}
+	local function isIndexedEqual(a, b)
+		if #a ~= #b then return false end
+		for i, v in ipairs(a) do
+			if v ~= b[i] then return false end
+		end
+		return true
 	end
-	if groupStatus == UNGROUPED and oldStatus > groupStatus then
-		self:Shutdown()
-	elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
-		self:Startup()
+	local function isKeyedEqual(a, b)
+		local aC, bC = 0, 0
+		for k in pairs(a) do aC = aC + 1 end
+		for k in pairs(b) do bC = bC + 1 end
+		if aC ~= bC then return false end
+		for k, v in pairs(a) do
+			if not b[k] or v ~= b[k] then return false end
+		end
+		return true
+	end
+	
+	function addon:GUILD_ROSTER_UPDATE()
+		wipe(tmpRanks)
+		wipe(tmpMembers)
+		for i = 1, GuildControlGetNumRanks() do
+			table.insert(tmpRanks, GuildControlGetRankName(i))
+		end
+		local numGuildMembers = GetNumGuildMembers()
+		for i = 1, numGuildMembers do
+			local name, _, rankIndex = GetGuildRosterInfo(i)
+			if name then tmpMembers[name] = rankIndex end
+		end
+		if not isIndexedEqual(tmpRanks, guildRanks) then
+			guildRanks = tmpRanks
+			self.callbacks:Fire("OnGuildRanksUpdate", guildRanks)
+		end
+		if not isKeyedEqual(tmpMembers, guildMemberList) then
+			guildMemberList = tmpMembers
+			self.callbacks:Fire("OnGuildMembersUpdate", guildMemberList)
+		end
+	end
+	function addon:GetGuildRanks() return guildRanks end
+	function addon:GetGuildMembers() return guildMemberList end
+	
+	local tmpGroup = {}
+	function addon:RAID_ROSTER_UPDATE()
+		local oldStatus = groupStatus
+		if GetNumRaidMembers() > 0 then
+			groupStatus = INRAID
+		elseif GetNumPartyMembers() > 0 then
+			groupStatus = INPARTY
+		else
+			groupStatus = UNGROUPED
+			-- FIXME:  remove this override
+			groupStatus = INRAID
+		end
+
+		addon.groupStatus = groupStatus
+
+		wipe(tmpGroup)
+		if groupStatus == INRAID then
+			for i = 1, GetNumRaidMembers() do
+				local n = GetRaidRosterInfo(i)
+				if n then table.insert(tmpGroup, n) end
+			end
+		elseif groupStatus == INPARTY then
+			table.insert(tmpGroup, playerName)
+			for i = 1, 4 do
+				local n = UnitName("party" .. i)
+				if n then table.insert(tmpGroup, n) end
+			end
+		end
+		if not isIndexedEqual(tmpGroup, groupMembers) then
+			groupMembers = tmpGroup
+			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
+		end
+		if groupStatus == UNGROUPED and oldStatus > groupStatus then
+			self:Shutdown()
+		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
+			self:Startup()
+		end
 	end
 end
 
@@ -147,7 +219,7 @@ end
 
 function addon:DispatchComm(sender, ok, commType, ...)
 	if ok and type(commType) == "string" then
-		self.callbacks:Fire( "OnComm"..commType, sender, ... )
+		self.callbacks:Fire("OnComm"..commType, sender, ...)
 	end
 end
 
