@@ -11,6 +11,11 @@ local frame = nil
 
 function module:OnRegister()
 	self:CreateFrame()
+	self.db = oRA.db:RegisterNamespace("Invite", {
+		global = {
+			keyword = nil,
+		},
+	})
 end
 
 function module:OnEnable()
@@ -68,13 +73,13 @@ local function onControlLeave() GameTooltip:Hide() end
 
 function module:CreateFrame()
 	if frame then return end
-
+--[[
 	local f = AceGUI:Create("Frame")
 	f:SetTitle("Invite")
 	--f:SetLayout("Flow")
 	f:SetWidth(340)
 	f:SetHeight(400)
-
+]]
 	frame = f
 end
 

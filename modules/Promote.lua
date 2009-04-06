@@ -10,52 +10,111 @@ local guildRanks = {}
 local frame = nil
 -- Widgets (in order of appearance)
 local everyone, guild, ranks, add, delete
-
-local individualPromotions = {
-	"Player #1",
-	"Player #2",
-	"Player #3",
-}
+local factionDb = nil
+local charDb = nil
 
 function module:OnRegister()
+	local database = oRA.db:RegisterNamespace("Promote", {
+		factionrealm = {
+			promotes = {},
+			promoteAll = nil,
+			promoteGuild = nil,
+		},
+		char = {
+			promoteRank = {},
+		},
+	})
+	factionDb = database.factionrealm
+	charDb = database.char
+	
 	self:CreateFrame()
 end
 
-function module:OnEnable()
-	frame:Show()
-	self:RegisterEvent("GUILD_ROSTER_UPDATE")
-	--self:RegisterEvent("RAID_ROSTER_UPDATE", "CheckPromotes")
+do
+	local function shouldPromote(name)
+		if factionDb.promoteAll then return true
+		elseif factionDb.promoteGuild and guildMemberList[name] then return true
+		elseif guildMemberList[name] and charDb.promoteRank[guildMemberList[name]] then return true
+		elseif factionDb.promotes[name] then return true
+		end
+	end
 
-	if IsInGuild() then GuildRoster() end
+	local f = CreateFrame("Frame")
+	local total = 0
+	local firedPromotes = nil
+	local promotes = {}
+	local function onUpdate(self, elapsed)
+		total = total + elapsed
+		if total > 1 and next(promotes) then
+			for k in pairs(promotes) do
+				PromoteToAssistant(k)
+				promotes[k] = nil
+			end
+			firedPromotes = true
+			total = 0
+		elseif total > 2 and firedPromotes then
+			self:RegisterEvent("RAID_ROSTER_UPDATE")
+			total = 0
+			self:SetScript("OnUpdate", nil)
+		elseif total > 3 then
+			for i = 1, GetNumRaidMembers() do
+				local n, r = GetRaidRosterInfo(i)
+				if n and r == 0 and shouldPromote(n) then
+					promotes[n] = true
+				end
+			end
+			total = 0
+			if next(promotes) then
+				self:UnregisterEvent("RAID_ROSTER_UPDATE")
+			else
+				self:SetScript("OnUpdate", nil)
+			end
+		end
+	end
+	f:SetScript("OnEvent", function(self)
+		if total == 0 then
+			self:SetScript("OnUpdate", onUpdate)
+		else
+			total = 0
+		end
+	end)
+
+	function module:OnEnable()
+		self:RegisterEvent("GUILD_ROSTER_UPDATE")
+		f:RegisterEvent("RAID_ROSTER_UPDATE")
+
+		if IsInGuild() then GuildRoster() end
+	end
+	
+	function module:OnDisable()
+		f:UnregisterEvent("RAID_ROSTER_UPDATE")
+	end
 end
 
-function module:OnDisable()
-
-end
 
 function module:GUILD_ROSTER_UPDATE()
-	for k in pairs(guildRanks) do guildRanks[k] = nil end
+	wipe(guildRanks)
 	for i = 1, GuildControlGetNumRanks() do
 		table.insert(guildRanks, GuildControlGetRankName(i))
 	end
 	ranks:SetList(guildRanks)
 	for i, v in ipairs(guildRanks) do
-		ranks:SetItemValue(i, true)
+		ranks:SetItemValue(i, charDb.promoteRank[i])
 	end
-	
-	for k, v in pairs(guildMemberList) do guildMemberList[k] = nil end
+
+	wipe(guildMemberList)
 	local numGuildMembers = GetNumGuildMembers()
 	for i = 1, numGuildMembers do
-		local name = GetGuildRosterInfo(i)
+		local name, rank, rankIndex = GetGuildRosterInfo(i)
 		if name then
-			guildMemberList[name] = true
+			guildMemberList[name] = rankIndex
 		end
 	end
 end
 
 --[[---------------------------------
 
-   ---- Mass promotion       ----
+   --- Mass promotion         ---
 
    [ ] Everyone
    [ ] Guild
@@ -63,7 +122,7 @@ end
    By guild rank
    [ Guild Master    V ]
    
-   ---- Personal promotions  ----
+   --- Individual promotions  ---
    
    Add
    [                   ]
@@ -95,56 +154,67 @@ function module:CreateFrame()
 	massHeader:SetText("Mass promotion")]]
 
 	everyone = AceGUI:Create("CheckBox")
+	everyone:SetValue(factionDb.promoteAll)
 	everyone:SetLabel("Everyone")
 	everyone:SetCallback("OnEnter", onControlEnter)
 	everyone:SetCallback("OnLeave", onControlLeave)
 	everyone:SetCallback("OnValueChanged", function(widget, event, value)
 		guild:SetDisabled(value)
-		ranks:SetDisabled(value)
+		ranks:SetDisabled(value or factionDb.promoteGuild)
 		add:SetDisabled(value)
-		delete:SetDisabled(value)
+		delete:SetDisabled(value or #factionDb.promotes < 1)
+		factionDb.promoteAll = value and true or false
 	end)
 	everyone.oRATooltipText = "Promote everyone automatically."
 
 	guild = AceGUI:Create("CheckBox")
+	guild:SetValue(factionDb.promoteGuild)
 	guild:SetLabel("Guild")
 	guild:SetCallback("OnEnter", onControlEnter)
 	guild:SetCallback("OnLeave", onControlLeave)
 	guild:SetCallback("OnValueChanged", function(widget, event, value)
 		ranks:SetDisabled(value)
+		factionDb.promoteGuild = value and true or false
 	end)
 	guild.oRATooltipText = "Promote all guild members automatically."
+	guild:SetDisabled(factionDb.promoteAll)
 
 	ranks = AceGUI:Create("Dropdown")
 	ranks:SetMultiselect(true)
 	ranks:SetLabel("By guild rank")
 	ranks:SetList(guildRanks)
-	ranks:SetCallback("OnValueChanged", function(widget,event,...)
-		AceLibrary("AceConsole-2.0"):PrintLiteral(...)
+	ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
+		charDb.promoteRank[rankIndex] = value and true or nil
 	end)
+	ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
 
 --[[	local individualHeader = AceGUI:Create("Heading")
 	individualHeader:SetText("Individual promotions")]]
 
 	add = AceGUI:Create("EditBox")
 	add:SetLabel("Add")
+	add:SetText()
 	add:SetCallback("OnEnterPressed", function(widget, event, value)
 		if type(value) ~= "string" or value:trim():len() < 3 then return true end
-		if util:inTable(individualPromotions, value) then return true end
-		table.insert(individualPromotions, value)
+		if util:inTable(factionDb.promotes, value) then return true end
+		table.insert(factionDb.promotes, value)
 		add:SetText()
-		delete:SetList(individualPromotions)
+		delete:SetList(factionDb.promotes)
+		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end)
+	add:SetDisabled(factionDb.promoteAll)
 
 	delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
 	delete:SetLabel("Remove")
-	delete:SetList(individualPromotions)
+	delete:SetList(factionDb.promotes)
 	delete:SetCallback("OnValueChanged", function(_, _, value)
-		table.remove(individualPromotions, value)
-		delete:SetList(individualPromotions)
+		table.remove(factionDb.promotes, value)
+		delete:SetList(factionDb.promotes)
 		delete:SetValue("")
+		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end)
+	delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 
 	--f:AddChild(massHeader)
 	f:AddChild(everyone)
