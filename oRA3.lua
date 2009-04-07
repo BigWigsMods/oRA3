@@ -30,9 +30,10 @@ local groupStatus = addon.groupStatus -- local upvalue
 -- overview drek
 local openedOverview = nil -- name of the current overview
 local contentFrame = nil -- content frame for the views
-local lastTab = nil -- last tab in the list
+local lastTab = 0 -- last tab in the list
 local scrollheaders = {} -- scrollheader frames
 local sortIndex -- current index (scrollheader) being sorted
+local selectedTab = 1
 
 addon.overviews = {}
 
@@ -45,20 +46,13 @@ local defaults = {
 	}
 }
 
-local function openConfig()
-end
-
-local function closeConfig()
-end
-
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
 	db = self.db.profile
 	
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
-	
-	self:RegisterOverview( L["Config"], [[Interface\Icons\INV_Inscription_MajorGlyph03]], openConfig, closeConfig )
+
 end
 
 function addon:OnEnable()
@@ -480,11 +474,11 @@ function addon:SetupGUI()
 
 	local subframe = CreateFrame("Frame", "oRA3FrameSub", oRA3Frame)
 	subframe:SetPoint("TOPLEFT", 50, 0)
-	subframe:SetPoint("BOTTOMRIGHT", 0, 0)
+	subframe:SetPoint("BOTTOMRIGHT", 0, 4)
 	subframe:SetAlpha(0)
 
 	contentFrame = subframe
-	contentFrame.tabs = {} -- setup the tab listing
+	contentFrame.oRAtabs = {} -- setup the tab listing
 	self:SetupOverviews() -- fill the tab listing
 
 	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
@@ -550,6 +544,8 @@ function addon:SetupGUI()
 		end
 	end
 
+	oRA3Frame:SetScript("OnShow", function() addon:UpdateGUI() end )
+	
 	oRA3Frame.resizebg = resizebg
 
 	resize:SetScript("OnMouseDown", function(frame)
@@ -757,7 +753,10 @@ end
 
 function addon:UpdateGUI( name )
 	self:SetupGUI()
-	if not openedOverview then openedOverview = L["Config"] end
+	if not openedOverview then
+		openedOverview = self.overviews[1].name
+		self:Print("omg first overview")
+	end
 	if not oRA3Frame:IsVisible() or (name and openedOverview ~= name) then return end
 	-- update the overviews
 	self:SelectOverview(openedOverview)
@@ -794,8 +793,8 @@ function addon:RegisterOverview(name, icon, refresh, hide, ...)
 end
 
 function addon:UnregisterOverview(name)
-	if contentFrame and contentFrame.tabs[name] then
-		contentFrame.tabs[name]:Hide()
+	if contentFrame and contentFrame.oRAtabs[name] then
+		contentFrame.oRAtabs[name]:Hide()
 		if openedOverview == name then
 			openedOverview = nil
 			self:UpdateGUI()
@@ -813,63 +812,51 @@ local function selectOverview(self)
 	addon:SelectOverview(self.tabName)
 end
 
-local function tabOnEnter(self)
-	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-	GameTooltip:SetText(self.tabName)
-	GameTooltip:Show()
-end
-
-local function tabOnLeave(self)
-	GameTooltip:Hide()
-end
-
 function addon:SetupOverview(name)
 	if not contentFrame then return end
 
-	if not contentFrame.tabs[name] then
+	if not contentFrame.oRAtabs[name] then
 		local overview = self.overviews[name]
-		-- create a tab
-		-- FIXME: improve the looks
-		local f = CreateFrame("Button", "oRA3Tab"..tostring(lastTab and lastTab+1 or 0), contentFrame)
+		lastTab = lastTab + 1
+		local f = CreateFrame("Button", "oRA3FrameSubTab"..lastTab, contentFrame, "CharacterFrameTabButtonTemplate")
 		f:ClearAllPoints()
-		if lastTab then
-			f:SetPoint("TOPLEFT", _G["oRA3Tab"..lastTab], "TOPRIGHT", 5, 0)
-			lastTab = lastTab + 1
+		if lastTab > 1 then
+			f:SetPoint("TOPLEFT", _G["oRA3FrameSubTab"..(lastTab-1)], "TOPRIGHT", -16, 0)
 		else
-			lastTab = 0
-			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT")
+			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", -16, -2)
 		end
-		f:SetWidth(24)
-		f:SetHeight(24)
-		f.icon = f:CreateTexture( nil, "OVERLAY")
-		f.icon:SetAllPoints( f )
-		f.icon:SetTexture( overview.icon )
 		f.tabName = name
-		
+		f:SetText(name)
 		f:SetScript( "onClick", selectOverview )
-		f:SetScript( "onEnter", tabOnEnter )
-		f:SetScript( "onLeave", tabOnLeave )
 		
-		contentFrame.tabs[name] = f
-		
+		contentFrame.oRAtabs[name] = f
+		if not contentFrame.selectedTab then
+			contentFrame.selectedTab = 1
+		end
+		PanelTemplates_SetNumTabs(contentFrame, lastTab)
+		PanelTemplates_UpdateTabs(contentFrame)
 		local col = overview.cols
 		while( col and #col > #scrollheaders ) do
 			self:CreateScrollHeader()
 		end
 	end
-	contentFrame.tabs[name]:Show()
+	contentFrame.oRAtabs[name]:Show()
 end
 
 function addon:SelectOverview(name)
 	if not contentFrame then return end
-	if not name then name = L["Config"] end
+	if not name then name = self.overviews[1].name end
 	local overview = self.overviews[name]
 	if not overview then return end -- should not happen?
 	openedOverview = name
-
+	
+	selectedTab = 1
 	for k, v in ipairs(self.overviews) do
 		if v.name ~= name and type(v.hide) == "function" then
 			v.hide()
+		end
+		if v.name == name then
+			selectedTab = k
 		end
 	end
 	
@@ -896,7 +883,8 @@ function addon:SelectOverview(name)
 			scrollheaders[k]:Show()
 		end
 	end
-	
+	contentFrame.selectedTab = selectedTab
+	PanelTemplates_UpdateTabs(contentFrame)
 end
 
 function util:inTable(t, value)
