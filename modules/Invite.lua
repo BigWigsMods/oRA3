@@ -6,6 +6,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 local frame = nil
 local db = nil
+local peopleToInvite = {}
 
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
@@ -34,6 +35,147 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
+end
+
+local doActualInvites = nil
+local actualInviteFrame = CreateFrame("Frame")
+local aiTotal = 0
+local function aiOnUpdate(self, elapsed)
+	aiTotal = aiTotal + elapsed
+	if aiTotal > 2 then
+		doActualInvites()
+		aiTotal = 0
+		self:SetScript("OnUpdate", nil)
+	end
+end
+
+local function partyMembersChanged()
+	if #peopleToInvite > 0 then
+		module:UnregisterEvent("PARTY_MEMBERS_CHANGED")
+		ConvertToRaid()
+		actualInviteFrame:SetScript("OnUpdate", aiOnUpdate)
+	end
+end
+
+function doActualInvites()
+	if not UnitInRaid("player") then
+		local pNum = GetNumPartyMembers() + 1 -- 1-5
+		if pNum == 5 then
+			if #peopleToInvite > 0 then
+				ConvertToRaid()
+				actualInviteFrame:SetScript("OnUpdate", aiOnUpdate)
+			end
+		else
+			local tmp = {}
+			for i = 1, (5 - pNum) do
+				local u = table.remove(peopleToInvite)
+				if u then tmp[u] = true end
+			end
+			if #peopleToInvite > 0 then
+				module:RegisterEvent("PARTY_MEMBERS_CHANGED", partyMembersChanged)
+			end
+			for k in pairs(tmp) do
+				InviteUnit(k)
+			end
+		end
+		return
+	end
+	for i, v in ipairs(peopleToInvite) do
+		InviteUnit(v)
+	end
+	for k in pairs(peopleToInvite) do
+		peopleToInvite[k] = nil
+	end
+end
+
+local function doGuildInvites(level, zone, rank)
+	for i = 1, GetNumGuildMembers() do
+		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
+		if name and online and not UnitInParty(name) and not UnitInRaid(name) then
+			if level and level <= unitLevel then
+				table.insert(peopleToInvite, name)
+			elseif zone and zone == unitZone then
+				table.insert(peopleToInvite, name)
+			-- See the wowwiki docs for GetGuildRosterInfo, need to add +1 to the rank index
+			elseif rank and (rankIndex + 1) <= rank then
+				table.insert(peopleToInvite, name)
+			end
+		end
+	end
+	doActualInvites()
+end
+
+local inviteFrame = CreateFrame("Frame")
+local total = 0
+local function onUpdate(self, elapsed)
+	total = total + elapsed
+	if total > 10 then
+		doGuildInvites(self.level, self.zone, self.rank)
+		self:SetScript("OnUpdate", nil)
+		total = 0
+	end
+end
+
+function module:OnEnable()
+	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+
+	self:RegisterEvent("CHAT_MSG_WHISPER")
+end
+
+local function chat(msg, channel)
+	SendChatMessage(msg, channel)
+	--print(msg .. "#" .. channel)
+end
+
+function module:InviteGuild(level)
+	chat(("All max level characters will be invited to raid in 10 seconds. Please leave your groups."):format(MAX_PLAYER_LEVEL), "GUILD")
+	inviteFrame.level = MAX_PLAYER_LEVEL
+	inviteFrame.zone = nil
+	inviteFrame.rank = nil
+	inviteFrame:SetScript("OnUpdate", onUpdate)
+end
+
+function module:InviteZone()
+	local currentZone = GetRealZoneText()
+	chat(("All characters in %s will be invited to raid in 10 seconds. Please leave your groups."):format(currentZone), "GUILD")
+	inviteFrame.level = nil
+	inviteFrame.zone = currentZone
+	inviteFrame.rank = nil
+	inviteFrame:SetScript("OnUpdate", onUpdate)
+end
+
+function module:InviteRank(rank, name)
+	GuildControlSetRank(rank)
+	local _, _, ochat = GuildControlGetRankFlags()
+	local channel = ochat and "OFFICER" or "GUILD"
+	chat(("All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."):format(name), channel)
+	inviteFrame.level = nil
+	inviteFrame.zone = nil
+	inviteFrame.rank = rank
+	inviteFrame:SetScript("OnUpdate", onUpdate)
+end
+
+function module:CHAT_MSG_WHISPER(event, msg, author)
+	if db.keyword and msg == db.keyword then
+		local isIn, instanceType = IsInInstance()
+		local party = GetNumPartyMembers()
+		local raid = GetNumRaidMembers()
+		local diff = GetDungeonDifficulty()
+		if isIn and instanceType == "party" and party == 4 then
+			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
+		--[[elseif isIn and instanceType == "raid" and diff == 1 and raid == 10 then
+			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
+		elseif isIn and instanceType == "raid" and diff == 2 and raid == 25 then
+			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)]]
+		elseif party == 4 and raid == 0 then
+			table.insert(peopleToInvite, author)
+			doActualInvites()
+		elseif raid == 40 then
+			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
+		else
+			InviteUnit(author)
+		end
+	end
 end
 
 local function onControlEnter(widget, event, value)
@@ -66,16 +208,11 @@ local function updateRankButtons()
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
 		button:SetCallback("OnClick", function()
-			-- inviteRank(i)
+			module:InviteRank(i, ranks[i])
 		end)
 		button:SetWidth(w)
-		--button:SetFullWidth(true)
 		frame:AddChild(button)
 	end
-end
-
-function module:OnEnable()
-	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 end
 
 function module:OnGuildRanksUpdate(event, ranks)
@@ -95,8 +232,9 @@ function module:CreateFrame()
 	keyword:SetLabel("Keyword")
 	keyword:SetText(db.keyword)
 	keyword:SetCallback("OnEnterPressed", function(widget, event, value)
-		if type(value) ~= "string" or value:trim():len() < 2 then return true end
+		if type(value) == "string" and value:trim():len() < 2 then value = nil end
 		db.keyword = value
+		keyword:SetText(value)
 	end)
 	keyword:SetFullWidth(true)
 	
@@ -111,7 +249,7 @@ function module:CreateFrame()
 	guild:SetCallback("OnEnter", onControlEnter)
 	guild:SetCallback("OnLeave", onControlLeave)
 	guild:SetCallback("OnClick", function()
-	
+		module:InviteGuild()
 	end)
 	guild:SetFullWidth(true)
 	
@@ -121,7 +259,7 @@ function module:CreateFrame()
 	zone:SetCallback("OnEnter", onControlEnter)
 	zone:SetCallback("OnLeave", onControlLeave)
 	zone:SetCallback("OnClick", function()
-	
+		module:InviteZone()
 	end)
 	zone:SetFullWidth(true)
 	
