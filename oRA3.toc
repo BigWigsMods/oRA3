@@ -7,7 +7,7 @@
 
 ## SavedVariables: oRA3DB
 
-## OptionalDeps: Ace3, LibResComm-1.0
+## OptionalDeps: Ace3, LibResComm-1.0, LibBabble-Class-3.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: true

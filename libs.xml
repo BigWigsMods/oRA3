@@ -13,4 +13,5 @@
 	<Include file="libs\AceConfig-3.0\AceConfig-3.0.xml"/>
 	<Include file="libs\AceDB-3.0\AceDB-3.0.xml"/>
 	<Include file="libs\LibResComm-1.0\lib.xml"/>
+	<Include file="libs\LibBabble-Class-3.0\lib.xml"/>
 </Ui>
