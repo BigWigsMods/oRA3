@@ -188,13 +188,16 @@ end
 local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
-	for i = 1, #frame.children do
+	local i = 1
+	while (i <= #frame.children) do
 		local widget = frame.children[i]
 		if widget.oRAGuildRank then
 			table.remove(frame.children, i)
 			widget.oRAGuildRank = nil
 			widget.oRATooltipText = nil
 			widget:Release()
+		else -- only increase i if we didn't delete an entry
+			i = i + 1
 		end
 	end
 	local ranks = oRA:GetGuildRanks()
@@ -283,4 +286,4 @@ function module:CreateFrame()
 	updateRankButtons()
 end
 
-
+_G.updateRankButtons = updateRankButtons
