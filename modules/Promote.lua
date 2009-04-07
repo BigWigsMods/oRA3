@@ -12,8 +12,8 @@ local charDb = nil
 
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
-	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", -28, -58)
-	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -12, 0)
+	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
+	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
 	frame.frame:Show()
 end
 
@@ -120,9 +120,9 @@ local function onControlLeave() GameTooltip:Hide() end
 function module:CreateFrame()
 	if frame then return end
 
-	local f = AceGUI:Create("SimpleGroup")
-	f:SetWidth(340)
-	f:SetHeight(400)
+	local f = AceGUI:Create("ScrollFrame")
+	--f:SetWidth(340)
+	--f:SetHeight(400)
 
 	local spacer = AceGUI:Create("Label")
 	spacer:SetText(" ")

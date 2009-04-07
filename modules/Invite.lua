@@ -10,8 +10,8 @@ local peopleToInvite = {}
 
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
-	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", -28, -58)
-	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -12, 0)
+	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
+	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
 	frame.frame:Show()
 end
 
@@ -210,7 +210,10 @@ local function updateRankButtons()
 		button:SetCallback("OnClick", function()
 			module:InviteRank(i, ranks[i])
 		end)
-		button:SetWidth(w)
+		-- FIXME: Why does this not work with a scrollframe?
+		-- I need the scrollframe, 10 guildranks don't fit in the screen :)
+		-- -Ammo
+		-- button:SetWidth(w)
 		frame:AddChild(button)
 	end
 end
@@ -222,10 +225,10 @@ end
 function module:CreateFrame()
 	if frame then return end
 
-	local f = AceGUI:Create("SimpleGroup")
+	local f = AceGUI:Create("ScrollFrame")
 	f:SetLayout("Flow")
-	f:SetWidth(340)
-	f:SetHeight(400)
+	--f:SetWidth(340)
+	--f:SetHeight(400)
 	frame = f
 
 	local keyword = AceGUI:Create("EditBox")
