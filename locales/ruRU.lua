@@ -1,4 +1,5 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("oRA3", "ruRU")
+if not L then return end
 
 -- Generic
 L["Name"] = "Имя"

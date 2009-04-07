@@ -11,40 +11,64 @@ local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
 local spells = {
 	DRUID = {
-		rebirth = { GetSpellInfo(26994), 1200 },
-		innervate = { GetSpellInfo(29166), 360 },
+		[26994] = 1200, -- Rebirth
+		[29166] = 360, -- Innervate
+		[17116] = 180, -- Nature's Swiftness
+		[5209] = 180, -- Challenging Roar
 	},
 	HUNTER = {
-		misdirect = { GetSpellInfo(34477), 30 },
-		fd = { GetSpellInfo(5384), 30 },
+		[34477] = 30, -- Misdirect
+		[5384] = 30, -- Feign Death
 	},
 	MAGE = {
-		iceblock = { GetSpellInfo(45438), 300 },
+		[45438] = 300, -- Iceblock
+		[2139] = 24, -- Counterspell
 	},
 	PALADIN = {
-		di = { GetSpellInfo(19752), 1200 },
+		[19752] = 1200, -- Divine Intervention
+		[642] = 300, -- Divine Shield
+		[10278] = 300, -- Hand of Protection
+		[6940] = 120, -- Hand of Sacrifice
+		[498] = 300, -- Divine Protection
+		[633] = 1200, -- Lay on Hands
 	},
 	PRIEST = {
-		pain = { GetSpellInfo(33206), 180 },
-		guardian = { GetSpellInfo(47788), 180 },
-		fw = { GetSpellInfo(6346), 180 },
+		[33206] = 180, -- Pain Suppression
+		[47788] = 180, -- Guardian Spirit
+		[6346] = 180, -- Fear Ward
 	},
 	ROGUE = {
-		distract = { GetSpellInfo(1725), 30 },
+		[31224] = 90, -- Cloak of Shadows
+		[38768] = 10, -- Kick
+		[1725] = 30, -- Distract
 	},
 	SHAMAN = {
-		bl = { GetSpellInfo(bloodlustId), 600 },
-		reinc = { GetSpellInfo(20608), 3600 },
-		manatide = { GetSpellInfo(16190), 300 },
+		[bloodlustId] = 600, -- Bloodlust/Heroism
+		[20608] = 3600, -- Reincarnation
+		[16190] = 300, -- Mana Tide Totem
+		[2894] = 1200, -- Fire Elemental Totem
+		[2062] = 1200, -- Earth Elemental Totem
+		[16188] = 180, -- Nature's Swiftness
 	},
 	WARLOCK = {
-		soulstone = { GetSpellInfo(27239), 1800 },
-		shatter = { GetSpellInfo(29858), 300 },
+		[27239] = 1800, -- Soulstone Resurrection
+		[29858] = 300, -- Soulshatter
 	},
 	WARRIOR = {
-		shieldwall = { GetSpellInfo(871), 300 },
-		laststand = { GetSpellInfo(12975), 300 },
+		[871] = 300, -- Shield Wall
+		[12975] = 300, -- Last Stand
+		[6554] = 10, -- Pummel
+		[1161] = 180, -- Challenging Shout
 	},
+	--[[DEATHKNIGHT = {
+		[] = x, -- Army of the Dead
+		[] = x, -- Raise Ally
+		[] = x, -- Dancing Rune Weapon
+		[] = x, -- Summon Gargoyle
+		[] = x, -- Strangulate
+		[] = x, -- Death Grip
+		[] = x, -- Unbreakable Armor
+	},]]
 }
 
 local classes = {}
@@ -70,10 +94,10 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				rebirth = true,
-				di = true,
-				reinc = true,
-				soulstone = true,
+				[26994] = true,
+				[19752] = true,
+				[20608] = true,
+				[27239] = true,
 			},
 		},
 	})
@@ -89,6 +113,7 @@ function module:OnRegister()
 	)
 end
 
+local tmp = {}
 function module:CreateFrame()
 	if frame then return end
 
@@ -111,11 +136,17 @@ function module:CreateFrame()
 	group:SetGroupList(classes)
 	group:SetCallback("OnGroupSelected", function(widget, event, class)
 		widget:ReleaseChildren()
-		for id, spellDetails in pairs(spells[class]) do
+		wipe(tmp)
+		for id in pairs(spells[class]) do
+			table.insert(tmp, id)
+		end
+		table.sort(tmp)
+		for i, v in ipairs(tmp) do
+			local name = GetSpellInfo(v)
 			local checkbox = AceGUI:Create("CheckBox")
-			checkbox:SetLabel(spellDetails[1])
-			checkbox:SetValue(db.spells[id])
-			checkbox.oRACooldownID = id
+			checkbox:SetLabel(name)
+			checkbox:SetValue(v)
+			checkbox.oRACooldownID = v
 			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
 			checkbox:SetFullWidth(true)
 			widget:AddChild(checkbox)
