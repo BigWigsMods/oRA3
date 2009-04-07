@@ -17,6 +17,7 @@ libs.xml
 #@end-no-lib-strip@
 
 locales\enUS.lua
+locales\ruRU.lua
 
 oRA3.lua
 modulePrototype.lua
