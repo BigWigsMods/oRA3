@@ -8,8 +8,8 @@ local text = nil
 
 local f = CreateFrame("Frame")
 local function onUpdate(self, elapsed)
-	local n = UnitName("mouseover")
-	local is, resser = res:IsUnitBeingRessed("mouseover")
+	local n = UnitName(self.unit)
+	local is, resser = res:IsUnitBeingRessed(n)
 	if n and is then
 		local x, y = GetCursorPosition()
 		local scale = UIParent:GetEffectiveScale()
@@ -22,10 +22,29 @@ local function onUpdate(self, elapsed)
 	end
 end
 
+local function checkUnit(unit)
+	if not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") then return end
+	if not UnitIsDeadOrGhost(unit) or not UnitIsCorpse(unit) then return end
+	f:SetScript("OnUpdate", onUpdate)
+	f.unit = unit
+	return true
+end
+
 function module:OnRegister()
 	text = UIParent:CreateFontString("oRA3ResurrectionAlert", "OVERLAY", GameFontHighlightLarge)
 	text:SetFontObject(GameFontHighlightLarge)
 	text:SetTextColor(0.7, 0.7, 0.2, 0.8)
+	
+	GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip, ...)
+		local unit = select(2, tooltip:GetUnit())
+		if not unit then return end
+		local ret = checkUnit(unit)
+		if ret then
+			local n = UnitName(unit)
+			local is, resser = res:IsUnitBeingRessed(n)
+			tooltip:AddLine(textFormat:format(resser, n), 0.7, 0.7, 0.2, 1)
+		end
+	end)
 end
 
 function module:OnEnable()
@@ -33,9 +52,6 @@ function module:OnEnable()
 end
 
 function module:UPDATE_MOUSEOVER_UNIT()
-	if not UnitIsPlayer("mouseover") or not UnitIsFriend("mouseover", "player") then return end
-	--print("MOUSEOVER_UNIT")
-	if not UnitIsDeadOrGhost("mouseover") or not UnitIsCorpse("mouseover") then return end
-	f:SetScript("OnUpdate", onUpdate)
+	checkUnit("mouseover")
 end
 
