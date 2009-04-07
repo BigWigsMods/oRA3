@@ -495,7 +495,6 @@ function addon:SetupGUI()
 	
 	-- Scrolling body
 	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", contentFrame, "FauxScrollFrameTemplate")
-	sframe:SetParent(contentFrame)
 	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 4)
 	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -60)
 	contentFrame.scrollFrame = sframe

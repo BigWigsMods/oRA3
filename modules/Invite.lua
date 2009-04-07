@@ -199,7 +199,7 @@ local function updateRankButtons()
 		end
 	end
 	local ranks = oRA:GetGuildRanks()
-	local w = frame.frame:GetWidth() / 3
+	-- local w = frame.frame:GetWidth() / 3 -- this calculation doesn't work if the frame isn't parented to the ora3 content frame yet
 	for i = 1, #ranks do
 		local button = AceGUI:Create("Button")
 		button:SetText(rankButtonFormat:format(i, ranks[i]))
@@ -210,10 +210,9 @@ local function updateRankButtons()
 		button:SetCallback("OnClick", function()
 			module:InviteRank(i, ranks[i])
 		end)
-		-- FIXME: Why does this not work with a scrollframe?
-		-- I need the scrollframe, 10 guildranks don't fit in the screen :)
-		-- -Ammo
 		-- button:SetWidth(w)
+		-- set full width for now
+		button:SetFullWidth(true)
 		frame:AddChild(button)
 	end
 end
