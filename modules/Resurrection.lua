@@ -14,7 +14,7 @@ local function onUpdate(self, elapsed)
 		local x, y = GetCursorPosition()
 		local scale = UIParent:GetEffectiveScale()
 		text:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x / scale, y / scale)
-		text:SetText(textFormat:format(resser, n))
+		text:SetFormattedText(textFormat, resser, n)
 		text:Show()
 	else
 		self:SetScript("OnUpdate", nil)
