@@ -622,7 +622,7 @@ function addon:LockUnlockFrame()
 	end
 end
 
-function addon:SavePosition(name)
+function addon:SavePosition(name, nosize)
     local f = getglobal(name)
     local x,y = f:GetLeft(), f:GetTop()
     local s = f:GetEffectiveScale()
@@ -636,8 +636,10 @@ function addon:SavePosition(name)
 	end
     opt.PosX = x
     opt.PosY = y
-	opt.Width = f:GetWidth()
-	opt.Height = f:GetHeight()
+	if not nosize then
+		opt.Width = f:GetWidth()
+		opt.Height = f:GetHeight()
+	end
 end
 
 function addon:RestorePosition(name)
@@ -656,7 +658,7 @@ function addon:RestorePosition(name)
     if not x or not y then
         f:ClearAllPoints()
         f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-        return 
+        return false
     end
 
     x,y = x/s,y/s
@@ -673,8 +675,11 @@ function addon:RestorePosition(name)
 		f:SetHeight(opt.Height)
 	end
 
-	-- Resize the background
-	f.resizebg(f)
+	if type(f.resizebg) == "function" then
+		-- Resize the background
+		f.resizebg(f)
+	end
+	return true
 end
 
 function addon:AttachFrame()

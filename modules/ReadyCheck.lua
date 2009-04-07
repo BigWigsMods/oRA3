@@ -210,8 +210,10 @@ function module:SetupGUI()
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
 	table.insert(_G["UISpecialFrames"], "oRA3ReadyCheck") -- close on esc
 	
-	frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
-	frame:SetPoint("BOTTOMRIGHT", ReadyCheckFrame, "TOPRIGHT", -6, -10)	
+	if not oRA:RestorePosition("oRA3ReadyCheck") then
+		frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
+		frame:SetPoint("BOTTOMRIGHT", ReadyCheckFrame, "TOPRIGHT", -6, -10)
+	end
 	frame:SetHeight( 300 )
 
 	local topleft = frame:CreateTexture(nil, "BORDER")
@@ -258,7 +260,7 @@ function module:SetupGUI()
 	bg1:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
 	bg1:SetHeight(64)
 	bg1:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
-	bg1:SetPoint("TOPRIGHT", topright, "TOPRIGHT", -5, -4)	
+	bg1:SetPoint("TOPRIGHT", topright, "TOPRIGHT", -5, -4)
 
 
 	local bar = CreateFrame("Button", nil, frame )
@@ -271,7 +273,7 @@ function module:SetupGUI()
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
-	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)	
+	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 	
 	
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
@@ -305,6 +307,15 @@ function module:SetupGUI()
 					end
 				end
 		end )
+	frame:SetMovable(true)
+	frame:EnableMouse(true)
+	frame:SetClampedToScreen(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
+	frame:SetScript("OnDragStop", function(frame)
+		frame:StopMovingOrSizing()
+		oRA:SavePosition("oRA3ReadyCheck", true)
+	end)
 end
 
 
