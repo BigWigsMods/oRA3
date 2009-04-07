@@ -91,11 +91,19 @@ end
 local frame = nil
 local db = nil
 
+local bopModifier = 0
+local reincModifier = 0
 local trackedSpells = {}
 local function updateTrackedSpells()
 	wipe(trackedSpells)
 	for spell, class in pairs(db.spells) do
-		trackedSpells[GetSpellInfo(spell)] = spells[class][spell]
+		local cd = spells[class][spell]
+		if spell == 10278 then
+			cd = cd - bopModifier
+		elseif spell == 20608 then
+			cd = cd - reincModifier
+		end
+		trackedSpells[GetSpellInfo(spell)] = cd
 	end
 	AceLibrary("AceConsole-2.0"):PrintLiteral(trackedSpells)
 end
@@ -136,11 +144,41 @@ end
 
 function module:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:RegisterEvent("CHARACTER_POINTS_CHANGED")
+	if playerClass == "SHAMAN" then
+		local resTime = GetTime()
+		local ankhs = GetItemCount(17030)
+		self:RegisterEvent("PLAYER_ALIVE", function()
+			resTime = GetTime()
+		end)
+		self:RegisterEvent("BAG_UPDATE", function()
+			if (GetTime() - (resTime or 0)) > 1 then return end
+			local newankhs = GetItemCount(17030)
+			if newankhs == (ankhs - 1) then
+				local name = GetSpellInfo(20608)
+				oRA:SendComm("Cooldown", name, trackedSpells[name]) -- Spell name + CD in seconds
+			end
+			ankhs = newankhs
+		end)
+	end
 	
 	updateTrackedSpells()
 end
 
+function module:CHARACTER_POINTS_CHANGED()
+	if playerClass == "PALADIN" then
+		local _, _, _, _, rank = GetTalentInfo(2, 5)
+		bopModifier = rank * 60
+		updateTrackedSpells()
+	elseif playerClass == "SHAMAN" then
+		local _, _, _, _, rank = GetTalentInfo(3, 3)
+		reincModifier = rank * 600
+		updateTrackedSpells()
+	end
+end
+
 function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
+	if unit ~= "player" then return end
 	if trackedSpells[spell] then
 		oRA:SendComm("Cooldown", spell, trackedSpells[spell]) -- Spell name + CD in seconds
 	end
