@@ -3,7 +3,19 @@ local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
-local bc = LibStub("LibBabble-Class-3.0"):GetUnstrictLookupTable()
+
+local localizedClasses = {
+	WARLOCK = "Warlock",
+	WARRIOR = "Warrior",
+	HUNTER = "Hunter",
+	MAGE = "Mage",
+	PRIEST = "Priest",
+	DRUID = "Druid",
+	PALADIN = "Paladin",
+	SHAMAN = "Shaman",
+	ROGUE = "Rogue",
+	DEATHKNIGHT = "Death Knight",
+}
 
 local _, playerClass = UnitClass("player")
 
@@ -73,7 +85,7 @@ local spells = {
 
 local classes = {}
 for k in pairs(spells) do
-	classes[k] = bc[k]
+	classes[k] = localizedClasses[k]
 end
 
 local frame = nil
