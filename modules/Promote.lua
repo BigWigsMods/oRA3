@@ -13,7 +13,7 @@ local charDb = nil
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
 	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
-	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
+	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -8, 4)
 	frame.frame:Show()
 end
 

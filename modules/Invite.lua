@@ -199,7 +199,6 @@ local function updateRankButtons()
 		end
 	end
 	local ranks = oRA:GetGuildRanks()
-	-- local w = frame.frame:GetWidth() / 3 -- this calculation doesn't work if the frame isn't parented to the ora3 content frame yet
 	for i = 1, #ranks do
 		local button = AceGUI:Create("Button")
 		button:SetText(rankButtonFormat:format(i, ranks[i]))
@@ -210,9 +209,7 @@ local function updateRankButtons()
 		button:SetCallback("OnClick", function()
 			module:InviteRank(i, ranks[i])
 		end)
-		-- button:SetWidth(w)
-		-- set full width for now
-		button:SetFullWidth(true)
+		button:SetRelativeWidth(0.33)
 		frame:AddChild(button)
 	end
 end
@@ -226,8 +223,6 @@ function module:CreateFrame()
 
 	local f = AceGUI:Create("ScrollFrame")
 	f:SetLayout("Flow")
-	--f:SetWidth(340)
-	--f:SetHeight(400)
 	frame = f
 
 	local keyword = AceGUI:Create("EditBox")
@@ -253,6 +248,10 @@ function module:CreateFrame()
 	guild:SetCallback("OnClick", function()
 		module:InviteGuild()
 	end)
+	-- Default height is 24, per AceGUIWidget-Button.lua
+	-- FIXME: Jesus christ that looks crappy, buttons apparently only have 3 textures,
+	-- left, middle and right, so making it higher actually stretches the texture.
+	--guild:SetHeight(24 * 2)
 	guild:SetFullWidth(true)
 	
 	local zone = AceGUI:Create("Button")
