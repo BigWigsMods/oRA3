@@ -93,19 +93,26 @@ local db = nil
 
 local bopModifier = 0
 local reincModifier = 0
+
 local trackedSpells = {}
-local function updateTrackedSpells()
+local broadcastSpells = {}
+
+local function updateSpells()
+	wipe(broadcastSpells)
 	wipe(trackedSpells)
-	for spell, class in pairs(db.spells) do
-		local cd = spells[class][spell]
+	-- These are the spells we broadcast to the raid
+	for spell, cd in pairs(spells[playerClass]) do
 		if spell == 10278 then
 			cd = cd - bopModifier
 		elseif spell == 20608 then
 			cd = cd - reincModifier
 		end
-		trackedSpells[GetSpellInfo(spell)] = cd
+		broadcastSpells[GetSpellInfo(spell)] = cd
 	end
-	AceLibrary("AceConsole-2.0"):PrintLiteral(trackedSpells)
+	for spell in pairs(db.spells) do
+		trackedSpells[GetSpellInfo(spell)] = true
+	end
+	--AceLibrary("AceConsole-2.0"):PrintLiteral(trackedSpells)
 end
 
 local function showConfig()
@@ -123,10 +130,10 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[26994] = "DRUID",
-				[19752] = "PALADIN",
-				[20608] = "SHAMAN",
-				[27239] = "WARLOCK",
+				[26994] = true,
+				[19752] = true,
+				[20608] = true,
+				[27239] = true,
 			},
 		},
 	})
@@ -156,31 +163,38 @@ function module:OnEnable()
 			local newankhs = GetItemCount(17030)
 			if newankhs == (ankhs - 1) then
 				local name = GetSpellInfo(20608)
-				oRA:SendComm("Cooldown", name, trackedSpells[name]) -- Spell name + CD in seconds
+				oRA:SendComm("Cooldown", name, broadcastSpells[name]) -- Spell name + CD in seconds
 			end
 			ankhs = newankhs
 		end)
 	end
 	
-	updateTrackedSpells()
+	oRA.RegisterCallback(self, "OnCommCooldown")
+	
+	updateSpells()
+end
+
+function module:OnCommCooldown(commType, sender, spell, cd)
+	if not trackedSpells[spell] then return end
+	print("We should show a cooldown for " .. spell .. " (" .. tostring(cd) .. ")")
 end
 
 function module:CHARACTER_POINTS_CHANGED()
 	if playerClass == "PALADIN" then
 		local _, _, _, _, rank = GetTalentInfo(2, 5)
 		bopModifier = rank * 60
-		updateTrackedSpells()
+		updateSpells()
 	elseif playerClass == "SHAMAN" then
 		local _, _, _, _, rank = GetTalentInfo(3, 3)
 		reincModifier = rank * 600
-		updateTrackedSpells()
+		updateSpells()
 	end
 end
 
 function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	if unit ~= "player" then return end
-	if trackedSpells[spell] then
-		oRA:SendComm("Cooldown", spell, trackedSpells[spell]) -- Spell name + CD in seconds
+	if broadcastSpells[spell] then
+		oRA:SendComm("Cooldown", spell, broadcastSpells[spell]) -- Spell name + CD in seconds
 	end
 end
 
@@ -198,9 +212,9 @@ function module:CreateFrame()
 
 	local function spellCheckboxCallback(widget, event, value)
 		if not widget.oRACooldownID then return end
-		db.spells[widget.oRACooldownID] = value and widget.oRAClass or nil
+		db.spells[widget.oRACooldownID] = value and true or nil
 		widget:SetValue(value)
-		updateTrackedSpells()
+		updateSpells()
 	end
 
 	local group = AceGUI:Create("DropdownGroup")
@@ -219,7 +233,6 @@ function module:CreateFrame()
 			checkbox:SetLabel(name)
 			checkbox:SetValue(db.spells[v] and true or false)
 			checkbox.oRACooldownID = v
-			checkbox.oRAClass = class
 			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
 			checkbox:SetFullWidth(true)
 			widget:AddChild(checkbox)
