@@ -7,7 +7,7 @@
 
 ## SavedVariables: oRA3DB
 
-## OptionalDeps: Ace3
+## OptionalDeps: Ace3, LibResComm-1.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: true
@@ -26,4 +26,5 @@ modules\Durability.lua
 modules\Resistance.lua
 modules\Invite.lua
 modules\Promote.lua
+modules\Resurrection.lua
 
