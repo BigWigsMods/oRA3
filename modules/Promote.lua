@@ -180,7 +180,7 @@ function module:CreateFrame()
 	local description = AceGUI:Create("Label")
 	description:SetText("Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below.")
 	description:SetFullWidth(true)
-	description:SetFontObject(GameFontHighlight)
+	description.label:SetFontObject(GameFontHighlight)
 
 	add = AceGUI:Create("EditBox")
 	add:SetLabel("Add")
