@@ -34,7 +34,7 @@ function module:OnRegister()
 	text = UIParent:CreateFontString("oRA3ResurrectionAlert", "OVERLAY", GameFontHighlightLarge)
 	text:SetFontObject(GameFontHighlightLarge)
 	text:SetTextColor(0.7, 0.7, 0.2, 0.8)
-	
+
 	GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip, ...)
 		local unit = select(2, tooltip:GetUnit())
 		if not unit then return end

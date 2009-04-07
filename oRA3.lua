@@ -812,6 +812,19 @@ local function selectOverview(self)
 	addon:SelectOverview(self.tabName)
 end
 
+--[[local function clearBackground(f, ...)
+	for i = 1, select("#", ...) do
+		local o = select(i, ...)
+		if o and o:GetObjectType() == "Texture" and o:GetName():find("MiddleDisabled$") then
+			print("hiding " .. o:GetName())
+			o:Hide()
+			o.Show = function() end
+		end
+	end
+end]]
+
+local function tabOnShow(self) PanelTemplates_TabResize(self, 0) end
+
 function addon:SetupOverview(name)
 	if not contentFrame then return end
 
@@ -827,7 +840,9 @@ function addon:SetupOverview(name)
 		end
 		f.tabName = name
 		f:SetText(name)
-		f:SetScript( "onClick", selectOverview )
+		f:SetScript("OnClick", selectOverview)
+		f:SetScript("OnShow", tabOnShow)
+		--clearBackground(f, f:GetRegions())
 		
 		contentFrame.oRAtabs[name] = f
 		if not contentFrame.selectedTab then
