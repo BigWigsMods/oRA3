@@ -187,7 +187,6 @@ local function onControlEnter(widget, event, value)
 end
 local function onControlLeave() GameTooltip:Hide() end
 
-local rankButtonFormat = "%d. %s"
 local function updateRankButtons()
 	for i = 1, #frame.children do
 		local widget = frame.children[i]
@@ -200,14 +199,15 @@ local function updateRankButtons()
 	end
 	local ranks = oRA:GetGuildRanks()
 	for i = 1, #ranks do
+		local rankName = ranks[i]
 		local button = AceGUI:Create("Button")
-		button:SetText(rankButtonFormat:format(i, ranks[i]))
-		button.oRATooltipText = ("Invite all guild members of rank %s or higher."):format(ranks[i])
+		button:SetText(rankName)
+		button.oRATooltipText = ("Invite all guild members of rank %s or higher."):format(rankName)
 		button.oRAGuildRank = i
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
 		button:SetCallback("OnClick", function()
-			module:InviteRank(i, ranks[i])
+			module:InviteRank(i, rankName)
 		end)
 		button:SetRelativeWidth(0.33)
 		frame:AddChild(button)
