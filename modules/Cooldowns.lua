@@ -91,6 +91,15 @@ end
 local frame = nil
 local db = nil
 
+local trackedSpells = {}
+local function updateTrackedSpells()
+	wipe(trackedSpells)
+	for spell, class in pairs(db.spells) do
+		trackedSpells[GetSpellInfo(spell)] = spells[class][spell]
+	end
+	AceLibrary("AceConsole-2.0"):PrintLiteral(trackedSpells)
+end
+
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
 	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
@@ -106,10 +115,10 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[26994] = true,
-				[19752] = true,
-				[20608] = true,
-				[27239] = true,
+				[26994] = "DRUID",
+				[19752] = "PALADIN",
+				[20608] = "SHAMAN",
+				[27239] = "WARLOCK",
 			},
 		},
 	})
@@ -123,6 +132,18 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
+end
+
+function module:OnEnable()
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	
+	updateTrackedSpells()
+end
+
+function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
+	if trackedSpells[spell] then
+		oRA:SendComm("Cooldown", spell, trackedSpells[spell]) -- Spell name + CD in seconds
+	end
 end
 
 local tmp = {}
@@ -139,8 +160,9 @@ function module:CreateFrame()
 
 	local function spellCheckboxCallback(widget, event, value)
 		if not widget.oRACooldownID then return end
-		db.spells[widget.oRACooldownID] = value and true or nil
+		db.spells[widget.oRACooldownID] = value and widget.oRAClass or nil
 		widget:SetValue(value)
+		updateTrackedSpells()
 	end
 
 	local group = AceGUI:Create("DropdownGroup")
@@ -157,8 +179,9 @@ function module:CreateFrame()
 			local name = GetSpellInfo(v)
 			local checkbox = AceGUI:Create("CheckBox")
 			checkbox:SetLabel(name)
-			checkbox:SetValue(v)
+			checkbox:SetValue(db.spells[v] and true or false)
 			checkbox.oRACooldownID = v
+			checkbox.oRAClass = class
 			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
 			checkbox:SetFullWidth(true)
 			widget:AddChild(checkbox)
