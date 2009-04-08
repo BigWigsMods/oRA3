@@ -102,9 +102,11 @@ do
 end
 
 function module:OnGuildRanksUpdate(event, r)
-	ranks:SetList(r)
-	for i, v in ipairs(r) do
-		ranks:SetItemValue(i, charDb.promoteRank[i])
+	if ranks then
+		ranks:SetList(r)
+		for i, v in ipairs(r) do
+			ranks:SetItemValue(i, charDb.promoteRank[i])
+		end
 	end
 end
 
@@ -119,10 +121,7 @@ local function onControlLeave() GameTooltip:Hide() end
 
 function module:CreateFrame()
 	if frame then return end
-
-	local f = AceGUI:Create("ScrollFrame")
-	--f:SetWidth(340)
-	--f:SetHeight(400)
+	frame = AceGUI:Create("ScrollFrame")
 
 	local spacer = AceGUI:Create("Label")
 	spacer:SetText(" ")
@@ -148,30 +147,33 @@ function module:CreateFrame()
 	everyone.oRATooltipText = "Promote everyone automatically."
 	everyone:SetFullWidth(true)
 
-	guild = AceGUI:Create("CheckBox")
-	guild:SetValue(factionDb.promoteGuild)
-	guild:SetLabel("Guild")
-	guild:SetCallback("OnEnter", onControlEnter)
-	guild:SetCallback("OnLeave", onControlLeave)
-	guild:SetCallback("OnValueChanged", function(widget, event, value)
-		ranks:SetDisabled(value)
-		factionDb.promoteGuild = value and true or false
-		queuePromotes()
-	end)
-	guild.oRATooltipText = "Promote all guild members automatically."
-	guild:SetDisabled(factionDb.promoteAll)
-	guild:SetFullWidth(true)
+	local inGuild = IsInGuild()
+	if inGuild then
+		guild = AceGUI:Create("CheckBox")
+		guild:SetValue(factionDb.promoteGuild)
+		guild:SetLabel("Guild")
+		guild:SetCallback("OnEnter", onControlEnter)
+		guild:SetCallback("OnLeave", onControlLeave)
+		guild:SetCallback("OnValueChanged", function(widget, event, value)
+			ranks:SetDisabled(value)
+			factionDb.promoteGuild = value and true or false
+			queuePromotes()
+		end)
+		guild.oRATooltipText = "Promote all guild members automatically."
+		guild:SetDisabled(factionDb.promoteAll)
+		guild:SetFullWidth(true)
 
-	ranks = AceGUI:Create("Dropdown")
-	ranks:SetMultiselect(true)
-	ranks:SetLabel("By guild rank")
-	ranks:SetList(oRA:GetGuildRanks())
-	ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
-		charDb.promoteRank[rankIndex] = value and true or nil
-		queuePromotes()
-	end)
-	ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
-	ranks:SetFullWidth(true)
+		ranks = AceGUI:Create("Dropdown")
+		ranks:SetMultiselect(true)
+		ranks:SetLabel("By guild rank")
+		ranks:SetList(oRA:GetGuildRanks())
+		ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
+			charDb.promoteRank[rankIndex] = value and true or nil
+			queuePromotes()
+		end)
+		ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
+		ranks:SetFullWidth(true)
+	end
 
 	local individualHeader = AceGUI:Create("Heading")
 	individualHeader:SetText("Individual promotions")
@@ -210,16 +212,16 @@ function module:CreateFrame()
 	delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	delete:SetFullWidth(true)
 
-	f:AddChild(massHeader)
-	f:AddChild(everyone)
-	f:AddChild(guild)
-	f:AddChild(ranks)
-	f:AddChild(spacer)
-	f:AddChild(individualHeader)
-	f:AddChild(description)
-	f:AddChild(add)
-	f:AddChild(delete)
-
-	frame = f
+	frame:AddChild(massHeader)
+	frame:AddChild(everyone)
+	if inGuild then
+		frame:AddChild(guild)
+		frame:AddChild(ranks)
+	end
+	frame:AddChild(spacer)
+	frame:AddChild(individualHeader)
+	frame:AddChild(description)
+	frame:AddChild(add)
+	frame:AddChild(delete)
 end
 

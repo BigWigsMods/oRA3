@@ -188,6 +188,7 @@ end
 local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
+	if not IsInGuild() then return end
 	local i = 1
 	while (i <= #frame.children) do
 		local widget = frame.children[i]
@@ -223,10 +224,9 @@ end
 
 function module:CreateFrame()
 	if frame then return end
-
-	local f = AceGUI:Create("ScrollFrame")
-	f:SetLayout("Flow")
-	frame = f
+	local inGuild = IsInGuild()
+	frame = AceGUI:Create("ScrollFrame")
+	frame:SetLayout("Flow")
 
 	local keyword = AceGUI:Create("EditBox")
 	keyword:SetLabel("Keyword")
@@ -243,47 +243,53 @@ function module:CreateFrame()
 	kwDescription:SetFullWidth(true)
 	kwDescription:SetFontObject(GameFontHighlight)
 	
-	local guild = AceGUI:Create("Button")
-	guild:SetText("Invite guild")
-	guild.oRATooltipText = "Invite everyone in your guild at the maximum level."
-	guild:SetCallback("OnEnter", onControlEnter)
-	guild:SetCallback("OnLeave", onControlLeave)
-	guild:SetCallback("OnClick", function()
-		module:InviteGuild()
-	end)
-	-- Default height is 24, per AceGUIWidget-Button.lua
-	-- FIXME: Jesus christ that looks crappy, buttons apparently only have 3 textures,
-	-- left, middle and right, so making it higher actually stretches the texture.
-	--guild:SetHeight(24 * 2)
-	guild:SetFullWidth(true)
+	local guild, zone, rankHeader, rankDescription
+	if inGuild then
+		guild = AceGUI:Create("Button")
+		guild:SetText("Invite guild")
+		guild.oRATooltipText = "Invite everyone in your guild at the maximum level."
+		guild:SetCallback("OnEnter", onControlEnter)
+		guild:SetCallback("OnLeave", onControlLeave)
+		guild:SetCallback("OnClick", function()
+			module:InviteGuild()
+		end)
+		-- Default height is 24, per AceGUIWidget-Button.lua
+		-- FIXME: Jesus christ that looks crappy, buttons apparently only have 3 textures,
+		-- left, middle and right, so making it higher actually stretches the texture.
+		--guild:SetHeight(24 * 2)
+		guild:SetFullWidth(true)
 	
-	local zone = AceGUI:Create("Button")
-	zone:SetText("Invite zone")
-	zone.oRATooltipText = "Invite everyone in your guild who are in the same zone as you."
-	zone:SetCallback("OnEnter", onControlEnter)
-	zone:SetCallback("OnLeave", onControlLeave)
-	zone:SetCallback("OnClick", function()
-		module:InviteZone()
-	end)
-	zone:SetFullWidth(true)
-	
-	local rankHeader = AceGUI:Create("Heading")
-	rankHeader:SetText("Guild rank invites")
-	rankHeader:SetFullWidth(true)
-	
-	local rankDescription = AceGUI:Create("Label")
-	rankDescription:SetText("Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites.")
-	rankDescription:SetFullWidth(true)
-	rankDescription:SetFontObject(GameFontHighlight)
+		zone = AceGUI:Create("Button")
+		zone:SetText("Invite zone")
+		zone.oRATooltipText = "Invite everyone in your guild who are in the same zone as you."
+		zone:SetCallback("OnEnter", onControlEnter)
+		zone:SetCallback("OnLeave", onControlLeave)
+		zone:SetCallback("OnClick", function()
+			module:InviteZone()
+		end)
+		zone:SetFullWidth(true)
 
-	f:AddChild(guild)
-	f:AddChild(zone)
-	f:AddChild(kwDescription)
-	f:AddChild(keyword)
-	f:AddChild(rankHeader)
-	f:AddChild(rankDescription)
+		rankHeader = AceGUI:Create("Heading")
+		rankHeader:SetText("Guild rank invites")
+		rankHeader:SetFullWidth(true)
+	
+		rankDescription = AceGUI:Create("Label")
+		rankDescription:SetText("Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites.")
+		rankDescription:SetFullWidth(true)
+		rankDescription:SetFontObject(GameFontHighlight)
+	end
+
+	if inGuild then
+		frame:AddChild(guild)
+		frame:AddChild(zone)
+	end
+	frame:AddChild(kwDescription)
+	frame:AddChild(keyword)
+	if inGuild then
+		frame:AddChild(rankHeader)
+		frame:AddChild(rankDescription)
+	end
 
 	updateRankButtons()
 end
 
-_G.updateRankButtons = updateRankButtons

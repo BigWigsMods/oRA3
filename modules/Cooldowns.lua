@@ -201,9 +201,7 @@ end
 local tmp = {}
 function module:CreateFrame()
 	if frame then return end
-
-	local f = AceGUI:Create("ScrollFrame")
-	frame = f
+	frame = AceGUI:Create("ScrollFrame")
 
 	local moduleDescription = AceGUI:Create("Label")
 	moduleDescription:SetText("Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs.")
@@ -241,7 +239,8 @@ function module:CreateFrame()
 	group.dropdown:SetWidth(100)
 	group:SetGroup(playerClass)
 	group:SetFullWidth(true)
-	f:AddChild(moduleDescription)
-	f:AddChild(group)
+
+	frame:AddChild(moduleDescription)
+	frame:AddChild(group)
 end
 
