@@ -160,7 +160,7 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
 		local raid = GetNumRaidMembers()
-		local diff = GetDungeonDifficulty()
+		local diff = GetCurrentDungeonDifficulty()
 		if isIn and instanceType == "party" and party == 4 then
 			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
 		--[[elseif isIn and instanceType == "raid" and diff == 1 and raid == 10 then
