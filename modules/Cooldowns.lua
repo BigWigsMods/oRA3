@@ -72,15 +72,15 @@ local spells = {
 		[6554] = 10, -- Pummel
 		[1161] = 180, -- Challenging Shout
 	},
-	--[[DEATHKNIGHT = {
-		[] = x, -- Army of the Dead
-		[] = x, -- Raise Ally
-		[] = x, -- Dancing Rune Weapon
-		[] = x, -- Summon Gargoyle
-		[] = x, -- Strangulate
-		[] = x, -- Death Grip
-		[] = x, -- Unbreakable Armor
-	},]]
+	DEATHKNIGHT = {
+		[42650] = 1200, -- Army of the Dead
+		[61999] = 300, -- Raise Ally
+		[49028] = 180, -- Dancing Rune Weapon
+		[49206] = 180, -- Summon Gargoyle
+		[49916] = 120, -- Strangulate
+		[49576] = 35, -- Death Grip
+		[51271] = 60, -- Unbreakable Armor
+	},
 }
 
 local classes = {}
