@@ -52,7 +52,7 @@ do
 		if factionDb.promoteAll then return true
 		elseif factionDb.promoteGuild and gML[name] then return true
 		elseif gML[name] and charDb.promoteRank[gML[name]] then return true
-		elseif factionDb.promotes[name] then return true
+		elseif util:inTable(factionDb.promotes, name) then return true
 		end
 	end
 

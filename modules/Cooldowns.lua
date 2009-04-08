@@ -218,7 +218,7 @@ function module:CreateFrame()
 	end
 
 	local group = AceGUI:Create("DropdownGroup")
-	group:SetTitle()
+	group:SetTitle("Select class")
 	group:SetGroupList(classes)
 	group:SetCallback("OnGroupSelected", function(widget, event, class)
 		widget:ReleaseChildren()

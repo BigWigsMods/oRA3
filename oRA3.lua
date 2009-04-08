@@ -102,7 +102,7 @@ do
 		local numGuildMembers = GetNumGuildMembers()
 		for i = 1, numGuildMembers do
 			local name, _, rankIndex = GetGuildRosterInfo(i)
-			if name then tmpMembers[name] = rankIndex end
+			if name then tmpMembers[name] = rankIndex + 1 end
 		end
 		if not isIndexedEqual(tmpRanks, guildRanks) then
 			guildRanks = tmpRanks
@@ -115,6 +115,11 @@ do
 	end
 	function addon:GetGuildRanks() return guildRanks end
 	function addon:GetGuildMembers() return guildMemberList end
+	
+	local function copyToTable(src, dst)
+		wipe(dst)
+		for i, v in pairs(src) do dst[i] = v end
+	end
 	
 	local tmpGroup = {}
 	function addon:RAID_ROSTER_UPDATE()
@@ -144,8 +149,8 @@ do
 				if n then table.insert(tmpGroup, n) end
 			end
 		end
-		if not isIndexedEqual(tmpGroup, groupMembers) then
-			groupMembers = tmpGroup
+		if oldStatus ~= groupStatus or not isIndexedEqual(tmpGroup, groupMembers) then
+			copyToTable(tmpGroup, groupMembers)
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
