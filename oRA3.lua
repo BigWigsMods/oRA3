@@ -8,9 +8,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 addon.util = {}
 local util = addon.util
 
--- Module stuff
-addon:SetDefaultModuleState(false) -- all modules disabled by default
-
 -- Locals
 local playerName = UnitName("player")
 local guildMemberList = {} -- Name:RankIndex
@@ -64,6 +61,7 @@ function addon:OnInitialize()
 end
 
 function addon:OnEnable()
+	self:ShowGUI()
 	-- Comm register
 	self:RegisterComm("oRA3")
 	
@@ -77,7 +75,7 @@ function addon:OnEnable()
 end
 
 function addon:OnDisable()
-	self:Shutdown()
+	self:HideGUI()
 end
 
 do
@@ -161,9 +159,9 @@ do
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
-			self:Shutdown()
+			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
-			self:Startup()
+			self.callbacks:Fire("OnStartup", groupStatus)
 		end
 		self:AdjustPanelInset()
 	end
@@ -175,21 +173,6 @@ end
 
 function addon:InParty()
 	return groupStatus == INPARTY
-end
-
--- startup and shutdown
-function addon:Startup()
-	self:ShowGUI()
-	for name, module in self:IterateModules() do
-		module:Enable()
-	end
-end
-
-function addon:Shutdown()
-	self:HideGUI()
-	for name, module in self:IterateModules() do
-		module:Disable()
-	end
 end
 
 function addon:DisbandGroup()

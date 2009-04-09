@@ -24,25 +24,36 @@ function module:OnRegister()
 end
 
 function module:OnEnable()
+	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
+	oRA.RegisterCallback(self, "OnStartup") 
+	oRA.RegisterCallback(self, "OnShutdown")
+end
+
+function module:OnDisable()
+	oRA:UnregisterList(L["Durability"])
+	oRA.UnregisterCallback(self, "OnCommDurability")
+	oRA.UnregisterCallback(self, "OnStartup")
+	oRA.UnregisterCallback(self, "OnShutdown")
+end
+
+function module:OnStartup()
 	-- clean up old tables
 	wipe(tname)
 	wipe(tperc)
 	wipe(tbroken)
 	wipe(tminimum)
 	
-	-- Durability Events
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
 	self:RegisterEvent("MERCHANT_CLOSED", "CheckDurability")
-
-	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
-
+	
 	self:CheckDurability()
 end
 
-function module:OnDisable()
-	oRA:UnregisterList(L["Durability"])
-	oRA.UnregisterCallback(self, "OnCommDurability")
+function module:OnShutdown()
+	self:UnregisterEvent("PLAYER_DEAD")
+	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:UnregisterEvent("MERCHANT_CLOSED")
 end
 
 local oldperc, oldbroken, oldminimum = 0,0,0
@@ -80,6 +91,6 @@ function module:OnCommDurability(commType, sender, perc, minimum, broken)
 	tminimum[k] = minimum.."%"
 	tbroken[k] = broken
 
-	oRA:UpdateGUI(L["Durability"])
+	--oRA:UpdateGUI(L["Durability"])
 end
 
