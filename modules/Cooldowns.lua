@@ -4,19 +4,6 @@ local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
-local localizedClasses = {
-	WARLOCK = "Warlock",
-	WARRIOR = "Warrior",
-	HUNTER = "Hunter",
-	MAGE = "Mage",
-	PRIEST = "Priest",
-	DRUID = "Druid",
-	PALADIN = "Paladin",
-	SHAMAN = "Shaman",
-	ROGUE = "Rogue",
-	DEATHKNIGHT = "Death Knight",
-}
-
 local _, playerClass = UnitClass("player")
 
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
@@ -85,7 +72,7 @@ local spells = {
 
 local classes = {}
 for k in pairs(spells) do
-	classes[k] = localizedClasses[k]
+	classes[k] = L[k]
 end
 
 local frame = nil
@@ -142,7 +129,7 @@ function module:OnRegister()
 	self:CreateFrame()
 
 	oRA:RegisterOverview(
-		"Cooldowns",
+		L["Cooldowns"],
 		"Interface\\Icons\\Spell_ChargePositive",
 		showConfig,
 		hideConfig
@@ -204,7 +191,7 @@ function module:CreateFrame()
 	frame = AceGUI:Create("ScrollFrame")
 
 	local moduleDescription = AceGUI:Create("Label")
-	moduleDescription:SetText("Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs.")
+	moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 	moduleDescription:SetFullWidth(true)
 	moduleDescription:SetFontObject(GameFontHighlight)
 
@@ -216,7 +203,7 @@ function module:CreateFrame()
 	end
 
 	local group = AceGUI:Create("DropdownGroup")
-	group:SetTitle("Select class")
+	group:SetTitle(L["Select class"])
 	group:SetGroupList(classes)
 	group:SetCallback("OnGroupSelected", function(widget, event, class)
 		widget:ReleaseChildren()
@@ -236,7 +223,7 @@ function module:CreateFrame()
 			widget:AddChild(checkbox)
 		end
 	end)
-	group.dropdown:SetWidth(100)
+	group.dropdown:SetWidth(120)
 	group:SetGroup(playerClass)
 	group:SetFullWidth(true)
 

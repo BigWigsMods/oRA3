@@ -38,7 +38,7 @@ function module:OnRegister()
 	self:CreateFrame()
 	
 	oRA:RegisterOverview(
-		"Promote",
+		L["Promote"],
 		"Interface\\Icons\\INV_Scroll_03",
 		showConfig,
 		hideConfig
@@ -128,12 +128,12 @@ function module:CreateFrame()
 	spacer:SetFullWidth(true)
 
 	local massHeader = AceGUI:Create("Heading")
-	massHeader:SetText("Mass promotion")
+	massHeader:SetText(L["Mass promotion"])
 	massHeader:SetFullWidth(true)
 
 	everyone = AceGUI:Create("CheckBox")
 	everyone:SetValue(factionDb.promoteAll)
-	everyone:SetLabel("Everyone")
+	everyone:SetLabel(L["Everyone"])
 	everyone:SetCallback("OnEnter", onControlEnter)
 	everyone:SetCallback("OnLeave", onControlLeave)
 	everyone:SetCallback("OnValueChanged", function(widget, event, value)
@@ -144,14 +144,14 @@ function module:CreateFrame()
 		factionDb.promoteAll = value and true or false
 		queuePromotes()
 	end)
-	everyone.oRATooltipText = "Promote everyone automatically."
+	everyone.oRATooltipText = L["Promote everyone automatically."]
 	everyone:SetFullWidth(true)
 
 	local inGuild = IsInGuild()
 	if inGuild then
 		guild = AceGUI:Create("CheckBox")
 		guild:SetValue(factionDb.promoteGuild)
-		guild:SetLabel("Guild")
+		guild:SetLabel(L["Guild"])
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
 		guild:SetCallback("OnValueChanged", function(widget, event, value)
@@ -159,13 +159,13 @@ function module:CreateFrame()
 			factionDb.promoteGuild = value and true or false
 			queuePromotes()
 		end)
-		guild.oRATooltipText = "Promote all guild members automatically."
+		guild.oRATooltipText = L["Promote all guild members automatically."]
 		guild:SetDisabled(factionDb.promoteAll)
 		guild:SetFullWidth(true)
 
 		ranks = AceGUI:Create("Dropdown")
 		ranks:SetMultiselect(true)
-		ranks:SetLabel("By guild rank")
+		ranks:SetLabel(L["By guild rank"])
 		ranks:SetList(oRA:GetGuildRanks())
 		ranks:SetCallback("OnValueChanged", function(widget, event, rankIndex, value)
 			charDb.promoteRank[rankIndex] = value and true or nil
@@ -176,16 +176,16 @@ function module:CreateFrame()
 	end
 
 	local individualHeader = AceGUI:Create("Heading")
-	individualHeader:SetText("Individual promotions")
+	individualHeader:SetText(L["Individual promotions"])
 	individualHeader:SetFullWidth(true)
 
 	local description = AceGUI:Create("Label")
-	description:SetText("Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below.")
+	description:SetText(L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."])
 	description:SetFullWidth(true)
 	description:SetFontObject(GameFontHighlight)
 
 	add = AceGUI:Create("EditBox")
-	add:SetLabel("Add")
+	add:SetLabel(L["Add"])
 	add:SetText()
 	add:SetCallback("OnEnterPressed", function(widget, event, value)
 		if type(value) ~= "string" or value:trim():len() < 3 then return true end
@@ -201,7 +201,7 @@ function module:CreateFrame()
 
 	delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
-	delete:SetLabel("Remove")
+	delete:SetLabel(L["Remove"])
 	delete:SetList(factionDb.promotes)
 	delete:SetCallback("OnValueChanged", function(_, _, value)
 		table.remove(factionDb.promotes, value)

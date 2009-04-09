@@ -30,7 +30,7 @@ function module:OnRegister()
 	self:CreateFrame()
 
 	oRA:RegisterOverview(
-		"Invite",
+		L["Invite"],
 		"Interface\\Icons\\Spell_ChargePositive",
 		showConfig,
 		hideConfig
@@ -128,7 +128,7 @@ local function chat(msg, channel)
 end
 
 function module:InviteGuild(level)
-	chat(("All max level characters will be invited to raid in 10 seconds. Please leave your groups."):format(MAX_PLAYER_LEVEL), "GUILD")
+	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(MAX_PLAYER_LEVEL), "GUILD")
 	inviteFrame.level = MAX_PLAYER_LEVEL
 	inviteFrame.zone = nil
 	inviteFrame.rank = nil
@@ -137,7 +137,7 @@ end
 
 function module:InviteZone()
 	local currentZone = GetRealZoneText()
-	chat(("All characters in %s will be invited to raid in 10 seconds. Please leave your groups."):format(currentZone), "GUILD")
+	chat((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
 	inviteFrame.level = nil
 	inviteFrame.zone = currentZone
 	inviteFrame.rank = nil
@@ -148,7 +148,7 @@ function module:InviteRank(rank, name)
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
-	chat(("All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."):format(name), channel)
+	chat((L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."]):format(name), channel)
 	inviteFrame.level = nil
 	inviteFrame.zone = nil
 	inviteFrame.rank = rank
@@ -162,7 +162,7 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 		local raid = GetNumRaidMembers()
 		local diff = GetCurrentDungeonDifficulty()
 		if isIn and instanceType == "party" and party == 4 then
-			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
+			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		--[[elseif isIn and instanceType == "raid" and diff == 1 and raid == 10 then
 			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
 		elseif isIn and instanceType == "raid" and diff == 2 and raid == 25 then
@@ -171,7 +171,7 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 			table.insert(peopleToInvite, author)
 			doActualInvites()
 		elseif raid == 40 then
-			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
+			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		else
 			InviteUnit(author)
 		end
@@ -206,7 +206,7 @@ local function updateRankButtons()
 		local rankName = ranks[i]
 		local button = AceGUI:Create("Button")
 		button:SetText(rankName)
-		button.oRATooltipText = ("Invite all guild members of rank %s or higher."):format(rankName)
+		button.oRATooltipText = (L["Invite all guild members of rank %s or higher."]):format(rankName)
 		button.oRAGuildRank = i
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
@@ -229,7 +229,7 @@ function module:CreateFrame()
 	frame:SetLayout("Flow")
 
 	local keyword = AceGUI:Create("EditBox")
-	keyword:SetLabel("Keyword")
+	keyword:SetLabel(L["Keyword"])
 	keyword:SetText(db.keyword)
 	keyword:SetCallback("OnEnterPressed", function(widget, event, value)
 		if type(value) == "string" and value:trim():len() < 2 then value = nil end
@@ -239,15 +239,15 @@ function module:CreateFrame()
 	keyword:SetFullWidth(true)
 	
 	local kwDescription = AceGUI:Create("Label")
-	kwDescription:SetText("Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites.")
+	kwDescription:SetText(L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."])
 	kwDescription:SetFullWidth(true)
 	kwDescription:SetFontObject(GameFontHighlight)
 	
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
-		guild:SetText("Invite guild")
-		guild.oRATooltipText = "Invite everyone in your guild at the maximum level."
+		guild:SetText(L["Invite guild"])
+		guild.oRATooltipText = L["Invite everyone in your guild at the maximum level."]
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
 		guild:SetCallback("OnClick", function()
@@ -260,8 +260,8 @@ function module:CreateFrame()
 		guild:SetFullWidth(true)
 	
 		zone = AceGUI:Create("Button")
-		zone:SetText("Invite zone")
-		zone.oRATooltipText = "Invite everyone in your guild who are in the same zone as you."
+		zone:SetText(L["Invite zone"])
+		zone.oRATooltipText = L["Invite everyone in your guild who are in the same zone as you."]
 		zone:SetCallback("OnEnter", onControlEnter)
 		zone:SetCallback("OnLeave", onControlLeave)
 		zone:SetCallback("OnClick", function()
@@ -270,11 +270,11 @@ function module:CreateFrame()
 		zone:SetFullWidth(true)
 
 		rankHeader = AceGUI:Create("Heading")
-		rankHeader:SetText("Guild rank invites")
+		rankHeader:SetText(L["Guild rank invites"])
 		rankHeader:SetFullWidth(true)
 	
 		rankDescription = AceGUI:Create("Label")
-		rankDescription:SetText("Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites.")
+		rankDescription:SetText(L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."])
 		rankDescription:SetFullWidth(true)
 		rankDescription:SetFontObject(GameFontHighlight)
 	end
