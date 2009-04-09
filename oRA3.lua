@@ -192,6 +192,14 @@ function addon:Shutdown()
 	end
 end
 
+function addon:DisbandGroup()
+	self:Print("Implement ME!")
+end
+
+function addon:ShowOptions()
+	self:Print("Implement ME!")
+end
+
 -- utility functions
 
 function addon:IsPromoted(name)
@@ -368,6 +376,8 @@ function addon:SetupGUI()
 	title:SetPoint("TOP", 0, -6)
 	title:SetText("oRA3")
 
+	
+	
 	frame:EnableMouse()
 	frame:SetMovable(1)
 	frame:SetResizable(1)
@@ -508,6 +518,21 @@ function addon:SetupGUI()
 	--contentFrame:SetBackdropColor(0.3, 0.3, 0.3)
 	contentFrame:SetBackdropBorderColor(.8, .8, .8)
 
+	local disband = CreateFrame("Button", "oRA3Disband", contentFrame, "UIPanelButtonTemplate2")
+	disband:SetWidth(120)
+	disband:SetHeight(28)
+	disband:SetText(L["Disband Group"])
+	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 0, 4)
+	disband:SetScript( "OnClick", function()  self:DisbandGroup() end )
+
+	local options = CreateFrame("Button", "oRA3Options", contentFrame, "UIPanelButtonTemplate2")
+	options:SetWidth(120)
+	options:SetHeight(28)
+	options:SetText(L["Options"])
+	options:SetPoint("BOTTOMRIGHT", contentFrame, "TOPRIGHT", -2, 4)
+	options:SetScript( "OnClick", function()  self:ShowOptions() end )
+	
+	
 	oRA3Frame.oRAtabs = {} -- setup the tab listing
 	self:SetupPanels() -- fill the tab listing
 
