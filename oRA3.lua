@@ -495,7 +495,7 @@ function addon:SetupGUI()
 	self:SetupPanels() -- fill the tab listing
 
 	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
-	contentFrame.title:SetFontObject(GameFontHighlight)
+	contentFrame.title:SetFontObject(GameFontNormal)
 	contentFrame.title:SetPoint("TOP", 0, -6)
 	contentFrame.title:SetText("oRA3")
 
