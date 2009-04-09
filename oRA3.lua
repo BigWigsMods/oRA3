@@ -49,6 +49,7 @@ local showLists -- implemented down the file
 local hideLists -- implemented down the file
 
 
+
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
 	db = self.db.profile
@@ -69,9 +70,6 @@ function addon:OnEnable()
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
-	
-	self:RegisterCallback(self, "OnStartup")
-	self:RegisterCallback(self, "OnShutdown")
 	
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
@@ -173,8 +171,10 @@ do
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
+			self:OnShutdown()
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
+			self:OnStartup()
 			self.callbacks:Fire("OnStartup", groupStatus)
 		end
 		self:AdjustPanelInset()
@@ -192,7 +192,7 @@ end
 function addon:DisbandGroup()
 	if not self:IsPromoted() then return end
 	local pName = UnitName("player")
-	SendChatMessage(L["<oRA3> Disbanding raid."], "RAID")
+	SendChatMessage(L["<oRA3> Disbanding group."], self:InRaid() and "RAID" or "PARTY")
 	if self:InRaid() then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
