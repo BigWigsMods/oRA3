@@ -20,10 +20,6 @@ end
 
 local function hideConfig()
 	if frame then
-		for i = 1, #frame.children do
-			local widget = frame.children[i]
-			widget.oRATooltipText = nil
-		end
 		frame:Release()
 		frame = nil
 	end
@@ -117,9 +113,9 @@ end
 
 local function onControlEnter(widget, event, value)
 	GameTooltip:ClearLines()
-	GameTooltip:SetOwner(widget.frame, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
 	GameTooltip:AddLine(widget.text:GetText())
-	GameTooltip:AddLine(widget.oRATooltipText, 1, 1, 1, 1)
+	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
 	GameTooltip:Show()
 end
 local function onControlLeave() GameTooltip:Hide() end
@@ -149,7 +145,7 @@ function module:CreateFrame()
 		factionDb.promoteAll = value and true or false
 		queuePromotes()
 	end)
-	everyone.oRATooltipText = L["Promote everyone automatically."]
+	everyone:SetUserData("tooltip", L["Promote everyone automatically."])
 	everyone:SetFullWidth(true)
 
 	local inGuild = IsInGuild()
@@ -164,7 +160,7 @@ function module:CreateFrame()
 			factionDb.promoteGuild = value and true or false
 			queuePromotes()
 		end)
-		guild.oRATooltipText = L["Promote all guild members automatically."]
+		guild:SetUserData("tooltip", L["Promote all guild members automatically."])
 		guild:SetDisabled(factionDb.promoteAll)
 		guild:SetFullWidth(true)
 
@@ -178,6 +174,12 @@ function module:CreateFrame()
 		end)
 		ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
 		ranks:SetFullWidth(true)
+
+		local guildRanks = oRA:GetGuildRanks()
+		ranks:SetList(guildRanks)
+		for i, v in ipairs(guildRanks) do
+			ranks:SetItemValue(i, charDb.promoteRank[i])
+		end
 	end
 
 	local individualHeader = AceGUI:Create("Heading")

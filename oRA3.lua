@@ -81,8 +81,6 @@ function addon:OnDisable()
 end
 
 do
-	local tmpRanks = {}
-	local tmpMembers = {}
 	local function isIndexedEqual(a, b)
 		if #a ~= #b then return false end
 		for i, v in ipairs(a) do
@@ -100,7 +98,13 @@ do
 		end
 		return true
 	end
-	
+	local function copyToTable(src, dst)
+		wipe(dst)
+		for i, v in pairs(src) do dst[i] = v end
+	end
+
+	local tmpRanks = {}
+	local tmpMembers = {}
 	function addon:GUILD_ROSTER_UPDATE()
 		wipe(tmpRanks)
 		wipe(tmpMembers)
@@ -113,21 +117,16 @@ do
 			if name then tmpMembers[name] = rankIndex + 1 end
 		end
 		if not isIndexedEqual(tmpRanks, guildRanks) then
-			guildRanks = tmpRanks
+			copyToTable(tmpRanks, guildRanks)
 			self.callbacks:Fire("OnGuildRanksUpdate", guildRanks)
 		end
 		if not isKeyedEqual(tmpMembers, guildMemberList) then
-			guildMemberList = tmpMembers
+			copyToTable(tmpMembers, guildMemberList)
 			self.callbacks:Fire("OnGuildMembersUpdate", guildMemberList)
 		end
 	end
 	function addon:GetGuildRanks() return guildRanks end
 	function addon:GetGuildMembers() return guildMemberList end
-	
-	local function copyToTable(src, dst)
-		wipe(dst)
-		for i, v in pairs(src) do dst[i] = v end
-	end
 	
 	local tmpGroup = {}
 	function addon:RAID_ROSTER_UPDATE()

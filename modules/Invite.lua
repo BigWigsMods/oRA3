@@ -18,11 +18,6 @@ end
 
 local function hideConfig()
 	if frame then
-		for i = 1, #frame.children do
-			local widget = frame.children[i]
-			widget.oRAGuildRank = nil
-			widget.oRATooltipText = nil
-		end
 		frame:Release()
 		frame = nil
 	end
@@ -188,7 +183,7 @@ local function onControlEnter(widget, event, value)
 	GameTooltip:ClearLines()
 	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
 	GameTooltip:AddLine(widget.text:GetText())
-	GameTooltip:AddLine(widget.oRATooltipText, 1, 1, 1, 1)
+	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
 	GameTooltip:Show()
 end
 local function onControlLeave() GameTooltip:Hide() end
@@ -198,10 +193,8 @@ local function updateRankButtons()
 	local i = 1
 	while (i <= #frame.children) do
 		local widget = frame.children[i]
-		if widget.oRAGuildRank then
+		if widget:GetUserData("rank") then
 			table.remove(frame.children, i)
-			widget.oRAGuildRank = nil
-			widget.oRATooltipText = nil
 			widget:Release()
 		else -- only increase i if we didn't delete an entry
 			i = i + 1
@@ -212,8 +205,8 @@ local function updateRankButtons()
 		local rankName = ranks[i]
 		local button = AceGUI:Create("Button")
 		button:SetText(rankName)
-		button.oRATooltipText = (L["Invite all guild members of rank %s or higher."]):format(rankName)
-		button.oRAGuildRank = i
+		button:SetUserData("tooltip", L["Invite all guild members of rank %s or higher."]:format(rankName))
+		button:SetUserData("rank", i)
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
 		button:SetCallback("OnClick", function()
@@ -255,7 +248,7 @@ function module:CreateFrame()
 	if inGuild then
 		guild = AceGUI:Create("Button")
 		guild:SetText(L["Invite guild"])
-		guild.oRATooltipText = L["Invite everyone in your guild at the maximum level."]
+		guild:SetUserData("tooltip", L["Invite everyone in your guild at the maximum level."])
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
 		guild:SetCallback("OnClick", function()
@@ -269,7 +262,7 @@ function module:CreateFrame()
 	
 		zone = AceGUI:Create("Button")
 		zone:SetText(L["Invite zone"])
-		zone.oRATooltipText = L["Invite everyone in your guild who are in the same zone as you."]
+		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
 		zone:SetCallback("OnEnter", onControlEnter)
 		zone:SetCallback("OnLeave", onControlLeave)
 		zone:SetCallback("OnClick", function()
