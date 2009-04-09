@@ -881,8 +881,8 @@ function addon:CreateScrollHeader()
 	local entries = {}
 	-- create childs
 	local text = self:CreateScrollEntry(f)
-	text:SetText("TEST")
 	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0 )
+	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
 	entries[1] = text
 	
 	if #scrollheaders == 1 then
@@ -895,8 +895,8 @@ function addon:CreateScrollHeader()
 
 	for i = 2, 19 do
 		text = self:CreateScrollEntry(f)
-		text:SetText("TEST")
 		text:SetPoint("TOPLEFT", entries[i-1], "BOTTOMLEFT")
+		text:SetPoint("TOPRIGHT", entries[i-1], "BOTTOMRIGHT")
 		entries[i] = text
 		if #scrollheaders == 1 then
 			scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame)
