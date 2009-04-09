@@ -501,10 +501,11 @@ function addon:SetupGUI()
 	local backdrop = {
 		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-		tile = false, edgeSize = 16, tileSize = 16,
+		tile = true, edgeSize = 16, tileSize = 16,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
 }
 	contentFrame:SetBackdrop(backdrop)
+	--contentFrame:SetBackdropColor(0.3, 0.3, 0.3)
 	contentFrame:SetBackdropBorderColor(.8, .8, .8)
 
 	oRA3Frame.oRAtabs = {} -- setup the tab listing
@@ -607,7 +608,7 @@ end
 function addon:SetAllPointsToPanel(frame)
 	if contentFrame then
 		frame:SetParent(contentFrame)
-		frame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 4, -4)
+		frame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 8, -4)
 		frame:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", -4, 6)
 	end
 end
