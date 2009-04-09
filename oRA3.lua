@@ -135,8 +135,6 @@ do
 			groupStatus = INPARTY
 		else
 			groupStatus = UNGROUPED
-			-- FIXME:  remove this override
-			groupStatus = INRAID
 		end
 
 		addon.groupStatus = groupStatus
