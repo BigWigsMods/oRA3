@@ -25,10 +25,6 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
 	oRA.RegisterCallback(self, "OnStartup") 
 	oRA.RegisterCallback(self, "OnShutdown")
-	
-	for i = 1, 40 do
-		table.insert(durability, { UnitName("player")..i, math.random(1, 100), math.random(1, 100), math.random(1, 100) } )
-	end
 end
 
 function module:OnDisable()

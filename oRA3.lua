@@ -841,7 +841,11 @@ function addon:UpdateScroll()
 		local j = i + FauxScrollFrame_GetOffset(contentFrame.scrollFrame)
 		if j <= nr then
 			for k, v in ipairs(scrollheaders) do
-				v.entries[i]:SetText(list.contents[j][k])
+				if k == 1 then
+					v.entries[i]:SetText(coloredNames[list.contents[j][k]])
+				else
+					v.entries[i]:SetText(list.contents[j][k])
+				end
 				v.entries[i]:Show()
 			end
 		else
