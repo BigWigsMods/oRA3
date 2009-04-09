@@ -41,7 +41,7 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	oRA:UnregisterOverview(L["Durability"])
+	oRA:UnregisterList(L["Durability"])
 	oRA.UnregisterCallback(self, "OnCommDurability")
 end
 

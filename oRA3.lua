@@ -138,7 +138,7 @@ do
 		else
 			groupStatus = UNGROUPED
 			-- FIXME:  remove this override
-			groupStatus = INRAID
+			-- groupStatus = INRAID
 		end
 
 		addon.groupStatus = groupStatus
@@ -165,6 +165,7 @@ do
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
 			self:Startup()
 		end
+		self:AdjustPanelInset()
 	end
 end
 
@@ -361,6 +362,11 @@ function addon:SetupGUI()
 										parent:StopMovingOrSizing()
 										-- self:SavePosition("oRA3Frame")
 									end)
+									
+	local title = frame:CreateFontString(nil, "ARTWORK")
+	title:SetFontObject(GameFontNormal)
+	title:SetPoint("TOP", 0, -6)
+	title:SetText("oRA3")
 
 	frame:EnableMouse()
 	frame:SetMovable(1)
@@ -385,7 +391,8 @@ function addon:SetupGUI()
 	frame.mid = mid
 	frame.midleft = midleft
 	frame.midright = midright
-	frame.titlereg = titlereg	
+	frame.titlereg = titlereg
+	frame.title = title
 	
 	local cos = math.cos
 	local pi = math.pi
@@ -485,24 +492,28 @@ function addon:SetupGUI()
 	end)
 
 	local subframe = CreateFrame("Frame", "oRA3FrameSub", oRA3Frame)
-	subframe:SetPoint("TOPLEFT", 50, 0)
-	subframe:SetPoint("BOTTOMRIGHT", 0, 4)
+	--subframe:SetPoint("TOPLEFT", 40, -56)
+	subframe:SetPoint("TOPLEFT", 14, -56)
+	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
 	subframe:SetAlpha(0)
 
 	contentFrame = subframe
-	contentFrame.oRAtabs = {} -- setup the tab listing
+	local backdrop = {
+		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+		tile = false, edgeSize = 16, tileSize = 16,
+		insets = {left = 0, right = 0, top = 0, bottom = 0},
+}
+	contentFrame:SetBackdrop(backdrop)
+	contentFrame:SetBackdropBorderColor(.8, .8, .8)
+
+	oRA3Frame.oRAtabs = {} -- setup the tab listing
 	self:SetupPanels() -- fill the tab listing
 
-	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
-	contentFrame.title:SetFontObject(GameFontNormal)
-	contentFrame.title:SetPoint("TOP", 0, -6)
-	contentFrame.title:SetText("oRA3")
-
-	
 	-- Scrolling body
 	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", contentFrame, "FauxScrollFrameTemplate")
-	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 4)
-	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -60)
+	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 6)
+	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -24)
 	contentFrame.scrollFrame = sframe
 	local function updateScroll()
 		self:UpdateScrollContents()
@@ -578,6 +589,27 @@ function addon:SetupGUI()
 	self:LockUnlockFrame()
 	
 	self:SelectPanel()
+end
+
+function addon:AdjustPanelInset()
+	if oRA3Frame then
+		if self:InRaid() then
+			contentFrame:SetPoint("TOPLEFT", 40, -56)
+		else
+			contentFrame:SetPoint("TOPLEFT", 14, -56)
+		end
+		if contentFrame.scrollFrame:IsVisible() then
+			showLists()
+		end
+	end
+end
+
+function addon:SetAllPointsToPanel(frame)
+	if contentFrame then
+		frame:SetParent(contentFrame)
+		frame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 4, -4)
+		frame:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", -4, 6)
+	end
 end
 
 
@@ -757,7 +789,7 @@ function addon:CreateScrollHeader()
 	table.insert( scrollheaders, f)
 	
 	if #scrollheaders == 1 then
-		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, -32)
+		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 1, -2)
 	else
 		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
 	end
@@ -791,8 +823,8 @@ function addon:RegisterPanel(name, show, hide, isList)
 end
 
 function addon:UnregisterPanel(name)
-	if contentFrame and contentFrame.oRAtabs[name] then
-		contentFrame.oRAtabs[name]:Hide()
+	if oRA3Frame and oRA3Frame.oRAtabs[name] then
+		oRA3Frame.oRAtabs[name]:Hide()
 		if openedPanel == name then
 			openedPanel = nil
 			self:UpdateGUI()
@@ -868,31 +900,32 @@ end]]
 local function tabOnShow(self) PanelTemplates_TabResize(self, 0) end
 
 function addon:SetupPanel(name)
-	if not contentFrame then return end
+	if not oRA3Frame then return end
 
-	if not contentFrame.oRAtabs[name] then
+	if not oRA3Frame.oRAtabs[name] then
 		lastTab = lastTab + 1
-		local f = CreateFrame("Button", "oRA3FrameSubTab"..lastTab, contentFrame, "CharacterFrameTabButtonTemplate")
+		local f = CreateFrame("Button", "oRA3FrameTab"..lastTab, oRA3Frame, "CharacterFrameTabButtonTemplate")
 		f:ClearAllPoints()
 		if lastTab > 1 then
-			f:SetPoint("TOPLEFT", _G["oRA3FrameSubTab"..(lastTab-1)], "TOPRIGHT", -16, 0)
+			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(lastTab-1)], "TOPRIGHT", -16, 0)
 		else
-			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", -16, -2)
+			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
 		end
 		f.tabName = name
 		f:SetText(name)
+		f:SetParent(contentFrame)
 		f:SetScript("OnClick", selectPanel)
 		f:SetScript("OnShow", tabOnShow)
 		--clearBackground(f, f:GetRegions())
 		
-		contentFrame.oRAtabs[name] = f
-		if not contentFrame.selectedTab then
-			contentFrame.selectedTab = 1
+		oRA3Frame.oRAtabs[name] = f
+		if not oRA3Frame.selectedTab then
+			oRA3Frame.selectedTab = 1
 		end
-		PanelTemplates_SetNumTabs(contentFrame, lastTab)
-		PanelTemplates_UpdateTabs(contentFrame)
+		PanelTemplates_SetNumTabs(oRA3Frame, lastTab)
+		PanelTemplates_UpdateTabs(oRA3Frame)
 	end
-	contentFrame.oRAtabs[name]:Show()
+	oRA3Frame.oRAtabs[name]:Show()
 end
 
 function addon:SelectPanel(name)
@@ -912,11 +945,9 @@ function addon:SelectPanel(name)
 		end
 	end
 	
-	contentFrame.title:SetText(name)
-
-
-	contentFrame.selectedTab = selectedTab
-	PanelTemplates_UpdateTabs(contentFrame)
+	oRA3Frame.title:SetText(name)
+	oRA3Frame.selectedTab = selectedTab
+	PanelTemplates_UpdateTabs(oRA3Frame)
 	
 	panel.show()
 end

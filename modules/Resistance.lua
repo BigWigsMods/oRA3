@@ -31,7 +31,7 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	oRA:UnregisterOverview(L["Resistances"])
+	oRA:UnregisterList(L["Resistances"])
 	oRA.UnregisterCallback(self, "OnCommResistance")
 end
 

@@ -12,9 +12,7 @@ local charDb = nil
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
-	frame.frame:SetParent(_G["oRA3FrameSub"])
-	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
-	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
+	oRA:SetAllPointsToPanel( frame.frame )
 	frame.frame:Show()
 end
 
