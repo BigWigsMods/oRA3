@@ -14,9 +14,8 @@ local fire = {}
 local arcane = {}
 
 function module:OnRegister()
-	oRA:RegisterOverview(
+	oRA:RegisterList(
 		L["Resistances"],
-		"Interface\\Icons\\Spell_Frost_WizardMark",
 		nil, nil,
 		L["Name"], names,
 		L["Frost"], frost,

@@ -37,9 +37,8 @@ function module:OnRegister()
 
 	self:CreateFrame()
 	
-	oRA:RegisterOverview(
+	oRA:RegisterPanel(
 		L["Promote"],
-		"Interface\\Icons\\INV_Scroll_03",
 		showConfig,
 		hideConfig
 	)

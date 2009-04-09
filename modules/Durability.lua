@@ -14,9 +14,8 @@ local tminimum = {} -- minimum durability %
 
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
-	oRA:RegisterOverview(
+	oRA:RegisterList(
 		L["Durability"],
-		"Interface\\Icons\\Trade_BlackSmithing",
 		nil, nil,
 		L["Name"], tname,
 		L["Average"], tperc,

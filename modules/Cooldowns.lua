@@ -128,9 +128,8 @@ function module:OnRegister()
 	
 	self:CreateFrame()
 
-	oRA:RegisterOverview(
+	oRA:RegisterPanel(
 		L["Cooldowns"],
-		"Interface\\Icons\\Spell_ChargePositive",
 		showConfig,
 		hideConfig
 	)

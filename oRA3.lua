@@ -28,14 +28,16 @@ addon.groupStatus = UNGROUPED -- flag indicating groupsize
 local groupStatus = addon.groupStatus -- local upvalue
 
 -- overview drek
-local openedOverview = nil -- name of the current overview
+local openedPanel = nil -- name of the current opened Panel
+local openedList = nil -- name of the current opened List in the List panel
 local contentFrame = nil -- content frame for the views
 local lastTab = 0 -- last tab in the list
 local scrollheaders = {} -- scrollheader frames
 local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
 
-addon.overviews = {}
+addon.lists = {}
+addon.panels = {}
 
 local db
 local defaults = {
@@ -46,12 +48,18 @@ local defaults = {
 	}
 }
 
+local showLists -- implemented down the file
+local hideLists -- implemented down the file
+
+
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
 	db = self.db.profile
 	
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
+	
+	self:RegisterPanel(L["Checks"], showLists, hideLists)
 
 end
 
@@ -227,7 +235,7 @@ end
 function addon:ShowGUI()
 	self:SetupGUI()
 	oRA3Frame:Show()
-	self:UpdateGUI(openedOverview)
+	self:UpdateGUI(openedPanel)
 end
 
 function addon:HideGUI()
@@ -484,7 +492,7 @@ function addon:SetupGUI()
 
 	contentFrame = subframe
 	contentFrame.oRAtabs = {} -- setup the tab listing
-	self:SetupOverviews() -- fill the tab listing
+	self:SetupPanels() -- fill the tab listing
 
 	contentFrame.title = contentFrame:CreateFontString(nil, "ARTWORK")
 	contentFrame.title:SetFontObject(GameFontHighlight)
@@ -570,7 +578,7 @@ function addon:SetupGUI()
 	
 	self:LockUnlockFrame()
 	
-	self:SelectOverview()
+	self:SelectPanel()
 end
 
 
@@ -742,6 +750,7 @@ function addon:SetScrollHeaderWidth( nr, width )
 end
 
 function addon:CreateScrollHeader()
+	if not contentFrame then return end
 	local nr = #scrollheaders + 1
 	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
 	f:SetScript("OnClick", nil)
@@ -758,63 +767,94 @@ end
 
 function addon:UpdateGUI( name )
 	self:SetupGUI()
-	if not openedOverview then
-		openedOverview = self.overviews[1].name
-		self:Print("omg first overview")
+	if not openedPanel then
+		openedPanel = self.panels[1].name
 	end
 	if not oRA3Frame:IsVisible() or (name and openedOverview ~= name) then return end
 	-- update the overviews
-	self:SelectOverview(openedOverview)
+	self:SelectPanel(openedPanel)
 	-- update
 end
 
 
--- Overviews
+-- Panels
 
--- register an overview
--- name (string) - name of the overview Tab
--- icon (string) - icon path for overview
--- refresh - function to call to refresh/show the overview
--- hide - function to call to hide the overview
--- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
-function addon:RegisterOverview(name, icon, refresh, hide, ...)
-	self.overviews[name] = {
+-- register a panel
+function addon:RegisterPanel(name, show, hide, isList)
+	self.panels[name] = {
 		name = name,
-		icon = icon,
-		refresh = refresh,
-		hide = hide
+		show = show,
+		hide = hide,
+		isList = isList
 	}
-	if select("#", ...) > 0 then
-		self.overviews[name].cols = {}
-		for i = 1, select("#", ...), 2 do
-			local cname, contents = select(i, ...)
-			if cname and contents then
-				table.insert( self.overviews[name].cols, { name = cname, contents = contents } )
-			end
-		end
-	end
-	table.insert(self.overviews, self.overviews[name]) -- used to ipairs loop
-	self:SetupOverview(name)
+	table.insert(self.panels, self.panels[name]) -- used to ipairs loop
+	self:SetupPanel(name)
 end
 
-function addon:UnregisterOverview(name)
+function addon:UnregisterPanel(name)
 	if contentFrame and contentFrame.oRAtabs[name] then
 		contentFrame.oRAtabs[name]:Hide()
-		if openedOverview == name then
-			openedOverview = nil
+		if openedPanel == name then
+			openedPanel = nil
 			self:UpdateGUI()
 		end
 	end
 end
 
-function addon:SetupOverviews()
-	for k, v in ipairs(self.overviews) do
-		self:SetupOverview(v.name)
+function addon:SetupPanels()
+	for k, v in ipairs(self.panels) do
+		self:SetupPanel(v.name)
 	end
 end
 
-local function selectOverview(self)
-	addon:SelectOverview(self.tabName)
+local function selectPanel(self)
+	addon:SelectPanel(self.tabName)
+end
+
+
+-- register a list view
+-- name (string) - name of the overview Tab
+-- show - function to call to refresh/show the overview
+-- hide - function to call to hide the overview
+-- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
+function addon:RegisterList(name, show, hide, ...)
+	self.lists[name] = {
+		name = name,
+		show = show,
+		hide = hide
+	}
+	if select("#", ...) > 0 then
+		self.lists[name].cols = {}
+		for i = 1, select("#", ...), 2 do
+			local cname, contents = select(i, ...)
+			if cname and contents then
+				table.insert( self.lists[name].cols, { name = cname, contents = contents } )
+			end
+		end
+	end
+	table.insert(self.lists, self.lists[name]) -- used to ipairs loop
+	self:SetupList(name)
+end
+
+function addon:UnregisterList(name)
+	if openedList == name then
+		openedList = nil
+		self:UpdateGUI()
+	end
+end
+
+function addon:SetupList(name)
+	-- implement
+end
+
+function addon:Setuplists()
+	for k, v in ipairs(self.lists) do
+		self:Setuplist(v.name)
+	end
+end
+
+local function selectlist(self)
+	addon:SelectList(self.tabName)
 end
 
 --[[local function clearBackground(f, ...)
@@ -830,11 +870,10 @@ end]]
 
 local function tabOnShow(self) PanelTemplates_TabResize(self, 0) end
 
-function addon:SetupOverview(name)
+function addon:SetupPanel(name)
 	if not contentFrame then return end
 
 	if not contentFrame.oRAtabs[name] then
-		local overview = self.overviews[name]
 		lastTab = lastTab + 1
 		local f = CreateFrame("Button", "oRA3FrameSubTab"..lastTab, contentFrame, "CharacterFrameTabButtonTemplate")
 		f:ClearAllPoints()
@@ -845,7 +884,7 @@ function addon:SetupOverview(name)
 		end
 		f.tabName = name
 		f:SetText(name)
-		f:SetScript("OnClick", selectOverview)
+		f:SetScript("OnClick", selectPanel)
 		f:SetScript("OnShow", tabOnShow)
 		--clearBackground(f, f:GetRegions())
 		
@@ -855,23 +894,19 @@ function addon:SetupOverview(name)
 		end
 		PanelTemplates_SetNumTabs(contentFrame, lastTab)
 		PanelTemplates_UpdateTabs(contentFrame)
-		local col = overview.cols
-		while( col and #col > #scrollheaders ) do
-			self:CreateScrollHeader()
-		end
 	end
 	contentFrame.oRAtabs[name]:Show()
 end
 
-function addon:SelectOverview(name)
+function addon:SelectPanel(name)
 	if not contentFrame then return end
-	if not name then name = self.overviews[1].name end
-	local overview = self.overviews[name]
-	if not overview then return end -- should not happen?
-	openedOverview = name
+	if not name then name = self.panels[1].name end
+	local panel = self.panels[name]
+	if not panel then return end -- should not happen?
+	openedPanel = name
 	
 	selectedTab = 1
-	for k, v in ipairs(self.overviews) do
+	for k, v in ipairs(self.panels) do
 		if v.name ~= name and type(v.hide) == "function" then
 			v.hide()
 		end
@@ -882,30 +917,47 @@ function addon:SelectOverview(name)
 	
 	contentFrame.title:SetText("oRA3 - "..name)
 
+
+	contentFrame.selectedTab = selectedTab
+	PanelTemplates_UpdateTabs(contentFrame)
+	
+	panel.show()
+end
+
+function showLists()
 	-- hide all scrollheaders per default
 	for k, f in ipairs(scrollheaders) do
 		f:Hide()
 	end
 
-	if not overview.cols then
-		-- nonscroll overview hide sframe
-		contentFrame.scrollFrame:Hide()
-		overview.refresh()
-	else
-		-- columns overview -> show sframe
-		contentFrame.scrollFrame:Show()
-		local count = #overview.cols
-		local totalwidth = contentFrame.scrollFrame:GetWidth()
-		local width = totalwidth/count
-		for k, v in ipairs(overview.cols) do
-			scrollheaders[k]:SetText(v.name)
-			self:SetScrollHeaderWidth(k, width)
-			scrollheaders[k]:Show()
-		end
+	if not openedList then
+		openedList = addon.lists[1].name
 	end
-	contentFrame.selectedTab = selectedTab
-	PanelTemplates_UpdateTabs(contentFrame)
+	
+	local list = addon.lists[openedList]
+	if not list then return end
+	
+	contentFrame.scrollFrame:Show()
+	local count = #list.cols
+	local totalwidth = contentFrame.scrollFrame:GetWidth()
+	local width = totalwidth/count
+	while( count > #scrollheaders ) do
+		addon:CreateScrollHeader()
+	end	
+	for k, v in ipairs(list.cols) do
+		scrollheaders[k]:SetText(v.name)
+		addon:SetScrollHeaderWidth(k, width)
+		scrollheaders[k]:Show()
+	end
 end
+
+function hideLists()
+	for k, f in ipairs(scrollheaders) do
+		f:Hide()
+	end
+	contentFrame.scrollFrame:Hide()
+end
+
 
 function util:inTable(t, value)
 	for k, v in pairs(t) do

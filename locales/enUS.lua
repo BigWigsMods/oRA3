@@ -2,7 +2,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("oRA3", "enUS", true)
 
 -- Generic
 L["Name"] = true
-L["Config"] = true
+L["Checks"] = true
 
 L["WARLOCK"] = "Warlock"
 L["WARRIOR"] = "Warrior"
