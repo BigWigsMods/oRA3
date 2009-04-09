@@ -1,6 +1,5 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceConsole-3.0")
-orar = module
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 local readycheck -- table containing ready check results
@@ -63,6 +62,7 @@ end
 
 function module:READY_CHECK_CONFIRM(event, id, confirm)
 	-- this event only fires when promoted, no need to check
+	oRA:Print(event, id, confirm)
 	local name = oRA:InRaid() and UnitName("raid"..id) or UnitName("party"..id)
 	if confirm == 1 then -- ready
 		readycheck[name] = RD_READY
@@ -140,7 +140,7 @@ function module:SetMemberStatus(num, bottom, name, class)
 	f:SetAlpha(1)
 	f:Show()
 	if readycheck[name] == RD_READY then
-		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)			
+		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
 	elseif readycheck[name] == RD_NOTREADY then
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
 	elseif readycheck[name] == RD_OFFLINE then
@@ -171,12 +171,13 @@ function module:UpdateGUI()
 		end
 	else
 		num = 1
-		self:SetMemberStatus(num, playerName, playerClass)
+		topnum = 1
+		self:SetMemberStatus(num, false, playerName, playerClass)
 		for i =1, MAX_PARTY_MEMBERS, 1 do
 			if GetPartyMember(i) then
 				num = num + 1
 				topnum = topnum + 1
-				self:SetMemberStatus(num, true, UnitName("party"..i), select(2,UnitClass("party"..i)) )
+				self:SetMemberStatus(num, false, UnitName("party"..i), select(2,UnitClass("party"..i)) )
 			end
 		end
 	end

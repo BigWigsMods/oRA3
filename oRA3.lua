@@ -13,6 +13,7 @@ local playerName = UnitName("player")
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
+local playerPromoted = nil
 
 -- couple of local constants used for party size
 local UNGROUPED = 0
@@ -32,6 +33,7 @@ local lastTab = 0 -- last tab in the list
 local scrollheaders = {} -- scrollheader frames
 local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
+
 
 addon.lists = {}
 addon.panels = {}
@@ -81,12 +83,18 @@ function addon:OnDisable()
 end
 
 function addon:OnStartup()
+end
+
+function addon:OnShutdown()
+end
+
+function addon:OnPromoted()
 	if oRA3Disband then
 		oRA3Disband:Enable()
 	end
 end
 
-function addon:OnShutdown()
+function addon:OnDemoted()
 	if oRA3Disband then
 		oRA3Disband:Disable()
 	end
@@ -177,6 +185,16 @@ do
 			self:OnStartup()
 			self.callbacks:Fire("OnStartup", groupStatus)
 		end
+		if playerPromoted ~= self:IsPromoted() then
+			playerPromoted = self:IsPromoted()
+			if playerPromoted then
+				self:OnPromoted()
+				self.callbacks:Fire("OnPromoted", playerPromoted)
+			else
+				self:OnDemoted()
+				self.callbacks:Fire("OnDemoted", playerPromoted)
+			end
+		end
 		self:AdjustPanelInset()
 	end
 end
@@ -201,7 +219,11 @@ function addon:DisbandGroup()
 			end
 		end
 	else
-		self:Print("Implement PARTY disband")
+		for i = MAX_PARTY_MEMBERS, 1, -1 do
+			if GetPartyMember(i) then
+				UninviteUnit(UnitName("party"..i))
+			end
+		end
 	end
 	LeaveParty()
 end
@@ -635,6 +657,7 @@ function addon:SetupGUI()
 	
 	self:SelectPanel()
 end
+
 
 function addon:AdjustPanelInset()
 	if oRA3Frame then
