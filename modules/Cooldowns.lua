@@ -103,11 +103,6 @@ end
 
 local function hideConfig()
 	if frame then
-		for i = 1, #frame.children do
-			local widget = frame.children[i]
-			widget.oRACooldownID = nil
-			widget.oRATooltipText = nil
-		end
 		frame:Release()
 		frame = nil
 	end
@@ -185,8 +180,9 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 end
 
 local function spellCheckboxCallback(widget, event, value)
-	if not widget.oRACooldownID then return end
-	db.spells[widget.oRACooldownID] = value and true or nil
+	local id = widget:GetUserData("id")
+	if not id then return end
+	db.spells[id] = value and true or nil
 	widget:SetValue(value)
 end
 
@@ -205,10 +201,6 @@ function module:CreateFrame()
 	group:SetGroupList(classes)
 	group:SetCallback("OnGroupSelected", function(widget, event, class)
 		widget:ReleaseChildren()
-		for i = 1, #widget.children do
-			local w = widget.children[i]
-			w.oRACooldownID = nil
-		end
 		wipe(tmp)
 		for id in pairs(spells[class]) do
 			table.insert(tmp, id)
@@ -219,7 +211,7 @@ function module:CreateFrame()
 			local checkbox = AceGUI:Create("CheckBox")
 			checkbox:SetLabel(name)
 			checkbox:SetValue(db.spells[v] and true or false)
-			checkbox.oRACooldownID = v
+			checkbox:SetUserData("id", v)
 			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
 			checkbox:SetFullWidth(true)
 			widget:AddChild(checkbox)
