@@ -576,11 +576,15 @@ function addon:SetupGUI()
 	oRA3Frame.oRAtabs = {} -- setup the tab listing
 	self:SetupPanels() -- fill the tab listing
 
+	local listFrame = CreateFrame("ScrollFrame", "oRA3ListFrame", contentFrame)
+	listFrame:SetAllPoints(contentFrame)
+	
 	-- Scrolling body
-	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", contentFrame, "FauxScrollFrameTemplate")
-	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 30)
-	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -25)
+	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", listFrame, "FauxScrollFrameTemplate")
+	sframe:SetPoint("BOTTOMLEFT", listFrame, "BOTTOMLEFT", 0, 30)
+	sframe:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -26, -25)
 	contentFrame.scrollFrame = sframe
+	contentFrame.listFrame = listFrame
 	local function updateScroll()
 		self:UpdateScrollContents()
 	end
@@ -589,7 +593,7 @@ function addon:SetupGUI()
 		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
 	end)
 	
-	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", sframe)
+	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", listFrame)
 	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
 	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
 	sframebottom:SetFrameLevel(contentFrame:GetFrameLevel())
@@ -597,7 +601,7 @@ function addon:SetupGUI()
 	sframebottom:SetBackdropBorderColor(.8, .8, .8)
 	sframebottom:SetBackdropColor(0,0,0,0)
 	
-	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", sframe)
+	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", listFrame)
 	sframetop:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
 	sframetop:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, 0)
 	sframetop:SetHeight(27)
@@ -605,12 +609,8 @@ function addon:SetupGUI()
 	sframetop:SetBackdropBorderColor(.8, .8, .8)
 	sframetop:SetBackdropColor(0,0,0,0)
 
-	local function updateScroll()
-		self:UpdateList()
-	end
-
 	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, function() addon:UpdateScroll() end )
 	end)
 
 	local function resizebg(frame)
@@ -782,14 +782,29 @@ end
 local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
 local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
 
-function addon:UpdateScrollContents()
+function addon:UpdateScroll()
+	local list = self.lists[openedList]
+	local nr = #list.contents
+	FauxScrollFrame_Update(contentFrame.scrollFrame, nr, 19, 16)
+	for i = 1, 19 do
+		local j = i + FauxScrollFrame_GetOffset(contentFrame.scrollFrame)
+		if j <= nr then
+			for k, v in ipairs(scrollheaders) do
+				v.entries[i]:SetText(list.contents[j][k])
+				v.entries[i]:Show()
+			end
+		else
+			for k, v in ipairs(scrollheaders) do
+				v.entries[i]:Hide()
+			end
+		end
+	end
 end
 
 function addon:SetScrollHeaderWidth( nr, width )
 	if not scrollheaders[nr] then return end
 	scrollheaders[nr]:SetWidth(width)
 	getglobal(scrollheaders[nr]:GetName().."Middle"):SetWidth(width-9)
-	-- FIXME: set child widths for the scrollframe itself
 end
 
 function addon:CreateScrollHeader()
@@ -805,12 +820,39 @@ function addon:CreateScrollHeader()
 	else
 		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
 	end
+	
+	local entries = {}
+	-- create childs
+	local text = self:CreateScrollEntry(f)
+	text:SetText("TEST")
+	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 4, 0 )
+	entries[1] = text
+	for i = 2, 19 do
+		text = self:CreateScrollEntry(f)
+		text:SetText("TEST")
+		text:SetPoint("TOPLEFT", entries[i-1], "BOTTOMLEFT")
+		entries[i] = text
+	end
+	f.entries = entries
+
 end
+
+function addon:CreateScrollEntry( header )
+	f = header:CreateFontString(nil,"OVERLAY")
+	f:SetHeight(16)
+	f:SetFontObject(GameFontNormalSmall)
+	f:SetJustifyH("LEFT")
+	f:SetTextColor(1, 1, 1, 1)
+	f:ClearAllPoints()
+
+	return f
+end
+
 
 function addon:CreateListButton(name)
 	if not contentFrame then return end
 	local nr = #listbuttons + 1
-	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.scrollFrame, "UIPanelButtonTemplate")
+	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.listFrame, "UIPanelButtonTemplate")
 	f:SetWidth(90)
 	f:SetHeight(21)
 	f:SetNormalFontObject(GameFontNormalSmall)
@@ -822,7 +864,7 @@ function addon:CreateListButton(name)
 	table.insert( listbuttons, f)
 	
 	if #listbuttons == 1 then
-		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 4, -2)
+		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 4, -4)
 	else
 		f:SetPoint("LEFT", listbuttons[#listbuttons - 1], "RIGHT")
 	end
@@ -837,7 +879,6 @@ function addon:UpdateGUI( name )
 	if not oRA3Frame:IsVisible() or (name and openedOverview ~= name) then return end
 	-- update the overviews
 	self:SelectPanel(openedPanel)
-	-- update
 end
 
 
@@ -987,6 +1028,7 @@ function addon:SelectList( name )
 	showLists()
 end
 
+
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in ipairs(scrollheaders) do
@@ -1002,6 +1044,7 @@ function showLists()
 	local list = addon.lists[openedList]
 	if not list then return end
 	
+	contentFrame.listFrame:Show()
 	contentFrame.scrollFrame:Show()
 	local count = #list.cols + 1 -- +1, we make the name twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
@@ -1018,14 +1061,16 @@ function showLists()
 		end
 		scrollheaders[k]:Show()
 	end
-	
 	addon:SetupLists()
+	
+	addon:UpdateScroll()
 end
 
 function hideLists()
 	for k, f in ipairs(scrollheaders) do
 		f:Hide()
 	end
+	contentFrame.listFrame:Hide()
 	contentFrame.scrollFrame:Hide()
 end
 
