@@ -132,6 +132,18 @@ function module:OnRegister()
 end
 
 function module:OnEnable()
+	oRA.RegisterCallback(self, "OnCommCooldown")
+	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnShutdown")
+end
+
+function module:OnDisable()
+	oRA.UnregisterCallback(self, "OnCommCooldown")
+	oRA.UnregisterCallback(self, "OnStartup")
+	oRA.UnregisterCallback(self, "OnShutdown")
+end
+
+function module:OnStartup()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("CHARACTER_POINTS_CHANGED")
 	if playerClass == "SHAMAN" then
@@ -149,8 +161,10 @@ function module:OnEnable()
 			ankhs = newankhs
 		end)
 	end
-	
-	oRA.RegisterCallback(self, "OnCommCooldown")
+end
+
+function module:OnShutdown()
+	self:UnregisterAllEvents()
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)

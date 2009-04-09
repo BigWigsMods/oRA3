@@ -13,6 +13,8 @@ local shadow = {}
 local fire = {}
 local arcane = {}
 
+local f -- frame defined later
+
 function module:OnRegister()
 	oRA:RegisterList(
 		L["Resistances"],
@@ -27,16 +29,30 @@ end
 
 function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommResistance")
-	self:CheckResistance()
+	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnShutdown")
 end
 
 function module:OnDisable()
 	oRA:UnregisterList(L["Resistances"])
 	oRA.UnregisterCallback(self, "OnCommResistance")
+	oRA.UnregisterCallback(self, "OnStartup")
+	oRA.UnregisterCallback(self, "OnShutdown")
+end
+
+function module:OnStartup()
+	f:RegisterEvent("UNIT_INVENTORY_CHANGED")
+	f:RegisterEvent("UNIT_RESISTANCES")
+	self:CheckResistance()
+end
+
+function module:OnShutdown()
+	f:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+	f:UnregisterEvent("UNIT_RESISTANCES")
 end
 
 do
-	local f = CreateFrame("Frame")
+	f = CreateFrame("Frame")
 	local total = 0
 	local function onUpdate(self, elapsed)
 		total = total + elapsed
@@ -54,8 +70,6 @@ do
 			self:SetScript("OnUpdate", onUpdate)
 		end
 	end)
-	f:RegisterEvent("UNIT_INVENTORY_CHANGED")
-	f:RegisterEvent("UNIT_RESISTANCES")
 
 	local ret = {}
 	function module:CheckResistance()
