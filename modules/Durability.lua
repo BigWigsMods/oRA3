@@ -27,7 +27,7 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnShutdown")
 	
 	for i = 1, 40 do
-		table.insert(durability, { UnitName("player")..i, math.random(1, 100).."%", math.random(1, 100).."%", math.random(1, 100) } )
+		table.insert(durability, { UnitName("player")..i, math.random(1, 100), math.random(1, 100), math.random(1, 100) } )
 	end
 end
 
@@ -86,8 +86,8 @@ function module:OnCommDurability(commType, sender, perc, minimum, broken)
 		table.insert(durability, { sender } )
 		k = util:inTable(durability, sender, 1)
 	end
-	durability[k][2] = perc.."%"
-	durability[k][3] = minimum.."%"
+	durability[k][2] = perc
+	durability[k][3] = minimum
 	durability[k][4] = broken
 
 	oRA:UpdateList(L["Durability"])

@@ -821,6 +821,18 @@ end
 local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
 local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
 
+function addon:SortColumn(nr)
+	local list = self.lists[openedList]
+	scrollheaders[nr].sortDir = not scrollheaders[nr].sortDir
+	sortIndex = nr
+	if scrollheaders[nr].sortDir then
+		table.sort(list.contents, sortAsc)
+	else
+		table.sort(list.contents, sortDesc)
+	end
+	self:UpdateScroll()
+end
+
 function addon:UpdateScroll()
 	local list = self.lists[openedList]
 	local nr = #list.contents
@@ -850,8 +862,7 @@ function addon:CreateScrollHeader()
 	if not contentFrame then return end
 	local nr = #scrollheaders + 1
 	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
-	f:SetScript("OnClick", nil)
-	
+	f:SetScript("OnClick", function() self:SortColumn(nr) end)
 	table.insert( scrollheaders, f)
 	
 	if #scrollheaders == 1 then
