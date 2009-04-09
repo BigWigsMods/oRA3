@@ -60,6 +60,7 @@ local scrollheaders = {} -- scrollheader frames
 local listbuttons = {} -- check list buttons
 local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
+local scrollhighs = {} -- scroll highlights
 
 
 addon.lists = {}
@@ -631,7 +632,7 @@ function addon:SetupGUI()
 	sframe:SetScript("OnVerticalScroll", function(self, offset)
 		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
 	end)
-	
+
 	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", listFrame)
 	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
 	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
@@ -848,10 +849,12 @@ function addon:UpdateScroll()
 				end
 				v.entries[i]:Show()
 			end
+			scrollhighs[i]:Show()
 		else
 			for k, v in ipairs(scrollheaders) do
 				v.entries[i]:Hide()
 			end
+			scrollhighs[i]:Hide()
 		end
 	end
 end
@@ -881,14 +884,29 @@ function addon:CreateScrollHeader()
 	text:SetText("TEST")
 	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 4, 0 )
 	entries[1] = text
+	
+	if #scrollheaders == 1 then
+		scrollhighs[1] = CreateFrame("Button", "oRA3ScrollHigh1", contentFrame.listFrame)
+		scrollhighs[1]:SetPoint("TOPLEFT", entries[1], "TOPLEFT", 0, 0)
+		scrollhighs[1]:SetWidth(contentFrame.scrollFrame:GetWidth())
+		scrollhighs[1]:SetHeight(16)
+		scrollhighs[1]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+	end
+
 	for i = 2, 19 do
 		text = self:CreateScrollEntry(f)
 		text:SetText("TEST")
 		text:SetPoint("TOPLEFT", entries[i-1], "BOTTOMLEFT")
 		entries[i] = text
+		if #scrollheaders == 1 then
+			scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame)
+			scrollhighs[i]:SetPoint("TOPLEFT", entries[i], "TOPLEFT", 0, 0)
+			scrollhighs[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
+			scrollhighs[i]:SetHeight(16)
+			scrollhighs[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+		end
 	end
 	f.entries = entries
-
 end
 
 function addon:CreateScrollEntry( header )
