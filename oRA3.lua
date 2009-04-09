@@ -943,6 +943,8 @@ function showLists()
 		openedList = addon.lists[1].name
 	end
 	
+	oRA3Frame.title:SetText(openedPanel.." - "..openedList)
+	
 	local list = addon.lists[openedList]
 	if not list then return end
 	
