@@ -9,6 +9,7 @@ local db = nil
 local peopleToInvite = {}
 
 local function showConfig()
+	if not frame then module:CreateFrame() end
 	frame.frame:SetParent(_G["oRA3FrameSub"])
 	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
 	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
@@ -16,7 +17,10 @@ local function showConfig()
 end
 
 local function hideConfig()
-	frame.frame:Hide()
+	if frame then
+		frame:Release()
+		frame = nil
+	end
 end
 
 function module:OnRegister()
@@ -26,8 +30,6 @@ function module:OnRegister()
 		},
 	})
 	db = database.global
-
-	self:CreateFrame()
 
 	oRA:RegisterPanel(
 		L["Invite"],
@@ -187,7 +189,7 @@ end
 local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
-	if not IsInGuild() then return end
+	if not frame or not IsInGuild() then return end
 	local i = 1
 	while (i <= #frame.children) do
 		local widget = frame.children[i]
@@ -221,6 +223,12 @@ function module:OnGuildRanksUpdate(event, ranks)
 	updateRankButtons()
 end
 
+local function saveKeyword(widget, event, value)
+	if type(value) == "string" and value:trim():len() < 2 then value = nil end
+	db.keyword = value
+	widget:SetText(value)
+end
+
 function module:CreateFrame()
 	if frame then return end
 	local inGuild = IsInGuild()
@@ -230,11 +238,7 @@ function module:CreateFrame()
 	local keyword = AceGUI:Create("EditBox")
 	keyword:SetLabel(L["Keyword"])
 	keyword:SetText(db.keyword)
-	keyword:SetCallback("OnEnterPressed", function(widget, event, value)
-		if type(value) == "string" and value:trim():len() < 2 then value = nil end
-		db.keyword = value
-		keyword:SetText(value)
-	end)
+	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetFullWidth(true)
 	
 	local kwDescription = AceGUI:Create("Label")

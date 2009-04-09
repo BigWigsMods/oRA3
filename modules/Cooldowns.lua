@@ -94,6 +94,7 @@ end
 local broadcastSpells = {}
 
 local function showConfig()
+	if not frame then module:CreateFrame() end
 	frame.frame:SetParent(_G["oRA3FrameSub"])
 	frame.frame:SetPoint("TOPLEFT", _G["oRA3FrameSub"], "TOPLEFT", 0, -60)
 	frame.frame:SetPoint("BOTTOMRIGHT", _G["oRA3FrameSub"], "BOTTOMRIGHT", -4, 4)
@@ -101,7 +102,10 @@ local function showConfig()
 end
 
 local function hideConfig()
-	frame.frame:Hide()
+	if frame then
+		frame:Release()
+		frame = nil
+	end
 end
 
 function module:OnRegister()
@@ -116,8 +120,6 @@ function module:OnRegister()
 		},
 	})
 	db = database.profile
-	
-	self:CreateFrame()
 
 	oRA:RegisterPanel(
 		L["Cooldowns"],
@@ -177,6 +179,12 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	end
 end
 
+local function spellCheckboxCallback(widget, event, value)
+	if not widget.oRACooldownID then return end
+	db.spells[widget.oRACooldownID] = value and true or nil
+	widget:SetValue(value)
+end
+
 local tmp = {}
 function module:CreateFrame()
 	if frame then return end
@@ -186,12 +194,6 @@ function module:CreateFrame()
 	moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 	moduleDescription:SetFullWidth(true)
 	moduleDescription:SetFontObject(GameFontHighlight)
-
-	local function spellCheckboxCallback(widget, event, value)
-		if not widget.oRACooldownID then return end
-		db.spells[widget.oRACooldownID] = value and true or nil
-		widget:SetValue(value)
-	end
 
 	local group = AceGUI:Create("DropdownGroup")
 	group:SetTitle(L["Select class"])
