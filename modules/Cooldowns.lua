@@ -92,13 +92,6 @@ local function getCooldown(spellId)
 end
 
 local broadcastSpells = {}
-local function updateSpells()
-	wipe(broadcastSpells)
-	-- These are the spells we broadcast to the raid
-	for spell, cd in pairs(spells[playerClass]) do
-		broadcastSpells[GetSpellInfo(spell)] = spell
-	end
-end
 
 local function showConfig()
 	frame.frame:SetParent(_G["oRA3FrameSub"])
@@ -131,6 +124,11 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
+	
+	-- These are the spells we broadcast to the raid
+	for spell, cd in pairs(spells[playerClass]) do
+		broadcastSpells[GetSpellInfo(spell)] = spell
+	end
 end
 
 function module:OnEnable()
@@ -153,8 +151,6 @@ function module:OnEnable()
 	end
 	
 	oRA.RegisterCallback(self, "OnCommCooldown")
-	
-	updateSpells()
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
@@ -167,11 +163,9 @@ function module:CHARACTER_POINTS_CHANGED()
 	if playerClass == "PALADIN" then
 		local _, _, _, _, rank = GetTalentInfo(2, 5)
 		bopModifier = rank * 60
-		updateSpells()
 	elseif playerClass == "SHAMAN" then
 		local _, _, _, _, rank = GetTalentInfo(3, 3)
 		reincModifier = rank * 600
-		updateSpells()
 	end
 end
 
@@ -197,7 +191,6 @@ function module:CreateFrame()
 		if not widget.oRACooldownID then return end
 		db.spells[widget.oRACooldownID] = value and true or nil
 		widget:SetValue(value)
-		updateSpells()
 	end
 
 	local group = AceGUI:Create("DropdownGroup")
