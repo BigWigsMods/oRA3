@@ -81,25 +81,23 @@ local db = nil
 local bopModifier = 0
 local reincModifier = 0
 
-local trackedSpells = {}
-local broadcastSpells = {}
+local function getCooldown(spellId)
+	local cd = spells[playerClass][spellId]
+	if spellId == 10278 then
+		cd = cd - bopModifier
+	elseif spellId == 20608 then
+		cd = cd - reincModifier
+	end
+	return cd
+end
 
+local broadcastSpells = {}
 local function updateSpells()
 	wipe(broadcastSpells)
-	wipe(trackedSpells)
 	-- These are the spells we broadcast to the raid
 	for spell, cd in pairs(spells[playerClass]) do
-		if spell == 10278 then
-			cd = cd - bopModifier
-		elseif spell == 20608 then
-			cd = cd - reincModifier
-		end
-		broadcastSpells[GetSpellInfo(spell)] = cd
+		broadcastSpells[GetSpellInfo(spell)] = spell
 	end
-	for spell in pairs(db.spells) do
-		trackedSpells[GetSpellInfo(spell)] = true
-	end
-	--AceLibrary("AceConsole-2.0"):PrintLiteral(trackedSpells)
 end
 
 local function showConfig()
@@ -148,8 +146,7 @@ function module:OnEnable()
 			if (GetTime() - (resTime or 0)) > 1 then return end
 			local newankhs = GetItemCount(17030)
 			if newankhs == (ankhs - 1) then
-				local name = GetSpellInfo(20608)
-				oRA:SendComm("Cooldown", name, broadcastSpells[name]) -- Spell name + CD in seconds
+				oRA:SendComm("Cooldown", 20608, getCooldown(20608)) -- Spell ID + CD in seconds
 			end
 			ankhs = newankhs
 		end)
@@ -161,8 +158,9 @@ function module:OnEnable()
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
-	if not trackedSpells[spell] then return end
-	print("We should show a cooldown for " .. spell .. " (" .. tostring(cd) .. ")")
+	print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
+	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
+	if not db.spells[spell] then return end
 end
 
 function module:CHARACTER_POINTS_CHANGED()
@@ -180,7 +178,8 @@ end
 function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	if unit ~= "player" then return end
 	if broadcastSpells[spell] then
-		oRA:SendComm("Cooldown", spell, broadcastSpells[spell]) -- Spell name + CD in seconds
+		local spellId = broadcastSpells[spell]
+		oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
 	end
 end
 
