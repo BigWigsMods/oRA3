@@ -813,11 +813,9 @@ end
 
 
 -- register a list view
--- name (string) - name of the overview Tab
--- show - function to call to refresh/show the overview
--- hide - function to call to hide the overview
+-- name (string) - name of the list
 -- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
-function addon:RegisterList(name, show, hide, ...)
+function addon:RegisterList(name, ...)
 	self.lists[name] = {
 		name = name,
 		show = show,

@@ -16,7 +16,6 @@ function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
 	oRA:RegisterList(
 		L["Durability"],
-		nil, nil,
 		L["Name"], tname,
 		L["Average"], tperc,
 		L["Minimum"], tminimum,

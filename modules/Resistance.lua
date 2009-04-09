@@ -16,7 +16,6 @@ local arcane = {}
 function module:OnRegister()
 	oRA:RegisterList(
 		L["Resistances"],
-		nil, nil,
 		L["Name"], names,
 		L["Frost"], frost,
 		L["Fire"], fire,
