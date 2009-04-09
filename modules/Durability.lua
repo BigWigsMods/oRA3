@@ -91,6 +91,6 @@ function module:OnCommDurability(commType, sender, perc, minimum, broken)
 	tminimum[k] = minimum.."%"
 	tbroken[k] = broken
 
-	--oRA:UpdateGUI(L["Durability"])
+	oRA:UpdateList(L["Durability"])
 end
 

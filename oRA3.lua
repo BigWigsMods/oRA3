@@ -40,7 +40,6 @@ local db
 local defaults = {
 	profile = {
 		positions = {},
-		attached = true,
 		open = false,
 	}
 }
@@ -600,7 +599,7 @@ function addon:SetupGUI()
 	end)
 	resizebg(frame)
 	
-	self:LockUnlockFrame()
+	self:UpdateFrameStatus()
 	
 	self:SelectPanel()
 end
@@ -627,52 +626,31 @@ function addon:SetAllPointsToPanel(frame)
 end
 
 
-function addon:LockUnlockFrame()
+function addon:UpdateFrameStatus()
 	local subframe = oRA3FrameSub
 
 	oRA3Frame:ClearAllPoints()
 
-	if db.attached then
-		-- Lock the frame
-		oRA3Frame.titlereg:Hide()
-		oRA3Frame.resize:Hide()
-		oRA3Frame.handle:Show()
-		oRA3Frame:SetWidth(375) --325
-		oRA3Frame:SetHeight(425) -- 450
-		oRA3Frame.resizebg(oRA3Frame)
-		oRA3Frame:SetFrameStrata("MEDIUM")
-		oRA3Frame.close:Show()
-		oRA3Frame:SetParent(RaidFrame)
+	-- Lock the frame
+	oRA3Frame.titlereg:Hide()
+	oRA3Frame.resize:Hide()
+	oRA3Frame.handle:Show()
+	oRA3Frame:SetWidth(375)
+	oRA3Frame:SetHeight(425) 
+	oRA3Frame.resizebg(oRA3Frame)
+	oRA3Frame:SetFrameStrata("MEDIUM")
+	oRA3Frame.close:Show()
+	oRA3Frame:SetParent(RaidFrame)
 
-		-- subframe.text:UpdateSize()
-
-		if db.open then
-			oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
-			subframe:Show()
-			subframe:SetAlpha(1)
-			subframe.open = true
-		else
-			oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
-			subframe:Hide()
-			subframe:SetAlpha(0)
-		end
-	else
-		-- Unlock the frame
-		oRA3Frame.titlereg:Show()
-		oRA3Frame.resize:Show()
-		oRA3Frame.handle:Hide()
-		oRA3Frame:SetFrameStrata("HIGH")
-		oRA3Frame.close:Hide()
-
-		-- Make sure we can see the frame
+	if db.open then
+		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
 		subframe:Show()
 		subframe:SetAlpha(1)
-
-		-- Update the size of the scroll child
-		-- subframe.text:UpdateSize()
-
-		-- Restore the position
-		self:RestorePosition("oRA3Frame")
+		subframe.open = true
+	else
+		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
+		subframe:Hide()
+		subframe:SetAlpha(0)
 	end
 end
 
@@ -734,50 +712,6 @@ function addon:RestorePosition(name)
 		f.resizebg(f)
 	end
 	return true
-end
-
-function addon:AttachFrame()
-	self:Print("Re-Attaching the oRA3 Frame")
-
-	db.attached = true
-	self:LockUnlockFrame()
-end
-
-function addon:DetachFrame()
-	self:Print("Detaching the oRA3 Frame")
-
-	db.attached = false
-	self:LockUnlockFrame()
-end
-
-function addon:ChangeBGAlpha(value)
-	value = tonumber(value)
-
-	db.bgalpha = value
-
-	local frame = oRA3Frame
-	local textures = {
-		"topleft",
-		"top",
-		"topright",
-		"midleft",
-		"mid",
-		"midright",
-		"botleft",
-		"bot",
-		"botright",
-		"bg1",
-		"bg2",
-		"bg3",
-		"resize",
-		"titlereg",
-		"handle",
-		"close",
-	}
-
-	for k,v in pairs(textures) do
-		frame[v]:SetAlpha(value)
-	end
 end
 
 
@@ -884,6 +818,10 @@ function addon:UnregisterList(name)
 		openedList = nil
 		self:UpdateGUI()
 	end
+end
+
+function addon:UpdateList(name)
+	-- implement
 end
 
 function addon:SetupList(name)

@@ -94,6 +94,7 @@ function module:OnCommResistance(commType, sender, fr, nr, frr, sr, ar)
 	frost[k] = frr
 	shadow[k] = sr
 	arcane[k] = ar
-	-- oRA:UpdateGUI(L["Resistances"])
+	
+	oRA:UpdateList(L["Resistances"])
 end
 

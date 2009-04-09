@@ -48,7 +48,21 @@ function module:OnRegister()
 end
 
 function module:OnEnable()
+	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnShutdown")
+end
+
+function module:OnDisable()
+	oRA.UnregisterCallback(self, "OnStartup")
+	oRA.UnregisterCallback(self, "OnShutdown")
+end
+
+function module:OnStartup()
 	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+end
+
+function module:OnShutdown()
+	self:UnregisterAllEvents()
 end
 
 function module:UPDATE_MOUSEOVER_UNIT()
