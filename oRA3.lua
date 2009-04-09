@@ -882,7 +882,7 @@ function addon:CreateScrollHeader()
 	-- create childs
 	local text = self:CreateScrollEntry(f)
 	text:SetText("TEST")
-	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 4, 0 )
+	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0 )
 	entries[1] = text
 	
 	if #scrollheaders == 1 then
