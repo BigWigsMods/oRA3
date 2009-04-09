@@ -932,7 +932,6 @@ function addon:CreateListButton(name)
 	f:SetDisabledFontObject(GameFontDisableSmall)
 	f:SetText(name)
 	f:SetScript("OnClick", function() self:SelectList(name) end)
-	
 	table.insert( listbuttons, f)
 	
 	if #listbuttons == 1 then
@@ -1097,18 +1096,29 @@ end
 
 function addon:SelectList( name )
 	openedList = name
+	for k, v in ipairs(self.lists) do
+		if v.name == openedList then
+			v.button:SetNormalFontObject(GameFontHighlightSmall)
+		else
+			v.button:SetNormalFontObject(GameFontNormalSmall)
+		end
+	end
 	showLists()
 end
 
 
 function showLists()
+	addon:SetupLists()
+	
 	-- hide all scrollheaders per default
 	for k, f in ipairs(scrollheaders) do
 		f:Hide()
 	end
-
+	
 	if not openedList then
 		openedList = addon.lists[1].name
+		addon:SelectList(openedList)
+		return -- recursive protection
 	end
 	
 	oRA3Frame.title:SetText(openedPanel.." - "..openedList)
@@ -1133,7 +1143,7 @@ function showLists()
 		end
 		scrollheaders[k]:Show()
 	end
-	addon:SetupLists()
+
 	
 	addon:UpdateScroll()
 end
