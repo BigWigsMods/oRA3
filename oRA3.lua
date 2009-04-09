@@ -31,6 +31,7 @@ local openedList = nil -- name of the current opened List in the List panel
 local contentFrame = nil -- content frame for the views
 local lastTab = 0 -- last tab in the list
 local scrollheaders = {} -- scrollheader frames
+local listbuttons = {} -- check list buttons
 local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
 
@@ -798,6 +799,27 @@ function addon:CreateScrollHeader()
 	end
 end
 
+function addon:CreateListButton(name)
+	if not contentFrame then return end
+	local nr = #listbuttons + 1
+	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.scrollFrame, "UIPanelButtonTemplate")
+	f:SetWidth(90)
+	f:SetHeight(21)
+	f:SetNormalFontObject(GameFontNormalSmall)
+	f:SetHighlightFontObject(GameFontHighlightSmall)
+	f:SetDisabledFontObject(GameFontDisableSmall)
+	f:SetText(name)
+	f:SetScript("OnClick", function() self:SelectList(name) end)
+	
+	table.insert( listbuttons, f)
+	
+	if #listbuttons == 1 then
+		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 4, -2)
+	else
+		f:SetPoint("LEFT", listbuttons[#listbuttons - 1], "RIGHT")
+	end
+	return f
+end
 
 function addon:UpdateGUI( name )
 	self:SetupGUI()
@@ -882,14 +904,15 @@ function addon:UpdateList(name)
 end
 
 function addon:SetupList(name)
-	-- implement
-	
-	-- add button
+	local list = self.lists[name]
+	if not list.button then
+		list.button = self:CreateListButton(name)
+	end
 end
 
-function addon:Setuplists()
+function addon:SetupLists()
 	for k, v in ipairs(self.lists) do
-		self:Setuplist(v.name)
+		self:SetupList(v.name)
 	end
 end
 
@@ -951,7 +974,7 @@ function addon:SelectPanel(name)
 	panel.show()
 end
 
-function selectList( name )
+function addon:SelectList( name )
 	openedList = name
 	showLists()
 end
@@ -987,6 +1010,8 @@ function showLists()
 		end
 		scrollheaders[k]:Show()
 	end
+	
+	addon:SetupLists()
 end
 
 function hideLists()
