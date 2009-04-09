@@ -103,6 +103,11 @@ end
 
 local function hideConfig()
 	if frame then
+		for i = 1, #frame.children do
+			local widget = frame.children[i]
+			widget.oRACooldownID = nil
+			widget.oRATooltipText = nil
+		end
 		frame:Release()
 		frame = nil
 	end
@@ -200,6 +205,10 @@ function module:CreateFrame()
 	group:SetGroupList(classes)
 	group:SetCallback("OnGroupSelected", function(widget, event, class)
 		widget:ReleaseChildren()
+		for i = 1, #widget.children do
+			local w = widget.children[i]
+			w.oRACooldownID = nil
+		end
 		wipe(tmp)
 		for id in pairs(spells[class]) do
 			table.insert(tmp, id)

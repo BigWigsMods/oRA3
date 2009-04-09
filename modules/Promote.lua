@@ -20,6 +20,10 @@ end
 
 local function hideConfig()
 	if frame then
+		for i = 1, #frame.children do
+			local widget = frame.children[i]
+			widget.oRATooltipText = nil
+		end
 		frame:Release()
 		frame = nil
 	end

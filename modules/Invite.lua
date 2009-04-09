@@ -18,6 +18,11 @@ end
 
 local function hideConfig()
 	if frame then
+		for i = 1, #frame.children do
+			local widget = frame.children[i]
+			widget.oRAGuildRank = nil
+			widget.oRATooltipText = nil
+		end
 		frame:Release()
 		frame = nil
 	end
