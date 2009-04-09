@@ -69,6 +69,10 @@ function addon:OnEnable()
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
+	
+	self:RegisterCallback(self, "OnStartup")
+	self:RegisterCallback(self, "OnShutdown")
+	
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
@@ -76,6 +80,18 @@ end
 
 function addon:OnDisable()
 	self:HideGUI()
+end
+
+function addon:OnStartup()
+	if oRA3Disband then
+		oRA3Disband:Enable()
+	end
+end
+
+function addon:OnShutdown()
+	if oRA3Disband then
+		oRA3Disband:Disable()
+	end
 end
 
 do
@@ -176,12 +192,16 @@ end
 function addon:DisbandGroup()
 	if not self:IsPromoted() then return end
 	local pName = UnitName("player")
-	SendChatMessage("<oRA> Disbanding raid.", "RAID")
-	for i = 1, GetNumRaidMembers() do
-		local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-		if online and name ~= pName then
-			UninviteUnit(name)
+	SendChatMessage(L["<oRA3> Disbanding raid."], "RAID")
+	if self:InRaid() then
+		for i = 1, GetNumRaidMembers() do
+			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+			if online and name ~= pName then
+				UninviteUnit(name)
+			end
 		end
+	else
+		self:Print("Implement PARTY disband")
 	end
 	LeaveParty()
 end
@@ -517,7 +537,7 @@ function addon:SetupGUI()
 	disband:SetText(L["Disband Group"])
 	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 4, 11)
 	disband:SetScript("OnClick", function() self:DisbandGroup() end)
-	--disband:Disable()
+	disband:Disable() -- will get enabled on startup
 
 	local options = CreateFrame("Button", "oRA3Options", contentFrame, "UIPanelButtonTemplate")
 	options:SetWidth(115)
@@ -528,7 +548,6 @@ function addon:SetupGUI()
 	options:SetText(L["Options"])
 	options:SetPoint("BOTTOMRIGHT", contentFrame, "TOPRIGHT", -6, 11)
 	options:SetScript( "OnClick", function()  self:ShowOptions() end )
-	options:Disable() -- remove this once implemented ;)
 	
 	
 	oRA3Frame.oRAtabs = {} -- setup the tab listing

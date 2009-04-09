@@ -5,6 +5,7 @@ L["Name"] = true
 L["Checks"] = true
 L["Disband Group"] = true
 L["Options"] = true
+L["<oRA3> Disbanding raid."] = true
 
 L["WARLOCK"] = "Warlock"
 L["WARRIOR"] = "Warrior"
