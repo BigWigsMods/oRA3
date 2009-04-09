@@ -715,7 +715,7 @@ function addon:AdjustPanelInset()
 		else
 			contentFrame:SetPoint("TOPLEFT", 14, -56)
 		end
-		if contentFrame.scrollFrame:IsVisible() then
+		if openedOverview  == L["Checks"] then
 			showLists()
 		end
 	end
@@ -1143,8 +1143,6 @@ function showLists()
 		end
 		scrollheaders[k]:Show()
 	end
-
-	
 	addon:UpdateScroll()
 end
 
