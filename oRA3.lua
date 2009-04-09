@@ -590,20 +590,28 @@ function addon:SetupGUI()
 	end)
 	
 	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", sframe)
-	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT")
-	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT")
+	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
+	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
+	sframebottom:SetFrameLevel(contentFrame:GetFrameLevel())
+	sframebottom:SetBackdrop(backdrop)
+	sframebottom:SetBackdropBorderColor(.8, .8, .8)
+	sframebottom:SetBackdropColor(0,0,0,0)
+	
+	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", sframe)
+	sframetop:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
+	sframetop:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, 0)
+	sframetop:SetHeight(27)
+	sframetop:SetBackdrop(backdrop)
+	sframetop:SetBackdropBorderColor(.8, .8, .8)
+	sframetop:SetBackdropColor(0,0,0,0)
 
-	--sframe:SetWidth(295)
-	--sframe:SetHeight(288) -- 18 entries a 16 px
-	--sframe:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -55)
+	local function updateScroll()
+		self:UpdateList()
+	end
 
-	--local function updateScroll()
---		self:UpdateWindow()
---	end
-
---	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		--FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
-	--end)
+	sframe:SetScript("OnVerticalScroll", function(self, offset)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
+	end)
 
 	local function resizebg(frame)
 		local width = frame:GetWidth() - 5
@@ -998,7 +1006,7 @@ function showLists()
 	local count = #list.cols + 1 -- +1, we make the name twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth/count
-	while( count > #scrollheaders ) do
+	while( #list.cols > #scrollheaders ) do
 		addon:CreateScrollHeader()
 	end	
 	for k, v in ipairs(list.cols) do
