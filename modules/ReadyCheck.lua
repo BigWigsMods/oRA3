@@ -62,7 +62,7 @@ end
 
 function module:READY_CHECK_CONFIRM(event, id, confirm)
 	-- this event only fires when promoted, no need to check
-	oRA:Print(event, id, confirm)
+	--oRA:Print(event, id, confirm)
 	local name = oRA:InRaid() and UnitName("raid"..id) or UnitName("party"..id)
 	if confirm == 1 then -- ready
 		readycheck[name] = RD_READY

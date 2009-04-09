@@ -5,6 +5,32 @@ _G.oRA3 = addon -- Debug
 
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
+local hexColors = {}
+for k, v in pairs(RAID_CLASS_COLORS) do
+	hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+end
+local _testUnits = {
+	Wally = "WARRIOR",
+	Kingkong = "DEATHKNIGHT",
+	Apenuts = "PALADIN",
+	Foobar = "DRUID",
+	Eric = "WARLOCK",
+}
+addon._testUnits = _testUnits
+local coloredNames = setmetatable({}, {__index =
+	function(self, key)
+		if type(key) == "nil" then return nil end
+		local class = _testUnits[key] or select(2, UnitClass(key))
+		if class then
+			self[key] = hexColors[class]  .. key .. "|r"
+		else
+			self[key] = "|cffcccccc<"..key..">|r"
+		end
+		return self[key]
+	end
+})
+addon.coloredNames = coloredNames
+
 addon.util = {}
 local util = addon.util
 
@@ -73,6 +99,7 @@ function addon:OnEnable()
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
+	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
@@ -98,6 +125,18 @@ end
 function addon:OnDemoted()
 	if oRA3Disband then
 		oRA3Disband:Disable()
+	end
+end
+
+do
+	local unitJoinedRaid = '^' .. ERR_RAID_MEMBER_ADDED_S:gsub("%%s", "(%%S+)") .. '$'
+	function addon:CHAT_MSG_SYSTEM(event, msg)
+		if not UnitInRaid("player") then return end
+		local name = select(3, msg:find(unitJoinedRaid))
+		if not name then return end
+		if rawget(coloredNames, name) then
+			coloredNames[name] = nil
+		end
 	end
 end
 

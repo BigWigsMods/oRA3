@@ -4,40 +4,6 @@ local module = oRA:NewModule("Tanks", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
-local classes = {
-	Hezekiah = "WARRIOR",
-	Jitter = "WARRIOR",
-	Kaostechno = "PALADIN",
-	Shekowaffle = "DRUID",
-	Tubbygold = "WARLOCK",
-}
-
-local hexColors = {}
-for k, v in pairs(RAID_CLASS_COLORS) do
-	hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
-end
-
-local coloredNames = setmetatable({}, {__index =
-	function(self, key)
-		if type(key) == "nil" then return nil end
-		local class = classes[key] or select(2, UnitClass(key))
-		if class then
-			self[key] = hexColors[class]  .. key .. "|r"
-		else
-			self[key] = "|cffcccccc<"..key..">|r"
-		end
-		return self[key]
-	end
-})
-
-local tanks = {
-	"Hezekiah",
-	"Jitter",
-	"Kaostechno",
-	"Shekowaffle",
-	"Tubbygold",
-}
-
 local function showConfig()
 	if not frame then module:CreateFrame() end
 	oRA:SetAllPointsToPanel(frame.frame)
@@ -105,7 +71,8 @@ function module:CreateFrame()
 	box:SetFullWidth(true)
 
 	local format = "%d. %s"
-	for i, v in ipairs(tanks) do
+	local i = 1
+	for name, class in pairs(oRA._testUnits) do
 		local up = AceGUI:Create("Button")
 		up:SetText("Up")
 		up:SetWidth(50)
@@ -113,11 +80,12 @@ function module:CreateFrame()
 		down:SetText("Down")
 		down:SetWidth(50)
 		local label = AceGUI:Create("Label")
-		label:SetText(format:format(i, coloredNames[v]))
+		label:SetText(format:format(i, oRA.coloredNames[name]))
 		label:SetFontObject(GameFontHighlightLarge)
 		box:AddChild(up)
 		box:AddChild(down)
 		box:AddChild(label)
+		i = i + 1
 	end
 
 	frame:AddChild(persistentHeading)

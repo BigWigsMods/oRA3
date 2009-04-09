@@ -121,6 +121,7 @@ local function onControlLeave() GameTooltip:Hide() end
 function module:CreateFrame()
 	if frame then return end
 	frame = AceGUI:Create("ScrollFrame")
+	frame:SetLayout("Flow")
 
 	local spacer = AceGUI:Create("Label")
 	spacer:SetText(" ")
@@ -202,7 +203,7 @@ function module:CreateFrame()
 		queuePromotes()
 	end)
 	add:SetDisabled(factionDb.promoteAll)
-	add:SetFullWidth(true)
+	add:SetRelativeWidth(0.5)
 
 	delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
@@ -215,7 +216,7 @@ function module:CreateFrame()
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end)
 	delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
-	delete:SetFullWidth(true)
+	delete:SetRelativeWidth(0.5)
 
 	frame:AddChild(massHeader)
 	frame:AddChild(everyone)
