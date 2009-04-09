@@ -138,7 +138,7 @@ do
 		else
 			groupStatus = UNGROUPED
 			-- FIXME:  remove this override
-			-- groupStatus = INRAID
+			groupStatus = INRAID
 		end
 
 		addon.groupStatus = groupStatus
@@ -193,7 +193,16 @@ function addon:Shutdown()
 end
 
 function addon:DisbandGroup()
-	self:Print("Implement ME!")
+	if not self:IsPromoted() then return end
+	local pName = UnitName("player")
+	SendChatMessage("<oRA> Disbanding raid.", "RAID")
+	for i = 1, GetNumRaidMembers() do
+		local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+		if online and name ~= pName then
+			UninviteUnit(name)
+		end
+	end
+	LeaveParty()
 end
 
 function addon:ShowOptions()
@@ -229,7 +238,7 @@ end
 
 function addon:OnCommReceived(prefix, message, distribution, sender)
 	if distribution ~= "RAID" and distribution ~= "PARTY" then return end
-	addon:DispatchComm( sender, self:Deserialize(message) )
+	addon:DispatchComm(sender, self:Deserialize(message))
 end
 
 function addon:DispatchComm(sender, ok, commType, ...)
@@ -360,16 +369,16 @@ function addon:SetupGUI()
 	titlereg:SetPoint("TOPRIGHT", 0, 0)
 	titlereg:SetHeight(20)
 	titlereg:SetScript("OnMouseDown", function(f)
-										  local parent = f:GetParent()
-										  if parent:IsMovable() then
-											  parent:StartMoving()
-										  end
-									  end)
+		local parent = f:GetParent()
+		if parent:IsMovable() then
+			parent:StartMoving()
+		end
+	end)
 	titlereg:SetScript("OnMouseUp", function(f)
-										local parent = f:GetParent()
-										parent:StopMovingOrSizing()
-										-- self:SavePosition("oRA3Frame")
-									end)
+		local parent = f:GetParent()
+		parent:StopMovingOrSizing()
+		-- self:SavePosition("oRA3Frame")
+	end)
 									
 	local title = frame:CreateFontString(nil, "ARTWORK")
 	title:SetFontObject(GameFontNormal)
@@ -473,25 +482,24 @@ function addon:SetupGUI()
 
 	frame.handle:RegisterForClicks("AnyUp")
 	frame.handle:SetScript("OnClick", function(self, button)
-											frame:SetScript("OnUpdate", onupdate)
-											if db.sound then
-												PlaySoundFile("Sound\\Doodad\\Karazahn_WoodenDoors_Close_A.wav")
-											end
-
-											db.oraopen = not db.oraopen --unused for now
-										end)
+		frame:SetScript("OnUpdate", onupdate)
+		if db.sound then
+			PlaySoundFile("Sound\\Doodad\\Karazahn_WoodenDoors_Close_A.wav")
+		end
+		db.oraopen = not db.oraopen --unused for now
+	end)
 
 	frame.handle:SetScript("OnEnter", function(self)
-											SetCursor("INTERACT_CURSOR")
-											GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-											GameTooltip:SetText("Click to open/close oRA3")
-											GameTooltip:Show()
-										end)
+		SetCursor("INTERACT_CURSOR")
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+		GameTooltip:SetText("Click to open/close oRA3")
+		GameTooltip:Show()
+	end)
 
 	frame.handle:SetScript("OnLeave",function(self)
-										   SetCursor(nil)
-										   GameTooltip:Hide()
-									   end)
+		SetCursor(nil)
+		GameTooltip:Hide()
+	end)
 
 	frame.close:SetScript("OnClick", function() 
 		if RaidFrame:IsVisible() then
@@ -513,7 +521,7 @@ function addon:SetupGUI()
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 		tile = true, edgeSize = 16, tileSize = 16,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
-}
+	}
 	contentFrame:SetBackdrop(backdrop)
 	--contentFrame:SetBackdropColor(0.3, 0.3, 0.3)
 	contentFrame:SetBackdropBorderColor(.8, .8, .8)
@@ -523,7 +531,8 @@ function addon:SetupGUI()
 	disband:SetHeight(28)
 	disband:SetText(L["Disband Group"])
 	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 0, 4)
-	disband:SetScript( "OnClick", function()  self:DisbandGroup() end )
+	disband:SetScript("OnClick", function() self:DisbandGroup() end)
+	--disband:Disable()
 
 	local options = CreateFrame("Button", "oRA3Options", contentFrame, "UIPanelButtonTemplate2")
 	options:SetWidth(120)
@@ -560,8 +569,6 @@ function addon:SetupGUI()
 --	sframe:SetScript("OnVerticalScroll", function(self, offset)
 		--FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
 	--end)
-	
-	
 
 	local function resizebg(frame)
 		local width = frame:GetWidth() - 5
@@ -598,18 +605,18 @@ function addon:SetupGUI()
 	oRA3Frame.resizebg = resizebg
 
 	resize:SetScript("OnMouseDown", function(frame)
-										oRA3Frame:StartSizing()
-										oRA3Frame:SetScript("OnUpdate", resizebg)
-									end)
+		oRA3Frame:StartSizing()
+		oRA3Frame:SetScript("OnUpdate", resizebg)
+	end)
 	resize:SetScript("OnMouseUp", function(frame)
-									  oRA3Frame:StopMovingOrSizing()
-									  oRA3Frame:SetScript("OnUpdate", nil)
-									  -- FIXME
-									  -- self:SavePosition("oRA3Frame")
-									  -- subframe.text:UpdateSize()
-									  -- subframe.scroll:UpdateScrollChildRect()
-									  oRA3Frame.resizebg(oRA3Frame)
-								  end)
+		oRA3Frame:StopMovingOrSizing()
+		oRA3Frame:SetScript("OnUpdate", nil)
+		-- FIXME
+		-- self:SavePosition("oRA3Frame")
+		-- subframe.text:UpdateSize()
+		-- subframe.scroll:UpdateScrollChildRect()
+		oRA3Frame.resizebg(oRA3Frame)
+	end)
 	resizebg(frame)
 	
 	self:LockUnlockFrame()
