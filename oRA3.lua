@@ -44,6 +44,7 @@ local defaults = {
 	}
 }
 
+local selectList -- implemented down the file
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
 
@@ -497,13 +498,14 @@ function addon:SetupGUI()
 
 	contentFrame = subframe
 	local backdrop = {
-		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+		-- bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+		bgFile = [[Interface\AddOns\oRA3\images\tiled-noise-2]],
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-		tile = true, edgeSize = 16, tileSize = 16,
+		tile = true, edgeSize = 16, tileSize = 64,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
 	}
 	contentFrame:SetBackdrop(backdrop)
-	--contentFrame:SetBackdropColor(0.3, 0.3, 0.3)
+	contentFrame:SetBackdropColor(0.08, 0.08, 0.08)
 	contentFrame:SetBackdropBorderColor(.8, .8, .8)
 
 	local disband = CreateFrame("Button", "oRA3Disband", contentFrame, "UIPanelButtonTemplate2")
@@ -527,8 +529,8 @@ function addon:SetupGUI()
 
 	-- Scrolling body
 	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", contentFrame, "FauxScrollFrameTemplate")
-	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 6)
-	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -24)
+	sframe:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", 0, 30)
+	sframe:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", -26, -25)
 	contentFrame.scrollFrame = sframe
 	local function updateScroll()
 		self:UpdateScrollContents()
@@ -538,6 +540,10 @@ function addon:SetupGUI()
 		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
 	end)
 	
+	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", sframe)
+	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT")
+	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT")
+
 	--sframe:SetWidth(295)
 	--sframe:SetHeight(288) -- 18 entries a 16 px
 	--sframe:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -55)
@@ -759,12 +765,11 @@ end
 -- Panels
 
 -- register a panel
-function addon:RegisterPanel(name, show, hide, isList)
+function addon:RegisterPanel(name, show, hide)
 	self.panels[name] = {
 		name = name,
 		show = show,
-		hide = hide,
-		isList = isList
+		hide = hide
 	}
 	table.insert(self.panels, self.panels[name]) -- used to ipairs loop
 	self:SetupPanel(name)
@@ -793,19 +798,19 @@ end
 
 -- register a list view
 -- name (string) - name of the list
--- .. tuple - name, table  -- contains name of the sortable column and table to get the data from, does not need to be set
-function addon:RegisterList(name, ...)
+-- contents (table) - contents of the list
+-- .. tuple - name, width  -- contains name of the sortable column and type of the column
+function addon:RegisterList(name, contents, ...)
 	self.lists[name] = {
 		name = name,
-		show = show,
-		hide = hide
+		contents = contents,
 	}
 	if select("#", ...) > 0 then
 		self.lists[name].cols = {}
-		for i = 1, select("#", ...), 2 do
-			local cname, contents = select(i, ...)
-			if cname and contents then
-				table.insert( self.lists[name].cols, { name = cname, contents = contents } )
+		for i = 1, select("#", ...) do
+			local cname = select(i, ...)
+			if cname then
+				table.insert( self.lists[name].cols, { name = cname } )
 			end
 		end
 	end
@@ -821,11 +826,16 @@ function addon:UnregisterList(name)
 end
 
 function addon:UpdateList(name)
-	-- implement
+	if not oRA3Frame:IsVisible() then return end
+	if openedPanel ~= L["Checks"] then return end
+	if openedList ~= name then return end
+	showLists()
 end
 
 function addon:SetupList(name)
 	-- implement
+	
+	-- add button
 end
 
 function addon:Setuplists()
@@ -837,17 +847,6 @@ end
 local function selectlist(self)
 	addon:SelectList(self.tabName)
 end
-
---[[local function clearBackground(f, ...)
-	for i = 1, select("#", ...) do
-		local o = select(i, ...)
-		if o and o:GetObjectType() == "Texture" and o:GetName():find("MiddleDisabled$") then
-			print("hiding " .. o:GetName())
-			o:Hide()
-			o.Show = function() end
-		end
-	end
-end]]
 
 local function tabOnShow(self) PanelTemplates_TabResize(self, 0) end
 
@@ -868,7 +867,6 @@ function addon:SetupPanel(name)
 		f:SetParent(contentFrame)
 		f:SetScript("OnClick", selectPanel)
 		f:SetScript("OnShow", tabOnShow)
-		--clearBackground(f, f:GetRegions())
 		
 		oRA3Frame.oRAtabs[name] = f
 		if not oRA3Frame.selectedTab then
@@ -904,6 +902,11 @@ function addon:SelectPanel(name)
 	panel.show()
 end
 
+function selectList( name )
+	openedList = name
+	showLists()
+end
+
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in ipairs(scrollheaders) do
@@ -918,7 +921,7 @@ function showLists()
 	if not list then return end
 	
 	contentFrame.scrollFrame:Show()
-	local count = #list.cols
+	local count = #list.cols + 1 -- +1, we make the name twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth/count
 	while( count > #scrollheaders ) do
@@ -926,7 +929,11 @@ function showLists()
 	end	
 	for k, v in ipairs(list.cols) do
 		scrollheaders[k]:SetText(v.name)
-		addon:SetScrollHeaderWidth(k, width)
+		if k == 1 then
+			addon:SetScrollHeaderWidth(k, width*2)
+		else
+			addon:SetScrollHeaderWidth(k, width)
+		end
 		scrollheaders[k]:Show()
 	end
 end
@@ -939,9 +946,11 @@ function hideLists()
 end
 
 
-function util:inTable(t, value)
+function util:inTable(t, value, subindex)
 	for k, v in pairs(t) do
-		if v == value then return true end
+		if subindex then
+			if type(v) == "table" and v[subindex] == value then return k end
+		elseif v == value then return k end
 	end
 	return nil
 end

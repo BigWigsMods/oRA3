@@ -6,24 +6,20 @@ local util = oRA.util
 local module = oRA:NewModule("Resistance")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
-local names = {}
-local frost = {}
-local nature = {}
-local shadow = {}
-local fire = {}
-local arcane = {}
+local resistances = {}
 
 local f -- frame defined later
 
 function module:OnRegister()
 	oRA:RegisterList(
 		L["Resistances"],
-		L["Name"], names,
-		L["Frost"], frost,
-		L["Fire"], fire,
-		L["Shadow"], shadow,
-		L["Nature"], nature,
-		L["Arcane"], arcane
+		resistances, 
+		L["Name"], 
+		L["Frost"],
+		L["Fire"],
+		L["Shadow"],
+		L["Nature"],
+		L["Arcane"]
 	)
 end
 
@@ -41,6 +37,7 @@ function module:OnDisable()
 end
 
 function module:OnStartup()
+	wipe(resistances)
 	f:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	f:RegisterEvent("UNIT_RESISTANCES")
 	self:CheckResistance()
@@ -84,16 +81,16 @@ end
 
 -- Resistance answer
 function module:OnCommResistance(commType, sender, fr, nr, frr, sr, ar)
-	local k = util:inTable(names, sender)
+	local k = util:inTable(resistances, sender, 1)
 	if not k then
-		table.insert(names, sender)
-		k = util:inTable(names, sender)
+		table.insert(resistances, { sender } )
+		k = util:inTable(resistances, sender, 1)
 	end
-	fire[k] = fr
-	nature[k] = nr
-	frost[k] = frr
-	shadow[k] = sr
-	arcane[k] = ar
+	resistances[k][2] = fr
+	resistances[k][3] = nr
+	resistances[k][4] = frr
+	resistances[k][5] = sr
+	resistnaces[k][6] = ar
 	
 	oRA:UpdateList(L["Resistances"])
 end

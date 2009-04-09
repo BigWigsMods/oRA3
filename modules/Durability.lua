@@ -7,19 +7,17 @@ local util = oRA.util
 local module = oRA:NewModule("Durability", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
-local tname = {} -- names of durability
-local tperc = {} -- average durability %
-local tbroken = {} -- # broken items
-local tminimum = {} -- minimum durability %
+local durability = {} 
 
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
 	oRA:RegisterList(
 		L["Durability"],
-		L["Name"], tname,
-		L["Average"], tperc,
-		L["Minimum"], tminimum,
-		L["Broken"], tbroken
+		durability,
+		L["Name"],
+		L["Average"],
+		L["Minimum"],
+		L["Broken"]
 	)
 end
 
@@ -37,11 +35,8 @@ function module:OnDisable()
 end
 
 function module:OnStartup()
-	-- clean up old tables
-	wipe(tname)
-	wipe(tperc)
-	wipe(tbroken)
-	wipe(tminimum)
+
+	wipe(durability)
 	
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
@@ -82,14 +77,14 @@ end
 
 -- Durability answer
 function module:OnCommDurability(commType, sender, perc, minimum, broken)
-	local k = util:inTable(tname, sender)
+	local k = util:inTable(durability, sender, 1)
 	if not k then
-		table.insert(tname, sender)
-		k = util:inTable(tname, sender)
+		table.insert(durability, { sender } )
+		k = util:inTable(durability, sender, 1)
 	end
-	tperc[k] = perc.."%"
-	tminimum[k] = minimum.."%"
-	tbroken[k] = broken
+	durability[k][2] = perc.."%"
+	durability[k][3] = minimum.."%"
+	durability[k][4] = broken
 
 	oRA:UpdateList(L["Durability"])
 end
