@@ -913,7 +913,7 @@ function addon:SelectPanel(name)
 		end
 	end
 	
-	contentFrame.title:SetText("oRA3 - "..name)
+	contentFrame.title:SetText(name)
 
 
 	contentFrame.selectedTab = selectedTab

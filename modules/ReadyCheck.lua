@@ -208,7 +208,8 @@ function module:SetupGUI()
 	if frame then return end
 
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
-	table.insert(_G["UISpecialFrames"], "oRA3ReadyCheck") -- close on esc
+	-- remove close on esc for now
+	-- table.insert(_G["UISpecialFrames"], "oRA3ReadyCheck") -- close on esc
 	
 	if not oRA:RestorePosition("oRA3ReadyCheck") then
 		frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
