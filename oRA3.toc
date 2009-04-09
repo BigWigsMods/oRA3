@@ -30,4 +30,5 @@ modules\Invite.lua
 modules\Promote.lua
 modules\Resurrection.lua
 modules\Cooldowns.lua
+modules\Tanks.lua
 

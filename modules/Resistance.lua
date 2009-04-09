@@ -90,7 +90,7 @@ function module:OnCommResistance(commType, sender, fr, nr, frr, sr, ar)
 	resistances[k][3] = nr
 	resistances[k][4] = frr
 	resistances[k][5] = sr
-	resistnaces[k][6] = ar
+	resistances[k][6] = ar
 	
 	oRA:UpdateList(L["Resistances"])
 end
