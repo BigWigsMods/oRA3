@@ -506,7 +506,7 @@ function addon:SetupGUI()
 
 	local min,max = -360, -50
 	local steps = 45
-	local timeToFade = 1.5
+	local timeToFade = 1
 	local mod = 1/timeToFade
 	local modifier = 1/steps
 	
