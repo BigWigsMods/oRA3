@@ -228,7 +228,7 @@ do
 		end
 	end
 	function queuePromotes()
-		if oRA.groupStatus ~= oRA.INRAID then return end
+		if not IsRaidLeader() or oRA.groupStatus ~= oRA.INRAID then return end
 		for i = 1, GetNumRaidMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then
@@ -240,7 +240,7 @@ do
 		end
 	end
 	function module:OnGroupChanged(event, status, members)
-		if oRA:IsPromoted() and #members > 0 and total == 0 then
+		if #members > 0 and total == 0 then
 			queuePromotes()
 		end
 	end
