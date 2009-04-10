@@ -73,18 +73,26 @@ function module:CreateFrame()
 	local format = "%d. %s"
 	local i = 1
 	for name, class in pairs(oRA._testUnits) do
-		local up = AceGUI:Create("Button")
-		up:SetText("Up")
-		up:SetWidth(50)
-		local down = AceGUI:Create("Button")
-		down:SetText("Down")
-		down:SetWidth(50)
+		local up = AceGUI:Create("Icon")
+		up:SetImage("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up", 0.25, 0.75, 0.25, 0.75)
+		up:SetImageSize(16, 16)
+		up:SetWidth(20)
+		up:SetHeight(20)
+		local down = AceGUI:Create("Icon")
+		down:SetImage("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up", 0.25, 0.75, 0.25, 0.75)
+		down:SetImageSize(16, 16)
+		down:SetWidth(20)
+		down:SetHeight(20)
 		local label = AceGUI:Create("Label")
 		label:SetText(format:format(i, oRA.coloredNames[name]))
 		label:SetFontObject(GameFontHighlightLarge)
+		local spacer = AceGUI:Create("Label")
+		spacer:SetText(" ")
+		spacer:SetFullWidth(true)
 		box:AddChild(up)
 		box:AddChild(down)
 		box:AddChild(label)
+		box:AddChild(spacer)
 		i = i + 1
 	end
 
