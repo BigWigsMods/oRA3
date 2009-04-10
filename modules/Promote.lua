@@ -12,8 +12,8 @@ local AceGUI = LibStub("AceGUI-3.0")
 -- Locals
 --
 
+local guildRankDb = nil
 local factionDb = nil
-local charDb = nil
 local queuePromotes = nil
 
 --------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ do
 	end
 
 	local function ranksCallback(widget, event, rankIndex, value)
-		charDb.promoteRank[rankIndex] = value and true or nil
+		guildRankDb[rankIndex] = value and true or nil
 		queuePromotes()
 	end
 
@@ -96,8 +96,7 @@ do
 		everyone:SetUserData("tooltip", L["Promote everyone automatically."])
 		everyone:SetFullWidth(true)
 
-		local inGuild = IsInGuild()
-		if inGuild then
+		if guildRankDb then
 			guild = AceGUI:Create("CheckBox")
 			guild:SetValue(factionDb.promoteGuild)
 			guild:SetLabel(L["Guild"])
@@ -119,7 +118,7 @@ do
 			local guildRanks = oRA:GetGuildRanks()
 			ranks:SetList(guildRanks)
 			for i, v in ipairs(guildRanks) do
-				ranks:SetItemValue(i, charDb.promoteRank[i])
+				ranks:SetItemValue(i, guildRankDb[i])
 			end
 		end
 
@@ -149,7 +148,7 @@ do
 
 		frame:AddChild(massHeader)
 		frame:AddChild(everyone)
-		if inGuild then
+		if guildRankDb then
 			frame:AddChild(guild)
 			frame:AddChild(ranks)
 		end
@@ -184,13 +183,12 @@ function module:OnRegister()
 			promotes = {},
 			promoteAll = nil,
 			promoteGuild = nil,
-		},
-		char = {
-			promoteRank = {},
+			promoteRank = {
+				['*'] = {},
+			},
 		},
 	})
 	factionDb = database.factionrealm
-	charDb = database.char
 	
 	oRA:RegisterPanel(
 		L["Promote"],
@@ -204,7 +202,7 @@ do
 		local gML = oRA:GetGuildMembers()
 		if factionDb.promoteAll then return true
 		elseif factionDb.promoteGuild and gML[name] then return true
-		elseif gML[name] and charDb.promoteRank[gML[name]] then return true
+		elseif gML[name] and guildRankDb[gML[name]] then return true
 		elseif util:inTable(factionDb.promotes, name) then return true
 		end
 	end
@@ -246,11 +244,25 @@ do
 			queuePromotes()
 		end
 	end
+	function module:OnPromoted()
+		if total == 0 then
+			queuePromotes()
+		end
+	end
 
 	function module:OnEnable()
 		oRA.RegisterCallback(self, "OnGroupChanged")
 		oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+		oRA.RegisterCallback(self, "OnPromoted")
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
+		self:RegisterEvent("GUILD_ROSTER_UPDATE")
+	end
+end
+
+function module:GUILD_ROSTER_UPDATE()
+	if IsInGuild() then
+		local guildName = GetGuildInfo("player")
+		guildRankDb = factionDb.promoteRank[guildName]
 	end
 end
 
@@ -258,7 +270,7 @@ function module:OnGuildRanksUpdate(event, r)
 	if ranks then
 		ranks:SetList(r)
 		for i, v in ipairs(r) do
-			ranks:SetItemValue(i, charDb.promoteRank[i])
+			ranks:SetItemValue(i, guildRankDb[i])
 		end
 	end
 end
