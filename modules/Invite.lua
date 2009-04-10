@@ -39,20 +39,25 @@ end
 local doActualInvites = nil
 local actualInviteFrame = CreateFrame("Frame")
 local aiTotal = 0
-local function aiOnUpdate(self, elapsed)
+local function _convertToRaid(self, elapsed)
 	aiTotal = aiTotal + elapsed
-	if aiTotal > 2 then
-		doActualInvites()
+	if aiTotal > 1 then
 		aiTotal = 0
-		self:SetScript("OnUpdate", nil)
+		if UnitInRaid("player") then
+			doActualInvites()
+			self:SetScript("OnUpdate", nil)
+		end
 	end
 end
 
-local function partyMembersChanged()
-	if #peopleToInvite > 0 then
-		module:UnregisterEvent("PARTY_MEMBERS_CHANGED")
-		ConvertToRaid()
-		actualInviteFrame:SetScript("OnUpdate", aiOnUpdate)
+local function _waitForParty(self, elapsed)
+	aiTotal = aiTotal + elapsed
+	if aiTotal > 1 then
+		aiTotal = 0
+		if GetNumPartyMembers() > 0 then
+			ConvertToRaid()
+			self:SetScript("OnUpdate", _convertToRaid)
+		end
 	end
 end
 
@@ -62,7 +67,7 @@ function doActualInvites()
 		if pNum == 5 then
 			if #peopleToInvite > 0 then
 				ConvertToRaid()
-				actualInviteFrame:SetScript("OnUpdate", aiOnUpdate)
+				actualInviteFrame:SetScript("OnUpdate", _convertToRaid)
 			end
 		else
 			local tmp = {}
@@ -71,7 +76,7 @@ function doActualInvites()
 				if u then tmp[u] = true end
 			end
 			if #peopleToInvite > 0 then
-				module:RegisterEvent("PARTY_MEMBERS_CHANGED", partyMembersChanged)
+				actualInviteFrame:SetScript("OnUpdate", _waitForParty)
 			end
 			for k in pairs(tmp) do
 				InviteUnit(k)
@@ -126,7 +131,7 @@ local function chat(msg, channel)
 	--print(msg .. "#" .. channel)
 end
 
-function module:InviteGuild(level)
+local function inviteGuild()
 	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(MAX_PLAYER_LEVEL), "GUILD")
 	inviteFrame.level = MAX_PLAYER_LEVEL
 	inviteFrame.zone = nil
@@ -134,7 +139,7 @@ function module:InviteGuild(level)
 	inviteFrame:SetScript("OnUpdate", onUpdate)
 end
 
-function module:InviteZone()
+local function inviteZone()
 	local currentZone = GetRealZoneText()
 	chat((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
 	inviteFrame.level = nil
@@ -143,7 +148,7 @@ function module:InviteZone()
 	inviteFrame:SetScript("OnUpdate", onUpdate)
 end
 
-function module:InviteRank(rank, name)
+local function inviteRank(rank, name)
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
@@ -208,7 +213,7 @@ local function updateRankButtons()
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
 		button:SetCallback("OnClick", function()
-			module:InviteRank(i, rankName)
+			inviteRank(i, rankName)
 		end)
 		button:SetRelativeWidth(0.33)
 		frame:AddChild(button)
@@ -249,9 +254,7 @@ function module:CreateFrame()
 		guild:SetUserData("tooltip", L["Invite everyone in your guild at the maximum level."])
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
-		guild:SetCallback("OnClick", function()
-			module:InviteGuild()
-		end)
+		guild:SetCallback("OnClick", inviteGuild)
 		-- Default height is 24, per AceGUIWidget-Button.lua
 		-- FIXME: Jesus christ that looks crappy, buttons apparently only have 3 textures,
 		-- left, middle and right, so making it higher actually stretches the texture.
@@ -263,9 +266,7 @@ function module:CreateFrame()
 		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
 		zone:SetCallback("OnEnter", onControlEnter)
 		zone:SetCallback("OnLeave", onControlLeave)
-		zone:SetCallback("OnClick", function()
-			module:InviteZone()
-		end)
+		zone:SetCallback("OnClick", inviteZone)
 		zone:SetFullWidth(true)
 
 		rankHeader = AceGUI:Create("Heading")

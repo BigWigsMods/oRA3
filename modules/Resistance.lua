@@ -13,12 +13,12 @@ local f -- frame defined later
 function module:OnRegister()
 	oRA:RegisterList(
 		L["Resistances"],
-		resistances, 
-		L["Name"], 
-		L["Frost"],
-		L["Fire"],
-		L["Shadow"],
-		L["Nature"],
+		resistances,
+		L["Name"],
+		"|cff506fff" .. L["Frost"] .. "|r",
+		"|cffb22f27" .. L["Fire"] .. "|r",
+		"|cff6e52ff" .. L["Shadow"] .. "|r",
+		"|cff64ae3f" .. L["Nature"] .. "|r",
 		L["Arcane"]
 	)
 end

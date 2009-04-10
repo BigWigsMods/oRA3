@@ -1,8 +1,16 @@
+--------------------------------------------------------------------------------
+-- Setup
+--
+
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
+
+--------------------------------------------------------------------------------
+-- Locals
+--
 
 local _, playerClass = UnitClass("player")
 
@@ -75,36 +83,84 @@ for k in pairs(spells) do
 	classes[k] = L[k]
 end
 
-local frame = nil
 local db = nil
-
 local bopModifier = 0
 local reincModifier = 0
-
-local function getCooldown(spellId)
-	local cd = spells[playerClass][spellId]
-	if spellId == 10278 then
-		cd = cd - bopModifier
-	elseif spellId == 20608 then
-		cd = cd - reincModifier
-	end
-	return cd
-end
-
 local broadcastSpells = {}
 
-local function showConfig()
-	if not frame then module:CreateFrame() end
-	oRA:SetAllPointsToPanel( frame.frame )
-	frame.frame:Show()
-end
+--------------------------------------------------------------------------------
+-- GUI
+--
 
-local function hideConfig()
-	if frame then
-		frame:Release()
-		frame = nil
+local showPane, hidePane
+do
+	local frame = nil
+	local tmp = {}
+
+	local function spellCheckboxCallback(widget, event, value)
+		local id = widget:GetUserData("id")
+		if not id then return end
+		db.spells[id] = value and true or nil
+		widget:SetValue(value)
+	end
+
+	local function dropdownGroupCallback(widget, event, class)
+		widget:ReleaseChildren()
+		wipe(tmp)
+		for id in pairs(spells[class]) do
+			table.insert(tmp, id)
+		end
+		table.sort(tmp)
+		for i, v in ipairs(tmp) do
+			local name = GetSpellInfo(v)
+			local checkbox = AceGUI:Create("CheckBox")
+			checkbox:SetLabel(name)
+			checkbox:SetValue(db.spells[v] and true or false)
+			checkbox:SetUserData("id", v)
+			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
+			checkbox:SetFullWidth(true)
+			widget:AddChild(checkbox)
+		end
+	end
+
+	local function createFrame()
+		if frame then return end
+		frame = AceGUI:Create("ScrollFrame")
+
+		local moduleDescription = AceGUI:Create("Label")
+		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
+		moduleDescription:SetFullWidth(true)
+		moduleDescription:SetFontObject(GameFontHighlight)
+
+		local group = AceGUI:Create("DropdownGroup")
+		group:SetTitle(L["Select class"])
+		group:SetGroupList(classes)
+		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
+		group.dropdown:SetWidth(120)
+		group:SetGroup(playerClass)
+		group:SetFullWidth(true)
+
+		frame:AddChild(moduleDescription)
+		frame:AddChild(group)
+	end
+
+	function showPane()
+		if not frame then createFrame() end
+		oRA:SetAllPointsToPanel(frame.frame)
+		frame.frame:Show()
+	end
+
+	function hidePane()
+		if frame then
+			frame:Release()
+			frame = nil
+		end
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Module
+--
 
 function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
@@ -121,8 +177,8 @@ function module:OnRegister()
 
 	oRA:RegisterPanel(
 		L["Cooldowns"],
-		showConfig,
-		hideConfig
+		showPane,
+		hidePane
 	)
 	
 	-- These are the spells we broadcast to the raid
@@ -141,6 +197,16 @@ function module:OnDisable()
 	oRA.UnregisterCallback(self, "OnCommCooldown")
 	oRA.UnregisterCallback(self, "OnStartup")
 	oRA.UnregisterCallback(self, "OnShutdown")
+end
+
+local function getCooldown(spellId)
+	local cd = spells[playerClass][spellId]
+	if spellId == 10278 then
+		cd = cd - bopModifier
+	elseif spellId == 20608 then
+		cd = cd - reincModifier
+	end
+	return cd
 end
 
 function module:OnStartup()
@@ -189,51 +255,5 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 		local spellId = broadcastSpells[spell]
 		oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
 	end
-end
-
-local function spellCheckboxCallback(widget, event, value)
-	local id = widget:GetUserData("id")
-	if not id then return end
-	db.spells[id] = value and true or nil
-	widget:SetValue(value)
-end
-
-local tmp = {}
-function module:CreateFrame()
-	if frame then return end
-	frame = AceGUI:Create("ScrollFrame")
-
-	local moduleDescription = AceGUI:Create("Label")
-	moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
-	moduleDescription:SetFullWidth(true)
-	moduleDescription:SetFontObject(GameFontHighlight)
-
-	local group = AceGUI:Create("DropdownGroup")
-	group:SetTitle(L["Select class"])
-	group:SetGroupList(classes)
-	group:SetCallback("OnGroupSelected", function(widget, event, class)
-		widget:ReleaseChildren()
-		wipe(tmp)
-		for id in pairs(spells[class]) do
-			table.insert(tmp, id)
-		end
-		table.sort(tmp)
-		for i, v in ipairs(tmp) do
-			local name = GetSpellInfo(v)
-			local checkbox = AceGUI:Create("CheckBox")
-			checkbox:SetLabel(name)
-			checkbox:SetValue(db.spells[v] and true or false)
-			checkbox:SetUserData("id", v)
-			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
-			checkbox:SetFullWidth(true)
-			widget:AddChild(checkbox)
-		end
-	end)
-	group.dropdown:SetWidth(120)
-	group:SetGroup(playerClass)
-	group:SetFullWidth(true)
-
-	frame:AddChild(moduleDescription)
-	frame:AddChild(group)
 end
 
