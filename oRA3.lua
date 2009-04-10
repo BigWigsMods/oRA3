@@ -248,11 +248,10 @@ function addon:InParty()
 	return groupStatus == INPARTY
 end
 
-function addon:DisbandGroup()
-	if not self:IsPromoted() then return end
+local function actuallyDisband()
 	local pName = UnitName("player")
-	SendChatMessage(L["<oRA3> Disbanding group."], self:InRaid() and "RAID" or "PARTY")
-	if self:InRaid() then
+	SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
+	if addon:InRaid() then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
 			if online and name ~= pName then
@@ -267,6 +266,26 @@ function addon:DisbandGroup()
 		end
 	end
 	LeaveParty()
+end
+
+function addon:DisbandGroup()
+	--if not self:IsPromoted() then return end
+	if not StaticPopupDialogs["oRA3DisbandGroup"] then
+		StaticPopupDialogs["oRA3DisbandGroup"] = {
+			text = "Are you sure you want to disband your group?",
+			button1 = YES,
+			button2 = NO,
+			whileDead = 1,
+			hideOnEscape = 1,
+			timeout = 0,
+			OnAccept = actuallyDisband,
+		}
+	end
+	if IsControlKeyDown() then
+		actuallyDisband()
+	else
+		StaticPopup_Show("oRA3DisbandGroup")
+	end
 end
 
 function addon:ShowOptions()
@@ -601,6 +620,13 @@ function addon:SetupGUI()
 	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 4, 11)
 	disband:SetScript("OnClick", function() self:DisbandGroup() end)
 	disband:Disable() -- will get enabled on startup
+	disband:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+		GameTooltip:AddLine(L["Disband Group"])
+		GameTooltip:AddLine("Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog.", 1, 1, 1, 1)
+		GameTooltip:Show()
+	end)
+	disband:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
 
 	local options = CreateFrame("Button", "oRA3Options", contentFrame, "UIPanelButtonTemplate")
 	options:SetWidth(115)
