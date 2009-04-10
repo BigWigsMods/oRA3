@@ -566,10 +566,6 @@ function addon:SetupGUI()
 	frame.handle:RegisterForClicks("AnyUp")
 	frame.handle:SetScript("OnClick", function(self, button)
 		frame:SetScript("OnUpdate", onupdate)
-		if db.sound then
-			PlaySoundFile("Sound\\Doodad\\Karazahn_WoodenDoors_Close_A.wav")
-		end
-		db.oraopen = not db.oraopen --unused for now
 	end)
 
 	frame.handle:SetScript("OnEnter", function(self)
