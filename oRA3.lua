@@ -437,16 +437,6 @@ function addon:SetupGUI()
 	close:SetPoint("TOPRIGHT", 5, 4)
 	--self:SetFrameTooltip(close, "Click to close the oRA3 GUI")
 
-	local resize = CreateFrame("Button", nil, frame)
-	resize:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\Resize")
-	resize:GetNormalTexture():SetTexCoord((12 / 32), 1, (12 / 32), 1)
-	resize:SetHighlightTexture("Interface\\AddOns\\oRA3\\images\\Resize")
-	resize:GetHighlightTexture():SetTexCoord((12 / 32), 1, (12 / 32), 1)
-	resize:SetHeight(12)
-	resize:SetWidth(12)
-	resize:SetPoint("BOTTOMRIGHT", -3, 3)
-	--self:SetFrameTooltip(resize, "Click to resize")
-
 	local titlereg = CreateFrame("Button", nil, frame)
 	titlereg:SetPoint("TOPLEFT", 5, -5)
 	titlereg:SetPoint("TOPRIGHT", 0, 0)
@@ -489,7 +479,6 @@ function addon:SetupGUI()
 	frame.botleft = botleft
 	frame.botright = botright
 	frame.close = close
-	frame.resize = resize
 	frame.mid = mid
 	frame.midleft = midleft
 	frame.midright = midright
@@ -506,7 +495,7 @@ function addon:SetupGUI()
 
 	local min,max = -360, -50
 	local steps = 45
-	local timeToFade = 1
+	local timeToFade = .5
 	local mod = 1/timeToFade
 	local modifier = 1/steps
 	
@@ -530,17 +519,14 @@ function addon:SetupGUI()
 					oRA3FrameSub.justclosed = false
 					oRA3FrameSub:Hide()
 				else
-					UIFrameFadeIn(oRA3FrameSub, 0.25, 0, 1)
+					UIFrameFadeIn(oRA3FrameSub, 0.1, 0, 1)
 					oRA3FrameSub:Show()
 					db.open = true
-					-- FIXME
-					-- Select last tab
-					-- oRA3:SelectQuestLogEntry()
 				end
 			end
 			return
 		elseif count == 1 and db.open then
-			UIFrameFadeOut(oRA3FrameSub, 0.25, 1, 0)
+			UIFrameFadeOut(oRA3FrameSub, 0.1, 1, 0)
 			db.open = false
 			oRA3FrameSub.justclosed = true
 		end
@@ -571,7 +557,7 @@ function addon:SetupGUI()
 	frame.handle:SetScript("OnEnter", function(self)
 		SetCursor("INTERACT_CURSOR")
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-		GameTooltip:SetText("Click to open/close oRA3")
+		GameTooltip:SetText(L["Click to open/close oRA3"])
 		GameTooltip:Show()
 	end)
 
@@ -596,7 +582,6 @@ function addon:SetupGUI()
 
 	contentFrame = subframe
 	local backdrop = {
-		-- bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
 		bgFile = [[Interface\AddOns\oRA3\images\tiled-noise-2]],
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 		tile = true, edgeSize = 16, tileSize = 64,
@@ -708,20 +693,6 @@ function addon:SetupGUI()
 	oRA3Frame:SetScript("OnShow", function() addon:UpdateGUI() end )
 	
 	oRA3Frame.resizebg = resizebg
-
-	resize:SetScript("OnMouseDown", function(frame)
-		oRA3Frame:StartSizing()
-		oRA3Frame:SetScript("OnUpdate", resizebg)
-	end)
-	resize:SetScript("OnMouseUp", function(frame)
-		oRA3Frame:StopMovingOrSizing()
-		oRA3Frame:SetScript("OnUpdate", nil)
-		-- FIXME
-		-- self:SavePosition("oRA3Frame")
-		-- subframe.text:UpdateSize()
-		-- subframe.scroll:UpdateScrollChildRect()
-		oRA3Frame.resizebg(oRA3Frame)
-	end)
 	resizebg(frame)
 	
 	self:UpdateFrameStatus()
@@ -759,7 +730,6 @@ function addon:UpdateFrameStatus()
 
 	-- Lock the frame
 	oRA3Frame.titlereg:Hide()
-	oRA3Frame.resize:Hide()
 	oRA3Frame.handle:Show()
 	oRA3Frame:SetWidth(375)
 	oRA3Frame:SetHeight(425) 

@@ -6,6 +6,7 @@ L["Checks"] = true
 L["Disband Group"] = true
 L["Options"] = true
 L["<oRA3> Disbanding group."] = true
+L["Click to open/close oRA3"] = true
 
 L["WARLOCK"] = "Warlock"
 L["WARRIOR"] = "Warrior"
@@ -17,7 +18,6 @@ L["PALADIN"] = "Paladin"
 L["SHAMAN"] = "Shaman"
 L["ROGUE"] = "Rogue"
 L["DEATHKNIGHT"] = "Death Knight"
-
 
 -- Ready check module
 L["The following players are not ready: %s"] = true
