@@ -36,8 +36,10 @@ do
 	local function onControlLeave() GameTooltip:Hide() end
 
 	local function everyoneCallback(widget, event, value)
-		guild:SetDisabled(value)
-		ranks:SetDisabled(value or factionDb.promoteGuild)
+		if guild then
+			guild:SetDisabled(value)
+			ranks:SetDisabled(value or factionDb.promoteGuild)
+		end
 		add:SetDisabled(value)
 		delete:SetDisabled(value or #factionDb.promotes < 1)
 		factionDb.promoteAll = value and true or false
