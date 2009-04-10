@@ -240,7 +240,7 @@ do
 		end
 	end
 	function module:OnGroupChanged(event, status, members)
-		if #members > 0 and total == 0 then
+		if oRA:IsPromoted() and #members > 0 and total == 0 then
 			queuePromotes()
 		end
 	end
