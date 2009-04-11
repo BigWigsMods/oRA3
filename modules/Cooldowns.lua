@@ -78,17 +78,29 @@ local spells = {
 	},
 }
 
-local classes = {}
+local classMap = {}
+local classList = {}
 do
 	local hexColors = {}
+	local classes = {}
 	for k, v in pairs(RAID_CLASS_COLORS) do
 		hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+		table.insert(classes, k)
 	end
-	for k in pairs(spells) do
-		classes[k] = hexColors[k] .. L[k] .. "|r"
+	table.sort(classes)
+	table.insert(classList, "Priorities")
+	table.insert(classList, "----------")
+	table.insert(classMap, "Priorities")
+	table.insert(classMap, "")
+	for i, v in ipairs(classes) do
+		local n = hexColors[v] .. L[v] .. "|r"
+		table.insert(classList, n)
+		table.insert(classMap, v)
 	end
 	wipe(hexColors)
+	wipe(classes)
 	hexColors = nil
+	classes = nil
 end
 
 local db = nil
@@ -143,6 +155,8 @@ local showPane, hidePane
 do
 	local frame = nil
 	local tmp = {}
+	local lastSelection = 1
+	local group = nil
 
 	local function spellCheckboxCallback(widget, event, value)
 		local id = widget:GetUserData("id")
@@ -151,22 +165,33 @@ do
 		widget:SetValue(value)
 	end
 
-	local function dropdownGroupCallback(widget, event, class)
+	local function dropdownGroupCallback(widget, event, key)
+		if not classMap[key] or classMap[key] == "" then
+			group:SetGroup(lastSelection)
+			return
+		end
 		widget:ReleaseChildren()
 		wipe(tmp)
-		for id in pairs(spells[class]) do
-			table.insert(tmp, id)
-		end
-		table.sort(tmp)
-		for i, v in ipairs(tmp) do
-			local name = GetSpellInfo(v)
-			local checkbox = AceGUI:Create("CheckBox")
-			checkbox:SetLabel(name)
-			checkbox:SetValue(db.spells[v] and true or false)
-			checkbox:SetUserData("id", v)
-			checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
-			checkbox:SetFullWidth(true)
-			widget:AddChild(checkbox)
+		lastSelection = key
+		if spells[classMap[key]] then
+			-- Class spells
+			for id in pairs(spells[classMap[key]]) do
+				table.insert(tmp, id)
+			end
+			table.sort(tmp)
+			for i, v in ipairs(tmp) do
+				local name = GetSpellInfo(v)
+				local checkbox = AceGUI:Create("CheckBox")
+				checkbox:SetLabel(name)
+				checkbox:SetValue(db.spells[v] and true or false)
+				checkbox:SetUserData("id", v)
+				checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
+				checkbox:SetFullWidth(true)
+				widget:AddChild(checkbox)
+			end
+		else
+			-- Priorities
+			print("Priorities")
 		end
 	end
 
@@ -179,12 +204,12 @@ do
 		moduleDescription:SetFullWidth(true)
 		moduleDescription:SetFontObject(GameFontHighlight)
 
-		local group = AceGUI:Create("DropdownGroup")
+		group = AceGUI:Create("DropdownGroup")
 		group:SetTitle(L["Select class"])
-		group:SetGroupList(classes)
+		group:SetGroupList(classList)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
 		group.dropdown:SetWidth(120)
-		group:SetGroup(playerClass)
+		group:SetGroup(1)
 		group:SetFullWidth(true)
 
 		frame:AddChild(moduleDescription)
