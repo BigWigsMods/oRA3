@@ -153,7 +153,7 @@ do
 	local function onControlEnter(widget, event, value)
 		GameTooltip:ClearLines()
 		GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
-		GameTooltip:AddLine(widget.text:GetText())
+		GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
 		GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
 		GameTooltip:Show()
 	end
