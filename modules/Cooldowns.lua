@@ -78,29 +78,17 @@ local spells = {
 	},
 }
 
-local classMap = {}
-local classList = {}
+local classes = {}
 do
 	local hexColors = {}
-	local classes = {}
 	for k, v in pairs(RAID_CLASS_COLORS) do
 		hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
-		table.insert(classes, k)
 	end
-	table.sort(classes)
-	table.insert(classList, "Priorities")
-	table.insert(classList, "----------")
-	table.insert(classMap, "Priorities")
-	table.insert(classMap, "")
-	for i, v in ipairs(classes) do
-		local n = hexColors[v] .. L[v] .. "|r"
-		table.insert(classList, n)
-		table.insert(classMap, v)
+	for class in pairs(spells) do
+		classes[class] = hexColors[class] .. L[class] .. "|r"
 	end
 	wipe(hexColors)
-	wipe(classes)
 	hexColors = nil
-	classes = nil
 end
 
 local db = nil
@@ -111,36 +99,12 @@ local broadcastSpells = {}
 --------------------------------------------------------------------------------
 -- GUI
 --
-
--- The problem with the design below is that it will require a scrollframe,
--- which is never a good idea.
--- Another possibility is using a tabgroup to separate the options, for
--- example into "Spells" and "Display".
--- The "Priorities" section in the proposed UI holds a list of all the configured
--- spells, where one can click them to move them either up or down in the priority
--- queue. There is no widget for this in AceGUI, but we could use interactive
--- labels, for example.
---
--- Another, probably better, idea is to combine the "Priorities" and "Configure
--- class spells" widgets into one, basically adding "Priorities" to the class
--- dropdown. The problem is that the DropdownGroup sorts the list you provide,
--- so "Priorities" would not appear distinct from the class options.
---
-
 --[[
 
 	[ ] Show cooldown monitor
 
 	Maximum number of cooldowns to display
 	[------------|----------------------------------] (10)
-
-	Priorities
-	/-----------------------------------------------\
-	| 1. Shield Wall                                |
-	| 2. Soulstone Resurrection                     |
-	| 3. Rebirth                                    |
-	| 4. Reincarnation                              |
-	\-----------------------------------------------/
 
 	Configure class spells
 	[       Shaman (V) ]
@@ -155,7 +119,6 @@ local showPane, hidePane
 do
 	local frame = nil
 	local tmp = {}
-	local lastSelection = 1
 	local group = nil
 
 	local function spellCheckboxCallback(widget, event, value)
@@ -166,16 +129,11 @@ do
 	end
 
 	local function dropdownGroupCallback(widget, event, key)
-		if not classMap[key] or classMap[key] == "" then
-			group:SetGroup(lastSelection)
-			return
-		end
 		widget:ReleaseChildren()
 		wipe(tmp)
-		lastSelection = key
-		if spells[classMap[key]] then
+		if spells[key] then
 			-- Class spells
-			for id in pairs(spells[classMap[key]]) do
+			for id in pairs(spells[key]) do
 				table.insert(tmp, id)
 			end
 			table.sort(tmp)
@@ -189,15 +147,43 @@ do
 				checkbox:SetFullWidth(true)
 				widget:AddChild(checkbox)
 			end
-		else
-			-- Priorities
-			print("Priorities")
 		end
+	end
+
+	local function onControlEnter(widget, event, value)
+		GameTooltip:ClearLines()
+		GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
+		GameTooltip:AddLine(widget.text:GetText())
+		GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
+		GameTooltip:Show()
+	end
+	local function onControlLeave() GameTooltip:Hide() end
+
+	local function showCallback(widget, event, value)
+		db.showCooldowns = value and true or nil
 	end
 
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
+
+		local show = AceGUI:Create("CheckBox")
+		show:SetLabel("Show cooldown monitor")
+		show:SetValue(db.showCooldowns)
+		show:SetCallback("OnEnter", onControlEnter)
+		show:SetCallback("OnLeave", onControlLeave)
+		show:SetCallback("OnValueChanged", showCallback)
+		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
+		show:SetFullWidth(true)
+		
+		local max = AceGUI:Create("Slider")
+		max:SetValue(db.maxCooldowns)
+		max:SetSliderValues(1, 100, 1)
+		max:SetLabel("Max cooldowns")
+		max:SetCallback("OnEnter", onControlEnter)
+		max:SetCallback("OnLeave", onControlLeave)
+		max:SetUserData("tooltip", "Set the maximum number of cooldowns to display.")
+		max:SetFullWidth(true)
 
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
@@ -206,12 +192,14 @@ do
 
 		group = AceGUI:Create("DropdownGroup")
 		group:SetTitle(L["Select class"])
-		group:SetGroupList(classList)
+		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
 		group.dropdown:SetWidth(120)
-		group:SetGroup(1)
+		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
-
+	
+		frame:AddChild(show)
+		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
 		frame:AddChild(group)
 	end
@@ -243,6 +231,8 @@ function module:OnRegister()
 				[20608] = true,
 				[27239] = true,
 			},
+			showCooldowns = true,
+			maxCooldowns = 10,
 		},
 	})
 	db = database.profile
