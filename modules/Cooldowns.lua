@@ -79,8 +79,16 @@ local spells = {
 }
 
 local classes = {}
-for k in pairs(spells) do
-	classes[k] = L[k]
+do
+	local hexColors = {}
+	for k, v in pairs(RAID_CLASS_COLORS) do
+		hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+	end
+	for k in pairs(spells) do
+		classes[k] = hexColors[k] .. L[k] .. "|r"
+	end
+	wipe(hexColors)
+	hexColors = nil
 end
 
 local db = nil
@@ -91,6 +99,45 @@ local broadcastSpells = {}
 --------------------------------------------------------------------------------
 -- GUI
 --
+
+-- The problem with the design below is that it will require a scrollframe,
+-- which is never a good idea.
+-- Another possibility is using a tabgroup to separate the options, for
+-- example into "Spells" and "Display".
+-- The "Priorities" section in the proposed UI holds a list of all the configured
+-- spells, where one can click them to move them either up or down in the priority
+-- queue. There is no widget for this in AceGUI, but we could use interactive
+-- labels, for example.
+--
+-- Another, probably better, idea is to combine the "Priorities" and "Configure
+-- class spells" widgets into one, basically adding "Priorities" to the class
+-- dropdown. The problem is that the DropdownGroup sorts the list you provide,
+-- so "Priorities" would not appear distinct from the class options.
+--
+
+--[[
+
+	[ ] Show cooldown monitor
+
+	Maximum number of cooldowns to display
+	[------------|----------------------------------] (10)
+
+	Priorities
+	/-----------------------------------------------\
+	| 1. Shield Wall                                |
+	| 2. Soulstone Resurrection                     |
+	| 3. Rebirth                                    |
+	| 4. Reincarnation                              |
+	\-----------------------------------------------/
+
+	Configure class spells
+	[       Shaman (V) ]
+	/-----------------------------------------------\
+	| [ ] Earth Elemental Totem                     |
+	| ...                                           |
+	\-----------------------------------------------/
+
+]]
 
 local showPane, hidePane
 do

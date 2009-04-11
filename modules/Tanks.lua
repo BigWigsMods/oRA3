@@ -70,6 +70,8 @@ function module:CreateFrame()
 	box:SetLayout("Flow")
 	box:SetFullWidth(true)
 
+	-- ZZZ Possibly use clickable labels instead? With a modifier key to move down,
+	-- ZZZ and default to moving up, or something like that.
 	local format = "%d. %s"
 	local i = 1
 	for name, class in pairs(oRA._testUnits) do
