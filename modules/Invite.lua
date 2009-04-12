@@ -193,6 +193,7 @@ local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
 	if not frame or not IsInGuild() then return end
+	frame:PauseLayout()
 	local i = 1
 	while (i <= #frame.children) do
 		local widget = frame.children[i]
@@ -218,6 +219,8 @@ local function updateRankButtons()
 		button:SetRelativeWidth(0.33)
 		frame:AddChild(button)
 	end
+	frame:ResumeLayout()
+	frame:DoLayout()
 end
 
 function module:OnGuildRanksUpdate(event, ranks)
@@ -234,6 +237,7 @@ function module:CreateFrame()
 	if frame then return end
 	local inGuild = IsInGuild()
 	frame = AceGUI:Create("ScrollFrame")
+	frame:PauseLayout()
 	frame:SetLayout("Flow")
 
 	local keyword = AceGUI:Create("EditBox")
@@ -290,6 +294,7 @@ function module:CreateFrame()
 		frame:AddChild(rankDescription)
 	end
 
+	-- updateRankButtons will ResumeLayout and DoLayout
 	updateRankButtons()
 end
 

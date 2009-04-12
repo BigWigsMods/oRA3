@@ -122,6 +122,7 @@ do
 	end
 
 	local function dropdownGroupCallback(widget, event, key)
+		widget:PauseLayout()
 		widget:ReleaseChildren()
 		wipe(tmp)
 		if spells[key] then
@@ -141,6 +142,8 @@ do
 				widget:AddChild(checkbox)
 			end
 		end
+		widget:ResumeLayout()
+		-- DoLayout the parent to update the scroll bar for the new height of the dropdowngroup
 		frame:DoLayout()
 	end
 
@@ -163,6 +166,7 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
+		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
 
 		local show = AceGUI:Create("CheckBox")
 		show:SetLabel("Show cooldown monitor")
@@ -219,6 +223,10 @@ do
 		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
 		frame:AddChild(group)
+		
+		-- resume and update layout
+		frame:ResumeLayout()
+		frame:DoLayout()
 	end
 
 	function showPane()

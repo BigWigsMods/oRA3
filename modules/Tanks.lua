@@ -34,6 +34,7 @@ end
 function module:CreateFrame()
 	if frame then return end
 	frame = AceGUI:Create("ScrollFrame")
+	frame:PauseLayout()
 	frame:SetLayout("Flow")
 
 	local persistentHeading = AceGUI:Create("Heading")
@@ -104,5 +105,8 @@ function module:CreateFrame()
 	frame:AddChild(delete)
 	frame:AddChild(sort)
 	frame:AddChild(box)
+	
+	frame:ResumeLayout()
+	frame:DoLayout()
 end
 
