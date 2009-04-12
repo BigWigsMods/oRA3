@@ -212,6 +212,135 @@ do
 end
 
 --------------------------------------------------------------------------------
+-- Bar display
+--
+
+local startBar
+do
+	local setup = {
+		width = 200,
+		height = 18,
+		scale = 1,
+	}
+
+	local frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+	frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
+	frame:SetWidth(100)
+	frame:SetHeight(100)
+	frame:Show()
+
+	local bars = {}
+	local visibleBars = {}
+	local counter = 1
+	local function getBar()
+		local bar = next(bars)
+		if bar then
+			bars[bar] = nil
+			return bar
+		end
+		local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, UIParent)
+		counter = counter + 1
+		frame:SetWidth(setup.width)
+		frame:SetHeight(setup.height)
+		frame:SetScale(setup.scale)
+		frame:SetMovable(1)
+
+		local icon = frame:CreateTexture(nil, "BACKGROUND")
+		icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+		icon:SetHeight(setup.height)
+		icon:SetWidth(setup.height)
+		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		frame.icon = icon
+
+		local statusbar = CreateFrame("StatusBar", nil, frame)
+		statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 0, 0)
+		statusbar:SetWidth(setup.width - setup.height)
+		statusbar:SetHeight(setup.height)
+		statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
+		statusbar:SetMinMaxValues(0, 1)
+		statusbar:SetValue(0)
+		frame.bar = statusbar
+	
+		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
+		bg:SetAllPoints()
+		bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
+		bg:SetVertexColor(0.5, 0.5, 0.5, 0.7)
+
+		local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
+		time:SetPoint("RIGHT", statusbar, -2, 0)
+		frame.time = time
+
+		local name = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
+		name:SetAllPoints(frame)
+		name:SetJustifyH("CENTER")
+		name:SetJustifyV("MIDDLE")
+		frame.label = name
+
+		frame:Hide()
+		return frame
+	end
+
+	local tmp = {}
+	local function barSorter(a, b)
+		return a.remaining > b.remaining and true or false
+	end
+	local function rearrangeBars()
+		wipe(tmp)
+		local lastBar = nil
+		for bar in pairs(visibleBars) do
+			table.insert(tmp, bar)
+		end
+		table.sort(tmp, barSorter)
+		for i, bar in ipairs(tmp) do
+			if i <= db.maxCooldowns then
+				bar:SetPoint("BOTTOMLEFT", lastBar or frame, "TOPLEFT", 0, lastBar and 0 or 4)
+				lastBar = bar
+				bar:Show()
+			else
+				bar:Hide()
+			end
+		end
+	end
+
+	local function stop(bar)
+		bar:SetScript("OnUpdate", nil)
+		bars[bar] = true
+		visibleBars[bar] = nil
+		bar:Hide()
+		rearrangeBars()
+	end
+
+	local function onUpdate(self)
+		local t = GetTime()
+		if t >= self.exp then
+			stop(self)
+		else
+			local time = self.exp - t
+			self.remaining = time
+			self.bar:SetValue(time)
+			self.time:SetFormattedText(SecondsToTimeAbbrev(time))
+		end
+	end
+
+	local nameFormat = "%s : %s"
+	local function start(unit, id, name, icon, duration)
+		local bar = getBar()
+		local c = RAID_CLASS_COLORS[classLookup[id]]
+		bar.icon:SetTexture(icon)
+		bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
+		bar.bar:SetMinMaxValues(0, duration)
+		bar.label:SetText(nameFormat:format(unit, name))
+		bar.exp = GetTime() + duration
+		bar.remaining = duration
+		visibleBars[bar] = true
+		bar:SetScript("OnUpdate", onUpdate)
+		rearrangeBars()
+		bar:Show()
+	end
+	startBar = start
+end
+
+--------------------------------------------------------------------------------
 -- Module
 --
 
@@ -235,7 +364,7 @@ function module:OnRegister()
 		showPane,
 		hidePane
 	)
-	
+
 	-- These are the spells we broadcast to the raid
 	for spell, cd in pairs(spells[playerClass]) do
 		broadcastSpells[GetSpellInfo(spell)] = spell
@@ -246,6 +375,24 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	
+	local _testBars = {}
+	for k in pairs(db.spells) do
+		_testBars[k] = allSpells[k]
+	end
+
+	for k, v in pairs(_testBars) do
+		local name, _, icon = GetSpellInfo(k)
+		local unit = nil
+		for name, class in pairs(oRA._testUnits) do
+			if spells[class][k] then
+				unit = name
+				break
+			end
+		end
+		startBar(unit, k, name, icon, v / 30) -- Shorten the duration a bit just for testing
+	end
+	
 end
 
 function module:OnDisable()
@@ -292,6 +439,9 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
+	local _, _, icon = GetSpellInfo(spell)
+	if not icon then return end
+	startBar(sender, spell, icon, cd)
 end
 
 function module:CHARACTER_POINTS_CHANGED()
@@ -313,131 +463,5 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 		local spellId = broadcastSpells[spell]
 		oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
 	end
-end
-
-local setup = {
-	width = 200,
-	height = 18,
-	scale = 1,
-}
-
-local frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
-frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
-frame:SetWidth(100)
-frame:SetHeight(100)
-frame:Show()
-
-local bars = {}
-local visibleBars = {}
-local counter = 1
-local function getBar()
-	local bar = next(bars)
-	if bar then
-		bars[bar] = nil
-		return bar
-	end
-	local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, UIParent)
-	counter = counter + 1
-	frame:SetWidth(setup.width)
-	frame:SetHeight(setup.height)
-	frame:SetScale(setup.scale)
-	frame:SetMovable(1)
-
-	local icon = frame:CreateTexture(nil, "BACKGROUND")
-	icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
-	icon:SetHeight(setup.height)
-	icon:SetWidth(setup.height)
-	icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-	frame.icon = icon
-
-	local statusbar = CreateFrame("StatusBar", nil, frame)
-	statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 0, 0)
-	statusbar:SetWidth(setup.width - setup.height)
-	statusbar:SetHeight(setup.height)
-	statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-	statusbar:SetMinMaxValues(0, 1)
-	statusbar:SetValue(0)
-	frame.bar = statusbar
-	
-	local bg = statusbar:CreateTexture(nil, "BACKGROUND")
-	bg:SetAllPoints()
-	bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-	bg:SetVertexColor(0.5, 0.5, 0.5, 0.7)
-
-	local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
-	time:SetPoint("RIGHT", statusbar, -2, 0)
-	frame.time = time
-
-	local name = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
-	name:SetAllPoints(frame)
-	name:SetJustifyH("CENTER")
-	name:SetJustifyV("MIDDLE")
-	frame.label = name
-
-	frame:Hide()
-	return frame
-end
-
-local function rearrangeBars()
-	local lastBar = nil
-	for bar in pairs(visibleBars) do
-		bar:SetPoint("BOTTOMLEFT", lastBar or frame, "TOPLEFT", 0, lastBar and 0 or 4)
-		lastBar = bar
-	end
-end
-
-local function stop(bar)
-	bar:SetScript("OnUpdate", nil)
-	bars[bar] = true
-	visibleBars[bar] = nil
-	bar:Hide()
-	rearrangeBars()
-end
-
-local function onUpdate(self)
-	local t = GetTime()
-	if t >= self.exp then
-		stop(self)
-	else
-		local time = self.exp - t
-		self.bar:SetValue(time)
-		self.time:SetFormattedText(SecondsToTimeAbbrev(time))
-	end
-end
-
-local function start(unit, id, name, icon, duration)
-	local bar = getBar()
-	local c = RAID_CLASS_COLORS[classLookup[id]]
-	bar.icon:SetTexture(icon)
-	bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
-	bar.bar:SetMinMaxValues(0, duration)
-	bar.label:SetText(unit .. " : " .. name)
-	bar.exp = GetTime() + duration
-	visibleBars[bar] = true
-	bar:SetScript("OnUpdate", onUpdate)
-	rearrangeBars()
-	bar:Show()
-end
-
-local _testBars = {}
-for k in pairs({ -- db.spells (not initiated yet)
-		[26994] = true,
-		[19752] = true,
-		[20608] = true,
-		[27239] = true,
-	}) do
-	_testBars[k] = allSpells[k]
-end
-
-for k, v in pairs(_testBars) do
-	local name, _, icon = GetSpellInfo(k)
-	local unit = nil
-	for name, class in pairs(oRA._testUnits) do
-		if spells[class][k] then
-			unit = name
-			break
-		end
-	end
-	start(unit, k, name, icon, v / 30) -- Shorten the duration a bit just for testing
 end
 
