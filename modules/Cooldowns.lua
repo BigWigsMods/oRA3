@@ -472,9 +472,9 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
-	local _, _, icon = GetSpellInfo(spell)
+	local name, _, icon = GetSpellInfo(spell)
 	if not icon then return end
-	startBar(sender, spell, icon, cd)
+	startBar(sender, spell, name, icon, cd)
 end
 
 function module:CHARACTER_POINTS_CHANGED()
