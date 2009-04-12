@@ -13,7 +13,6 @@ local AceGUI = LibStub("AceGUI-3.0")
 --
 
 local _, playerClass = UnitClass("player")
-
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
 local spells = {
@@ -130,7 +129,7 @@ do
 			for id in pairs(spells[key]) do
 				table.insert(tmp, id)
 			end
-			table.sort(tmp)
+			table.sort(tmp) -- ZZZ Sorted by spell ID, oh well!
 			for i, v in ipairs(tmp) do
 				local name = GetSpellInfo(v)
 				local checkbox = AceGUI:Create("CheckBox")
@@ -159,8 +158,8 @@ do
 	local function showCallback(widget, event, value)
 		db.showCooldowns = value and true or nil
 	end
-	local function iconCallback(widget, event, value)
-		db.showIcons = value and true or nil
+	local function onlyMineCallback(widget, event, value)
+		db.onlyShowMine = value and true or nil
 	end
 
 	local function createFrame()
@@ -177,23 +176,14 @@ do
 		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
 		show:SetFullWidth(true)
 
-		local icon = AceGUI:Create("CheckBox")
-		icon:SetLabel("Icons")
-		icon:SetValue(db.showIcons)
-		icon:SetCallback("OnEnter", onControlEnter)
-		icon:SetCallback("OnLeave", onControlLeave)
-		icon:SetCallback("OnValueChanged", iconCallback)
-		icon:SetUserData("tooltip", "Show or hide the icons on the cooldown bars.")
-		icon:SetFullWidth(true)
-		
-		local duration = AceGUI:Create("CheckBox")
-		duration:SetLabel("Duration")
-		duration:SetValue(db.showDuration)
-		duration:SetCallback("OnEnter", onControlEnter)
-		duration:SetCallback("OnLeave", onControlLeave)
-		duration:SetCallback("OnValueChanged", durationCallback)
-		duration:SetUserData("tooltip", "Show or hide the duration on the cooldown bars.")
-		duration:SetFullWidth(true)
+		local only = AceGUI:Create("CheckBox")
+		only:SetLabel("Only show my own spells")
+		only:SetValue(db.onlyShowMine)
+		only:SetCallback("OnEnter", onControlEnter)
+		only:SetCallback("OnLeave", onControlLeave)
+		only:SetCallback("OnValueChanged", onlyMineCallback)
+		only:SetUserData("tooltip", "Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon.")
+		only:SetFullWidth(true)
 
 		local max = AceGUI:Create("Slider")
 		max:SetValue(db.maxCooldowns)
@@ -201,7 +191,7 @@ do
 		max:SetLabel("Max cooldowns")
 		max:SetCallback("OnEnter", onControlEnter)
 		max:SetCallback("OnLeave", onControlLeave)
-		max:SetUserData("tooltip", "Set the maximum number of cooldowns to display.")
+		max:SetUserData("tooltip", "Set the maximum number of cooldowns to display.\n\nIf there are more than the set maximum of cooldowns running at any point, the ones closest to expiring will be given priority over longer cooldowns.")
 		max:SetFullWidth(true)
 
 		local moduleDescription = AceGUI:Create("Label")
@@ -218,12 +208,11 @@ do
 		group:SetFullWidth(true)
 
 		frame:AddChild(show)
-		frame:AddChild(icon)
-		frame:AddChild(duration)
+		frame:AddChild(only)
 		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
 		frame:AddChild(group)
-		
+
 		-- resume and update layout
 		frame:ResumeLayout()
 		frame:DoLayout()
@@ -247,19 +236,32 @@ end
 -- Bar display
 --
 
-local startBar
+local startBar, setupCooldownDisplay
 do
+	local frame = nil
+	local function setup()
+		frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+		frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
+		frame:SetWidth(db.width)
+		frame:SetHeight(db.height)
+		frame:EnableMouse(false)
+		local bg = frame:CreateTexture(nil, "PARENT")
+		bg:SetAllPoints(frame)
+		bg:SetBlendMode("BLEND")
+		bg:SetTexture(0, 0, 0, 0.3)
+		local header = frame:CreateFontString(nil, "OVERLAY")
+		header:SetFontObject(GameFontNormal)
+		header:SetText("Cooldowns")
+		header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
+		frame:Show()
+	end
+	setupCooldownDisplay = setup
+
 	local setup = {
 		width = 200,
 		height = 18,
 		scale = 1,
 	}
-
-	local frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
-	frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
-	frame:SetWidth(100)
-	frame:SetHeight(100)
-	frame:Show()
 
 	local bars = {}
 	local visibleBars = {}
@@ -386,9 +388,10 @@ function module:OnRegister()
 				[27239] = true,
 			},
 			showCooldowns = true,
-			showIcons = true,
-			showDuration = true,
+			onlyShowMine = nil,
 			maxCooldowns = 10,
+			width = 200,
+			height = 100,
 		},
 	})
 	db = database.profile
@@ -403,6 +406,8 @@ function module:OnRegister()
 	for spell, cd in pairs(spells[playerClass]) do
 		broadcastSpells[GetSpellInfo(spell)] = spell
 	end
+	
+	setupCooldownDisplay()
 end
 
 function module:OnEnable()
@@ -424,7 +429,8 @@ function module:OnEnable()
 				break
 			end
 		end
-		startBar(unit, k, name, icon, v / 30) -- Shorten the duration a bit just for testing
+		local duration = (v / 30) + math.random(1, 120)
+		startBar(unit, k, name, icon, duration)
 	end
 end
 
