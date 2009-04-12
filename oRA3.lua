@@ -15,6 +15,11 @@ local _testUnits = {
 	Apenuts = "PALADIN",
 	Foobar = "DRUID",
 	Eric = "WARLOCK",
+	Dylan = "ROGUE",
+	Hicks = "MAGE",
+	Python = "PRIEST",
+	Purple = "HUNTER",
+	Tor = "SHAMAN",
 }
 addon._testUnits = _testUnits
 local coloredNames = setmetatable({}, {__index =

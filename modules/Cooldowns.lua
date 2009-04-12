@@ -78,6 +78,15 @@ local spells = {
 	},
 }
 
+local allSpells = {}
+local classLookup = {}
+for class, spells in pairs(spells) do
+	for id, cd in pairs(spells) do
+		allSpells[id] = cd
+		classLookup[id] = class
+	end
+end
+
 local classes = {}
 do
 	local hexColors = {}
@@ -92,28 +101,12 @@ do
 end
 
 local db = nil
-local bopModifier = 0
-local reincModifier = 0
+local cdModifiers = {}
 local broadcastSpells = {}
 
 --------------------------------------------------------------------------------
 -- GUI
 --
---[[
-
-	[ ] Show cooldown monitor
-
-	Maximum number of cooldowns to display
-	[------------|----------------------------------] (10)
-
-	Configure class spells
-	[       Shaman (V) ]
-	/-----------------------------------------------\
-	| [ ] Earth Elemental Totem                     |
-	| ...                                           |
-	\-----------------------------------------------/
-
-]]
 
 local showPane, hidePane
 do
@@ -175,7 +168,7 @@ do
 		show:SetCallback("OnValueChanged", showCallback)
 		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
 		show:SetFullWidth(true)
-		
+
 		local max = AceGUI:Create("Slider")
 		max:SetValue(db.maxCooldowns)
 		max:SetSliderValues(1, 100, 1)
@@ -197,7 +190,7 @@ do
 		group.dropdown:SetWidth(120)
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
-	
+
 		frame:AddChild(show)
 		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
@@ -263,10 +256,8 @@ end
 
 local function getCooldown(spellId)
 	local cd = spells[playerClass][spellId]
-	if spellId == 10278 then
-		cd = cd - bopModifier
-	elseif spellId == 20608 then
-		cd = cd - reincModifier
+	if cdModifiers[spellId] then
+		cd = cd - cdModifiers[spellId]
 	end
 	return cd
 end
@@ -289,6 +280,8 @@ function module:OnStartup()
 			ankhs = newankhs
 		end)
 	end
+
+	self:CHARACTER_POINTS_CHANGED()
 end
 
 function module:OnShutdown()
@@ -304,10 +297,13 @@ end
 function module:CHARACTER_POINTS_CHANGED()
 	if playerClass == "PALADIN" then
 		local _, _, _, _, rank = GetTalentInfo(2, 5)
-		bopModifier = rank * 60
+		cdModifiers[10278] = rank * 60
 	elseif playerClass == "SHAMAN" then
 		local _, _, _, _, rank = GetTalentInfo(3, 3)
-		reincModifier = rank * 600
+		cdModifiers[20608] = rank * 600
+	elseif playerClass == "WARRIOR" then
+		local _, _, _, _, rank = GetTalentInfo(3, 13)
+		cdModifiers[871] = rank * 30
 	end
 end
 
@@ -317,5 +313,131 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 		local spellId = broadcastSpells[spell]
 		oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
 	end
+end
+
+local setup = {
+	width = 200,
+	height = 18,
+	scale = 1,
+}
+
+local frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
+frame:SetWidth(100)
+frame:SetHeight(100)
+frame:Show()
+
+local bars = {}
+local visibleBars = {}
+local counter = 1
+local function getBar()
+	local bar = next(bars)
+	if bar then
+		bars[bar] = nil
+		return bar
+	end
+	local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, UIParent)
+	counter = counter + 1
+	frame:SetWidth(setup.width)
+	frame:SetHeight(setup.height)
+	frame:SetScale(setup.scale)
+	frame:SetMovable(1)
+
+	local icon = frame:CreateTexture(nil, "BACKGROUND")
+	icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+	icon:SetHeight(setup.height)
+	icon:SetWidth(setup.height)
+	icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+	frame.icon = icon
+
+	local statusbar = CreateFrame("StatusBar", nil, frame)
+	statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 0, 0)
+	statusbar:SetWidth(setup.width - setup.height)
+	statusbar:SetHeight(setup.height)
+	statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
+	statusbar:SetMinMaxValues(0, 1)
+	statusbar:SetValue(0)
+	frame.bar = statusbar
+	
+	local bg = statusbar:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPoints()
+	bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
+	bg:SetVertexColor(0.5, 0.5, 0.5, 0.7)
+
+	local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
+	time:SetPoint("RIGHT", statusbar, -2, 0)
+	frame.time = time
+
+	local name = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
+	name:SetAllPoints(frame)
+	name:SetJustifyH("CENTER")
+	name:SetJustifyV("MIDDLE")
+	frame.label = name
+
+	frame:Hide()
+	return frame
+end
+
+local function rearrangeBars()
+	local lastBar = nil
+	for bar in pairs(visibleBars) do
+		bar:SetPoint("BOTTOMLEFT", lastBar or frame, "TOPLEFT", 0, lastBar and 0 or 4)
+		lastBar = bar
+	end
+end
+
+local function stop(bar)
+	bar:SetScript("OnUpdate", nil)
+	bars[bar] = true
+	visibleBars[bar] = nil
+	bar:Hide()
+	rearrangeBars()
+end
+
+local function onUpdate(self)
+	local t = GetTime()
+	if t >= self.exp then
+		stop(self)
+	else
+		local time = self.exp - t
+		self.bar:SetValue(time)
+		self.time:SetFormattedText(SecondsToTimeAbbrev(time))
+	end
+end
+
+local function start(unit, id, name, icon, duration)
+	local bar = getBar()
+	local c = RAID_CLASS_COLORS[classLookup[id]]
+	bar.icon:SetTexture(icon)
+	bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
+	bar.bar:SetMinMaxValues(0, duration)
+	bar.label:SetText(unit .. " : " .. name)
+	bar.exp = GetTime() + duration
+	visibleBars[bar] = true
+	bar:SetScript("OnUpdate", onUpdate)
+	rearrangeBars()
+	bar:Show()
+end
+
+local _testBars = {}
+for k in pairs({ -- db.spells (not initiated yet)
+		[26994] = true,
+		[19752] = true,
+		[20608] = true,
+		[27239] = true,
+	}) do
+	_testBars[k] = allSpells[k]
+end
+
+for k, v in pairs(_testBars) do
+	local name, _, icon = GetSpellInfo(k)
+	local unit = nil
+	for name, class in pairs(oRA._testUnits) do
+		if spells[class][k] then
+			unit = name
+			break
+		end
+	end
+	start(unit, k, name, icon, v / 30) -- Shorten the duration a bit just for testing
 end
 
