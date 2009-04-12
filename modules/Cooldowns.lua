@@ -141,6 +141,7 @@ do
 				widget:AddChild(checkbox)
 			end
 		end
+		frame:DoLayout()
 	end
 
 	local function onControlEnter(widget, event, value)
