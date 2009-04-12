@@ -155,6 +155,9 @@ do
 	local function showCallback(widget, event, value)
 		db.showCooldowns = value and true or nil
 	end
+	local function iconCallback(widget, event, value)
+		db.showIcons = value and true or nil
+	end
 
 	local function createFrame()
 		if frame then return end
@@ -168,6 +171,24 @@ do
 		show:SetCallback("OnValueChanged", showCallback)
 		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
 		show:SetFullWidth(true)
+
+		local icon = AceGUI:Create("CheckBox")
+		icon:SetLabel("Icons")
+		icon:SetValue(db.showIcons)
+		icon:SetCallback("OnEnter", onControlEnter)
+		icon:SetCallback("OnLeave", onControlLeave)
+		icon:SetCallback("OnValueChanged", iconCallback)
+		icon:SetUserData("tooltip", "Show or hide the icons on the cooldown bars.")
+		icon:SetFullWidth(true)
+		
+		local duration = AceGUI:Create("CheckBox")
+		duration:SetLabel("Duration")
+		duration:SetValue(db.showDuration)
+		duration:SetCallback("OnEnter", onControlEnter)
+		duration:SetCallback("OnLeave", onControlLeave)
+		duration:SetCallback("OnValueChanged", durationCallback)
+		duration:SetUserData("tooltip", "Show or hide the duration on the cooldown bars.")
+		duration:SetFullWidth(true)
 
 		local max = AceGUI:Create("Slider")
 		max:SetValue(db.maxCooldowns)
@@ -192,6 +213,8 @@ do
 		group:SetFullWidth(true)
 
 		frame:AddChild(show)
+		frame:AddChild(icon)
+		frame:AddChild(duration)
 		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
 		frame:AddChild(group)
@@ -264,7 +287,7 @@ do
 		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints()
 		bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-		bg:SetVertexColor(0.5, 0.5, 0.5, 0.7)
+		bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
 
 		local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
 		time:SetPoint("RIGHT", statusbar, -2, 0)
@@ -354,6 +377,8 @@ function module:OnRegister()
 				[27239] = true,
 			},
 			showCooldowns = true,
+			showIcons = true,
+			showDuration = true,
 			maxCooldowns = 10,
 		},
 	})
@@ -375,7 +400,7 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-	
+
 	local _testBars = {}
 	for k in pairs(db.spells) do
 		_testBars[k] = allSpells[k]
@@ -392,7 +417,6 @@ function module:OnEnable()
 		end
 		startBar(unit, k, name, icon, v / 30) -- Shorten the duration a bit just for testing
 	end
-	
 end
 
 function module:OnDisable()
