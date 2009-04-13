@@ -239,12 +239,24 @@ end
 local startBar, setupCooldownDisplay
 do
 	local frame = nil
+
+	local function OnDragHandleMouseDown(self) self.frame:StartSizing("BOTTOMRIGHT") end
+	local function OnDragHandleMouseUp(self, button) self.frame:StopMovingOrSizing() end
+	local function onResize(self, width, height)
+		local available = height - 8 -- 4 pixel margin at the top and bottom
+		
+	end
+	
 	local function setup()
 		frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
 		frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
 		frame:SetWidth(db.width)
 		frame:SetHeight(db.height)
-		frame:EnableMouse(false)
+		frame:EnableMouse()
+		frame:SetMovable(true)
+		frame:SetResizable(true)
+		frame:SetMinResize(100,20)
+		frame:SetScript("OnSizeChanged", onResize)
 		local bg = frame:CreateTexture(nil, "PARENT")
 		bg:SetAllPoints(frame)
 		bg:SetBlendMode("BLEND")
@@ -253,6 +265,25 @@ do
 		header:SetFontObject(GameFontNormal)
 		header:SetText("Cooldowns")
 		header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
+
+		local drag = CreateFrame("Frame", nil, frame)
+		drag.frame = frame
+		drag:SetFrameLevel(frame:GetFrameLevel() + 10) -- place this above everything
+		drag:SetWidth(16)
+		drag:SetHeight(16)
+		drag:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+		drag:EnableMouse(true)
+		drag:SetScript("OnMouseDown", OnDragHandleMouseDown)
+		drag:SetScript("OnMouseUp", OnDragHandleMouseUp)
+		frame.drag = drag
+
+		local tex = drag:CreateTexture(nil, "BACKGROUND")
+		tex:SetTexture("Interface\\AddOns\\Violation\\textures\\draghandle")
+		tex:SetWidth(16)
+		tex:SetHeight(16)
+		tex:SetBlendMode("ADD")
+		tex:SetPoint("CENTER", drag, "CENTER", 0, 0)
+
 		frame:Show()
 	end
 	setupCooldownDisplay = setup
@@ -288,13 +319,13 @@ do
 
 		local statusbar = CreateFrame("StatusBar", nil, frame)
 		statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 0, 0)
-		statusbar:SetWidth(setup.width - setup.height)
+		statusbar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
 		statusbar:SetHeight(setup.height)
 		statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
 		statusbar:SetMinMaxValues(0, 1)
 		statusbar:SetValue(0)
 		frame.bar = statusbar
-	
+
 		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints()
 		bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
@@ -316,18 +347,24 @@ do
 
 	local tmp = {}
 	local function barSorter(a, b)
-		return a.remaining > b.remaining and true or false
+		return a.remaining < b.remaining and true or false
 	end
 	local function rearrangeBars()
 		wipe(tmp)
-		local lastBar = nil
 		for bar in pairs(visibleBars) do
 			table.insert(tmp, bar)
 		end
 		table.sort(tmp, barSorter)
+		local lastBar = nil
 		for i, bar in ipairs(tmp) do
 			if i <= db.maxCooldowns then
-				bar:SetPoint("BOTTOMLEFT", lastBar or frame, "TOPLEFT", 0, lastBar and 0 or 4)
+				if not lastBar then
+					bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -4)
+					bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -4)
+				else
+					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT", 0, 0)
+					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT", 0, 0)
+				end
 				lastBar = bar
 				bar:Show()
 			else
@@ -410,28 +447,36 @@ function module:OnRegister()
 	setupCooldownDisplay()
 end
 
+-- Yeah, it's a global -- it's just for testing, stop whining!
+function CreateRandomCDBar()
+	local counter = 0
+	for k in pairs(db.spells) do
+		counter = counter + 1
+	end
+	counter = math.ceil(counter / 2)
+	local spell = 27239
+	for k in pairs(db.spells) do
+		if math.random(1, counter) == counter then
+			spell = k
+			break
+		end
+	end
+	local name, _, icon = GetSpellInfo(spell)
+	local unit = nil
+	for name, class in pairs(oRA._testUnits) do
+		if spells[class][spell] then
+			unit = name
+			break
+		end
+	end
+	local duration = (allSpells[spell] / 30) + math.random(1, 120)
+	startBar(unit, spell, name, icon, duration)
+end
+
 function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-
-	local _testBars = {}
-	for k in pairs(db.spells) do
-		_testBars[k] = allSpells[k]
-	end
-
-	for k, v in pairs(_testBars) do
-		local name, _, icon = GetSpellInfo(k)
-		local unit = nil
-		for name, class in pairs(oRA._testUnits) do
-			if spells[class][k] then
-				unit = name
-				break
-			end
-		end
-		local duration = (v / 30) + math.random(1, 120)
-		startBar(unit, k, name, icon, duration)
-	end
 end
 
 function module:OnDisable()
