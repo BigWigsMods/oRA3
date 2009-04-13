@@ -282,6 +282,12 @@ do
 		rearrangeBars()
 	end
 	
+	local function displayOnMouseDown(self, button)
+		if button == "RightButton" then
+			print("show config")
+		end
+	end
+	
 	local function setup()
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
 		display:SetWidth(db.width)
@@ -299,6 +305,7 @@ do
 			db.x = display:GetLeft() * s
 			db.y = display:GetTop() * s
 		end)
+		display:SetScript("OnMouseDown", displayOnMouseDown)
 		if db.x and db.y then
 			local s = display:GetEffectiveScale()
 			display:ClearAllPoints()
@@ -328,7 +335,7 @@ do
 		display.drag = drag
 
 		local tex = drag:CreateTexture(nil, "BACKGROUND")
-		tex:SetTexture("Interface\\AddOns\\Violation\\textures\\draghandle")
+		tex:SetTexture("Interface\\AddOns\\oRA3\\media\\draghandle")
 		tex:SetWidth(16)
 		tex:SetHeight(16)
 		tex:SetBlendMode("ADD")
