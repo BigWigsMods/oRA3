@@ -185,15 +185,6 @@ do
 		only:SetUserData("tooltip", "Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon.")
 		only:SetFullWidth(true)
 
-		local max = AceGUI:Create("Slider")
-		max:SetValue(db.maxCooldowns)
-		max:SetSliderValues(1, 100, 1)
-		max:SetLabel("Max cooldowns")
-		max:SetCallback("OnEnter", onControlEnter)
-		max:SetCallback("OnLeave", onControlLeave)
-		max:SetUserData("tooltip", "Set the maximum number of cooldowns to display.\n\nIf there are more than the set maximum of cooldowns running at any point, the ones closest to expiring will be given priority over longer cooldowns.")
-		max:SetFullWidth(true)
-
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 		moduleDescription:SetFullWidth(true)
@@ -209,7 +200,6 @@ do
 
 		frame:AddChild(show)
 		frame:AddChild(only)
-		frame:AddChild(max)
 		frame:AddChild(moduleDescription)
 		frame:AddChild(group)
 
@@ -256,7 +246,7 @@ do
 		table.sort(tmp, barSorter)
 		local lastBar = nil
 		for i, bar in ipairs(tmp) do
-			if i <= db.maxCooldowns and i <= maximum then
+			if i <= maximum then
 				if not lastBar then
 					bar:SetPoint("TOPLEFT", display, "TOPLEFT", 4, -4)
 					bar:SetPoint("TOPRIGHT", display, "TOPRIGHT", -4, -4)
@@ -446,7 +436,6 @@ function module:OnRegister()
 			},
 			showCooldowns = true,
 			onlyShowMine = nil,
-			maxCooldowns = 10,
 			width = 200,
 			height = 148,
 			barHeight = 14,
