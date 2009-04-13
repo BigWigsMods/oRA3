@@ -238,44 +238,94 @@ end
 
 local startBar, setupCooldownDisplay
 do
-	local frame = nil
+	local display = nil
+	local maximum = 10
+
+	local bars = {}
+	local visibleBars = {}
+	local counter = 1
+	local tmp = {}
+	local function barSorter(a, b)
+		return a.remaining < b.remaining and true or false
+	end
+	local function rearrangeBars()
+		wipe(tmp)
+		for bar in pairs(visibleBars) do
+			table.insert(tmp, bar)
+		end
+		table.sort(tmp, barSorter)
+		local lastBar = nil
+		for i, bar in ipairs(tmp) do
+			if i <= db.maxCooldowns and i <= maximum then
+				if not lastBar then
+					bar:SetPoint("TOPLEFT", display, "TOPLEFT", 4, -4)
+					bar:SetPoint("TOPRIGHT", display, "TOPRIGHT", -4, -4)
+				else
+					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT", 0, 0)
+					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT", 0, 0)
+				end
+				lastBar = bar
+				bar:Show()
+			else
+				bar:Hide()
+			end
+		end
+	end
 
 	local function OnDragHandleMouseDown(self) self.frame:StartSizing("BOTTOMRIGHT") end
 	local function OnDragHandleMouseUp(self, button) self.frame:StopMovingOrSizing() end
 	local function onResize(self, width, height)
-		local available = height - 8 -- 4 pixel margin at the top and bottom
-		
+		db.width = width
+		db.height = height
+		maximum = math.floor(height / db.barHeight)
+		-- if we have that many bars shown, hide the ones that overflow
+		rearrangeBars()
 	end
 	
 	local function setup()
-		frame = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
-		frame:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
-		frame:SetWidth(db.width)
-		frame:SetHeight(db.height)
-		frame:EnableMouse()
-		frame:SetMovable(true)
-		frame:SetResizable(true)
-		frame:SetMinResize(100,20)
-		frame:SetScript("OnSizeChanged", onResize)
-		local bg = frame:CreateTexture(nil, "PARENT")
-		bg:SetAllPoints(frame)
+		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+		display:SetWidth(db.width)
+		display:SetHeight(db.height)
+		display:EnableMouse()
+		display:SetMovable(true)
+		display:SetResizable(true)
+		display:SetMinResize(100, 20)
+		display:RegisterForDrag("LeftButton")
+		display:SetScript("OnSizeChanged", onResize)
+		display:SetScript("OnDragStart", function(self) self:StartMoving() end)
+		display:SetScript("OnDragStop", function(self)
+			self:StopMovingOrSizing()
+			local s = display:GetEffectiveScale()
+			db.x = display:GetLeft() * s
+			db.y = display:GetTop() * s
+		end)
+		if db.x and db.y then
+			local s = display:GetEffectiveScale()
+			display:ClearAllPoints()
+			display:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", db.x / s, db.y / s)
+		else
+			display:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
+		end
+		local bg = display:CreateTexture(nil, "PARENT")
+		bg:SetAllPoints(display)
 		bg:SetBlendMode("BLEND")
 		bg:SetTexture(0, 0, 0, 0.3)
-		local header = frame:CreateFontString(nil, "OVERLAY")
+		local header = display:CreateFontString(nil, "OVERLAY")
 		header:SetFontObject(GameFontNormal)
 		header:SetText("Cooldowns")
-		header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
+		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
 
-		local drag = CreateFrame("Frame", nil, frame)
-		drag.frame = frame
-		drag:SetFrameLevel(frame:GetFrameLevel() + 10) -- place this above everything
+		local drag = CreateFrame("Frame", nil, display)
+		drag.frame = display
+		drag:SetFrameLevel(display:GetFrameLevel() + 10) -- place this above everything
 		drag:SetWidth(16)
 		drag:SetHeight(16)
-		drag:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+		drag:SetPoint("BOTTOMRIGHT", display, "BOTTOMRIGHT", -1, 1)
 		drag:EnableMouse(true)
 		drag:SetScript("OnMouseDown", OnDragHandleMouseDown)
 		drag:SetScript("OnMouseUp", OnDragHandleMouseUp)
-		frame.drag = drag
+		drag:SetAlpha(0.5)
+		display.drag = drag
 
 		local tex = drag:CreateTexture(nil, "BACKGROUND")
 		tex:SetTexture("Interface\\AddOns\\Violation\\textures\\draghandle")
@@ -284,43 +334,34 @@ do
 		tex:SetBlendMode("ADD")
 		tex:SetPoint("CENTER", drag, "CENTER", 0, 0)
 
-		frame:Show()
+		display:Show()
 	end
 	setupCooldownDisplay = setup
 
-	local setup = {
-		width = 200,
-		height = 18,
-		scale = 1,
-	}
-
-	local bars = {}
-	local visibleBars = {}
-	local counter = 1
 	local function getBar()
 		local bar = next(bars)
 		if bar then
 			bars[bar] = nil
 			return bar
 		end
-		local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, UIParent)
+		local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, display)
 		counter = counter + 1
-		frame:SetWidth(setup.width)
-		frame:SetHeight(setup.height)
-		frame:SetScale(setup.scale)
+		frame:SetHeight(db.barHeight)
+		frame:SetScale(1)
 		frame:SetMovable(1)
 
 		local icon = frame:CreateTexture(nil, "BACKGROUND")
-		icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
-		icon:SetHeight(setup.height)
-		icon:SetWidth(setup.height)
+		icon:SetPoint("TOPLEFT", frame, "TOPLEFT")
+		icon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
+		icon:SetWidth(db.barHeight)
 		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		frame.icon = icon
 
 		local statusbar = CreateFrame("StatusBar", nil, frame)
-		statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 0, 0)
-		statusbar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
-		statusbar:SetHeight(setup.height)
+		statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT")
+		statusbar:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT")
+		statusbar:SetPoint("TOPRIGHT", frame, "TOPRIGHT")
+		statusbar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT")
 		statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
 		statusbar:SetMinMaxValues(0, 1)
 		statusbar:SetValue(0)
@@ -343,34 +384,6 @@ do
 
 		frame:Hide()
 		return frame
-	end
-
-	local tmp = {}
-	local function barSorter(a, b)
-		return a.remaining < b.remaining and true or false
-	end
-	local function rearrangeBars()
-		wipe(tmp)
-		for bar in pairs(visibleBars) do
-			table.insert(tmp, bar)
-		end
-		table.sort(tmp, barSorter)
-		local lastBar = nil
-		for i, bar in ipairs(tmp) do
-			if i <= db.maxCooldowns then
-				if not lastBar then
-					bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -4)
-					bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -4)
-				else
-					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT", 0, 0)
-					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT", 0, 0)
-				end
-				lastBar = bar
-				bar:Show()
-			else
-				bar:Hide()
-			end
-		end
 	end
 
 	local function stop(bar)
@@ -428,7 +441,8 @@ function module:OnRegister()
 			onlyShowMine = nil,
 			maxCooldowns = 10,
 			width = 200,
-			height = 100,
+			height = 148,
+			barHeight = 14,
 		},
 	})
 	db = database.profile
