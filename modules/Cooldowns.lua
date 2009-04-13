@@ -126,7 +126,6 @@ do
 		local id = widget:GetUserData("id")
 		if not id then return end
 		db.spells[id] = value and true or nil
-		--widget:SetValue(value)
 	end
 
 	local function dropdownGroupCallback(widget, event, key)
@@ -156,10 +155,13 @@ do
 	end
 
 	local function showCallback(widget, event, value)
-		db.showCooldowns = value and true or nil
+		db.showCooldowns = value
 	end
 	local function onlyMineCallback(widget, event, value)
-		db.onlyShowMine = value and true or nil
+		db.onlyShowMine = value
+	end
+	local function lockCallback(widget, event, value)
+		db.lockDisplay = value
 	end
 
 	local function createFrame()
@@ -168,13 +170,22 @@ do
 		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
 
 		local show = AceGUI:Create("CheckBox")
-		show:SetLabel("Show cooldown monitor")
+		show:SetLabel("Show monitor")
 		show:SetValue(db.showCooldowns)
 		show:SetCallback("OnEnter", onControlEnter)
 		show:SetCallback("OnLeave", onControlLeave)
 		show:SetCallback("OnValueChanged", showCallback)
 		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
 		show:SetFullWidth(true)
+		
+		local lock = AceGUI:Create("CheckBox")
+		lock:SetLabel("Lock monitor")
+		lock:SetValue(db.lockDisplay)
+		lock:SetCallback("OnEnter", onControlEnter)
+		lock:SetCallback("OnLeave", onControlLeave)
+		lock:SetCallback("OnValueChanged", lockCallback)
+		lock:SetUserData("tooltip", "Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars.")
+		lock:SetFullWidth(true)
 
 		local only = AceGUI:Create("CheckBox")
 		only:SetLabel("Only show my own spells")
@@ -198,7 +209,7 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChildren(show, only, moduleDescription, group)
+		frame:AddChildren(show, lock, only, moduleDescription, group)
 
 		-- resume and update layout
 		frame:ResumeLayout()
@@ -239,7 +250,7 @@ do
 	
 	local function toggleChanged(widget, event, value)
 		local key = widget:GetUserData("key")
-		db[key] = value and true or nil
+		db[key] = value
 		restyleBars()
 	end
 	
@@ -333,6 +344,7 @@ do
 	local visibleBars = {}
 	
 	local function restyleBar(bar)
+		local c = RAID_CLASS_COLORS[bar.unitclass]
 		bar:SetHeight(db.barHeight)
 		if db.barShowIcon then
 			bar.bar:SetPoint("TOPLEFT", bar.icon, "TOPRIGHT")
@@ -346,12 +358,17 @@ do
 		end
 		if db.barShowDuration then bar.time:Show()
 		else bar.time:Hide() end
-		if db.barShowUnit then bar.unit:Show()
+		if db.barShowUnit then
+			bar.unit:Show()
+			if db.barClassColor then
+				bar.unit:SetTextColor(1, 1, 1, 1)
+			else
+				bar.unit:SetTextColor(c.r, c.g, c.b, 1)
+			end
 		else bar.unit:Hide() end
 		if db.barShowSpell then bar.label:Show()
 		else bar.label:Hide() end
 		if db.barClassColor then
-			local c = RAID_CLASS_COLORS[bar.unitclass]
 			bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
 		else
 			bar.bar:SetStatusBarColor(unpack(db.barColor))
@@ -378,11 +395,11 @@ do
 		for i, bar in ipairs(tmp) do
 			if i <= maximum then
 				if not lastBar then
-					bar:SetPoint("TOPLEFT", display, "TOPLEFT", 4, -4)
-					bar:SetPoint("TOPRIGHT", display, "TOPRIGHT", -4, -4)
+					bar:SetPoint("TOPLEFT", display, 4, -4)
+					bar:SetPoint("TOPRIGHT", display, -4, -4)
 				else
-					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT", 0, 0)
-					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT", 0, 0)
+					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT")
+					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT")
 				end
 				lastBar = bar
 				bar:Show()
@@ -431,7 +448,7 @@ do
 			display:ClearAllPoints()
 			display:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", db.x / s, db.y / s)
 		else
-			display:SetPoint("LEFT", UIParent, "LEFT", 200, 0)
+			display:SetPoint("LEFT", UIParent, 200, 0)
 		end
 		local bg = display:CreateTexture(nil, "PARENT")
 		bg:SetAllPoints(display)
@@ -447,7 +464,7 @@ do
 		drag:SetFrameLevel(display:GetFrameLevel() + 10) -- place this above everything
 		drag:SetWidth(16)
 		drag:SetHeight(16)
-		drag:SetPoint("BOTTOMRIGHT", display, "BOTTOMRIGHT", -1, 1)
+		drag:SetPoint("BOTTOMRIGHT", display, -1, 1)
 		drag:EnableMouse(true)
 		drag:SetScript("OnMouseDown", OnDragHandleMouseDown)
 		drag:SetScript("OnMouseUp", OnDragHandleMouseUp)
@@ -459,7 +476,7 @@ do
 		tex:SetWidth(16)
 		tex:SetHeight(16)
 		tex:SetBlendMode("ADD")
-		tex:SetPoint("CENTER", drag, "CENTER", 0, 0)
+		tex:SetPoint("CENTER", drag)
 
 		display:Show()
 	end
@@ -570,9 +587,9 @@ function module:OnRegister()
 			},
 			showCooldowns = true,
 			onlyShowMine = nil,
+			lockDisplay = nil,
 			width = 200,
 			height = 148,
-			--
 			barHeight = 14,
 			barShowIcon = true,
 			barShowDuration = true,
@@ -599,11 +616,14 @@ function module:OnRegister()
 end
 
 do
-	local spellList = {}
-	for k in pairs(allSpells) do table.insert(spellList, k) end
-	local reverseClass = {}
-	for name, class in pairs(oRA._testUnits) do reverseClass[class] = name end
+	local spellList, reverseClass = nil, nil
 	function module:SpawnTestBar()
+		if not spellList then
+			spellList = {}
+			reverseClass = {}
+			for k in pairs(allSpells) do table.insert(spellList, k) end
+			for name, class in pairs(oRA._testUnits) do reverseClass[class] = name end
+		end
 		local spell = spellList[math.random(1, #spellList)]
 		local unit = reverseClass[classLookup[spell]]
 		local name, _, icon = GetSpellInfo(spell)
