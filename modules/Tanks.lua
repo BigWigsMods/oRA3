@@ -92,19 +92,11 @@ function module:CreateFrame()
 		local spacer = AceGUI:Create("Label")
 		spacer:SetText("")
 		spacer:SetFullWidth(true)
-		box:AddChild(up)
-		box:AddChild(down)
-		box:AddChild(label)
-		box:AddChild(spacer)
+		box:AddChildren(up, down, label, spacer)
 		i = i + 1
 	end
 
-	frame:AddChild(persistentHeading)
-	frame:AddChild(moduleDescription)
-	frame:AddChild(add)
-	frame:AddChild(delete)
-	frame:AddChild(sort)
-	frame:AddChild(box)
+	frame:AddChildren(persistentHeading, moduleDescription, add, delete, sort, box)
 	
 	frame:ResumeLayout()
 	frame:DoLayout()

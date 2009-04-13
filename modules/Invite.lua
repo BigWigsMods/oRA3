@@ -284,14 +284,9 @@ function module:CreateFrame()
 	end
 
 	if inGuild then
-		frame:AddChild(guild)
-		frame:AddChild(zone)
-	end
-	frame:AddChild(kwDescription)
-	frame:AddChild(keyword)
-	if inGuild then
-		frame:AddChild(rankHeader)
-		frame:AddChild(rankDescription)
+		frame:AddChildren(guild, zone, kwDescription, keyword, rankHeader, rankDescription)
+	else
+		frame:AddChildren(kwDescription, keyword)
 	end
 
 	-- updateRankButtons will ResumeLayout and DoLayout

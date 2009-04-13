@@ -146,17 +146,11 @@ do
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 		delete:SetRelativeWidth(0.5)
 
-		frame:AddChild(massHeader)
-		frame:AddChild(everyone)
 		if guildRankDb then
-			frame:AddChild(guild)
-			frame:AddChild(ranks)
+			frame:AddChildren(massHeader, everyone, guild, ranks, spacer, individualHeader, description, add, delete)
+		else
+			frame:AddChildren(massHeader, everyone, spacer, individualHeader, description, add, delete)
 		end
-		frame:AddChild(spacer)
-		frame:AddChild(individualHeader)
-		frame:AddChild(description)
-		frame:AddChild(add)
-		frame:AddChild(delete)
 	end
 
 	function showPane()

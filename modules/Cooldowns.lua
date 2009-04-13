@@ -107,6 +107,15 @@ local broadcastSpells = {}
 -- GUI
 --
 
+local function onControlEnter(widget, event, value)
+	GameTooltip:ClearLines()
+	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
+	GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
+	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
+	GameTooltip:Show()
+end
+local function onControlLeave() GameTooltip:Hide() end
+
 local showPane, hidePane
 do
 	local frame = nil
@@ -117,7 +126,7 @@ do
 		local id = widget:GetUserData("id")
 		if not id then return end
 		db.spells[id] = value and true or nil
-		widget:SetValue(value)
+		--widget:SetValue(value)
 	end
 
 	local function dropdownGroupCallback(widget, event, key)
@@ -145,15 +154,6 @@ do
 		-- DoLayout the parent to update the scroll bar for the new height of the dropdowngroup
 		frame:DoLayout()
 	end
-
-	local function onControlEnter(widget, event, value)
-		GameTooltip:ClearLines()
-		GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
-		GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
-		GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
-		GameTooltip:Show()
-	end
-	local function onControlLeave() GameTooltip:Hide() end
 
 	local function showCallback(widget, event, value)
 		db.showCooldowns = value and true or nil
@@ -198,10 +198,7 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChild(show)
-		frame:AddChild(only)
-		frame:AddChild(moduleDescription)
-		frame:AddChild(group)
+		frame:AddChildren(show, only, moduleDescription, group)
 
 		-- resume and update layout
 		frame:ResumeLayout()
@@ -223,6 +220,108 @@ do
 end
 
 --------------------------------------------------------------------------------
+-- Bar config window
+--
+
+local restyleBars
+local showBarConfig
+do
+	local function onTestClick(widget, event)
+		module:SpawnTestBar()
+	end
+	
+	local function colorChanged(widget, event, r, g, b)
+		db.barColor = {r, g, b, 1}
+		if not db.barClassColor then
+			restyleBars()
+		end
+	end
+	
+	local function toggleChanged(widget, event, value)
+		local key = widget:GetUserData("key")
+		db[key] = value and true or nil
+		restyleBars()
+	end
+	
+	local function heightChanged(widget, event, value)
+		db.barHeight = value
+		restyleBars()
+	end
+
+	local function show()
+		local frame = AceGUI:Create("Frame")
+		frame:SetTitle("Bar Settings")
+		frame:SetStatusText("")
+		frame:SetLayout("Flow")
+		frame:SetWidth(240)
+		frame:SetHeight(260)
+		
+		local test = AceGUI:Create("Button")
+		test:SetText("Spawn test bar")
+		test:SetCallback("OnClick", onTestClick)
+		test:SetFullWidth(true)
+		
+		local classColor = AceGUI:Create("CheckBox")
+		classColor:SetValue(db.barClassColor)
+		classColor:SetLabel("Use class color")
+		classColor:SetUserData("key", "barClassColor")
+		classColor:SetCallback("OnValueChanged", toggleChanged)
+		classColor:SetRelativeWidth(0.5)
+		
+		local picker = AceGUI:Create("ColorPicker")
+		picker:SetLabel("Select bar color")
+		picker:SetHasAlpha(false)
+		picker:SetCallback("OnValueConfirmed", colorChanged)
+		picker:SetRelativeWidth(0.5)
+		picker:SetColor(unpack(db.barColor))
+
+		local height = AceGUI:Create("Slider")
+		height:SetLabel("Bar height")
+		height:SetValue(db.barHeight)
+		height:SetSliderValues(8, 32, 1)
+		height:SetCallback("OnValueChanged", heightChanged)
+		height:SetFullWidth(true)
+
+		local header = AceGUI:Create("Heading")
+		header:SetText("Show")
+		header:SetFullWidth(true)
+		
+		local icon = AceGUI:Create("CheckBox")
+		icon:SetValue(db.barShowIcon)
+		icon:SetLabel("Icon")
+		icon:SetUserData("key", "barShowIcon")
+		icon:SetCallback("OnValueChanged", toggleChanged)
+		icon:SetRelativeWidth(0.5)
+		
+		local duration = AceGUI:Create("CheckBox")
+		duration:SetValue(db.barShowDuration)
+		duration:SetLabel("Duration")
+		duration:SetUserData("key", "barShowDuration")
+		duration:SetCallback("OnValueChanged", toggleChanged)
+		duration:SetRelativeWidth(0.5)
+		
+		local unit = AceGUI:Create("CheckBox")
+		unit:SetValue(db.barShowUnit)
+		unit:SetLabel("Unit name")
+		unit:SetUserData("key", "barShowUnit")
+		unit:SetCallback("OnValueChanged", toggleChanged)
+		unit:SetRelativeWidth(0.5)
+		
+		local spell = AceGUI:Create("CheckBox")
+		spell:SetValue(db.barShowSpell)
+		spell:SetLabel("Spell name")
+		spell:SetUserData("key", "barShowSpell")
+		spell:SetCallback("OnValueChanged", toggleChanged)
+		spell:SetRelativeWidth(0.5)
+		
+		frame:AddChildren(test, classColor, picker, height, header, icon, duration, unit, spell)
+		
+		frame:Show()
+	end
+	showBarConfig = show
+end
+
+--------------------------------------------------------------------------------
 -- Bar display
 --
 
@@ -230,14 +329,45 @@ local startBar, setupCooldownDisplay
 do
 	local display = nil
 	local maximum = 10
-
 	local bars = {}
 	local visibleBars = {}
-	local counter = 1
-	local tmp = {}
+	
+	local function restyleBar(bar)
+		bar:SetHeight(db.barHeight)
+		if db.barShowIcon then
+			bar.bar:SetPoint("TOPLEFT", bar.icon, "TOPRIGHT")
+			bar.bar:SetPoint("BOTTOMLEFT", bar.icon, "BOTTOMRIGHT")
+			bar.icon:SetWidth(db.barHeight)
+			bar.icon:Show()
+		else
+			bar.bar:SetPoint("TOPLEFT", bar)
+			bar.bar:SetPoint("BOTTOMLEFT", bar)
+			bar.icon:Hide()
+		end
+		if db.barShowDuration then bar.time:Show()
+		else bar.time:Hide() end
+		if db.barShowUnit then bar.unit:Show()
+		else bar.unit:Hide() end
+		if db.barShowSpell then bar.label:Show()
+		else bar.label:Hide() end
+		if db.barClassColor then
+			local c = RAID_CLASS_COLORS[bar.unitclass]
+			bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
+		else
+			bar.bar:SetStatusBarColor(unpack(db.barColor))
+		end
+	end
+	
+	function restyleBars()
+		for bar in pairs(visibleBars) do
+			restyleBar(bar)
+		end
+	end
+	
 	local function barSorter(a, b)
 		return a.remaining < b.remaining and true or false
 	end
+	local tmp = {}
 	local function rearrangeBars()
 		wipe(tmp)
 		for bar in pairs(visibleBars) do
@@ -274,7 +404,7 @@ do
 	
 	local function displayOnMouseDown(self, button)
 		if button == "RightButton" then
-			module:SpawnTestBar()
+			showBarConfig()
 		end
 	end
 	
@@ -335,6 +465,7 @@ do
 	end
 	setupCooldownDisplay = setup
 
+	local counter = 1
 	local function getBar()
 		local bar = next(bars)
 		if bar then
@@ -343,25 +474,20 @@ do
 		end
 		local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, display)
 		counter = counter + 1
-		frame:SetHeight(db.barHeight)
 		frame:SetScale(1)
 		frame:SetMovable(1)
+		frame:Hide()
 
 		local icon = frame:CreateTexture(nil, "BACKGROUND")
-		icon:SetPoint("TOPLEFT", frame, "TOPLEFT")
-		icon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
-		icon:SetWidth(db.barHeight)
+		icon:SetPoint("TOPLEFT", frame)
+		icon:SetPoint("BOTTOMLEFT", frame)
 		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		frame.icon = icon
 
 		local statusbar = CreateFrame("StatusBar", nil, frame)
-		statusbar:SetPoint("TOPLEFT", icon, "TOPRIGHT")
-		statusbar:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT")
-		statusbar:SetPoint("TOPRIGHT", frame, "TOPRIGHT")
-		statusbar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT")
+		statusbar:SetPoint("TOPRIGHT", frame)
+		statusbar:SetPoint("BOTTOMRIGHT", frame)
 		statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-		statusbar:SetMinMaxValues(0, 1)
-		statusbar:SetValue(0)
 		frame.bar = statusbar
 
 		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
@@ -373,13 +499,16 @@ do
 		time:SetPoint("RIGHT", statusbar, -2, 0)
 		frame.time = time
 
+		local unit = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
+		unit:SetPoint("LEFT", statusbar, 2, 0)
+		frame.unit = unit
+
 		local name = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
 		name:SetAllPoints(frame)
 		name:SetJustifyH("CENTER")
 		name:SetJustifyV("MIDDLE")
 		frame.label = name
 
-		frame:Hide()
 		return frame
 	end
 
@@ -391,7 +520,12 @@ do
 		rearrangeBars()
 	end
 
-	local function onUpdate(self)
+	local function onUpdate(self, elapsed)
+		--[[self.total = self.total + elapsed
+		if self.total < 0.2 then return end
+		self.total = 0]] -- Throttle updates a bit perhaps?
+		-- We just need to make sure that the throttle is small enough
+		-- so the bars don't jitter.
 		local t = GetTime()
 		if t >= self.exp then
 			stop(self)
@@ -403,16 +537,16 @@ do
 		end
 	end
 
-	local nameFormat = "%s : %s"
 	local function start(unit, id, name, icon, duration)
 		local bar = getBar()
-		local c = RAID_CLASS_COLORS[classLookup[id]]
+		bar.unitclass = classLookup[id]
 		bar.icon:SetTexture(icon)
-		bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
 		bar.bar:SetMinMaxValues(0, duration)
-		bar.label:SetText(nameFormat:format(unit, name))
+		bar.unit:SetText(unit)
+		bar.label:SetText(name)
 		bar.exp = GetTime() + duration
 		bar.remaining = duration
+		restyleBar(bar)
 		visibleBars[bar] = true
 		bar:SetScript("OnUpdate", onUpdate)
 		rearrangeBars()
@@ -438,7 +572,14 @@ function module:OnRegister()
 			onlyShowMine = nil,
 			width = 200,
 			height = 148,
+			--
 			barHeight = 14,
+			barShowIcon = true,
+			barShowDuration = true,
+			barShowUnit = true,
+			barShowSpell = true,
+			barClassColor = true,
+			barColor = { 0.25, 0.33, 0.68, 1 },
 		},
 	})
 	db = database.profile
