@@ -367,7 +367,7 @@ do
 		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints()
 		bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-		bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
+		bg:SetVertexColor(0.5, 0.5, 0.5, 0.3)
 
 		local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
 		time:SetPoint("RIGHT", statusbar, -2, 0)
@@ -457,29 +457,18 @@ function module:OnRegister()
 	setupCooldownDisplay()
 end
 
-function module:SpawnTestBar()
-	local counter = 0
-	for k in pairs(db.spells) do
-		counter = counter + 1
+do
+	local spellList = {}
+	for k in pairs(allSpells) do table.insert(spellList, k) end
+	local reverseClass = {}
+	for name, class in pairs(oRA._testUnits) do reverseClass[class] = name end
+	function module:SpawnTestBar()
+		local spell = spellList[math.random(1, #spellList)]
+		local unit = reverseClass[classLookup[spell]]
+		local name, _, icon = GetSpellInfo(spell)
+		local duration = (allSpells[spell] / 30) + math.random(1, 120)
+		startBar(unit, spell, name, icon, duration)
 	end
-	counter = math.ceil(counter / 2)
-	local spell = 27239
-	for k in pairs(db.spells) do
-		if math.random(1, counter) == counter then
-			spell = k
-			break
-		end
-	end
-	local name, _, icon = GetSpellInfo(spell)
-	local unit = nil
-	for name, class in pairs(oRA._testUnits) do
-		if spells[class][spell] then
-			unit = name
-			break
-		end
-	end
-	local duration = (allSpells[spell] / 30) + math.random(1, 120)
-	startBar(unit, spell, name, icon, duration)
 end
 
 function module:OnEnable()
