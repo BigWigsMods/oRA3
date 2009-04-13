@@ -284,7 +284,7 @@ do
 	
 	local function displayOnMouseDown(self, button)
 		if button == "RightButton" then
-			print("show config")
+			module:SpawnTestBar()
 		end
 	end
 	
@@ -468,8 +468,7 @@ function module:OnRegister()
 	setupCooldownDisplay()
 end
 
--- Yeah, it's a global -- it's just for testing, stop whining!
-function CreateRandomCDBar()
+function module:SpawnTestBar()
 	local counter = 0
 	for k in pairs(db.spells) do
 		counter = counter + 1
