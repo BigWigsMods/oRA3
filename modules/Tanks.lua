@@ -4,6 +4,9 @@ local module = oRA:NewModule("Tanks", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
+local frame = nil
+local anchor = nil
+
 local function showConfig()
 	if not frame then module:CreateFrame() end
 	oRA:SetAllPointsToPanel(frame.frame)
@@ -21,14 +24,79 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
 			persistentTanks = {},
+			anchor = { x=0, y=0 },
+			alpha = 0.3,
+			scale = 1,
 		},
 	})
-	db = database.factionrealm.persistentTanks
+	self.db = database.factionrealm.persistentTanks
 	oRA:RegisterPanel(
 		"Tanks",
 		showConfig,
 		hideConfig
 	)
+end
+
+function module:CreateAnchor()
+	if anchor then return end
+	anchor = CreateFrame("Frame","oRA3TankAnchor",UIParent)
+	anchor:SetWidth(150)
+	anchor:SetHeight(15)
+	anchor:SetAlpha(db.alpha)
+	anchor:SetScale(db.scale)
+	anchor:SetPoint("CENTER",UIParent,"CENTER",db.anchor.x, db.anchor.y)
+	anchor.label = anchor:CreateFontString(nil,"OVERLAY","GameFontSmall")
+	anchor.label:SetAllPoints(anchor)
+	anchor.label:SetText("Tanks") -- LOCALIZE ME
+	anchor.labe:Show()
+	anchor:SetBackdrop({
+		bgFile = [[Interface/Tooltips/UI-Tooltip-Background]], 
+	 	edgeFile = [[Interface/Tooltips/UI-Tooltip-Border]], 
+	 	tile = false, tileSize = 16, edgeSize = 8, 
+	 	insets = { left = 2, right = 2, top = 2, bottom = 2 }
+	})
+	anchor:SetBackdropColor(0,0,0,0.3)
+	anchor:EnableMouse(true)
+	anchor:SetMovable(true)
+	anchor.locked = false
+	anchor.ToggleLock = function(self)
+		if locked then
+			self:SetMovable(true)
+			self:RegisterForDrag("LeftButton")
+			self.locked = false
+		else 
+			self:SetMovable(false)
+			self:RegisterForDrag(nil)
+			self.locked = true			
+		end
+	end
+	anchor:SetScript("OnMouseDown", function(self,button)
+		if button == "RightButton" then
+			self:ToggleLock()
+		end
+	end)
+	anchor:SetScript("OnDragStart", function(self)  
+		if not InCombatLockdown() then 
+			self:StartMoving() 
+		end 
+	end)
+	anchor:SetScript("OnDragStop", function(self)
+		local scale = self:GetEffectiveScale()
+		module.db.anchor.x = self:GetLeft() * scale
+		module.db.anchor.y = self:GetTop() * scale		
+	end)
+	anchor:SetScript("OnEnter", function(self)
+		if not InCombatLockdown() then
+			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+			GameTooltip:AddLine("Right-click to unlock anchor")
+			GameTooltip:AddLine("Left-click to drag")
+		end
+	end)
+	anchor:SetScript("OnLeave", function (self) 
+		if not InCombatLockdown() then 
+			GameTooltip:Hide() 
+		end 
+	end)
 end
 
 function module:CreateFrame()
