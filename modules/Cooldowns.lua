@@ -87,6 +87,7 @@ local spells = {
 		[1161] = 180, -- Challenging Shout
 		[5246] = 180, -- Intimidating Shout
 		[64380] = 300, -- Shattering Throw (could be 64382)
+		[55694] = 180, -- Enraged Regeneration
 	},
 	DEATHKNIGHT = {
 		[42650] = 1200, -- Army of the Dead
@@ -140,6 +141,7 @@ local function onControlEnter(widget, event, value)
 end
 local function onControlLeave() GameTooltip:Hide() end
 
+local lockDisplay, unlockDisplay, isDisplayLocked
 local showPane, hidePane
 do
 	local frame = nil
@@ -187,6 +189,11 @@ do
 	end
 	local function lockCallback(widget, event, value)
 		db.lockDisplay = value
+		if value then
+			lockDisplay()
+		else
+			unlockDisplay()
+		end
 	end
 
 	local function createFrame()
@@ -367,7 +374,9 @@ do
 	local maximum = 10
 	local bars = {}
 	local visibleBars = {}
-	
+	local locked = nil
+	function isDisplayLocked() return locked end
+
 	local function restyleBar(bar)
 		local c = RAID_CLASS_COLORS[bar.unitclass]
 		bar:SetHeight(db.barHeight)
@@ -445,29 +454,51 @@ do
 	end
 	
 	local function displayOnMouseDown(self, button)
-		if button == "RightButton" then
-			showBarConfig()
-		end
+		if button == "RightButton" then showBarConfig() end
 	end
 	
+	local function onDragStart(self) self:StartMoving() end
+	local function onDragStop(self)
+		self:StopMovingOrSizing()
+		local s = display:GetEffectiveScale()
+		db.x = display:GetLeft() * s
+		db.y = display:GetTop() * s
+	end
+
+	function lockDisplay()
+		if locked then return end
+		display:EnableMouse(false)
+		display:SetMovable(false)
+		display:SetResizable(false)
+		display:RegisterForDrag()
+		display:SetScript("OnSizeChanged", nil)
+		display:SetScript("OnDragStart", nil)
+		display:SetScript("OnDragStop", nil)
+		display:SetScript("OnMouseDown", nil)
+		display.drag:Hide()
+		display.header:Hide()
+		locked = true
+	end
+	function unlockDisplay()
+		if not locked then return end
+		display:EnableMouse(true)
+		display:SetMovable(true)
+		display:SetResizable(true)
+		display:RegisterForDrag("LeftButton")
+		display:SetScript("OnSizeChanged", onResize)
+		display:SetScript("OnDragStart", onDragStart)
+		display:SetScript("OnDragStop", onDragStop)
+		display:SetScript("OnMouseDown", displayOnMouseDown)
+		display.drag:Show()
+		display.header:Show()
+		locked = nil
+	end
+
 	local function setup()
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
 		display:SetWidth(db.width)
 		display:SetHeight(db.height)
-		display:EnableMouse()
-		display:SetMovable(true)
-		display:SetResizable(true)
 		display:SetMinResize(100, 20)
-		display:RegisterForDrag("LeftButton")
-		display:SetScript("OnSizeChanged", onResize)
-		display:SetScript("OnDragStart", function(self) self:StartMoving() end)
-		display:SetScript("OnDragStop", function(self)
-			self:StopMovingOrSizing()
-			local s = display:GetEffectiveScale()
-			db.x = display:GetLeft() * s
-			db.y = display:GetTop() * s
-		end)
-		display:SetScript("OnMouseDown", displayOnMouseDown)
 		if db.x and db.y then
 			local s = display:GetEffectiveScale()
 			display:ClearAllPoints()
@@ -483,6 +514,7 @@ do
 		header:SetFontObject(GameFontNormal)
 		header:SetText("Cooldowns")
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
+		display.header = header
 
 		local drag = CreateFrame("Frame", nil, display)
 		drag.frame = display
@@ -502,6 +534,14 @@ do
 		tex:SetHeight(16)
 		tex:SetBlendMode("ADD")
 		tex:SetPoint("CENTER", drag)
+
+		if db.lockDisplay then
+			locked = nil
+			lockDisplay()
+		else
+			locked = true
+			unlockDisplay()
+		end
 
 		display:Show()
 	end
@@ -612,7 +652,7 @@ function module:OnRegister()
 			},
 			showCooldowns = true,
 			onlyShowMine = nil,
-			lockDisplay = nil,
+			lockDisplay = false,
 			width = 200,
 			height = 148,
 			barHeight = 14,
