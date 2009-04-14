@@ -25,31 +25,45 @@ local spells = {
 	HUNTER = {
 		[34477] = 30, -- Misdirect
 		[5384] = 30, -- Feign Death
+		[62757] = 1800, -- Call Stabled Pet
 	},
 	MAGE = {
 		[45438] = 300, -- Iceblock
 		[2139] = 24, -- Counterspell
+		[31687] = 180, -- Summon Water Elemental
+		[12051] = 240, -- Evocation
 	},
 	PALADIN = {
 		[19752] = 1200, -- Divine Intervention
 		[642] = 300, -- Divine Shield
+		[64205] = 120, -- Divine Sacrifice
+		[498] = 180, -- Divine Protection
 		[10278] = 300, -- Hand of Protection
 		[6940] = 120, -- Hand of Sacrifice
-		[498] = 300, -- Divine Protection
 		[633] = 1200, -- Lay on Hands
 	},
 	PRIEST = {
 		[33206] = 180, -- Pain Suppression
 		[47788] = 180, -- Guardian Spirit
 		[6346] = 180, -- Fear Ward
+		[64843] = 600, -- Divine Hymn
+		[64901] = 360, -- Hymn of Hope
+		[34433] = 300, -- Shadowfiend
+		[10060] = 120, -- Power Infusion
+		[47585] = 180, -- Dispersion
 	},
 	ROGUE = {
 		[31224] = 90, -- Cloak of Shadows
 		[38768] = 10, -- Kick
 		[1725] = 30, -- Distract
+		[13750] = 180, -- Adrenaline Rush
+		[13877] = 120, -- Blade Flurry
+		[14177] = 180, -- Cold Blood
+		[11305] = 180, -- Sprint
+		[26889] = 180, -- Vanish
 	},
 	SHAMAN = {
-		[bloodlustId] = 600, -- Bloodlust/Heroism
+		[bloodlustId] = 300, -- Bloodlust/Heroism
 		[20608] = 3600, -- Reincarnation
 		[16190] = 300, -- Mana Tide Totem
 		[2894] = 1200, -- Fire Elemental Totem
@@ -59,21 +73,31 @@ local spells = {
 	WARLOCK = {
 		[27239] = 1800, -- Soulstone Resurrection
 		[29858] = 300, -- Soulshatter
+		[47241] = 180, -- Metamorphosis
+		[18708] = 900, -- Fel Domination
+		[698] = 120, -- Ritual of Summoning
+		[58887] = 300, -- Ritual of Souls
 	},
 	WARRIOR = {
 		[871] = 300, -- Shield Wall
-		[12975] = 300, -- Last Stand
+		[1719] = 300, -- Recklessness
+		[20230] = 300, -- Retaliation
+		[12975] = 180, -- Last Stand
 		[6554] = 10, -- Pummel
 		[1161] = 180, -- Challenging Shout
+		[5246] = 180, -- Intimidating Shout
+		[64380] = 300, -- Shattering Throw (could be 64382)
 	},
 	DEATHKNIGHT = {
 		[42650] = 1200, -- Army of the Dead
-		[61999] = 300, -- Raise Ally
-		[49028] = 180, -- Dancing Rune Weapon
+		[61999] = 900, -- Raise Ally
+		[49028] = 90, -- Dancing Rune Weapon
 		[49206] = 180, -- Summon Gargoyle
-		[49916] = 120, -- Strangulate
+		[47476] = 120, -- Strangulate
 		[49576] = 35, -- Death Grip
-		[51271] = 60, -- Unbreakable Armor
+		[51271] = 120, -- Unbreakable Armor
+		[55233] = 120, -- Vampiric Blood
+		[49222] = 120, -- Bone Shield
 	},
 }
 
@@ -140,6 +164,7 @@ do
 			table.sort(tmp) -- ZZZ Sorted by spell ID, oh well!
 			for i, v in ipairs(tmp) do
 				local name = GetSpellInfo(v)
+				if not name then break end
 				local checkbox = AceGUI:Create("CheckBox")
 				checkbox:SetLabel(name)
 				checkbox:SetValue(db.spells[v] and true or false)
@@ -609,7 +634,8 @@ function module:OnRegister()
 
 	-- These are the spells we broadcast to the raid
 	for spell, cd in pairs(spells[playerClass]) do
-		broadcastSpells[GetSpellInfo(spell)] = spell
+		local name = GetSpellInfo(spell)
+		if name then broadcastSpells[name] = spell end
 	end
 	
 	setupCooldownDisplay()
@@ -625,8 +651,9 @@ do
 			for name, class in pairs(oRA._testUnits) do reverseClass[class] = name end
 		end
 		local spell = spellList[math.random(1, #spellList)]
-		local unit = reverseClass[classLookup[spell]]
 		local name, _, icon = GetSpellInfo(spell)
+		if not name then return end
+		local unit = reverseClass[classLookup[spell]]
 		local duration = (allSpells[spell] / 30) + math.random(1, 120)
 		startBar(unit, spell, name, icon, duration)
 	end
@@ -683,7 +710,7 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
 	local name, _, icon = GetSpellInfo(spell)
-	if not icon then return end
+	if not name or not icon then return end
 	startBar(sender, spell, name, icon, cd)
 end
 
