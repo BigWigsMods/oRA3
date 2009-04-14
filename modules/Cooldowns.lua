@@ -269,23 +269,19 @@ end
 local restyleBars
 local showBarConfig
 do
-	local function onTestClick(widget, event)
-		module:SpawnTestBar()
-	end
-	
+	local function onTestClick() module:SpawnTestBar() end
 	local function colorChanged(widget, event, r, g, b)
 		db.barColor = {r, g, b, 1}
 		if not db.barClassColor then
 			restyleBars()
 		end
 	end
-	
 	local function toggleChanged(widget, event, value)
 		local key = widget:GetUserData("key")
+		if not key then return end
 		db[key] = value
 		restyleBars()
 	end
-	
 	local function heightChanged(widget, event, value)
 		db.barHeight = value
 		restyleBars()
@@ -293,26 +289,26 @@ do
 
 	local function show()
 		local frame = AceGUI:Create("Frame")
+		frame:SetCallback("OnClose", frame.Release)
 		frame:SetTitle("Bar Settings")
 		frame:SetStatusText("")
 		frame:SetLayout("Flow")
 		frame:SetWidth(240)
 		frame:SetHeight(260)
-		
+
 		local test = AceGUI:Create("Button")
 		test:SetText("Spawn test bar")
 		test:SetCallback("OnClick", onTestClick)
 		test:SetFullWidth(true)
-		
+
 		local classColor = AceGUI:Create("CheckBox")
 		classColor:SetValue(db.barClassColor)
 		classColor:SetLabel("Use class color")
 		classColor:SetUserData("key", "barClassColor")
 		classColor:SetCallback("OnValueChanged", toggleChanged)
 		classColor:SetRelativeWidth(0.5)
-		
+
 		local picker = AceGUI:Create("ColorPicker")
-		picker:SetLabel("Select bar color")
 		picker:SetHasAlpha(false)
 		picker:SetCallback("OnValueConfirmed", colorChanged)
 		picker:SetRelativeWidth(0.5)
@@ -464,6 +460,10 @@ do
 		db.x = display:GetLeft() * s
 		db.y = display:GetTop() * s
 	end
+	local function onEnter(self)
+		if not next(visibleBars) then help:Show() end
+	end
+	local function onLeave(self) self.help:Hide() end
 
 	function lockDisplay()
 		if locked then return end
@@ -475,6 +475,8 @@ do
 		display:SetScript("OnDragStart", nil)
 		display:SetScript("OnDragStop", nil)
 		display:SetScript("OnMouseDown", nil)
+		display:SetScript("OnEnter", nil)
+		display:SetScript("OnLeave", nil)
 		display.drag:Hide()
 		display.header:Hide()
 		locked = true
@@ -489,6 +491,8 @@ do
 		display:SetScript("OnDragStart", onDragStart)
 		display:SetScript("OnDragStop", onDragStop)
 		display:SetScript("OnMouseDown", displayOnMouseDown)
+		display:SetScript("OnEnter", onEnter)
+		display:SetScript("OnLeave", onLeave)
 		display.drag:Show()
 		display.header:Show()
 		locked = nil
@@ -514,6 +518,12 @@ do
 		header:SetFontObject(GameFontNormal)
 		header:SetText("Cooldowns")
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
+		local help = display:CreateFontString(nil, "OVERLAY")
+		help:SetFontObject(GameFontNormal)
+		help:SetText("Right-Click me for options!")
+		help:SetAllPoints(display)
+		help:Hide()
+		display.help = help
 		display.header = header
 
 		local drag = CreateFrame("Frame", nil, display)
