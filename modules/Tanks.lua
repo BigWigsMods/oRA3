@@ -27,6 +27,7 @@ function module:OnRegister()
 			anchor = { x=0, y=0 },
 			alpha = 0.3,
 			scale = 1,
+			showTankFrames = true,
 		},
 	})
 	self.db = database.factionrealm.persistentTanks
@@ -35,6 +36,23 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
+end
+
+function module:OnEnable()
+	oRA.RegisterCallback(self, "OnGroupChanged")
+end
+
+function module:OnGroupChanged(event, status, members)
+	if status == oRA.INRAID then
+		-- We are now in a raid, create the anchor if we should
+		if self.db.showTankFrames then
+			self:CreateAnchor()
+		end
+	else
+		if anchor then
+			anchor:Hide()
+		end
+	end
 end
 
 function module:CreateAnchor()
@@ -104,7 +122,19 @@ function module:CreateFrame()
 	frame = AceGUI:Create("ScrollFrame")
 	frame:PauseLayout()
 	frame:SetLayout("Flow")
-
+	--[[
+		Show Tanks [ ? ] -- do they want oRA3 tank window
+			-- Show/Hide Anchor
+		Persistent Tanks 
+			-- List of Tanks
+			-- Sorting,
+				1. Alpha or Index
+				2. Asending/Descening
+				3. Groups i.e. dont show if the tank is in sub group 6-8 for instance
+				4. Group By Class/Role/Group
+		Look and Feel
+			-- Colors, Highlighting, Scale, Texture options
+	--]]
 	local persistentHeading = AceGUI:Create("Heading")
 	persistentHeading:SetText("Persistent tanks")
 	persistentHeading:SetFullWidth(true)
