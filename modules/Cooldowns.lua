@@ -461,7 +461,7 @@ do
 		db.y = display:GetTop() * s
 	end
 	local function onEnter(self)
-		if not next(visibleBars) then help:Show() end
+		if not next(visibleBars) then self.help:Show() end
 	end
 	local function onLeave(self) self.help:Hide() end
 
