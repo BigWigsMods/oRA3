@@ -6,6 +6,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 local frame = nil
 local anchor = nil
+local header = nil
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
@@ -28,6 +29,12 @@ function module:OnRegister()
 			alpha = 0.3,
 			scale = 1,
 			showTankAnchor = true,
+			width = 150,
+			height = 15,
+			sortMethod="NAME",
+			sortDir="DESC",
+			groupOrder="1,2,3,4,5",
+			maxTanks=10,
 		},
 	})
 	self.db = database.factionrealm
@@ -42,9 +49,9 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	self:CreateAnchor()
 	if self.db.showTankAnchor then
-		anchor:Show()
+		anchor.label:Show()
 	else
-		anchor:Hide()
+		anchor.label:Hide()
 	end
 end
 
@@ -52,6 +59,42 @@ function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
 		-- we are in a raid setup listenersfor tank windows if we have any
 	end
+end
+
+function module:ConfigUnitFrame(frame)
+	frame:SetAttribute("*type1","target")
+	frame:SetAttribute("toggleForVehicle",true)
+	frame:RegisterForClicks("AnyUp")
+	frame:SetScript("OnAttributeChanged", nil)
+	frame:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+	frame:SetScript("OnEnter", function(self) 
+		if not InCombatLockdown() then
+			local unit = SecureButton_GetUnit(self)
+			GameTooltip_SetDefaultAnchor(GameTooltip,self)
+			if unit then 
+				GameTooltip:SetUnit(unit) 
+				self.updateTooltip = TOOLTIP_UPDATE_TIME
+			else
+				self.updateTooltip = nil
+			end
+		end
+	end)
+end
+function module:CreateRaidHeader()
+	if header then return end
+	if not anchor then self:CreateAnchor() end
+	header = CreateFrame("Frame","oRA3TankHeader",anchor,"SecureRaidGroupHeader")
+	header.initialConfigFunction = function(f) module:ConfigUnitFrame(f) end
+	header:SetAttribute("template","SecureUnitButtonTemplate")
+	header:SetWidth(self.db.width)
+	header:SetHeight(self.db.height)
+	header:SetAttribute("minHeight",self.db.height)
+	-- Sort info below
+	header:SetAttribute("sortMethod",self.db.sortMethod)
+	header:SetAttribute("sortDir",self.db.sortDir)
+	header:SetAttribute("groupBy",self.db.groupBy)
+	header:SetAttribute("groupingOrder",self.db.groupOrder)
+	header:SetAttribute("unitsPerColumn",self.db.maxTanks)
 end
 
 function module:CreateAnchor()
