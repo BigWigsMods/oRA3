@@ -24,13 +24,13 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
 			persistentTanks = {},
-			anchor = { x=0, y=0 },
+			x = 0, y = 0,
 			alpha = 0.3,
 			scale = 1,
-			showTankFrames = true,
+			showTankAnchor = true,
 		},
 	})
-	self.db = database.factionrealm.persistentTanks
+	self.db = database.factionrealm
 	oRA:RegisterPanel(
 		"Tanks",
 		showConfig,
@@ -40,18 +40,17 @@ end
 
 function module:OnEnable()
 	oRA.RegisterCallback(self, "OnGroupChanged")
+	self:CreateAnchor()
+	if self.db.showTankAnchor then
+		anchor:Show()
+	else
+		anchor:Hide()
+	end
 end
 
 function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
-		-- We are now in a raid, create the anchor if we should
-		if self.db.showTankFrames then
-			self:CreateAnchor()
-		end
-	else
-		if anchor then
-			anchor:Hide()
-		end
+		-- we are in a raid setup listenersfor tank windows if we have any
 	end
 end
 
@@ -60,36 +59,28 @@ function module:CreateAnchor()
 	anchor = CreateFrame("Frame","oRA3TankAnchor",UIParent)
 	anchor:SetWidth(150)
 	anchor:SetHeight(15)
-	anchor:SetAlpha(db.alpha)
-	anchor:SetScale(db.scale)
-	anchor:SetPoint("CENTER",UIParent,"CENTER",db.anchor.x, db.anchor.y)
-	anchor.label = anchor:CreateFontString(nil,"OVERLAY","GameFontSmall")
+	if self.db.x and self.db.y then
+		anchor:SetPoint("CENTER",UIParent,"CENTER",self.db.x, self.db.y)
+	else
+		anchor:SetPoint("CENTER",UIParent,"CENTER",100, 0)		
+	end
+	anchor.label = anchor:CreateFontString(nil,"OVERLAY","GameFontNormal")
 	anchor.label:SetAllPoints(anchor)
 	anchor.label:SetText("Tanks") -- LOCALIZE ME
-	anchor.labe:Show()
-	anchor:SetBackdrop({
-		bgFile = [[Interface/Tooltips/UI-Tooltip-Background]], 
-	 	edgeFile = [[Interface/Tooltips/UI-Tooltip-Border]], 
-	 	tile = false, tileSize = 16, edgeSize = 8, 
-	 	insets = { left = 2, right = 2, top = 2, bottom = 2 }
-	})
-	anchor:SetBackdropColor(0,0,0,0.3)
 	anchor:EnableMouse(true)
 	anchor:SetMovable(true)
-	anchor.locked = false
+	anchor.locked = true
 	anchor.ToggleLock = function(self)
-		if locked then
-			self:SetMovable(true)
+		if not self.locked then
+			self:RegisterForDrag()
+			self.locked = true
+		else 
 			self:RegisterForDrag("LeftButton")
 			self.locked = false
-		else 
-			self:SetMovable(false)
-			self:RegisterForDrag(nil)
-			self.locked = true			
 		end
 	end
 	anchor:SetScript("OnMouseDown", function(self,button)
-		if button == "RightButton" then
+		if button == "RightButton" and not InCombatLockdown() then
 			self:ToggleLock()
 		end
 	end)
@@ -99,15 +90,30 @@ function module:CreateAnchor()
 		end 
 	end)
 	anchor:SetScript("OnDragStop", function(self)
-		local scale = self:GetEffectiveScale()
-		module.db.anchor.x = self:GetLeft() * scale
-		module.db.anchor.y = self:GetTop() * scale		
+		self:StopMovingOrSizing()
+		local scale,pscale = self:GetEffectiveScale(),self:GetParent():GetEffectiveScale()
+		local to,anchor,from,x,y = self:GetPoint()
+		local gX,gY = self:GetLeft() + self:GetWidth() / 2, self:GetBottom() + self:GetHeight() / 2
+		local pX,pY = UIParent:GetLeft() + UIParent:GetWidth() / 2, UIParent:GetBottom() + UIParent:GetHeight() / 2
+		local x = (gX * scale) - (pX * pscale)
+		local y = (gY * scale) - (pY * pscale)
+		x = x/scale
+		y = y/scale		
+		module.db.x = x
+		module.db.y = y
+		self:ClearAllPoints()
+		self:SetPoint("CENTER",UIParent,"CENTER",module.db.x, module.db.y)
 	end)
 	anchor:SetScript("OnEnter", function(self)
 		if not InCombatLockdown() then
 			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-			GameTooltip:AddLine("Right-click to unlock anchor")
+			if self.locked then
+				GameTooltip:AddLine("Right-click to unlock anchor")
+			else
+				GameTooltip:AddLine("Right-click to lock anchor")
+			end
 			GameTooltip:AddLine("Left-click to drag")
+			GameTooltip:Show()
 		end
 	end)
 	anchor:SetScript("OnLeave", function (self) 
@@ -115,6 +121,7 @@ function module:CreateAnchor()
 			GameTooltip:Hide() 
 		end 
 	end)
+	anchor:Hide()
 end
 
 function module:CreateFrame()
@@ -123,8 +130,8 @@ function module:CreateFrame()
 	frame:PauseLayout()
 	frame:SetLayout("Flow")
 	--[[
-		Show Tanks [ ? ] -- do they want oRA3 tank window
-			-- Show/Hide Anchor
+	 	Show/Hide Anchor
+		Enable Tanks [ ? ] -- do they want oRA3 tank window during the raid?
 		Persistent Tanks 
 			-- List of Tanks
 			-- Sorting,
@@ -138,7 +145,22 @@ function module:CreateFrame()
 	local persistentHeading = AceGUI:Create("Heading")
 	persistentHeading:SetText("Persistent tanks")
 	persistentHeading:SetFullWidth(true)
-
+	
+	local anchorDesc = AceGUI:Create("Label")
+	anchorDesc:SetText("Tank Window Options")
+	anchorDesc:SetFullWidth(true)
+	
+	local show = AceGUI:Create("CheckBox")
+	show:SetLabel("Show anchor")
+	show:SetValue(self.db.showTankAnchor)
+	show:SetCallback("OnValueChanged", function(_,_,value)
+		if value then anchor:Show() else anchor:Hide() end
+		self.db.showTankAnchor = value
+	end)
+	show:SetUserData("tooltip", "Show or hide the anchor bar in the game world.")
+	show:SetFullWidth(true)
+	
+	
 	local moduleDescription = AceGUI:Create("Label")
 	moduleDescription:SetText("Persistent tanks are players you always want present in the sort list. If they're made main tanks by anyone, you'll automatically sort them according to your own preference.")
 	moduleDescription:SetFullWidth(true)
@@ -194,7 +216,7 @@ function module:CreateFrame()
 		i = i + 1
 	end
 
-	frame:AddChildren(persistentHeading, moduleDescription, add, delete, sort, box)
+	frame:AddChildren(persistentHeading,anchorDesc,show, moduleDescription, add, delete, sort, box)
 	
 	frame:ResumeLayout()
 	frame:DoLayout()
