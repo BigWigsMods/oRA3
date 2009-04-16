@@ -48,6 +48,19 @@ function module:OnGroupChanged(event, status, members)
 	end
 end
 
+function module:ConfigureTankHeader(secureHeader)
+	-- gather up the Persistent tank List
+	local list = ""
+	for index,name in ipairs(self.db.persistentTanks) do
+		list = list .. name..","
+	end
+	-- Apply sorting rules
+	secureHeader:SetAttribute("sortMethod",self.db.sortMethod)
+	secureHeader:SetAttribute("sortDir",self.db.sortDir)
+	secureHeader:SetAttribute("groupBy",self.db.groupBy)
+	secureHeader:SetAttribute("groupingOrder",self.db.groupOrder)
+	secureHeader:SetAttribute("auxPlayers",list)
+end
 
 function module:CreateFrame()
 	if frame then return end
