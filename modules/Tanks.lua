@@ -45,16 +45,8 @@ end
 
 function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
+		
 	end
-end
-
-function module:GetTankList()
-	-- gather up the Persistent tank List
-	local list = ""
-	for index,name in ipairs(self.db.persistentTanks) do
-		list = list .. name..","
-	end
-	return list
 end
 
 function module:CreateFrame()
