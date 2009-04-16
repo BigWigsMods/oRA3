@@ -141,7 +141,7 @@ local function onControlEnter(widget, event, value)
 end
 local function onControlLeave() GameTooltip:Hide() end
 
-local lockDisplay, unlockDisplay, isDisplayLocked
+local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
 local showPane, hidePane
 do
 	local frame = nil
@@ -182,7 +182,12 @@ do
 	end
 
 	local function showCallback(widget, event, value)
-		db.showCooldowns = value
+		db.showDisplay = value
+		if value then
+			showDisplay()
+		else
+			hideDisplay()
+		end
 	end
 	local function onlyMineCallback(widget, event, value)
 		db.onlyShowMine = value
@@ -201,33 +206,41 @@ do
 		frame = AceGUI:Create("ScrollFrame")
 		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
 
+		local monitorHeading = AceGUI:Create("Heading")
+		monitorHeading:SetText(L["Monitor settings"])
+		monitorHeading:SetFullWidth(true)
+		
 		local show = AceGUI:Create("CheckBox")
-		show:SetLabel("Show monitor")
-		show:SetValue(db.showCooldowns)
+		show:SetLabel(L["Show monitor"])
+		show:SetValue(db.showDisplay)
 		show:SetCallback("OnEnter", onControlEnter)
 		show:SetCallback("OnLeave", onControlLeave)
 		show:SetCallback("OnValueChanged", showCallback)
-		show:SetUserData("tooltip", "Show or hide the cooldown bar display in the game world.")
+		show:SetUserData("tooltip", L["Show or hide the cooldown bar display in the game world."])
 		show:SetFullWidth(true)
 		
 		local lock = AceGUI:Create("CheckBox")
-		lock:SetLabel("Lock monitor")
+		lock:SetLabel(L["Lock monitor"])
 		lock:SetValue(db.lockDisplay)
 		lock:SetCallback("OnEnter", onControlEnter)
 		lock:SetCallback("OnLeave", onControlLeave)
 		lock:SetCallback("OnValueChanged", lockCallback)
-		lock:SetUserData("tooltip", "Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars.")
+		lock:SetUserData("tooltip", L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."])
 		lock:SetFullWidth(true)
 
 		local only = AceGUI:Create("CheckBox")
-		only:SetLabel("Only show my own spells")
+		only:SetLabel(L["Only show my own spells"])
 		only:SetValue(db.onlyShowMine)
 		only:SetCallback("OnEnter", onControlEnter)
 		only:SetCallback("OnLeave", onControlLeave)
 		only:SetCallback("OnValueChanged", onlyMineCallback)
-		only:SetUserData("tooltip", "Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon.")
+		only:SetUserData("tooltip", L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."])
 		only:SetFullWidth(true)
 
+		local cooldownHeading = AceGUI:Create("Heading")
+		cooldownHeading:SetText(L["Cooldown settings"])
+		cooldownHeading:SetFullWidth(true)
+		
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 		moduleDescription:SetFullWidth(true)
@@ -241,7 +254,7 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChildren(show, lock, only, moduleDescription, group)
+		frame:AddChildren(monitorHeading, show, lock, only, cooldownHeading, moduleDescription, group)
 
 		-- resume and update layout
 		frame:ResumeLayout()
@@ -290,65 +303,65 @@ do
 	local function show()
 		local frame = AceGUI:Create("Frame")
 		frame:SetCallback("OnClose", frame.Release)
-		frame:SetTitle("Bar Settings")
+		frame:SetTitle(L["Bar Settings"])
 		frame:SetStatusText("")
 		frame:SetLayout("Flow")
 		frame:SetWidth(240)
 		frame:SetHeight(260)
 
 		local test = AceGUI:Create("Button")
-		test:SetText("Spawn test bar")
+		test:SetText(L["Spawn test bar"])
 		test:SetCallback("OnClick", onTestClick)
 		test:SetFullWidth(true)
 
 		local classColor = AceGUI:Create("CheckBox")
 		classColor:SetValue(db.barClassColor)
-		classColor:SetLabel("Use class color")
+		classColor:SetLabel(L["Use class color"])
 		classColor:SetUserData("key", "barClassColor")
 		classColor:SetCallback("OnValueChanged", toggleChanged)
-		classColor:SetRelativeWidth(0.5)
+		classColor:SetRelativeWidth(0.7)
 
 		local picker = AceGUI:Create("ColorPicker")
 		picker:SetHasAlpha(false)
 		picker:SetCallback("OnValueConfirmed", colorChanged)
-		picker:SetRelativeWidth(0.5)
+		picker:SetRelativeWidth(0.3)
 		picker:SetColor(unpack(db.barColor))
 
 		local height = AceGUI:Create("Slider")
-		height:SetLabel("Bar height")
+		height:SetLabel(L["Bar height"])
 		height:SetValue(db.barHeight)
 		height:SetSliderValues(8, 32, 1)
 		height:SetCallback("OnValueChanged", heightChanged)
 		height:SetFullWidth(true)
 
 		local header = AceGUI:Create("Heading")
-		header:SetText("Show")
+		header:SetText(L["Show"])
 		header:SetFullWidth(true)
 		
 		local icon = AceGUI:Create("CheckBox")
 		icon:SetValue(db.barShowIcon)
-		icon:SetLabel("Icon")
+		icon:SetLabel(L["Icon"])
 		icon:SetUserData("key", "barShowIcon")
 		icon:SetCallback("OnValueChanged", toggleChanged)
 		icon:SetRelativeWidth(0.5)
 		
 		local duration = AceGUI:Create("CheckBox")
 		duration:SetValue(db.barShowDuration)
-		duration:SetLabel("Duration")
+		duration:SetLabel(L["Duration"])
 		duration:SetUserData("key", "barShowDuration")
 		duration:SetCallback("OnValueChanged", toggleChanged)
 		duration:SetRelativeWidth(0.5)
 		
 		local unit = AceGUI:Create("CheckBox")
 		unit:SetValue(db.barShowUnit)
-		unit:SetLabel("Unit name")
+		unit:SetLabel(L["Unit name"])
 		unit:SetUserData("key", "barShowUnit")
 		unit:SetCallback("OnValueChanged", toggleChanged)
 		unit:SetRelativeWidth(0.5)
 		
 		local spell = AceGUI:Create("CheckBox")
 		spell:SetValue(db.barShowSpell)
-		spell:SetLabel("Spell name")
+		spell:SetLabel(L["Spell name"])
 		spell:SetUserData("key", "barShowSpell")
 		spell:SetCallback("OnValueChanged", toggleChanged)
 		spell:SetRelativeWidth(0.5)
@@ -371,8 +384,10 @@ do
 	local bars = {}
 	local visibleBars = {}
 	local locked = nil
+	local shown = nil
 	function isDisplayLocked() return locked end
-
+	function isDisplayShown() return shown end
+	
 	local function restyleBar(bar)
 		local c = RAID_CLASS_COLORS[bar.unitclass]
 		bar:SetHeight(db.barHeight)
@@ -497,6 +512,14 @@ do
 		display.header:Show()
 		locked = nil
 	end
+	function showDisplay()
+		display:Show()
+		shown = true
+	end
+	function hideDisplay()
+		display:Hide()
+		shown = nil
+	end
 
 	local function setup()
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
@@ -552,8 +575,13 @@ do
 			locked = true
 			unlockDisplay()
 		end
-
-		display:Show()
+		if db.showDisplay then
+			shown = true
+			showDisplay()
+		else
+			shown = nil
+			hideDisplay()
+		end
 	end
 	setupCooldownDisplay = setup
 
@@ -660,7 +688,7 @@ function module:OnRegister()
 				[20608] = true,
 				[27239] = true,
 			},
-			showCooldowns = true,
+			showDisplay = true,
 			onlyShowMine = nil,
 			lockDisplay = false,
 			width = 200,

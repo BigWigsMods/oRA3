@@ -75,6 +75,27 @@ L["Remove"] = true
 
 -- Cooldowns module
 L["Cooldowns"] = true
+L["Monitor settings"] = true
+L["Show monitor"] = true
+L["Lock monitor"] = true
+L["Show or hide the cooldown bar display in the game world."] = true
+L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = true
+L["Only show my own spells"] = true
+L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."] = true
+L["Cooldown settings"] = true
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = true
 L["Select class"] = true
+-- monitor
+L["Bar Settings"] = true
+L["Spawn test bar"] = true
+L["Use class color"] = true
+L["Bar height"] = true
+L["Icon"] = true
+L["Show"] = true
+L["Duration"] = true
+L["Unit name"] = true
+L["Spell name"] = true
+
+
+
 
