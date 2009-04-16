@@ -61,6 +61,7 @@ function module:OnGroupChanged(event, status, members)
 end
 
 local function addPlayer( name, zone )
+	if not name then return end
 	local k = util:inTable(zones, name, 1)
 	if not k then
 		table.insert(zones, { name } )
