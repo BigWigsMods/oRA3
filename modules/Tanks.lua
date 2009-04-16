@@ -25,16 +25,10 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
 			persistentTanks = {},
-			x = 0, y = 0,
-			alpha = 0.3,
-			scale = 1,
-			showTankAnchor = true,
-			width = 150,
-			height = 15,
 			sortMethod="NAME",
 			sortDir="DESC",
 			groupOrder="1,2,3,4,5",
-			maxTanks=10,
+			groupBy="CLASS",
 		},
 	})
 	self.db = database.factionrealm
@@ -47,125 +41,13 @@ end
 
 function module:OnEnable()
 	oRA.RegisterCallback(self, "OnGroupChanged")
-	self:CreateAnchor()
-	if self.db.showTankAnchor then
-		anchor.label:Show()
-	else
-		anchor.label:Hide()
-	end
 end
 
 function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
-		-- we are in a raid setup listenersfor tank windows if we have any
 	end
 end
 
-function module:ConfigUnitFrame(frame)
-	frame:SetAttribute("*type1","target")
-	frame:SetAttribute("toggleForVehicle",true)
-	frame:RegisterForClicks("AnyUp")
-	frame:SetScript("OnAttributeChanged", nil)
-	frame:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
-	frame:SetScript("OnEnter", function(self) 
-		if not InCombatLockdown() then
-			local unit = SecureButton_GetUnit(self)
-			GameTooltip_SetDefaultAnchor(GameTooltip,self)
-			if unit then 
-				GameTooltip:SetUnit(unit) 
-				self.updateTooltip = TOOLTIP_UPDATE_TIME
-			else
-				self.updateTooltip = nil
-			end
-		end
-	end)
-end
-function module:CreateRaidHeader()
-	if header then return end
-	if not anchor then self:CreateAnchor() end
-	header = CreateFrame("Frame","oRA3TankHeader",anchor,"SecureRaidGroupHeader")
-	header.initialConfigFunction = function(f) module:ConfigUnitFrame(f) end
-	header:SetAttribute("template","SecureUnitButtonTemplate")
-	header:SetWidth(self.db.width)
-	header:SetHeight(self.db.height)
-	header:SetAttribute("minHeight",self.db.height)
-	-- Sort info below
-	header:SetAttribute("sortMethod",self.db.sortMethod)
-	header:SetAttribute("sortDir",self.db.sortDir)
-	header:SetAttribute("groupBy",self.db.groupBy)
-	header:SetAttribute("groupingOrder",self.db.groupOrder)
-	header:SetAttribute("unitsPerColumn",self.db.maxTanks)
-end
-
-function module:CreateAnchor()
-	if anchor then return end
-	anchor = CreateFrame("Frame","oRA3TankAnchor",UIParent)
-	anchor:SetWidth(150)
-	anchor:SetHeight(15)
-	if self.db.x and self.db.y then
-		anchor:SetPoint("CENTER",UIParent,"CENTER",self.db.x, self.db.y)
-	else
-		anchor:SetPoint("CENTER",UIParent,"CENTER",100, 0)		
-	end
-	anchor.label = anchor:CreateFontString(nil,"OVERLAY","GameFontNormal")
-	anchor.label:SetAllPoints(anchor)
-	anchor.label:SetText("Tanks") -- LOCALIZE ME
-	anchor:EnableMouse(true)
-	anchor:SetMovable(true)
-	anchor.locked = true
-	anchor.ToggleLock = function(self)
-		if not self.locked then
-			self:RegisterForDrag()
-			self.locked = true
-		else 
-			self:RegisterForDrag("LeftButton")
-			self.locked = false
-		end
-	end
-	anchor:SetScript("OnMouseDown", function(self,button)
-		if button == "RightButton" and not InCombatLockdown() then
-			self:ToggleLock()
-		end
-	end)
-	anchor:SetScript("OnDragStart", function(self)  
-		if not InCombatLockdown() then 
-			self:StartMoving() 
-		end 
-	end)
-	anchor:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
-		local scale,pscale = self:GetEffectiveScale(),self:GetParent():GetEffectiveScale()
-		local to,anchor,from,x,y = self:GetPoint()
-		local gX,gY = self:GetLeft() + self:GetWidth() / 2, self:GetBottom() + self:GetHeight() / 2
-		local pX,pY = UIParent:GetLeft() + UIParent:GetWidth() / 2, UIParent:GetBottom() + UIParent:GetHeight() / 2
-		local x = (gX * scale) - (pX * pscale)
-		local y = (gY * scale) - (pY * pscale)
-		x = x/scale
-		y = y/scale		
-		module.db.x = x
-		module.db.y = y
-		self:ClearAllPoints()
-		self:SetPoint("CENTER",UIParent,"CENTER",module.db.x, module.db.y)
-	end)
-	anchor:SetScript("OnEnter", function(self)
-		if not InCombatLockdown() then
-			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-			if self.locked then
-				GameTooltip:AddLine("Right-click to unlock anchor")
-			else
-				GameTooltip:AddLine("Right-click to lock anchor")
-			end
-			GameTooltip:AddLine("Left-click to drag")
-			GameTooltip:Show()
-		end
-	end)
-	anchor:SetScript("OnLeave", function (self) 
-		if not InCombatLockdown() then 
-			GameTooltip:Hide() 
-		end 
-	end)
-	anchor:Hide()
-end
 
 function module:CreateFrame()
 	if frame then return end
@@ -173,36 +55,17 @@ function module:CreateFrame()
 	frame:PauseLayout()
 	frame:SetLayout("Flow")
 	--[[
-	 	Show/Hide Anchor
-		Enable Tanks [ ? ] -- do they want oRA3 tank window during the raid?
 		Persistent Tanks 
-			-- List of Tanks
+			-- List of Personal Tanks
 			-- Sorting,
 				1. Alpha or Index
 				2. Asending/Descening
 				3. Groups i.e. dont show if the tank is in sub group 6-8 for instance
 				4. Group By Class/Role/Group
-		Look and Feel
-			-- Colors, Highlighting, Scale, Texture options
 	--]]
 	local persistentHeading = AceGUI:Create("Heading")
 	persistentHeading:SetText("Persistent tanks")
 	persistentHeading:SetFullWidth(true)
-	
-	local anchorDesc = AceGUI:Create("Label")
-	anchorDesc:SetText("Tank Window Options")
-	anchorDesc:SetFullWidth(true)
-	
-	local show = AceGUI:Create("CheckBox")
-	show:SetLabel("Show anchor")
-	show:SetValue(self.db.showTankAnchor)
-	show:SetCallback("OnValueChanged", function(_,_,value)
-		if value then anchor:Show() else anchor:Hide() end
-		self.db.showTankAnchor = value
-	end)
-	show:SetUserData("tooltip", "Show or hide the anchor bar in the game world.")
-	show:SetFullWidth(true)
-	
 	
 	local moduleDescription = AceGUI:Create("Label")
 	moduleDescription:SetText("Persistent tanks are players you always want present in the sort list. If they're made main tanks by anyone, you'll automatically sort them according to your own preference.")
@@ -259,7 +122,7 @@ function module:CreateFrame()
 		i = i + 1
 	end
 
-	frame:AddChildren(persistentHeading,anchorDesc,show, moduleDescription, add, delete, sort, box)
+	frame:AddChildren(persistentHeading, moduleDescription, add, delete, sort, box)
 	
 	frame:ResumeLayout()
 	frame:DoLayout()
