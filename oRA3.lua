@@ -713,7 +713,7 @@ function addon:AdjustPanelInset()
 		else
 			contentFrame:SetPoint("TOPLEFT", 14, -56)
 		end
-		if openedOverview  == L["Checks"] then
+		if openedOverview == L["Checks"] then
 			showLists()
 		end
 	end
@@ -1117,25 +1117,29 @@ function showLists()
 		addon:SelectList(openedList)
 		return -- recursive protection
 	end
-	
-	-- fire here instead of in SelectList, see recursive protection right above, prevent firing too many callbacks
-	addon.callbacks:Fire("OnListSelected", name)
+
+	addon.callbacks:Fire("OnListSelected", openedList)	
 	oRA3Frame.title:SetText(openedPanel.." - "..openedList)
-	
+
 	local list = addon.lists[openedList]
 	if not list then return end
 	
 	contentFrame.listFrame:Show()
 	contentFrame.scrollFrame:Show()
-	local count = #list.cols + 1 -- +1, we make the name twice as wide
+	local count = max( #list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth/count
 	while( #list.cols > #scrollheaders ) do
 		addon:CreateScrollHeader()
 	end	
+	for i = 1, 19 do
+		-- setting width here, needs to be scrollframe width, that is only properly calculated when shown
+		-- otherwise it will be too big due to the scrollbar being present or not
+		scrollhighs[i]:SetWidth(totalwidth)
+	end
 	for k, v in ipairs(list.cols) do
 		scrollheaders[k]:SetText(v.name)
-		if k == 1 then
+		if k == 1 or #list.cols == 2 then
 			addon:SetScrollHeaderWidth(k, width*2)
 		else
 			addon:SetScrollHeaderWidth(k, width)
