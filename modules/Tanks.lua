@@ -5,8 +5,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
 local frame = nil
-local anchor = nil
-local header = nil
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
@@ -25,10 +23,6 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
 			persistentTanks = {},
-			sortMethod="NAME",
-			sortDir="DESC",
-			groupOrder="1,2,3,4,5",
-			groupBy="CLASS",
 		},
 	})
 	self.db = database.factionrealm
@@ -45,7 +39,6 @@ end
 
 function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
-		
 	end
 end
 
