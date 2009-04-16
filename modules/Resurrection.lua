@@ -45,16 +45,8 @@ function module:OnRegister()
 			tooltip:AddLine(textFormat:format(resser, n), 0.7, 0.7, 0.2, 1)
 		end
 	end)
-end
-
-function module:OnEnable()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-end
-
-function module:OnDisable()
-	oRA.UnregisterCallback(self, "OnStartup")
-	oRA.UnregisterCallback(self, "OnShutdown")
 end
 
 function module:OnStartup()

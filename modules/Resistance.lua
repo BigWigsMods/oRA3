@@ -21,19 +21,9 @@ function module:OnRegister()
 		"|cff6e52ff" .. L["Shadow"] .. "|r",
 		L["Arcane"]
 	)
-end
-
-function module:OnEnable()
 	oRA.RegisterCallback(self, "OnCommResistance")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-end
-
-function module:OnDisable()
-	oRA:UnregisterList(L["Resistances"])
-	oRA.UnregisterCallback(self, "OnCommResistance")
-	oRA.UnregisterCallback(self, "OnStartup")
-	oRA.UnregisterCallback(self, "OnShutdown")
 end
 
 function module:OnStartup()

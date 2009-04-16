@@ -189,6 +189,9 @@ function module:OnRegister()
 		showPane,
 		hidePane
 	)
+	oRA.RegisterCallback(self, "OnGroupChanged")
+	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+	oRA.RegisterCallback(self, "OnPromoted")
 end
 
 do
@@ -245,9 +248,6 @@ do
 	end
 
 	function module:OnEnable()
-		oRA.RegisterCallback(self, "OnGroupChanged")
-		oRA.RegisterCallback(self, "OnGuildRanksUpdate")
-		oRA.RegisterCallback(self, "OnPromoted")
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	end

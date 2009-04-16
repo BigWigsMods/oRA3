@@ -31,9 +31,7 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
-end
-
-function module:OnEnable()
+	
 	oRA.RegisterCallback(self, "OnGroupChanged")
 end
 

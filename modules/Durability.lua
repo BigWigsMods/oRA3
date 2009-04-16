@@ -19,25 +19,13 @@ function module:OnRegister()
 		L["Minimum"],
 		L["Broken"]
 	)
-end
-
-function module:OnEnable()
-	oRA.RegisterCallback(self, "OnCommDurability") -- evil hax to pass our module self
-	oRA.RegisterCallback(self, "OnStartup") 
+	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-end
-
-function module:OnDisable()
-	oRA:UnregisterList(L["Durability"])
-	oRA.UnregisterCallback(self, "OnCommDurability")
-	oRA.UnregisterCallback(self, "OnStartup")
-	oRA.UnregisterCallback(self, "OnShutdown")
+	oRA.RegisterCallback(self, "OnCommDurability")
 end
 
 function module:OnStartup()
-
 	wipe(durability)
-	
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
 	self:RegisterEvent("MERCHANT_CLOSED", "CheckDurability")

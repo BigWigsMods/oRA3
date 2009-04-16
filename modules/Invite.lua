@@ -34,6 +34,7 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
+	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 end
 
 local doActualInvites = nil
@@ -121,8 +122,6 @@ local function onUpdate(self, elapsed)
 end
 
 function module:OnEnable()
-	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
-
 	self:RegisterEvent("CHAT_MSG_WHISPER")
 end
 

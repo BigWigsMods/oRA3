@@ -7,6 +7,7 @@ L["Disband Group"] = true
 L["Options"] = true
 L["<oRA3> Disbanding group."] = true
 L["Click to open/close oRA3"] = true
+L["Unknown"] = true
 
 L["WARLOCK"] = "Warlock"
 L["WARRIOR"] = "Warrior"
@@ -95,6 +96,9 @@ L["Show"] = true
 L["Duration"] = true
 L["Unit name"] = true
 L["Spell name"] = true
+
+-- Zone module
+L["Zone"] = true
 
 
 

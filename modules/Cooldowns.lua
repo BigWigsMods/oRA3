@@ -688,7 +688,7 @@ function module:OnRegister()
 				[20608] = true,
 				[27239] = true,
 			},
-			showDisplay = true,
+			showDisplay = false,
 			onlyShowMine = nil,
 			lockDisplay = false,
 			width = 200,
@@ -717,6 +717,10 @@ function module:OnRegister()
 	end
 	
 	setupCooldownDisplay()
+	
+	oRA.RegisterCallback(self, "OnCommCooldown")
+	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnShutdown")
 end
 
 do
@@ -735,18 +739,6 @@ do
 		local duration = (allSpells[spell] / 30) + math.random(1, 120)
 		startBar(unit, spell, name, icon, duration)
 	end
-end
-
-function module:OnEnable()
-	oRA.RegisterCallback(self, "OnCommCooldown")
-	oRA.RegisterCallback(self, "OnStartup")
-	oRA.RegisterCallback(self, "OnShutdown")
-end
-
-function module:OnDisable()
-	oRA.UnregisterCallback(self, "OnCommCooldown")
-	oRA.UnregisterCallback(self, "OnStartup")
-	oRA.UnregisterCallback(self, "OnShutdown")
 end
 
 local function getCooldown(spellId)

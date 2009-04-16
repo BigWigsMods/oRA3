@@ -1118,6 +1118,8 @@ function showLists()
 		return -- recursive protection
 	end
 	
+	-- fire here instead of in SelectList, see recursive protection right above, prevent firing too many callbacks
+	addon.callbacks:Fire("OnListSelected", name)
 	oRA3Frame.title:SetText(openedPanel.." - "..openedList)
 	
 	local list = addon.lists[openedList]
