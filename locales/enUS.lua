@@ -100,6 +100,8 @@ L["Spell name"] = true
 -- Zone module
 L["Zone"] = true
 
+-- Version module
+L["Version"] = true
 
 
 

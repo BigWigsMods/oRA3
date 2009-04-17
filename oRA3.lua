@@ -3,6 +3,8 @@ local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon -- Debug
 
+addon.VERSION = 1 -- manual for now
+
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 local hexColors = {}
@@ -922,7 +924,7 @@ function addon:CreateListButton(name)
 	if not contentFrame then return end
 	local nr = #listbuttons + 1
 	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.listFrame, "UIPanelButtonTemplate")
-	f:SetWidth(90)
+	f:SetWidth(81)
 	f:SetHeight(21)
 	f:SetNormalFontObject(GameFontNormalSmall)
 	f:SetHighlightFontObject(GameFontHighlightSmall)
@@ -932,7 +934,7 @@ function addon:CreateListButton(name)
 	table.insert( listbuttons, f)
 	
 	if #listbuttons == 1 then
-		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 4, -4)
+		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 5, -4)
 	else
 		f:SetPoint("LEFT", listbuttons[#listbuttons - 1], "RIGHT")
 	end

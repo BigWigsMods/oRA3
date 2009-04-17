@@ -27,6 +27,7 @@ modules\ReadyCheck.lua
 modules\Durability.lua
 modules\Resistance.lua
 modules\Zone.lua
+modules\Version.lua
 modules\Invite.lua
 modules\Promote.lua
 modules\Resurrection.lua
