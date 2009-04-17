@@ -307,7 +307,7 @@ do
 		frame:SetStatusText("")
 		frame:SetLayout("Flow")
 		frame:SetWidth(240)
-		frame:SetHeight(260)
+		frame:SetHeight(280)
 
 		local test = AceGUI:Create("Button")
 		test:SetText(L["Spawn test bar"])
@@ -366,7 +366,14 @@ do
 		spell:SetCallback("OnValueChanged", toggleChanged)
 		spell:SetRelativeWidth(0.5)
 		
-		frame:AddChildren(test, classColor, picker, height, header, icon, duration, unit, spell)
+		local short = AceGUI:Create("CheckBox")
+		short:SetValue(db.barShorthand)
+		short:SetLabel(L["Short Spell name"])
+		short:SetUserData("key", "barShorthand")
+		short:SetCallback("OnValueChanged", toggleChanged)
+		--short:SetRelativeWidth(0.5)
+		
+		frame:AddChildren(test, classColor, picker, height, header, icon, duration, unit, spell, short)
 		
 		frame:Show()
 	end
@@ -387,6 +394,44 @@ do
 	local shown = nil
 	function isDisplayLocked() return locked end
 	function isDisplayShown() return shown end
+
+	local function utf8trunc(text, num)
+		local len = 0
+		local i = 1
+		local text_len = #text
+		while len < num and i <= text_len do
+			len = len + 1
+			local b = text:byte(i)
+			if b <= 127 then
+				i = i + 1
+			elseif b <= 223 then
+				i = i + 2
+			elseif b <= 239 then
+				i = i + 3
+			else
+				i = i + 4
+			end
+		end
+		return text:sub(1, i-1)
+	end
+
+	-- FIXME: metatable this
+	local shorts = {}
+	local function getShorty(name)
+		if not shorts[name] then
+			local p1, p2, p3, p4 = string.split(" ", (string.gsub(name,":", " :")))
+			if not p2 then
+				shorts[name] = utf8trunc(name, 4)
+			elseif not p3 then
+				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)
+			elseif not p4 then
+				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)	.. utf8trunc(p3, 1)
+			else
+				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1) .. utf8trunc(p4, 1)
+			end
+		end
+		return shorts[name]
+	end
 	
 	local function restyleBar(bar)
 		local c = RAID_CLASS_COLORS[bar.unitclass]
@@ -417,6 +462,11 @@ do
 			bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
 		else
 			bar.bar:SetStatusBarColor(unpack(db.barColor))
+		end
+		if db.barShorthand then
+			bar.label:SetText(getShorty(bar.spellName))
+		else
+			bar.label:SetText(bar.spellName)
 		end
 	end
 	
@@ -656,13 +706,17 @@ do
 			self.time:SetFormattedText(SecondsToTimeAbbrev(time))
 		end
 	end
-
+	
 	local function start(unit, id, name, icon, duration)
 		local bar = getBar()
 		bar.unitclass = classLookup[id]
 		bar.icon:SetTexture(icon)
 		bar.bar:SetMinMaxValues(0, duration)
 		bar.unit:SetText(unit)
+		bar.spellName = name
+		if db.barShorthand then
+			name = getShorty(name)
+		end
 		bar.label:SetText(name)
 		bar.exp = GetTime() + duration
 		bar.remaining = duration
@@ -693,6 +747,7 @@ function module:OnRegister()
 			lockDisplay = false,
 			width = 200,
 			height = 148,
+			barShorthand = false,
 			barHeight = 14,
 			barShowIcon = true,
 			barShowDuration = true,

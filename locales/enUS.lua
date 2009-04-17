@@ -96,6 +96,7 @@ L["Show"] = true
 L["Duration"] = true
 L["Unit name"] = true
 L["Spell name"] = true
+L["Short Spell name"] = true
 
 -- Zone module
 L["Zone"] = true
