@@ -19,6 +19,8 @@ libs.xml
 locales\enUS.lua
 locales\ruRU.lua
 locales\koKR.lua
+locales\zhCN.lua
+locales\zhTW.lua
 
 oRA3.lua
 modulePrototype.lua
