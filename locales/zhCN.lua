@@ -96,7 +96,8 @@ L["Icon"] = "图标"
 L["Show"] = "显示"
 L["Duration"] = "耐久度"
 L["Unit name"] = "名字"
-L["Spell name"] = "法术"
+L["Spell name"] = "技能"
+L["Short Spell name"] = "技能缩写"
 
 -- Zone module
 L["Zone"] = "地区"
