@@ -831,7 +831,7 @@ function module:OnShutdown()
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
-	print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
+	--print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
 	local name, _, icon = GetSpellInfo(spell)
