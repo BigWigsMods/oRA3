@@ -7,6 +7,7 @@ local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
+local candy = LibStub("LibCandyBar-3.0")
 
 --------------------------------------------------------------------------------
 -- Locals
@@ -384,7 +385,7 @@ end
 -- Bar display
 --
 
-local startBar, setupCooldownDisplay
+local startBar, setupCooldownDisplay, barStopped
 do
 	local display = nil
 	local maximum = 10
@@ -434,39 +435,25 @@ do
 	end
 	
 	local function restyleBar(bar)
-		local c = RAID_CLASS_COLORS[bar.unitclass]
 		bar:SetHeight(db.barHeight)
-		if db.barShowIcon then
-			bar.bar:SetPoint("TOPLEFT", bar.icon, "TOPRIGHT")
-			bar.bar:SetPoint("BOTTOMLEFT", bar.icon, "BOTTOMRIGHT")
-			bar.icon:SetWidth(db.barHeight)
-			bar.icon:Show()
+		bar:SetIcon(db.barShowIcon and bar.icon or nil)
+		bar:SetTimeVisibility(db.barShowDuration)
+		local spell = bar.spell
+		if db.barShorthand then spell = getShorty(spell) end
+		if db.barShowSpell and db.barShowUnit then
+			bar:SetLabel(("%s: %s"):format(bar.unit, spell))
+		elseif db.barShowSpell then
+			bar:SetLabel(spell)
+		elseif db.barShowUnit then
+			bar:SetLabel(bar.unit)
 		else
-			bar.bar:SetPoint("TOPLEFT", bar)
-			bar.bar:SetPoint("BOTTOMLEFT", bar)
-			bar.icon:Hide()
+			bar:SetLabel()
 		end
-		if db.barShowDuration then bar.time:Show()
-		else bar.time:Hide() end
-		if db.barShowUnit then
-			bar.unit:Show()
-			if db.barClassColor then
-				bar.unit:SetTextColor(1, 1, 1, 1)
-			else
-				bar.unit:SetTextColor(c.r, c.g, c.b, 1)
-			end
-		else bar.unit:Hide() end
-		if db.barShowSpell then bar.label:Show()
-		else bar.label:Hide() end
 		if db.barClassColor then
-			bar.bar:SetStatusBarColor(c.r, c.g, c.b, 1)
+			local c = RAID_CLASS_COLORS[bar.unitclass]
+			bar:SetColor(c.r, c.g, c.b, 1)
 		else
-			bar.bar:SetStatusBarColor(unpack(db.barColor))
-		end
-		if db.barShorthand then
-			bar.label:SetText(getShorty(bar.spellName))
-		else
-			bar.label:SetText(bar.spellName)
+			bar:SetColor(unpack(db.barColor))
 		end
 	end
 	
@@ -502,6 +489,11 @@ do
 				bar:Hide()
 			end
 		end
+	end
+
+	function barStopped(event, bar)
+		visibleBars[bar] = nil
+		rearrangeBars()
 	end
 
 	local function OnDragHandleMouseDown(self) self.frame:StartSizing("BOTTOMRIGHT") end
@@ -637,97 +629,18 @@ do
 		end
 	end
 	setupCooldownDisplay = setup
-
-	local counter = 1
-	local function getBar()
-		local bar = next(bars)
-		if bar then
-			bars[bar] = nil
-			return bar
-		end
-		local frame = CreateFrame("Frame", "oRA3CooldownBar_" .. counter, display)
-		counter = counter + 1
-		frame:SetScale(1)
-		frame:SetMovable(1)
-		frame:Hide()
-
-		local icon = frame:CreateTexture(nil, "BACKGROUND")
-		icon:SetPoint("TOPLEFT", frame)
-		icon:SetPoint("BOTTOMLEFT", frame)
-		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-		frame.icon = icon
-
-		local statusbar = CreateFrame("StatusBar", nil, frame)
-		statusbar:SetPoint("TOPRIGHT", frame)
-		statusbar:SetPoint("BOTTOMRIGHT", frame)
-		statusbar:SetStatusBarTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-		frame.bar = statusbar
-
-		local bg = statusbar:CreateTexture(nil, "BACKGROUND")
-		bg:SetAllPoints()
-		bg:SetTexture("Interface\\AddOns\\oRA3\\media\\statusbar")
-		bg:SetVertexColor(0.5, 0.5, 0.5, 0.3)
-
-		local time = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
-		time:SetPoint("RIGHT", statusbar, -2, 0)
-		frame.time = time
-
-		local unit = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
-		unit:SetPoint("LEFT", statusbar, 2, 0)
-		frame.unit = unit
-
-		local name = statusbar:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallOutline")
-		name:SetAllPoints(frame)
-		name:SetJustifyH("CENTER")
-		name:SetJustifyV("MIDDLE")
-		frame.label = name
-
-		return frame
-	end
-
-	local function stop(bar)
-		bar:SetScript("OnUpdate", nil)
-		bars[bar] = true
-		visibleBars[bar] = nil
-		bar:Hide()
-		rearrangeBars()
-	end
-
-	local function onUpdate(self, elapsed)
-		--[[self.total = self.total + elapsed
-		if self.total < 0.2 then return end
-		self.total = 0]] -- Throttle updates a bit perhaps?
-		-- We just need to make sure that the throttle is small enough
-		-- so the bars don't jitter.
-		local t = GetTime()
-		if t >= self.exp then
-			stop(self)
-		else
-			local time = self.exp - t
-			self.remaining = time
-			self.bar:SetValue(time)
-			self.time:SetFormattedText(SecondsToTimeAbbrev(time))
-		end
-	end
 	
 	local function start(unit, id, name, icon, duration)
-		local bar = getBar()
-		bar.unitclass = classLookup[id]
-		bar.icon:SetTexture(icon)
-		bar.bar:SetMinMaxValues(0, duration)
-		bar.unit:SetText(unit)
-		bar.spellName = name
-		if db.barShorthand then
-			name = getShorty(name)
-		end
-		bar.label:SetText(name)
-		bar.exp = GetTime() + duration
-		bar.remaining = duration
-		restyleBar(bar)
+		local bar = candy:New("Interface\\AddOns\\oRA3\\media\\statusbar", db.width, db.barHeight)
 		visibleBars[bar] = true
-		bar:SetScript("OnUpdate", onUpdate)
+		bar.unitclass = classLookup[id]
+		bar.unit = unit
+		bar.spell = name
+		bar.icon = icon
+		bar:SetDuration(duration)
+		restyleBar(bar)
+		bar:Start()
 		rearrangeBars()
-		bar:Show()
 	end
 	startBar = start
 end
@@ -779,6 +692,8 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	
+	candy:RegisterCallback("LibCandyBar_Stop", barStopped)
 end
 
 do
