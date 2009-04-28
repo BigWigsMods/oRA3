@@ -544,6 +544,7 @@ do
 		display:SetScript("OnLeave", nil)
 		display.drag:Hide()
 		display.header:Hide()
+		display.bg:SetTexture(0, 0, 0, 0)
 		locked = true
 	end
 	function unlockDisplay()
@@ -558,6 +559,7 @@ do
 		display:SetScript("OnMouseDown", displayOnMouseDown)
 		display:SetScript("OnEnter", onEnter)
 		display:SetScript("OnLeave", onLeave)
+		display.bg:SetTexture(0, 0, 0, 0.3)
 		display.drag:Show()
 		display.header:Show()
 		locked = nil
@@ -587,6 +589,7 @@ do
 		bg:SetAllPoints(display)
 		bg:SetBlendMode("BLEND")
 		bg:SetTexture(0, 0, 0, 0.3)
+		display.bg = bg
 		local header = display:CreateFontString(nil, "OVERLAY")
 		header:SetFontObject(GameFontNormal)
 		header:SetText("Cooldowns")
