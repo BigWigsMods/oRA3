@@ -4,7 +4,7 @@ local module = oRA:NewModule("Zone")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 local zones = {}
-
+local factionList = {}
 local tip = nil
 
 local function createTooltip()
@@ -37,6 +37,38 @@ local function createTooltip()
 	end
 end
 
+-- GetZone and UPDATE_FACTIOn were taken from LibDogTag by Ckknight with permission.
+local LEVEL_start = "^" .. (type(LEVEL) == "string" and LEVEL or "Level")
+local PVP = type(PVP) == "string" and PVP or "PvP"
+local function GetZone(unit)
+	if UnitIsVisible(unit) then
+		return nil
+	end
+	if not UnitIsConnected(unit) then
+		return nil
+	end
+	tip:SetUnit(unit)
+	local left_2 = tip.L[2]
+	local left_3 = tip.L[3]
+	if not left_2 or not left_3 then
+		return nil
+	end
+	local hasGuild = not left_2:find(LEVEL_start)
+	local factionText = not hasGuild and left_3 or tip.L[4]
+	if factionText == PVP then
+		factionText = nil
+	end
+	local hasFaction = factionText and not UnitPlayerControlled(unit) and not UnitIsPlayer(unit) and (UnitFactionGroup(unit) or factionList[factionText])
+	if hasGuild and hasFaction then
+		return tip.L[5]
+	elseif hasGuild or hasFaction then
+		return tip.L[4]
+	else
+		return left_3
+	end
+end
+
+
 function module:OnRegister()
 	oRA:RegisterList(
 		L["Zone"],
@@ -49,10 +81,40 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup", "UpdateZoneList")
 end
 
+function module:OnEnable()
+	self:RegisterEvent("UPDATE_FACTION")
+	self:UPDATE_FACTION()
+end
+
 function module:OnListSelected(event, list)
 	if list == L["Zone"] then
 		self:UpdateZoneList()
 	end
+end
+
+-- UPDATE_FACTION and getZone were taken from LibDogTag by ckknight with permission.
+local in_UPDATE_FACTION = false
+function module:UPDATE_FACTION()
+	if in_UPDATE_FACTION then return end
+	in_UPDATE_FACTION = true
+	for i = 1, GetNumFactions() do
+		local name,_,_,_,_,_,_,_,isHeader,isCollapsed = GetFactionInfo(i)
+		if isHeader == 1 then
+			if isCollapsed == 1 then
+				local NumFactions = GetNumFactions()
+				ExpandFactionHeader(i)
+				NumFactions = GetNumFactions() - NumFactions
+				for j = i+1, i+NumFactions do
+					local name = GetFactionInfo(j)
+					factionList[name] = true
+				end
+				CollapseFactionHeader(i)
+			end
+		else
+			factionList[name] = true
+		end
+	end
+	in_UPDATE_FACTION = false
 end
 
 function module:OnGroupChanged(event, status, members)
@@ -85,12 +147,12 @@ function module:UpdateZoneList()
 		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
 				local name = UnitName("party"..i)
-				if name then
-					tip:SetUnit("party"..i)
-					local zone = tip.L[3]
-					addPlayer(name, zone)
-				end
+				local zone = GetZone("party"..i)
+				addPlayer(name, zone)
 			end
 		end
 	end
 end
+
+
+
