@@ -607,7 +607,7 @@ do
 		display.drag = drag
 
 		local tex = drag:CreateTexture(nil, "BACKGROUND")
-		tex:SetTexture("Interface\\AddOns\\oRA3\\media\\draghandle")
+		tex:SetTexture("Interface\\AddOns\\oRA3\\images\\draghandle")
 		tex:SetWidth(16)
 		tex:SetHeight(16)
 		tex:SetBlendMode("ADD")
@@ -631,7 +631,7 @@ do
 	setupCooldownDisplay = setup
 	
 	local function start(unit, id, name, icon, duration)
-		local bar = candy:New("Interface\\AddOns\\oRA3\\media\\statusbar", db.width, db.barHeight)
+		local bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", db.width, db.barHeight)
 		visibleBars[bar] = true
 		bar.unitclass = classLookup[id]
 		bar.unit = unit
