@@ -693,7 +693,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	
-	candy:RegisterCallback("LibCandyBar_Stop", barStopped)
+	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 end
 
 do
