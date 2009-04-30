@@ -159,7 +159,7 @@ local function inviteRank(rank, name)
 end
 
 function module:CHAT_MSG_WHISPER(event, msg, author)
-	if db.keyword and msg == db.keyword then
+	if ( db.keyword and msg == db.keyword ) or ( db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author) ) then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
 		local raid = GetNumRaidMembers()
@@ -250,6 +250,17 @@ function module:CreateFrame()
 	kwDescription:SetFullWidth(true)
 	kwDescription:SetFontObject(GameFontHighlight)
 	
+	local kwGuildOnlyDescription = AceGUI:Create("Label")
+	kwGuildOnlyDescription:SetText(L["The keyword below works only for guildmembers."])
+	kwGuildOnlyDescription:SetFullWidth(true)
+	kwGuildOnlyDescription:SetFontObject(GameFontHighlight)
+	
+	local guildonlykeyword = AceGUI:Create("EditBox")
+	guildonlykeyword:SetLabel(L["Guild Keyword"])
+	guildonlykeyword:SetText(db.guildkeyword)
+	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
+	guildonlykeyword:SetFullWidth(true)
+	
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
@@ -283,7 +294,7 @@ function module:CreateFrame()
 	end
 
 	if inGuild then
-		frame:AddChildren(guild, zone, kwDescription, keyword, rankHeader, rankDescription)
+		frame:AddChildren(guild, zone, kwDescription, keyword, kwGuildOnlyDescription, guildonlykeyword, rankHeader, rankDescription)
 	else
 		frame:AddChildren(kwDescription, keyword)
 	end

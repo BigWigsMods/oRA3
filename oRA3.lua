@@ -195,6 +195,7 @@ do
 	end
 	function addon:GetGuildRanks() return guildRanks end
 	function addon:GetGuildMembers() return guildMemberList end
+	function addon:IsGuildMember(name) return guildMemberList[name] end
 	
 	local tmpGroup = {}
 	function addon:RAID_ROSTER_UPDATE()
