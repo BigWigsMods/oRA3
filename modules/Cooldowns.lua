@@ -436,21 +436,21 @@ do
 	
 	local function restyleBar(bar)
 		bar:SetHeight(db.barHeight)
-		bar:SetIcon(db.barShowIcon and bar.icon or nil)
+		bar:SetIcon(db.barShowIcon and bar:Get("icon") or nil)
 		bar:SetTimeVisibility(db.barShowDuration)
-		local spell = bar.spell
+		local spell = bar:Get("spell")
 		if db.barShorthand then spell = getShorty(spell) end
 		if db.barShowSpell and db.barShowUnit then
-			bar:SetLabel(("%s: %s"):format(bar.unit, spell))
+			bar:SetLabel(("%s: %s"):format(bar:Get("unit"), spell))
 		elseif db.barShowSpell then
 			bar:SetLabel(spell)
 		elseif db.barShowUnit then
-			bar:SetLabel(bar.unit)
+			bar:SetLabel(bar:Get("unit"))
 		else
 			bar:SetLabel()
 		end
 		if db.barClassColor then
-			local c = RAID_CLASS_COLORS[bar.unitclass]
+			local c = RAID_CLASS_COLORS[bar:Get("unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
 		else
 			bar:SetColor(unpack(db.barColor))
@@ -492,8 +492,10 @@ do
 	end
 
 	function barStopped(event, bar)
-		visibleBars[bar] = nil
-		rearrangeBars()
+		if visibleBars[bar] then
+			visibleBars[bar] = nil
+			rearrangeBars()
+		end
 	end
 
 	local function OnDragHandleMouseDown(self) self.frame:StartSizing("BOTTOMRIGHT") end
@@ -633,10 +635,10 @@ do
 	local function start(unit, id, name, icon, duration)
 		local bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", db.width, db.barHeight)
 		visibleBars[bar] = true
-		bar.unitclass = classLookup[id]
-		bar.unit = unit
-		bar.spell = name
-		bar.icon = icon
+		bar:Set("unitclass", classLookup[id])
+		bar:Set("unit", unit)
+		bar:Set("spell", name)
+		bar:Set("icon", icon)
 		bar:SetDuration(duration)
 		restyleBar(bar)
 		bar:Start()
