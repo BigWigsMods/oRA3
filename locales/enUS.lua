@@ -53,9 +53,10 @@ L["All characters of rank %s or higher will be invited to raid in 10 seconds. Pl
 L["<oRA3> Sorry, the group is full."] = true
 L["Invite all guild members of rank %s or higher."] = true
 L["Keyword"] = true
-L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."] = true
+L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."] = true
+L["Anyone who whispers you this keyword will automatically and immediately be invited to your group."] = true
 L["Guild Keyword"] = true
-L["The keyword below works only for guildmembers."] = true
+L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."] = true
 L["Invite guild"] = true
 L["Invite everyone in your guild at the maximum level."] = true
 L["Invite zone"] = true
