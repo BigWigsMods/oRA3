@@ -25,7 +25,6 @@ function module:OnRegister()
 end
 
 function module:OnStartup()
-	wipe(durability)
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
 	self:RegisterEvent("MERCHANT_CLOSED", "CheckDurability")
@@ -34,6 +33,7 @@ function module:OnStartup()
 end
 
 function module:OnShutdown()
+	wipe(durability)
 	self:UnregisterEvent("PLAYER_DEAD")
 	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
 	self:UnregisterEvent("MERCHANT_CLOSED")

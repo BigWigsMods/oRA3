@@ -27,13 +27,13 @@ function module:OnRegister()
 end
 
 function module:OnStartup()
-	wipe(resistances)
 	f:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	f:RegisterEvent("UNIT_RESISTANCES")
 	self:CheckResistance()
 end
 
 function module:OnShutdown()
+	wipe(resistances)
 	f:UnregisterEvent("UNIT_INVENTORY_CHANGED")
 	f:UnregisterEvent("UNIT_RESISTANCES")
 end

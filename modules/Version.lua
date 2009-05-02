@@ -14,18 +14,13 @@ function module:OnRegister()
 		L["Name"],
 		L["Version"]
 	)
-	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommVersion")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 end
 
-function module:OnStartup()
-	wipe(versions)
-	-- no need to set onUpdate here, OnGroupChanged will fire as well.
-end
-
 function module:OnShutdown()
+	wipe(versions)
 	f:SetScript("OnUpdate", nil)
 end
 

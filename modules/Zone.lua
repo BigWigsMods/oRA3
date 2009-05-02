@@ -134,6 +134,7 @@ local function addPlayer( name, zone )
 end
 
 function module:UpdateZoneList()
+	wipe(zones)
 	if oRA.groupStatus == oRA.INRAID then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
@@ -143,7 +144,7 @@ function module:UpdateZoneList()
 		if not tip then
 			createTooltip()
 		end
-		addPlayer( UnitName("player"), GetZoneText())
+		addPlayer( UnitName("player"), GetRealZoneText())
 		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
 				local name = UnitName("party"..i)
