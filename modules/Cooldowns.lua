@@ -13,6 +13,7 @@ local candy = LibStub("LibCandyBar-3.0")
 -- Locals
 --
 
+local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
@@ -440,11 +441,11 @@ do
 		bar:SetTimeVisibility(db.barShowDuration)
 		local spell = bar:Get("spell")
 		if db.barShorthand then spell = getShorty(spell) end
-		if db.barShowSpell and db.barShowUnit then
+		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
 			bar:SetLabel(("%s: %s"):format(bar:Get("unit"), spell))
 		elseif db.barShowSpell then
 			bar:SetLabel(spell)
-		elseif db.barShowUnit then
+		elseif db.barShowUnit and not db.onlyShowMine then
 			bar:SetLabel(bar:Get("unit"))
 		else
 			bar:SetLabel()
@@ -754,6 +755,7 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	--print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(sender))
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
+	if db.onlyShowMine and sender ~= playerName then return end
 	local name, _, icon = GetSpellInfo(spell)
 	if not name or not icon then return end
 	startBar(sender, spell, name, icon, cd)
