@@ -184,7 +184,7 @@ end
 local function onControlEnter(widget, event, value)
 	GameTooltip:ClearLines()
 	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
-	GameTooltip:AddLine(widget.text:GetText())
+	GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
 	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
 	GameTooltip:Show()
 end
@@ -228,7 +228,8 @@ end
 
 local function saveKeyword(widget, event, value)
 	if type(value) == "string" and value:trim():len() < 2 then value = nil end
-	db.keyword = value
+	local key = widget:GetUserData("key")
+	db[key] = value
 	widget:SetText(value)
 end
 
@@ -239,27 +240,30 @@ function module:CreateFrame()
 	frame:PauseLayout()
 	frame:SetLayout("Flow")
 
+	local kwDescription = AceGUI:Create("Label")
+	kwDescription:SetText("When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it.")
+	kwDescription:SetFullWidth(true)
+	kwDescription:SetFontObject(GameFontHighlight)
+
 	local keyword = AceGUI:Create("EditBox")
 	keyword:SetLabel(L["Keyword"])
 	keyword:SetText(db.keyword)
+	keyword:SetUserData("key", "keyword")
+	keyword:SetUserData("tooltip", "Anyone who whispers you this keyword will automatically and immediately be invited to your group.")
+	keyword:SetCallback("OnEnter", onControlEnter)
+	keyword:SetCallback("OnLeave", onControlLeave)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
-	keyword:SetFullWidth(true)
-	
-	local kwDescription = AceGUI:Create("Label")
-	kwDescription:SetText(L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."])
-	kwDescription:SetFullWidth(true)
-	kwDescription:SetFontObject(GameFontHighlight)
-	
-	local kwGuildOnlyDescription = AceGUI:Create("Label")
-	kwGuildOnlyDescription:SetText(L["The keyword below works only for guildmembers."])
-	kwGuildOnlyDescription:SetFullWidth(true)
-	kwGuildOnlyDescription:SetFontObject(GameFontHighlight)
+	keyword:SetRelativeWidth(0.5)
 	
 	local guildonlykeyword = AceGUI:Create("EditBox")
 	guildonlykeyword:SetLabel(L["Guild Keyword"])
 	guildonlykeyword:SetText(db.guildkeyword)
+	guildonlykeyword:SetUserData("key", "guildkeyword")
+	guildonlykeyword:SetUserData("tooltip", "Any guild member who whispers you this keyword will automatically and immediately be invited to your group.")
+	guildonlykeyword:SetCallback("OnEnter", onControlEnter)
+	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
-	guildonlykeyword:SetFullWidth(true)
+	guildonlykeyword:SetRelativeWidth(0.5)
 	
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
@@ -294,7 +298,7 @@ function module:CreateFrame()
 	end
 
 	if inGuild then
-		frame:AddChildren(guild, zone, kwDescription, keyword, kwGuildOnlyDescription, guildonlykeyword, rankHeader, rankDescription)
+		frame:AddChildren(guild, zone, kwDescription, keyword, guildonlykeyword, rankHeader, rankDescription)
 	else
 		frame:AddChildren(kwDescription, keyword)
 	end
