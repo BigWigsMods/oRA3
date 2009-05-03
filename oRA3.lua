@@ -358,7 +358,7 @@ end
 function addon:SetupGUI()
 	if oRA3Frame then return end
 
-	local frame = CreateFrame("Frame", "oRA3Frame", RaidFrame)
+	local frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
 
 	frame:SetWidth(640)
 	frame:SetHeight(512)
@@ -526,10 +526,12 @@ function addon:SetupGUI()
 				if oRA3FrameSub.justclosed == true then
 					oRA3FrameSub.justclosed = false
 					oRA3FrameSub:Hide()
+					frame:RegisterForClicks("AnyUp")
 				else
 					UIFrameFadeIn(oRA3FrameSub, 0.1, 0, 1)
 					oRA3FrameSub:Show()
 					db.open = true
+					frame:RegisterForClicks(nil)
 				end
 			end
 			return
@@ -559,6 +561,9 @@ function addon:SetupGUI()
 
 	frame.handle:RegisterForClicks("AnyUp")
 	frame.handle:SetScript("OnClick", function(self, button)
+		frame:SetScript("OnUpdate", onupdate)
+	end)
+	frame:SetScript("OnClick", function(self, button)
 		frame:SetScript("OnUpdate", onupdate)
 	end)
 
@@ -751,8 +756,10 @@ function addon:UpdateFrameStatus()
 		subframe:Show()
 		subframe:SetAlpha(1)
 		subframe.open = true
+		oRA3Frame:RegisterForClicks(nil)
 	else
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
+		oRA3Frame:RegisterForClicks("AnyUp")
 		subframe:Hide()
 		subframe:SetAlpha(0)
 	end
