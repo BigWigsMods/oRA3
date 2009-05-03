@@ -476,6 +476,7 @@ do
 		table.sort(tmp, barSorter)
 		local lastBar = nil
 		for i, bar in ipairs(tmp) do
+			bar:ClearAllPoints()
 			if i <= maximum then
 				if not lastBar then
 					bar:SetPoint("TOPLEFT", display, 4, -4)
