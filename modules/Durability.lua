@@ -7,6 +7,8 @@ local util = oRA.util
 local module = oRA:NewModule("Durability", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
+
 local durability = {} 
 
 function module:OnRegister()

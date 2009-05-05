@@ -3,6 +3,8 @@ local module = oRA:NewModule("Resurrection", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local res = LibStub("LibResComm-1.0")
 
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
+
 local textFormat = L["%s is ressing %s."]
 local text = nil
 

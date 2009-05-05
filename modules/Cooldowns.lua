@@ -9,6 +9,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
 
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
+
 --------------------------------------------------------------------------------
 -- Locals
 --

@@ -3,6 +3,8 @@ local util = oRA.util
 local module = oRA:NewModule("Version")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
+module.VERSION = tonumber(("$Revision: 150 $"):sub(12, -3))
+
 local versions = {} 
 local f
 

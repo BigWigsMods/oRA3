@@ -8,6 +8,8 @@ local module = oRA:NewModule("Promote", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
+
 --------------------------------------------------------------------------------
 -- Locals
 --

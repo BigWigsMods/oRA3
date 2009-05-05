@@ -3,7 +3,7 @@ local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon -- Debug
 
-addon.VERSION = 1 -- manual for now
+addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
