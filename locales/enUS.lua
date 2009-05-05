@@ -22,7 +22,7 @@ L["DEATHKNIGHT"] = "Death Knight"
 
 -- Ready check module
 L["The following players are not ready: %s"] = true
-L["Ready check over in %d seconds"] = true
+L["Ready Check (%d seconds)"] = true
 L["Ready"] = true
 L["Not Ready"] = true
 L["No Response"] = true

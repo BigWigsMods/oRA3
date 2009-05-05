@@ -2,7 +2,7 @@ local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
-local readycheck -- table containing ready check results
+local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
 
 local readyAuthor = "" -- author of the current readycheck
@@ -13,7 +13,7 @@ local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 
 -- local constants
 local RD_RAID_MEMBERS_NOTREADY = L["The following players are not ready: %s"]
-local RD_READY_CHECK_OVER_IN = L["Ready check over in %d seconds"]
+local RD_READY_CHECK_OVER_IN = L["Ready Check (%d seconds)"]
 local RD_READY = L["Ready"]
 local RD_NOTREADY = L["Not Ready"]
 local RD_NORESPONSE = L["No Response"]
@@ -33,8 +33,6 @@ function module:READY_CHECK(event, name, duration)
 
 	if not oRA:IsPromoted() then return end
 
-	-- init readycheck handling
-	if not readycheck then readycheck = {} end
 	wipe(readycheck)
 	-- fill with default 'no response' 
 	if oRA:InRaid() then
@@ -77,7 +75,7 @@ function module:READY_CHECK_FINISHED(event)
 	if frame then
 		frame.fadeTimer = 1
 		frame.timer = 0
-		frame.timerText:SetText(READY_CHECK_FINISHED)
+		frame.title:SetText(READY_CHECK_FINISHED)
 	end
 	
 	-- report if promoted
@@ -190,15 +188,21 @@ function module:UpdateGUI()
 		end
 	end
 
-	local height = math.max( ( math.ceil(bottomnum/2) *14 ) + (math.ceil(topnum/2)*14) + 84, 300)
+	local height = math.max( ( math.ceil(bottomnum/2) *14 ) + (math.ceil(topnum/2)*14) + 66, 128)
 	frame:SetHeight(height)
 	
 	-- position the spacer
-	local yoff = ((math.ceil(topnum/2)*14) + 70) * -1
+	local yoff = ((math.ceil(topnum/2)*14) + 52) * -1
 	frame.bar:ClearAllPoints()
 	frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
 	frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, yoff)
 
+	if bottomnum == 0 then
+		frame.bar:Hide()
+	else
+		frame.bar:Show()
+	end
+	
 	bottomnum = bottomnum + 1
 	while( bottomMemberFrames[bottomnum] ) do
 		bottomMemberFrames[bottomnum]:Hide()
@@ -217,63 +221,104 @@ function module:SetupGUI()
 	if frame then return end
 
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
-	-- remove close on esc for now
-	-- table.insert(_G["UISpecialFrames"], "oRA3ReadyCheck") -- close on esc
+	local f = frame
+	f:SetPoint("BOTTOM", UIParent, "CENTER", 0, 30 )
+	f:SetWidth( 320 )
+	f:SetHeight( 300 )
+	f:SetMovable(true)
+	f:EnableMouse(true)
+	f:SetClampedToScreen(true)
+
+	local titlebg = f:CreateTexture(nil, "BACKGROUND")
+	titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
+	titlebg:SetPoint("TOPLEFT", 9, -6)
+	titlebg:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -28, -24)
 	
-	if not oRA:RestorePosition("oRA3ReadyCheck") then
-		frame:SetPoint("BOTTOM", UIParent, "CENTER", 0, 40 )
-		-- frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
-		-- frame:SetPoint("BOTTOMRIGHT", ReadyCheckFrame, "TOPRIGHT", -6, -10)
-	end
-	frame:SetWidth( 312 )
-	frame:SetHeight( 300 )
-
-	local topleft = frame:CreateTexture(nil, "BORDER")
-	topleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
-	topleft:SetWidth(128)
-	topleft:SetHeight(256)
-	topleft:SetPoint("TOPLEFT", 0, 0)
-
-	local topright = frame:CreateTexture(nil, "BORDER")
-	topright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopRight")
-	topright:SetWidth(140)
-	topright:SetHeight(256)
-	topright:SetPoint("TOPRIGHT", 0, 0)
-	topright:SetTexCoord(0, (140 / 256), 0, 1)
-
-	local top = frame:CreateTexture(nil, "BORDER")
-	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
-	top:SetHeight(256)
-	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT", 0, 0)
-	top:SetPoint("TOPRIGHT", topright, "TOPLEFT", 0, 0)
+	local dialogbg = f:CreateTexture(nil, "BACKGROUND")
+	dialogbg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
+	dialogbg:SetPoint("TOPLEFT", 8, -24)
+	dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
+	dialogbg:SetVertexColor(0, 0, 0, .75)
 	
-	local botleft = frame:CreateTexture(nil, "BORDER")
-	botleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotLeft")
-	botleft:SetWidth(128)
-	botleft:SetHeight(168)
-	botleft:SetPoint("BOTTOMLEFT", 0, 0)
-	botleft:SetTexCoord(0, 1, 0, (168 / 256))
-
-	local botright = frame:CreateTexture(nil, "BORDER")
-	botright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotRIght")
-	botright:SetWidth(140)
-	botright:SetHeight(168)
-	botright:SetPoint("BOTTOMRIGHT", 0, 0)
-	botright:SetTexCoord(0, (140 / 256), 0, (168 / 256))
-
-	local bot = frame:CreateTexture(nil, "BORDER")
-	bot:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Bot")
-	bot:SetHeight(168)
-	bot:SetPoint("TOPLEFT", botleft, "TOPRIGHT", 0, 0)
-	bot:SetPoint("TOPRIGHT", botright, "TOPLEFT", 0, 0)
-	bot:SetTexCoord(0, 1, 0, (168 / 256))
-
-	local bg1 = frame:CreateTexture(nil, "BACKGROUND")
-	bg1:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
-	bg1:SetHeight(64)
-	bg1:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
-	bg1:SetPoint("TOPRIGHT", topright, "TOPRIGHT", -5, -4)
-
+	local topleft = f:CreateTexture(nil, "BORDER")
+	topleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	topleft:SetWidth(64)
+	topleft:SetHeight(64)
+	topleft:SetPoint("TOPLEFT")
+	topleft:SetTexCoord(0.501953125, 0.625, 0, 1)
+	
+	local topright = f:CreateTexture(nil, "BORDER")
+	topright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	topright:SetWidth(64)
+	topright:SetHeight(64)
+	topright:SetPoint("TOPRIGHT")
+	topright:SetTexCoord(0.625, 0.75, 0, 1)
+	
+	local top = f:CreateTexture(nil, "BORDER")
+	top:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	top:SetHeight(64)
+	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
+	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
+	top:SetTexCoord(0.25, 0.369140625, 0, 1)
+	
+	local bottomleft = f:CreateTexture(nil, "BORDER")
+	bottomleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottomleft:SetWidth(64)
+	bottomleft:SetHeight(64)
+	bottomleft:SetPoint("BOTTOMLEFT")
+	bottomleft:SetTexCoord(0.751953125, 0.875, 0, 1)
+	
+	local bottomright = f:CreateTexture(nil, "BORDER")
+	bottomright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottomright:SetWidth(64)
+	bottomright:SetHeight(64)
+	bottomright:SetPoint("BOTTOMRIGHT")
+	bottomright:SetTexCoord(0.875, 1, 0, 1)
+	
+	local bottom = f:CreateTexture(nil, "BORDER")
+	bottom:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottom:SetHeight(64)
+	bottom:SetPoint("BOTTOMLEFT", bottomleft, "BOTTOMRIGHT")
+	bottom:SetPoint("BOTTOMRIGHT", bottomright, "BOTTOMLEFT")
+	bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
+	
+	local left = f:CreateTexture(nil, "BORDER")
+	left:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	left:SetWidth(64)
+	left:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
+	left:SetPoint("BOTTOMLEFT", bottomleft, "TOPLEFT")
+	left:SetTexCoord(0.001953125, 0.125, 0, 1)
+	
+	local right = f:CreateTexture(nil, "BORDER")
+	right:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	right:SetWidth(64)
+	right:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
+	right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
+	right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
+	
+	local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+	close:SetPoint("TOPRIGHT", 2, 1)
+	close:SetScript("OnClick", function(self, button) f:Hide() end)
+	
+	local title = f:CreateFontString(nil, "ARTWORK")
+	title:SetFontObject(GameFontNormal)
+	title:SetPoint("TOPLEFT", 12, -8)
+	title:SetPoint("TOPRIGHT", -32, -8)
+	title:SetText(READY_CHECK)
+	f.title = title
+	
+	local titlebutton = CreateFrame("Button", nil, f)
+	titlebutton:SetPoint("TOPLEFT", titlebg)
+	titlebutton:SetPoint("BOTTOMRIGHT", titlebg)
+	titlebutton:RegisterForDrag("LeftButton")
+	titlebutton:SetScript("OnDragStart", function()
+		f.moving = true
+		f:StartMoving()
+	end)
+	titlebutton:SetScript("OnDragStop", function()
+		f.moving = nil
+		f:StopMovingOrSizing()
+	end)
 
 	local bar = CreateFrame("Button", nil, frame )
 	frame.bar = bar
@@ -287,27 +332,12 @@ function module:SetupGUI()
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 	
-	
-	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", 5, 4)
-	
-	local headerText = frame:CreateFontString(nil, "OVERLAY")
-	headerText:SetPoint("TOP", frame, "TOP", 0, -5)
-	headerText:SetFontObject(GameFontNormal)
-	headerText:SetText(READY_CHECK)
-	
-	local timerText = frame:CreateFontString(nil, "OVERLAY")
-	timerText:SetPoint("TOP", frame, "TOP", 0, -35)
-	timerText:SetFontObject(GameFontNormal)
-	timerText:SetText("test")
-	frame.timerText = timerText
-	
 	frame:SetScript("OnUpdate", function(this,elapsed)
 				if this.timer and this.timer > 0 then
 					this.timer = this.timer - elapsed
 					if this.oldtimer - this.timer >= 1  or this.oldtimer == -1 then
 						this.oldtimer = this.timer
-						timerText:SetText( string.format(RD_READY_CHECK_OVER_IN, floor(this.timer) ) )
+						title:SetText( string.format(RD_READY_CHECK_OVER_IN, floor(this.timer) ) )
 					end
 				end
 				if this.fadeTimer and this.fadeTimer > 0 then
@@ -319,15 +349,6 @@ function module:SetupGUI()
 					end
 				end
 		end )
-	frame:SetMovable(true)
-	frame:EnableMouse(true)
-	frame:SetClampedToScreen(true)
-	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
-	frame:SetScript("OnDragStop", function(frame)
-		frame:StopMovingOrSizing()
-		oRA:SavePosition("oRA3ReadyCheck", true)
-	end)
 end
 
 
@@ -348,8 +369,8 @@ function module:CreateMemberFrame(num, bottom)
 	end
 	
 	local xoff = bottom and 7 or 15
-	local yoff = bottom and 0 or -50
-	if num % 2 == 0 then xoff = 160	end
+	local yoff = bottom and 0 or -32
+	if num % 2 == 0 then xoff = 160 end
 	yoff = yoff + ((math.floor(num/2) + (num % 2)) * -14)
 	
 	f:SetWidth( 150)
