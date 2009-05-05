@@ -32,13 +32,16 @@ function module:OnRegister()
 		hideConfig
 	)
 	
+	oRA.RegisterCallback(self, "OnTanksChanged")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 end
 
 function module:OnGroupChanged(event, status, members)
-	if status == oRA.INRAID then
-	end
 end
+
+function module:OnTanksChanged(event, tanks)
+end
+
 
 function module:CreateFrame()
 	if frame then return end

@@ -46,6 +46,7 @@ local playerName = UnitName("player")
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
+local Tanks = {} -- Index:Name
 local playerPromoted = nil
 
 -- couple of local constants used for party size
@@ -198,6 +199,7 @@ do
 	function addon:IsGuildMember(name) return guildMemberList[name] end
 	
 	local tmpGroup = {}
+	local tmpTanks = {}
 	function addon:RAID_ROSTER_UPDATE()
 		local oldStatus = groupStatus
 		if GetNumRaidMembers() > 0 then
@@ -211,10 +213,16 @@ do
 		addon.groupStatus = groupStatus
 
 		wipe(tmpGroup)
+		wipe(tmpTanks)
 		if groupStatus == INRAID then
 			for i = 1, GetNumRaidMembers() do
-				local n = GetRaidRosterInfo(i)
-				if n then table.insert(tmpGroup, n) end
+				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
+				if n then
+					table.insert(tmpGroup, n)
+					if role == "maintank" then
+						table.insert(tmpTanks, n)
+					end
+				end
 			end
 		elseif groupStatus == INPARTY then
 			table.insert(tmpGroup, playerName)
@@ -226,6 +234,10 @@ do
 		if oldStatus ~= groupStatus or not isIndexedEqual(tmpGroup, groupMembers) then
 			copyToTable(tmpGroup, groupMembers)
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
+		end
+		if not isIndexedEqual(tmpTanks, Tanks) then
+			copyToTable(tmpTanks, Tanks)
+			self.callbacks:Fire("OnTanksChanged", Tanks)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
 			self:OnShutdown()
