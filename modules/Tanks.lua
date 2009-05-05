@@ -53,7 +53,7 @@ function module:OnGroupChanged(event, status, members)
 	if status == oRA.INRAID then
 		for k, tank in ipairs(members) do
 			-- mix in the persistantTanks
-			if self.db.persistantTanks[tank] and not namedTanks[tank] then
+			if self.db.persistentTanks[tank] and not namedTanks[tank] then
 				updateSort = true
 				namedTanks[tank] = true
 			end
