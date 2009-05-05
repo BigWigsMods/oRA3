@@ -159,9 +159,17 @@ function module:UpdateGUI()
 	topnum = 0
 	if oRA:InRaid() then
 		num = GetNumRaidMembers()
+		local diff = GetCurrentDungeonDifficulty()
+		local highgroup = 8 -- 40 man it
+		if diff and diff == 1 then -- normal
+			highgroup = 2
+		elseif diff and diff == 2 then -- heroic
+			highgroup = 5
+		end
+		
 		for i = 1, num, 1 do
 			local rname, _, subgroup, _, _, fileName, _, online = GetRaidRosterInfo(i)
-			if subgroup > 5 then
+			if subgroup > highgroup then
 				bottomnum = bottomnum + 1
 				self:SetMemberStatus(bottomnum, true, rname, fileName)
 			else
