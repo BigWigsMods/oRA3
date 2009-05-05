@@ -23,11 +23,11 @@ L["DEATHKNIGHT"] = "Рыцарь смерти"
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Следующие игроки не готовы: %s"
-L["Ready check over in %d seconds"] = "Проверка готовности через %d секунд"
+L["Ready Check (%d seconds)"] = "Проверка готовности (%d секунд)"
 L["Ready"] = "Готов"
 L["Not Ready"] = "Не готов"
 L["No Response"] = "Нет ответа"
-L["Offline"] = "Не в сети"
+L["Offline"] = "Вышел из сети"
 
 -- Durability module
 L["Durability"] = "Прочность"
@@ -54,7 +54,10 @@ L["All characters of rank %s or higher will be invited to raid in 10 seconds. Pl
 L["<oRA3> Sorry, the group is full."] = "<oRA3> Ивените, группа уже набрана."
 L["Invite all guild members of rank %s or higher."] = "Пригласить всех участников гильдии со званием %s и выше."
 L["Keyword"] = "Ключевое слово"
-L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."] = "Все, кто шепнет вам одно из ключевых слов перечисленных ниже, будет автоматически приглашен в вашу группу. Если вы находитесь в группе, и она полностью заполнена, тем самым вы являетесь её лидером, то группа будет автоматически преобразована в рейд. Ключевые слова перестанут работать только когда у вас будет полный рейд из 40 человек. Для отключения приглашений, оставьте поле ключевых слов пустым."
+L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."] = "Когда игрок вам шепнёт ключевое слово приведённое ниже, он будет автоматически приглашен в вашу группу. Если вы находитесь в группе, и она полностью заполнена, вам нужно будет преобразовать её в рейд. Ключевые слова перестанут работать только когда у вас будет полный рейд из 40 человек. Для отключения приглашений, оставьте поле ключевых слов пустым."
+L["Anyone who whispers you this keyword will automatically and immediately be invited to your group."] = "Каждый кто шепнёт вам данное ключевое слово будет автоматически и немедленно приглашен в вашу группу\рейд."
+L["Guild Keyword"] = "Кл.слово для гильдии"
+L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."] = "Любой участник гильдии, который шепнёт вам данное ключевое слово будет автоматически и немедленно приглашен в вашу группу\рейд."
 L["Invite guild"] = "Пригласить гильдию"
 L["Invite everyone in your guild at the maximum level."] = "Пригласить всех с вашей гильдии с максимальным уровнем."
 L["Invite zone"] = "Пригласить с зоны"
