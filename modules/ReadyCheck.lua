@@ -221,9 +221,11 @@ function module:SetupGUI()
 	-- table.insert(_G["UISpecialFrames"], "oRA3ReadyCheck") -- close on esc
 	
 	if not oRA:RestorePosition("oRA3ReadyCheck") then
-		frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
-		frame:SetPoint("BOTTOMRIGHT", ReadyCheckFrame, "TOPRIGHT", -6, -10)
+		frame:SetPoint("BOTTOM", UIParent, "CENTER", 0, 40 )
+		-- frame:SetPoint("BOTTOMLEFT", ReadyCheckFrame, "TOPLEFT", 6, -10)
+		-- frame:SetPoint("BOTTOMRIGHT", ReadyCheckFrame, "TOPRIGHT", -6, -10)
 	end
+	frame:SetWidth( 312 )
 	frame:SetHeight( 300 )
 
 	local topleft = frame:CreateTexture(nil, "BORDER")
