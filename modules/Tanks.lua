@@ -5,6 +5,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
 local frame = nil
+local indexedTanks = {}
+local namedTanks = {}
+local tmpTanks = {}
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
@@ -36,12 +39,43 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnGroupChanged")
 end
 
+local function sortTanks()
+	wipe(indexedTanks)
+	-- FIXME: use the true sorted tanks based on config
+	for tank, v in pairs(namedTanks) do 
+		table.insert(indexedTanks, tank)
+	end
+	oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
+end
+
 function module:OnGroupChanged(event, status, members)
+	local updateSort = nil
+	if status == oRA.INRAID then
+		for k, tank in ipairs(members) do
+			-- mix in the persistantTanks
+			if self.db.persistantTanks[tank] and not namedTanks[tank] then
+				updateSort = true
+				namedTanks[tank] = true
+			end
+		end
+		if updateSort then
+			sortTanks()
+		end
+	end
 end
 
 function module:OnTanksChanged(event, tanks)
+	local updateSort = nil
+	for k, tank in ipairs(tanks) do
+		if not namedTanks[tank] then
+			updateSort = true
+			namedTanks[tank] = true
+		end
+	end
+	if updateSort then
+		sortTanks()
+	end
 end
-
 
 function module:CreateFrame()
 	if frame then return end
