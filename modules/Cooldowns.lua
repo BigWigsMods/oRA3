@@ -30,6 +30,7 @@ local spells = {
 		[34477] = 30, -- Misdirect
 		[5384] = 30, -- Feign Death
 		[62757] = 1800, -- Call Stabled Pet
+		[781] = 25, -- Disengage
 	},
 	MAGE = {
 		[45438] = 300, -- Iceblock
@@ -606,8 +607,7 @@ do
 	local function OnDragHandleMouseDown(self) self.frame:StartSizing("BOTTOMRIGHT") end
 	local function OnDragHandleMouseUp(self, button) self.frame:StopMovingOrSizing() end
 	local function onResize(self, width, height)
-		db.width = width
-		db.height = height
+		oRA3:SavePosition("oRA3CooldownFrame")
 		maximum = math.floor(height / db.barHeight)
 		-- if we have that many bars shown, hide the ones that overflow
 		rearrangeBars()
@@ -620,9 +620,7 @@ do
 	local function onDragStart(self) self:StartMoving() end
 	local function onDragStop(self)
 		self:StopMovingOrSizing()
-		local s = display:GetEffectiveScale()
-		db.x = display:GetLeft() * s
-		db.y = display:GetTop() * s
+		oRA3:SavePosition("oRA3CooldownFrame")
 	end
 	local function onEnter(self)
 		if not next(visibleBars) then self.help:Show() end
@@ -677,13 +675,9 @@ do
 		display:SetWidth(db.width)
 		display:SetHeight(db.height)
 		display:SetMinResize(100, 20)
-		if db.x and db.y then
-			local s = display:GetEffectiveScale()
-			display:ClearAllPoints()
-			display:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", db.x / s, db.y / s)
-		else
-			display:SetPoint("LEFT", UIParent, 200, 0)
-		end
+		display:SetWidth(200)
+		display:SetHeight(148)
+		oRA3:RestorePosition("oRA3CooldownFrame")
 		local bg = display:CreateTexture(nil, "PARENT")
 		bg:SetAllPoints(display)
 		bg:SetBlendMode("BLEND")
@@ -768,8 +762,6 @@ function module:OnRegister()
 			showDisplay = false,
 			onlyShowMine = nil,
 			lockDisplay = false,
-			width = 200,
-			height = 148,
 			barShorthand = false,
 			barHeight = 14,
 			barShowIcon = true,

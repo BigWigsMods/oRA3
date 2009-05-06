@@ -77,7 +77,9 @@ addon.panels = {}
 local db
 local defaults = {
 	profile = {
-		positions = {},
+		positions = {
+			
+		},
 		open = false,
 	}
 }

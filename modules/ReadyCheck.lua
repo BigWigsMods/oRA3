@@ -32,7 +32,6 @@ function module:OnEnable()
 end
 
 function module:READY_CHECK(event, name, duration)
-
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
@@ -218,6 +217,8 @@ function module:UpdateGUI()
 	end
 
 end
+
+-- /script oRA3:GetModule("ReadyCheck"):ShowGUI()
 
 function module:SetupGUI()
 	if frame then return end
