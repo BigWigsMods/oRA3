@@ -478,7 +478,7 @@ do
 			--short:SetRelativeWidth(0.5)
 			
 			frame:AddChildren(test, classColor, picker, height, header, icon, duration, unit, spell, short)
-			frame:Show()
+			frame.frame:Show()
 		end
 		plainFrame:Show()
 	end
