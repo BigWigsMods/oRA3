@@ -4,9 +4,9 @@ if not L then return end
 -- Generic
 L["Name"] = "이름"
 L["Checks"] = "체크"
-L["Disband Group"] = "그룹 해산"
+L["Disband Group"] = "파티 해산"
 L["Options"] = "옵션"
-L["<oRA3> Disbanding group."] = "<oRA3> 그룹을 해산합니다."
+L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
 L["Click to open/close oRA3"] = "클릭 - oRA3 열기/닫기"
 L["Unknown"] = "알수 없음"
 
@@ -54,7 +54,10 @@ L["All characters of rank %s or higher will be invited to raid in 10 seconds. Pl
 L["<oRA3> Sorry, the group is full."] = "<oRA3> 죄송합니다. 공격대의 정원이 찼습니다."
 L["Invite all guild members of rank %s or higher."] = "%s 등급 이상인 모든 길드원을 공격대에 초대합니다."
 L["Keyword"] = "키워드"
+L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."] = "아래 키워드로 사람들이 당신에게 귓속말시에 자동으로 당신의 파티에 초대됩니다. 만약 당신이 파티중이며 5명일경우 자동으로 공격대로 전환됩니다. 공격대가 40명이 찰경우에는 키워드 작동이 더이상되지 않습니다."
 L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."] = "설정된 키워드로 귓속말을 하면 즉시 자동으로 자신의 공격대로 초대합니다. 만약 당신이 파티장이고 파티의 정원이 찼을 경우에 자동적으로 공격대로 전환됩니다. 만약 40명이 정원이 찼다면 작동을 중지합니다."
+L["Guild Keyword"] = "길드 키워드"
+L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."] = "모든 길드원이 키워드로 당신에게 귓속말시에 자동으로 즉시 파티에 초대됩니다."
 L["Invite guild"] = "길드원 초대"
 L["Invite everyone in your guild at the maximum level."] = "길드내 최대 레벨의 모든 길드원을 공격대에 초대합니다."
 L["Invite zone"] = "지역 초대"
@@ -98,6 +101,7 @@ L["Show"] = "보기"
 L["Duration"] = "지속 시간"
 L["Unit name"] = "유닛 이름"
 L["Spell name"] = "주문 이름"
+L["Short Spell name"] = "짧은 주문 이름"
 
 -- Zone module
 L["Zone"] = "지역"
