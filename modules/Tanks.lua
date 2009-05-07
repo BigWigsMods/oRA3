@@ -53,12 +53,22 @@ end
 function module:OnGroupChanged(event, status, members)
 	local updateSort = nil
 	if status == oRA.INRAID then
+		wipe(tmpTanks)
+		for tank, v in pairs(namedTanks) do
+			tmpTanks[tank] = v
+		end
 		for k, tank in ipairs(members) do
 			-- mix in the persistantTanks
 			if self.db.persistentTanks[tank] and not namedTanks[tank] then
 				updateSort = true
 				namedTanks[tank] = true
 			end
+			tmpTanks[tank] = nil
+		end
+		-- remove obsolete tanks
+		for tank, v in pairs(tmpTanks) do -- remove members nolonger in the group
+			updateSort = true
+			namedTanks[tank] = nil
 		end
 		if updateSort then
 			sortTanks()
@@ -68,10 +78,21 @@ end
 
 function module:OnTanksChanged(event, tanks)
 	local updateSort = nil
+	wipe(tmpTanks)
+	for tank, v in pairs(namedTanks) do
+		tmpTanks[tank] = v
+	end
 	for k, tank in ipairs(tanks) do
 		if not namedTanks[tank] then
 			updateSort = true
 			namedTanks[tank] = true
+		end
+		tmpTanks[tank] = nil
+	end
+	for tank, v in pairs(tmpTanks) do
+		if not self.db.persistentTanks[tank] then -- remove any leftover tanks that are not persistent
+			updateSort = true
+			namedTanks[tank] = nil
 		end
 	end
 	if updateSort then
