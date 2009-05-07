@@ -33,7 +33,7 @@ L["Offline"] = "오프라인"
 L["Durability"] = "내구도"
 L["Average"] = "평균"
 L["Broken"] = "파손"
-L["Minimum"] = "분"
+L["Minimum"] = "최소"
 
 -- Resistances module
 L["Resistances"] = "저항력"
