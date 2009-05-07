@@ -199,6 +199,8 @@ do
 	function addon:GetGuildRanks() return guildRanks end
 	function addon:GetGuildMembers() return guildMemberList end
 	function addon:IsGuildMember(name) return guildMemberList[name] end
+	function addon:GetGroupMembers() return groupMembers end
+	function addon:GetBlizzardTanks() return Tanks end
 	
 	local tmpGroup = {}
 	local tmpTanks = {}
