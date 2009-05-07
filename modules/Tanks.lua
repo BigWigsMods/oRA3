@@ -10,6 +10,7 @@ local frame = nil
 local indexedTanks = {}
 local namedTanks = {}
 local tmpTanks = {}
+local namedPersistent = {}
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
@@ -36,7 +37,9 @@ function module:OnRegister()
 		showConfig,
 		hideConfig
 	)
-	
+	for k, tank in ipairs(self.db.persistentTanks) do
+		namedPersistent[tank] = true
+	end
 	oRA.RegisterCallback(self, "OnTanksChanged")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 end
@@ -47,7 +50,9 @@ local function sortTanks()
 	for tank, v in pairs(namedTanks) do 
 		table.insert(indexedTanks, tank)
 	end
-	oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
+	if oRA.groupStatus == oRA.INRAID then
+		oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
+	end
 end
 
 function module:OnGroupChanged(event, status, members)
@@ -59,7 +64,7 @@ function module:OnGroupChanged(event, status, members)
 		end
 		for k, tank in ipairs(members) do
 			-- mix in the persistantTanks
-			if self.db.persistentTanks[tank] and not namedTanks[tank] then
+			if namedPersistent[tank] and not namedTanks[tank] then
 				updateSort = true
 				namedTanks[tank] = true
 			end
@@ -90,7 +95,7 @@ function module:OnTanksChanged(event, tanks)
 		tmpTanks[tank] = nil
 	end
 	for tank, v in pairs(tmpTanks) do
-		if not self.db.persistentTanks[tank] then -- remove any leftover tanks that are not persistent
+		if not namedPersistent[tank] then -- remove any leftover tanks that are not persistent
 			updateSort = true
 			namedTanks[tank] = nil
 		end
@@ -124,20 +129,38 @@ function module:CreateFrame()
 	moduleDescription:SetFontObject(GameFontHighlight)
 
 	local add = AceGUI:Create("EditBox")
+	local delete = AceGUI:Create("Dropdown")
+
 	add:SetLabel(L["Add"])
 	add:SetText()
 	add:SetCallback("OnEnterPressed", function(widget, event, value)
-		print("add tank")
+		if util:inTable( self.db.persistentTanks, value) then return true end
+		print(value)
+		table.insert(self.db.persistentTanks, value)
+		namedPersistent[value] = true
+		add:SetText()
+		delete:SetList(self.db.persistentTanks)
+		delete:SetDisabled(#self.db.persistentTanks < 1)
+		module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
+		module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
 	end)
 	add:SetRelativeWidth(0.5)
 
-	local delete = AceGUI:Create("Dropdown")
 	delete:SetValue("")
 	delete:SetLabel(L["Remove"])
-	delete:SetList(db)
-	delete:SetCallback("OnValueChanged", function(_, _, value)
-		print("remove tank")
+	delete:SetList(self.db.persistentTanks)
+	delete:SetCallback("OnValueChanged", function(widget, event, value)
+		print(value)
+		table.remove(self.db.persistentTanks, value)
+		namedPersistent[value] = nil
+		delete:SetList(self.db.persistentTanks)
+		delete:SetValue("")
+		delete:SetDisabled(#self.db.persistentTanks < 1)
+		-- update
+		module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
+		module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
 	end)
+	delete:SetDisabled(#self.db.persistentTanks < 1)
 	delete:SetRelativeWidth(0.5)
 
 	local sort = AceGUI:Create("Heading")

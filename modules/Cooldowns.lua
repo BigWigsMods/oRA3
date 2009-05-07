@@ -672,8 +672,6 @@ do
 
 	local function setup()
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
-		display:SetWidth(db.width)
-		display:SetHeight(db.height)
 		display:SetMinResize(100, 20)
 		display:SetWidth(200)
 		display:SetHeight(148)
