@@ -193,7 +193,7 @@ function module:UpdateGUI()
 	frame:SetHeight(height)
 	
 	-- position the spacer
-	local yoff = ((math.ceil(topnum/2)*14) + 52) * -1
+	local yoff = ((math.ceil(topnum/2)*14) + 42) * -1
 	frame.bar:ClearAllPoints()
 	frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
 	frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, yoff)
@@ -353,6 +353,7 @@ function module:SetupGUI()
 				end
 		end )
 end
+-- 10px omghoof
 
 
 function module:CreateMemberFrame(num, bottom)
@@ -372,7 +373,7 @@ function module:CreateMemberFrame(num, bottom)
 	end
 	
 	local xoff = bottom and 7 or 15
-	local yoff = bottom and 0 or -32
+	local yoff = bottom and 0 or -22
 	if num % 2 == 0 then xoff = 160 end
 	yoff = yoff + ((math.floor(num/2) + (num % 2)) * -14)
 	
