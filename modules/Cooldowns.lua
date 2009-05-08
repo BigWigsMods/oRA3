@@ -730,7 +730,7 @@ do
 	setupCooldownDisplay = setup
 	
 	local function start(unit, id, name, icon, duration)
-		local bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", db.width, db.barHeight)
+		local bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", display:GetWidth(), db.barHeight)
 		visibleBars[bar] = true
 		bar:Set("unitclass", classLookup[id])
 		bar:Set("unit", unit)
