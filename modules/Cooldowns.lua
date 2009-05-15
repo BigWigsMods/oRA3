@@ -197,6 +197,9 @@ do
 	local function onlyMineCallback(widget, event, value)
 		db.onlyShowMine = value
 	end
+	local function neverMineCallback(widget, event, value)
+		db.neverShowMine = value
+	end
 	local function lockCallback(widget, event, value)
 		db.lockDisplay = value
 		if value then
@@ -241,6 +244,15 @@ do
 		only:SetCallback("OnValueChanged", onlyMineCallback)
 		only:SetUserData("tooltip", L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."])
 		only:SetFullWidth(true)
+		
+		local never = AceGUI:Create("CheckBox")
+		never:SetLabel("Never show my own spells")
+		never:SetValue(db.neverShowMine)
+		never:SetCallback("OnEnter", onControlEnter)
+		never:SetCallback("OnLeave", onControlLeave)
+		never:SetCallback("OnValueChanged", neverMineCallback)
+		never:SetUserData("tooltip", "Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns.")
+		never:SetFullWidth(true)
 
 		local cooldownHeading = AceGUI:Create("Heading")
 		cooldownHeading:SetText(L["Cooldown settings"])
@@ -259,7 +271,7 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChildren(monitorHeading, show, lock, only, cooldownHeading, moduleDescription, group)
+		frame:AddChildren(monitorHeading, show, lock, only, never, cooldownHeading, moduleDescription, group)
 
 		-- resume and update layout
 		frame:ResumeLayout()
@@ -759,6 +771,7 @@ function module:OnRegister()
 			},
 			showDisplay = false,
 			onlyShowMine = nil,
+			neverShowMine = nil,
 			lockDisplay = false,
 			barShorthand = false,
 			barHeight = 14,
@@ -850,6 +863,7 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
 	if db.onlyShowMine and sender ~= playerName then return end
+	if db.neverShowMine and sender == playerName then return end
 	local name, _, icon = GetSpellInfo(spell)
 	if not name or not icon then return end
 	startBar(sender, spell, name, icon, cd)
