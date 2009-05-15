@@ -8,6 +8,7 @@ local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
+local media = LibStub("LibSharedMedia-3.0", true)
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
@@ -15,6 +16,7 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 -- Locals
 --
 
+local mType = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
@@ -316,6 +318,13 @@ do
 		db.barHeight = value
 		restyleBars()
 	end
+	local function scaleChanged(widget, event, value)
+		db.barScale = value
+		restyleBars()
+	end
+	local function textureChanged(widget, event, value)
+		print("This option does nothing yet, live with it!")
+	end
 
 	local plainFrame = nil
 	local function show()
@@ -445,11 +454,30 @@ do
 			picker:SetColor(unpack(db.barColor))
 
 			local height = AceGUI:Create("Slider")
-			height:SetLabel(L["Bar height"])
+			height:SetLabel("Height")
 			height:SetValue(db.barHeight)
 			height:SetSliderValues(8, 32, 1)
 			height:SetCallback("OnValueChanged", heightChanged)
-			height:SetFullWidth(true)
+			height:SetRelativeWidth(0.5)
+			height.editbox:Hide()
+			
+			local scale = AceGUI:Create("Slider")
+			scale:SetLabel("Scale")
+			scale:SetValue(db.barScale)
+			scale:SetSliderValues(0.1, 5.0, 0.1)
+			scale:SetCallback("OnValueChanged", scaleChanged)
+			scale:SetRelativeWidth(0.5)
+			scale.editbox:Hide()
+
+			local tex = nil
+			if media then
+				tex = AceGUI:Create("Dropdown")
+				tex:SetList(media:List(mType))
+				tex:SetValue(db.barTexture)
+				tex:SetLabel("Texture")
+				tex:SetCallback("OnValueChanged", textureChanged)
+				tex:SetFullWidth(true)
+			end
 
 			local header = AceGUI:Create("Heading")
 			header:SetText(L["Show"])
@@ -490,7 +518,11 @@ do
 			short:SetCallback("OnValueChanged", toggleChanged)
 			--short:SetRelativeWidth(0.5)
 			
-			frame:AddChildren(test, classColor, picker, height, header, icon, duration, unit, spell, short)
+			if tex then
+				frame:AddChildren(test, classColor, picker, height, scale, tex, header, icon, duration, unit, spell, short)
+			else
+				frame:AddChildren(test, classColor, picker, height, scale, header, icon, duration, unit, spell, short)
+			end
 			frame.frame:Show()
 		end
 		plainFrame:Show()
@@ -555,6 +587,7 @@ do
 		bar:SetHeight(db.barHeight)
 		bar:SetIcon(db.barShowIcon and bar:Get("icon") or nil)
 		bar:SetTimeVisibility(db.barShowDuration)
+		bar:SetScale(db.barScale)
 		local spell = bar:Get("spell")
 		if db.barShorthand then spell = getShorty(spell) end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
@@ -775,12 +808,14 @@ function module:OnRegister()
 			lockDisplay = false,
 			barShorthand = false,
 			barHeight = 14,
+			barScale = 1.0,
 			barShowIcon = true,
 			barShowDuration = true,
 			barShowUnit = true,
 			barShowSpell = true,
 			barClassColor = true,
 			barColor = { 0.25, 0.33, 0.68, 1 },
+			barTexture = "oRA3",
 		},
 	})
 	db = database.profile
@@ -804,6 +839,9 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
+	if media then
+		media:Register(mType, "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
+	end
 end
 
 do
