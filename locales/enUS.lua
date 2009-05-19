@@ -89,11 +89,16 @@ L["Toggle whether the cooldown display should only show the cooldown for spells 
 L["Cooldown settings"] = true
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = true
 L["Select class"] = true
+L["Never show my own spells"] = true
+L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = true
 -- monitor
+L["Right-Click me for options!"] = true
 L["Bar Settings"] = true
 L["Spawn test bar"] = true
 L["Use class color"] = true
-L["Bar height"] = true
+L["Height"] = true
+L["Scale"] = true
+L["Texture"] = true
 L["Icon"] = true
 L["Show"] = true
 L["Duration"] = true

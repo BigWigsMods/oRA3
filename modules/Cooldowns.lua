@@ -248,12 +248,12 @@ do
 		only:SetFullWidth(true)
 		
 		local never = AceGUI:Create("CheckBox")
-		never:SetLabel("Never show my own spells")
+		never:SetLabel(L["Never show my own spells"])
 		never:SetValue(db.neverShowMine)
 		never:SetCallback("OnEnter", onControlEnter)
 		never:SetCallback("OnLeave", onControlLeave)
 		never:SetCallback("OnValueChanged", neverMineCallback)
-		never:SetUserData("tooltip", "Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns.")
+		never:SetUserData("tooltip", L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."])
 		never:SetFullWidth(true)
 
 		local cooldownHeading = AceGUI:Create("Heading")
@@ -456,7 +456,7 @@ do
 			picker:SetColor(unpack(db.barColor))
 
 			local height = AceGUI:Create("Slider")
-			height:SetLabel("Height")
+			height:SetLabel(L["Height"])
 			height:SetValue(db.barHeight)
 			height:SetSliderValues(8, 32, 1)
 			height:SetCallback("OnValueChanged", heightChanged)
@@ -464,7 +464,7 @@ do
 			height.editbox:Hide()
 			
 			local scale = AceGUI:Create("Slider")
-			scale:SetLabel("Scale")
+			scale:SetLabel(L["Scale"])
 			scale:SetValue(db.barScale)
 			scale:SetSliderValues(0.1, 5.0, 0.1)
 			scale:SetCallback("OnValueChanged", scaleChanged)
@@ -481,7 +481,7 @@ do
 			end
 			tex:SetList(media:List(mType))
 			tex:SetValue(selected)
-			tex:SetLabel("Texture")
+			tex:SetLabel(L["Texture"])
 			tex:SetCallback("OnValueChanged", textureChanged)
 			tex:SetFullWidth(true)
 
@@ -735,7 +735,7 @@ do
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
 		local help = display:CreateFontString(nil, "OVERLAY")
 		help:SetFontObject(GameFontNormal)
-		help:SetText("Right-Click me for options!")
+		help:SetText(L["Right-Click me for options!"])
 		help:SetAllPoints(display)
 		help:Hide()
 		display.help = help
