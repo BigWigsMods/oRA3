@@ -8,7 +8,7 @@ local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
-local media = LibStub("LibSharedMedia-3.0", true)
+local media = LibStub("LibSharedMedia-3.0")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
@@ -323,7 +323,9 @@ do
 		restyleBars()
 	end
 	local function textureChanged(widget, event, value)
-		print("This option does nothing yet, live with it!")
+		local list = media:List(mType)
+		db.barTexture = list[value]
+		restyleBars()
 	end
 
 	local plainFrame = nil
@@ -332,7 +334,7 @@ do
 			plainFrame = CreateFrame("Frame", nil, UIParent)
 			local f = plainFrame
 			f:SetWidth(240)
-			f:SetHeight(280)
+			f:SetHeight(300)
 			f:SetPoint("CENTER", UIParent, "CENTER")
 			f:SetMovable(true)
 			f:EnableMouse(true)
@@ -469,15 +471,19 @@ do
 			scale:SetRelativeWidth(0.5)
 			scale.editbox:Hide()
 
-			local tex = nil
-			if media then
-				tex = AceGUI:Create("Dropdown")
-				tex:SetList(media:List(mType))
-				tex:SetValue(db.barTexture)
-				tex:SetLabel("Texture")
-				tex:SetCallback("OnValueChanged", textureChanged)
-				tex:SetFullWidth(true)
+			local tex = AceGUI:Create("Dropdown")
+			local list = media:List(mType)
+			local selected = nil
+			for k, v in pairs(list) do
+				if v == db.barTexture then
+					selected = k
+				end
 			end
+			tex:SetList(media:List(mType))
+			tex:SetValue(selected)
+			tex:SetLabel("Texture")
+			tex:SetCallback("OnValueChanged", textureChanged)
+			tex:SetFullWidth(true)
 
 			local header = AceGUI:Create("Heading")
 			header:SetText(L["Show"])
@@ -518,11 +524,7 @@ do
 			short:SetCallback("OnValueChanged", toggleChanged)
 			--short:SetRelativeWidth(0.5)
 			
-			if tex then
-				frame:AddChildren(test, classColor, picker, height, scale, tex, header, icon, duration, unit, spell, short)
-			else
-				frame:AddChildren(test, classColor, picker, height, scale, header, icon, duration, unit, spell, short)
-			end
+			frame:AddChildren(test, classColor, picker, height, scale, tex, header, icon, duration, unit, spell, short)
 			frame.frame:Show()
 		end
 		plainFrame:Show()
@@ -575,7 +577,7 @@ do
 			elseif not p3 then
 				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)
 			elseif not p4 then
-				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)	.. utf8trunc(p3, 1)
+				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1)
 			else
 				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1) .. utf8trunc(p4, 1)
 			end
@@ -588,6 +590,7 @@ do
 		bar:SetIcon(db.barShowIcon and bar:Get("icon") or nil)
 		bar:SetTimeVisibility(db.barShowDuration)
 		bar:SetScale(db.barScale)
+		bar:SetTexture(media:Fetch(mType, db.barTexture))
 		local spell = bar:Get("spell")
 		if db.barShorthand then spell = getShorty(spell) end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
