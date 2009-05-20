@@ -90,12 +90,17 @@ L["Toggle whether the cooldown display should only show the cooldown for spells 
 L["Cooldown settings"] = "재사용 대기시간 설정"
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = "선택한 주문에 대한 재사용 대기시간을 표시합니다."
 L["Select class"] = "직업 선택"
+L["Never show my own spells"] = "자신의 기술을 표시하지 않음"
+L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "자신의 재사용 대기시간의 표시하지 않도록 전환합니다. 예를 들어 보통 다른 애드온으로 자신의 재사용 대기시간을 표시를 합니다."
 
 -- monitor
+L["Right-Click me for options!"] = "옵션 설정은 우-클릭!"
 L["Bar Settings"] = "바 설정"
 L["Spawn test bar"] = "테스트 바 표시"
 L["Use class color"] = "직업 색상 사용"
-L["Bar height"] = "바 높이"
+L["Height"] = "높이"
+L["Scale"] = "크기"
+L["Texture"] = "텍스쳐"
 L["Icon"] = "아이콘"
 L["Show"] = "보기"
 L["Duration"] = "지속 시간"
