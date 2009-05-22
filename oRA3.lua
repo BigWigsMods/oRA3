@@ -70,6 +70,7 @@ local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
 local scrollhighs = {} -- scroll highlights
 
+local actuallyDisband -- function to disband the group, defined later on
 
 addon.lists = {}
 addon.panels = {}
@@ -111,6 +112,8 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
+	
+	self:RegisterChatCommand( "radisband", actuallyDisband )
 	
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
@@ -272,24 +275,26 @@ function addon:InParty()
 	return groupStatus == INPARTY
 end
 
-local function actuallyDisband()
-	local pName = UnitName("player")
-	SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
-	if addon:InRaid() then
-		for i = 1, GetNumRaidMembers() do
-			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			if online and name ~= pName then
-				UninviteUnit(name)
+function actuallyDisband()
+	if addon:InRaid() or addon:InParty() then
+		local pName = UnitName("player")
+		SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
+		if addon:InRaid() then
+			for i = 1, GetNumRaidMembers() do
+				local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+				if online and name ~= pName then
+					UninviteUnit(name)
+				end
+			end
+		else
+			for i = MAX_PARTY_MEMBERS, 1, -1 do
+				if GetPartyMember(i) then
+					UninviteUnit(UnitName("party"..i))
+				end
 			end
 		end
-	else
-		for i = MAX_PARTY_MEMBERS, 1, -1 do
-			if GetPartyMember(i) then
-				UninviteUnit(UnitName("party"..i))
-			end
-		end
+		LeaveParty()
 	end
-	LeaveParty()
 end
 
 function addon:DisbandGroup()
