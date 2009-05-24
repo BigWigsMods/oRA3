@@ -22,6 +22,7 @@ locales\koKR.lua
 locales\zhCN.lua
 locales\zhTW.lua
 locales\frFR.lua
+locales\deDE.lua
 
 oRA3.lua
 modulePrototype.lua
