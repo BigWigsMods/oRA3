@@ -21,16 +21,16 @@ local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
 local glyphCooldowns = {
-	[55542] = {2894, 600}, -- Fire Elemental Totem, 10min
-	[58724] = {47476, 20}, -- Strangulate, 20sec
-	[56602] = {31687, 30}, -- Summon Water Elemental, 30sec
-	[63872] = {47585, 45}, -- Dispersion, 45sec
+	[55455] = {2894, 600}, -- Fire Elemental Totem, 10min
+	[58618] = {47476, 20}, -- Strangulate, 20sec
+	[56373] = {31687, 30}, -- Summon Water Elemental, 30sec
+	[63229] = {47585, 45}, -- Dispersion, 45sec
 	[63329] = {871, 120}, -- Shield Wall, 2min
-	[58229] = {5384, 5}, -- Feign Death, 5sec
-	[58158] = {5209, 30}, -- Challenging Roar, 30sec
-	[56165] = {6346, 60}, -- Fear Ward, 60sec
-	[58396] = {12975, 60}, -- Last Stand, 1min
-	[58245] = {633, 300}, -- Lay on Hands, 5min
+	[57903] = {5384, 5}, -- Feign Death, 5sec
+	[57858] = {5209, 30}, -- Challenging Roar, 30sec
+	[55678] = {6346, 60}, -- Fear Ward, 60sec
+	[58376] = {12975, 60}, -- Last Stand, 1min
+	[57955] = {633, 300}, -- Lay on Hands, 5min
 }
 
 local spells = {
