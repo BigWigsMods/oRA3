@@ -567,23 +567,22 @@ do
 		return text:sub(1, i-1)
 	end
 
-	-- FIXME: metatable this
-	local shorts = {}
-	local function getShorty(name)
-		if not shorts[name] then
-			local p1, p2, p3, p4 = string.split(" ", (string.gsub(name,":", " :")))
+	local shorts = setmetatable({}, {__index =
+		function(self, key)
+			if type(key) == "nil" then return nil end
+			local p1, p2, p3, p4 = string.split(" ", (string.gsub(key,":", " :")))
 			if not p2 then
-				shorts[name] = utf8trunc(name, 4)
+				self[key] = utf8trunc(key, 4)
 			elseif not p3 then
-				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)
+				self[key] = utf8trunc(p1, 1) .. utf8trunc(p2, 1)
 			elseif not p4 then
-				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1)
+				self[key] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1)
 			else
-				shorts[name] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1) .. utf8trunc(p4, 1)
+				self[key] = utf8trunc(p1, 1) .. utf8trunc(p2, 1) .. utf8trunc(p3, 1) .. utf8trunc(p4, 1)
 			end
+			return self[key]
 		end
-		return shorts[name]
-	end
+	})
 	
 	local function restyleBar(bar)
 		bar:SetHeight(db.barHeight)
@@ -592,7 +591,7 @@ do
 		bar:SetScale(db.barScale)
 		bar:SetTexture(media:Fetch(mType, db.barTexture))
 		local spell = bar:Get("spell")
-		if db.barShorthand then spell = getShorty(spell) end
+		if db.barShorthand then spell = shorts[spell] end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
 			bar:SetLabel(("%s: %s"):format(bar:Get("unit"), spell))
 		elseif db.barShowSpell then
