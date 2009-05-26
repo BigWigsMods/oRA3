@@ -3,7 +3,6 @@
 --
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -26,7 +25,7 @@ local glyphCooldowns = {
 	[58724] = {47476, 20}, -- Strangulate, 20sec
 	[56602] = {31687, 30}, -- Summon Water Elemental, 30sec
 	[63872] = {47585, 45}, -- Dispersion, 45sec
-	[63952] = {871, 120}, -- Shield Wall, 2min
+	[63329] = {871, 120}, -- Shield Wall, 2min
 	[58229] = {5384, 5}, -- Feign Death, 5sec
 	[58158] = {5209, 30}, -- Challenging Roar, 30sec
 	[56165] = {6346, 60}, -- Fear Ward, 60sec
@@ -886,8 +885,9 @@ local function getCooldown(spellId)
 end
 
 function module:OnEnable()
-	self:RegisterEvent("CHARACTER_POINTS_CHANGED", "UpdateCooldownModifiers")
-	self:RegisterEvent("GLYPH_UPDATED", "UpdateCooldownModifiers")
+	--self:RegisterEvent("CHARACTER_POINTS_CHANGED", "UpdateCooldownModifiers")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
+	self:UpdateCooldownModifiers()
 end
 
 function module:OnStartup()
@@ -907,8 +907,6 @@ function module:OnStartup()
 			ankhs = newankhs
 		end)
 	end
-
-	self:UpdateCooldownModifiers()
 end
 
 function module:OnShutdown()
@@ -927,6 +925,7 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 end
 
 local function addMod(s, m)
+	if m == 0 then return end
 	if not cdModifiers[s] then
 		cdModifiers[s] = m
 	else
@@ -934,8 +933,7 @@ local function addMod(s, m)
 	end
 end
 
-function module:UpdateCooldownModifiers(event, index)
-	if index and type(index) == "number" and index > 1 then return end
+function module:UpdateCooldownModifiers()
 	wipe(cdModifiers)
 	for i = 1, GetNumGlyphSockets() do
 		local enabled, _, spellId = GetGlyphSocketInfo(i)
