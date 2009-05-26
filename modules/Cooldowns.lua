@@ -21,6 +21,19 @@ local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
+local glyphCooldowns = {
+	[55542] = {2894, 600}, -- Fire Elemental Totem, 10min
+	[58724] = {47476, 20}, -- Strangulate, 20sec
+	[56602] = {31687, 30}, -- Summon Water Elemental, 30sec
+	[63872] = {47585, 45}, -- Dispersion, 45sec
+	[63952] = {871, 120}, -- Shield Wall, 2min
+	[58229] = {5384, 5}, -- Feign Death, 5sec
+	[58158] = {5209, 30}, -- Challenging Roar, 30sec
+	[56165] = {6346, 60}, -- Fear Ward, 60sec
+	[58396] = {12975, 60}, -- Last Stand, 1min
+	[58245] = {633, 300}, -- Lay on Hands, 5min
+}
+
 local spells = {
 	DRUID = {
 		[26994] = 1200, -- Rebirth
@@ -872,9 +885,13 @@ local function getCooldown(spellId)
 	return cd
 end
 
+function module:OnEnable()
+	self:RegisterEvent("CHARACTER_POINTS_CHANGED", "UpdateCooldownModifiers")
+	self:RegisterEvent("GLYPH_UPDATED", "UpdateCooldownModifiers")
+end
+
 function module:OnStartup()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	self:RegisterEvent("CHARACTER_POINTS_CHANGED")
 	if playerClass == "SHAMAN" then
 		local resTime = GetTime()
 		local ankhs = GetItemCount(17030)
@@ -891,11 +908,11 @@ function module:OnStartup()
 		end)
 	end
 
-	self:CHARACTER_POINTS_CHANGED()
+	self:UpdateCooldownModifiers()
 end
 
 function module:OnShutdown()
-	self:UnregisterAllEvents()
+	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
@@ -909,16 +926,66 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	startBar(sender, spell, name, icon, cd)
 end
 
-function module:CHARACTER_POINTS_CHANGED()
+local function addMod(s, m)
+	if not cdModifiers[s] then
+		cdModifiers[s] = m
+	else
+		cdModifiers[s] = cdModifiers[s] + m
+	end
+end
+
+function module:UpdateCooldownModifiers(event, index)
+	if index and type(index) == "number" and index > 1 then return end
+	wipe(cdModifiers)
+	for i = 1, GetNumGlyphSockets() do
+		local enabled, _, spellId = GetGlyphSocketInfo(i)
+		if enabled and spellId and glyphCooldowns[spellId] then
+			local info = glyphCooldowns[spellId]
+			addMod(info[1], info[2])
+		end
+	end
 	if playerClass == "PALADIN" then
-		local _, _, _, _, rank = GetTalentInfo(2, 5)
-		cdModifiers[10278] = rank * 60
+		local _, _, _, _, rank = GetTalentInfo(2, 4)
+		addMod(10278, rank * 60)
+		_, _, _, _, rank = GetTalentInfo(1, 8)
+		addMod(633, rank * 120)
+		_, _, _, _, rank = GetTalentInfo(2, 14)
+		addMod(642, rank * 30)
+		addMod(498, rank * 30)
 	elseif playerClass == "SHAMAN" then
 		local _, _, _, _, rank = GetTalentInfo(3, 3)
-		cdModifiers[20608] = rank * 600
+		addMod(20608, rank * 600)
 	elseif playerClass == "WARRIOR" then
 		local _, _, _, _, rank = GetTalentInfo(3, 13)
-		cdModifiers[871] = rank * 30
+		addMod(871, rank * 30)
+		addMod(1719, rank * 30)
+		addMod(20230, rank * 30)
+	elseif playerClass == "DEATHKNIGHT" then
+		local _, _, _, _, rank = GetTalentInfo(3, 6)
+		addMod(49576, rank * 5)
+	elseif playerClass == "HUNTER" then
+		local _, _, _, _, rank = GetTalentInfo(3, 11)
+		addMod(781, rank * 2)
+	elseif playerClass == "MAGE" then
+		local _, _, _, _, rank = GetTalentInfo(1, 24)
+		addMod(12051, rank * 60)
+	elseif playerClass == "PRIEST" then
+		local _, _, _, _, rank = GetTalentInfo(1, 23)
+		if rank > 0 then
+			local percent = rank * 10
+			local currentCd = getCooldown(10060)
+			addMod(10060, (currentCd * percent) / 100)
+			currentCd = getCooldown(33206)
+			addMod(33206, (currentCd * percent) / 100)
+		end
+	elseif playerClass == "ROGUE" then
+		local _, _, _, _, rank = GetTalentInfo(2, 7)
+		addMod(11305, rank * 30)
+		_, _, _, _, rank = GetTalentInfo(3, 7)
+		addMod(26889, rank * 30)
+		addMod(31224, rank * 15)
+		_, _, _, _, rank = GetTalentInfo(3, 26)
+		addMod(1725, rank * 5)
 	end
 end
 
