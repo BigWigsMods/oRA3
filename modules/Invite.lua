@@ -10,6 +10,10 @@ local frame = nil
 local db = nil
 local peopleToInvite = {}
 
+local function canInvite()
+	return ( oRA:InGroup() and oRA:IsPromoted() ) or not oRA:InGroup()
+end
+
 local function showConfig()
 	if not frame then module:CreateFrame() end
 	oRA:SetAllPointsToPanel( frame.frame )
@@ -133,6 +137,7 @@ local function chat(msg, channel)
 end
 
 local function inviteGuild()
+	if not canInvite() then return end
 	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(MAX_PLAYER_LEVEL), "GUILD")
 	inviteFrame.level = MAX_PLAYER_LEVEL
 	inviteFrame.zone = nil
@@ -141,6 +146,7 @@ local function inviteGuild()
 end
 
 local function inviteZone()
+	if not canInvite() then return end
 	local currentZone = GetRealZoneText()
 	chat((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
 	inviteFrame.level = nil
@@ -150,6 +156,7 @@ local function inviteZone()
 end
 
 local function inviteRank(rank, name)
+	if not canInvite() then return end
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
@@ -161,7 +168,7 @@ local function inviteRank(rank, name)
 end
 
 function module:CHAT_MSG_WHISPER(event, msg, author)
-	if ( db.keyword and msg == db.keyword ) or ( db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author) ) then
+	if ( db.keyword and msg == db.keyword ) or ( db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author) ) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
 		local raid = GetNumRaidMembers()

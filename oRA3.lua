@@ -267,6 +267,10 @@ do
 	end
 end
 
+function addon:InGroup()
+	return groupStatus == INRAID or groupStatus == INPARTY
+end
+
 function addon:InRaid()
 	return groupStatus == INRAID
 end
