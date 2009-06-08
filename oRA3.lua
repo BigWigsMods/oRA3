@@ -942,7 +942,7 @@ function addon:CreateScrollHeader()
 end
 
 function addon:CreateScrollEntry( header )
-	f = header:CreateFontString(nil,"OVERLAY")
+	local f = header:CreateFontString(nil,"OVERLAY")
 	f:SetHeight(16)
 	f:SetFontObject(GameFontNormalSmall)
 	f:SetJustifyH("LEFT")
