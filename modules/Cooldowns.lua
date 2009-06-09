@@ -968,6 +968,11 @@ function module:UpdateCooldownModifiers()
 	elseif playerClass == "MAGE" then
 		local _, _, _, _, rank = GetTalentInfo(1, 24)
 		addMod(12051, rank * 60)
+		if rank > 0 then
+			local percent = rank * 15
+			local currentCD = getCooldown(66)
+			addMod(66, (currentCd * percent) / 100)
+		end
 	elseif playerClass == "PRIEST" then
 		local _, _, _, _, rank = GetTalentInfo(1, 23)
 		if rank > 0 then
