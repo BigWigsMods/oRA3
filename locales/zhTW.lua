@@ -22,7 +22,7 @@ L["ROGUE"] = "盜賊"
 L["DEATHKNIGHT"] = "死亡騎士"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這裡做一些設定。所有的實際行動從團隊框架面板中完成。"
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這做一些設定。所有的實際動作從團隊框架面板中完成。"
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列隊員未準備好:%s"
@@ -31,6 +31,11 @@ L["Ready"] = "準備好"
 L["Not Ready"] = "未準備好"
 L["No Response"] = "未確認"
 L["Offline"] = "離線"
+L["Play a sound when a ready check is performed."] = "準備確認時播放音效。"
+L["GUI"] = "面板"
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "準備確認時顯示oRA3準備確認面板。"
+L["Auto Hide"] = "自動隱藏"
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "準備確認完成時自動隱藏oRA3準備確認面板。"
 
 -- Durability module
 L["Durability"] = "耐久度"
@@ -102,7 +107,7 @@ L["Spawn test bar"] = "顯示測試計時條"
 L["Use class color"] = "使用職業顏色"
 L["Height"] = "高"
 L["Scale"] = "縮放"
-L["Texture"] = "皮膚"
+L["Texture"] = "材質"
 L["Icon"] = "圖示"
 L["Show"] = "顯示"
 L["Duration"] = "時間"
@@ -115,3 +120,6 @@ L["Zone"] = "區域"
 
 -- Version module
 L["Version"] = "版本"
+
+-- Loot module
+L["Leave empty to make yourself Master Looter."] = "留空使自己分配戰利品。"
