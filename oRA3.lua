@@ -90,6 +90,31 @@ local showLists -- implemented down the file
 local hideLists -- implemented down the file
 
 
+local options = nil
+local function giveOptions()
+	options = {
+		type = "group",
+		name = "oRA3",
+		childGroups = "tab",
+		args = {
+			desc = {
+				type = "description",
+				name = L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."]
+			}
+		}
+	}
+	
+	for k, m in addon:IterateModules() do
+		if m.GetOptions then
+			options.args[m.name] = m.GetOptions()
+		end
+	end
+	
+	return options
+end
+
+
+
 
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
@@ -99,7 +124,9 @@ function addon:OnInitialize()
 	self.callbacks = CallbackHandler:New(self)
 	
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
-
+	
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
 end
 
 function addon:OnEnable()
@@ -322,7 +349,7 @@ function addon:DisbandGroup()
 end
 
 function addon:ShowOptions()
-	self:Print("Implement ME!")
+	InterfaceOptionsFrame_OpenToCategory("oRA3")
 end
 
 -- utility functions

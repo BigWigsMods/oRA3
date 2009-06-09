@@ -20,6 +20,9 @@ L["SHAMAN"] = "Shaman"
 L["ROGUE"] = "Rogue"
 L["DEATHKNIGHT"] = "Death Knight"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = true
+
 -- Ready check module
 L["The following players are not ready: %s"] = true
 L["Ready Check (%d seconds)"] = true
