@@ -8,11 +8,11 @@ local defaults = {
 	profile = {
 		party = {
 			method = "group", -- Group Loot
-			threshold = "2", -- Green (should be blizzard default setting)
+			threshold = 2, -- Green (should be blizzard default setting)
 		},
 		raid = {
 			method = "master", -- master looter
-			threshold = "2", -- Green (should be blizzard default setting)
+			threshold = 2, -- Green (should be blizzard default setting)
 		},
 	}
 }
@@ -46,9 +46,9 @@ function module:SetLoot()
 			master = db.party.master
 		end
 		if not master then master = UnitName("player") end
-		SetLootMethod(method, master, tonumber(threshold))
+		SetLootMethod(method, master, threshold)
 		if method == "master" or method == "group" then
-			frame.threshold = tonumber(threshold)
+			frame.threshold = threshold
 			frame.elapsed = 0
 			frame:Show()
 		end
@@ -86,15 +86,15 @@ function module:GetOptions()
 						type = "select", name = LOOT_THRESHOLD,
 						arg = "threshold",
 						values = {
-							["2"] = ITEM_QUALITY2_DESC,
-							["3"] = ITEM_QUALITY3_DESC,
-							["4"] = ITEM_QUALITY4_DESC,
-							["5"] = ITEM_QUALITY5_DESC,
-							["6"] = ITEM_QUALITY6_DESC,
+							[2] = ITEM_QUALITY2_DESC,
+							[3] = ITEM_QUALITY3_DESC,
+							[4] = ITEM_QUALITY4_DESC,
+							[5] = ITEM_QUALITY5_DESC,
+							[6] = ITEM_QUALITY6_DESC,
 						},
 					},
 					master = {
-						type = "input", name = MASTER_LOOTER,
+						type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
 						arg = "master",
 					},
 				},
@@ -122,15 +122,15 @@ function module:GetOptions()
 						type = "select", name = LOOT_THRESHOLD,
 						arg = "threshold",
 						values = {
-							["2"] = ITEM_QUALITY2_DESC,
-							["3"] = ITEM_QUALITY3_DESC,
-							["4"] = ITEM_QUALITY4_DESC,
-							["5"] = ITEM_QUALITY5_DESC,
-							["6"] = ITEM_QUALITY6_DESC,
+							[2] = ITEM_QUALITY2_DESC,
+							[3] = ITEM_QUALITY3_DESC,
+							[4] = ITEM_QUALITY4_DESC,
+							[5] = ITEM_QUALITY5_DESC,
+							[6] = ITEM_QUALITY6_DESC,
 						}
 					},
 					master = {
-						type = "input", name = MASTER_LOOTER,
+						type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
 						arg = "master",
 					},
 				},
