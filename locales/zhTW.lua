@@ -21,6 +21,9 @@ L["SHAMAN"] = "薩滿"
 L["ROGUE"] = "盜賊"
 L["DEATHKNIGHT"] = "死亡騎士"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這裡做一些設定。所有的實際行動從團隊框架面板中完成。"
+
 -- Ready check module
 L["The following players are not ready: %s"] = "下列隊員未準備好:%s"
 L["Ready check over in %d seconds"] = "就位確認還有%d秒結束"
