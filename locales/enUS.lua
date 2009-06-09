@@ -30,6 +30,9 @@ L["Ready"] = true
 L["Not Ready"] = true
 L["No Response"] = true
 L["Offline"] = true
+L["Play a sound when a ready check is performed."] = true
+L["GUI"] = true
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = true
 
 -- Durability module
 L["Durability"] = true

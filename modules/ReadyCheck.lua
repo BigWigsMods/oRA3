@@ -21,6 +21,18 @@ local RD_NOTREADY = L["Not Ready"]
 local RD_NORESPONSE = L["No Response"]
 local RD_OFFLINE = L["Offline"]
 
+local defaults = {
+	profile = {
+		sound = true,
+		gui = true,
+	}
+}
+
+function module:OnRegister()
+	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
+	db = self.db.profile
+end
+
 function module:OnEnable()
 	-- Ready Check Events
 	self:RegisterEvent("READY_CHECK")
@@ -32,6 +44,7 @@ function module:OnEnable()
 end
 
 function module:READY_CHECK(event, name, duration)
+	if db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
@@ -52,11 +65,13 @@ function module:READY_CHECK(event, name, duration)
 	readycheck[name] = RD_READY -- the sender is always ready
 	readyAuthor = name
 
-	-- show the readycheck result frame	
-	self:ShowGUI()
-	frame.timer = duration
-	frame.oldtimer = -1
-	self:UpdateGUI()
+	-- show the readycheck result frame
+	if db.gui then
+		self:ShowGUI()
+		frame.timer = duration
+		frame.oldtimer = -1
+		self:UpdateGUI()
+	end
 end
 
 function module:READY_CHECK_CONFIRM(event, id, confirm)
@@ -113,6 +128,7 @@ end
 -- GUI
 
 function module:ShowGUI()
+	if not db.gui then return end
 	self:SetupGUI()
 	frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
 	frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
@@ -151,6 +167,7 @@ function module:SetMemberStatus(num, bottom, name, class)
 end
 
 function module:UpdateGUI()
+	if not db.gui then return end
 	self:SetupGUI()
 	-- loop and update
 	local num, f, bottomnum, topnum
@@ -400,4 +417,28 @@ function module:CreateMemberFrame(num, bottom)
 	rdt:SetWidth(136)
 	
 	return f
+end
+
+function module:GetOptions()
+	local options = {
+		type = "group",
+		name = READY_CHECK,
+		get = function( k ) return db[k.arg] end,
+		set = function( k, v ) db[k.arg] = v end,
+		args = {
+			sound = {
+				type = "toggle",
+				name = SOUND_LABEL,
+				desc = L["Play a sound when a ready check is performed."],
+				arg = "sound",
+			},
+			gui = {
+				type = "toggle",
+				name = L["GUI"],
+				desc = L["Show the oRA3 Ready Check GUI when a ready check is performed."],
+				arg = "gui",
+			},
+		}
+	}
+	return options
 end
