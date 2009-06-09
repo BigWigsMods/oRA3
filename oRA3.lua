@@ -27,7 +27,7 @@ addon._testUnits = _testUnits
 local coloredNames = setmetatable({}, {__index =
 	function(self, key)
 		if type(key) == "nil" then return nil end
-		local class = _testUnits[key] or select(2, UnitClass(key))
+		local class = select(2, UnitClass(key)) or _testUnits[key]
 		if class then
 			self[key] = hexColors[class]  .. key .. "|r"
 		else
