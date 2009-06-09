@@ -33,6 +33,8 @@ L["Offline"] = true
 L["Play a sound when a ready check is performed."] = true
 L["GUI"] = true
 L["Show the oRA3 Ready Check GUI when a ready check is performed."] = true
+L["Auto Hide"] = true
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = true
 
 -- Durability module
 L["Durability"] = true
@@ -118,5 +120,7 @@ L["Zone"] = true
 -- Version module
 L["Version"] = true
 
+-- Loot module
+ L["Leave empty to make yourself Master Looter."] = true
 
 

@@ -25,6 +25,7 @@ local defaults = {
 	profile = {
 		sound = true,
 		gui = true,
+		autohide = true,
 	}
 }
 
@@ -89,7 +90,7 @@ end
 
 function module:READY_CHECK_FINISHED(event)
 	if frame then
-		frame.fadeTimer = 1
+		if db.autohide then frame.fadeTimer = 1 end
 		frame.timer = 0
 		frame.title:SetText(READY_CHECK_FINISHED)
 	end
@@ -437,6 +438,12 @@ function module:GetOptions()
 				name = L["GUI"],
 				desc = L["Show the oRA3 Ready Check GUI when a ready check is performed."],
 				arg = "gui",
+			},
+			autohide = {
+				type = "toggle",
+				name = L["Auto Hide"],
+				desc = L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."],
+				arg = "autohide",
 			},
 		}
 	}
