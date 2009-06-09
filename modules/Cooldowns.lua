@@ -51,6 +51,7 @@ local spells = {
 		[2139] = 24, -- Counterspell
 		[31687] = 180, -- Summon Water Elemental
 		[12051] = 240, -- Evocation
+		[66] = 180, -- Invisibility
 	},
 	PALADIN = {
 		[19752] = 1200, -- Divine Intervention
