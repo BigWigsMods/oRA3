@@ -113,6 +113,10 @@ L["Duration"] = true
 L["Unit name"] = true
 L["Spell name"] = true
 L["Short Spell name"] = true
+L["Label Align"] = true
+L["Left"] = true
+L["Right"] = true
+L["Center"] = true
 
 -- Zone module
 L["Zone"] = true
