@@ -3,7 +3,7 @@
 -- Resistance information will be available from the oRA3 gui for everyone.
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Resistance")
+local module = oRA:NewModule("Resistance", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -26,6 +26,10 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnCommResistance")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	
+	self:RegisterChatCommand("rares", "OpenResistanceCheck")
+	self:RegisterChatCommand("raresist", "OpenResistanceCheck")
+	self:RegisterChatCommand("raresistance", "OpenResistanceCheck")
 end
 
 function module:OnStartup()
@@ -38,6 +42,10 @@ function module:OnShutdown()
 	wipe(resistances)
 	f:UnregisterEvent("UNIT_INVENTORY_CHANGED")
 	f:UnregisterEvent("UNIT_RESISTANCES")
+end
+
+function module:OpenResistanceCheck()
+	oRA:OpenToList(L["Resistances"])
 end
 
 do

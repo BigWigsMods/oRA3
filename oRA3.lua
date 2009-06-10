@@ -69,6 +69,7 @@ local listbuttons = {} -- check list buttons
 local sortIndex -- current index (scrollheader) being sorted
 local selectedTab = 1
 local scrollhighs = {} -- scroll highlights
+local slideOnUpdate = nil
 
 local actuallyDisband -- function to disband the group, defined later on
 
@@ -595,7 +596,9 @@ function addon:SetupGUI()
 		
 		local offset = cosineInterpolation(min, max, mod * totalElapsed)
 		self:SetPoint("LEFT", RaidFrame, "RIGHT", offset, 31)
-	end	
+	end
+	-- local to the file
+	slideOnUpdate = onupdate
 	
 	-- Flip min and max, if we're supposed to be open
 	if db.open then
@@ -1163,6 +1166,15 @@ function addon:SelectList( name )
 		end
 	end
 	showLists()
+end
+
+function addon:OpenToList( name )
+	ToggleFriendsFrame(5) -- raidframe tab
+	if not db.open then
+		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
+	end
+	self:SelectPanel(L["Checks"])
+	self:SelectList(name)
 end
 
 

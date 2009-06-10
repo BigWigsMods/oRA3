@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Durability", "AceEvent-3.0")
+local module = oRA:NewModule("Durability", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -24,6 +24,9 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommDurability")
+	
+	self:RegisterChatCommand("radur", "OpenDurabilityCheck")
+	self:RegisterChatCommand("radurability", "OpenDurabilityCheck")
 end
 
 function module:OnStartup()
@@ -39,6 +42,10 @@ function module:OnShutdown()
 	self:UnregisterEvent("PLAYER_DEAD")
 	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
 	self:UnregisterEvent("MERCHANT_CLOSED")
+end
+
+function module:OpenDurabilityCheck()
+	oRA:OpenToList(L["Durability"])
 end
 
 local oldperc, oldbroken, oldminimum = 0,0,0

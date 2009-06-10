@@ -1,6 +1,6 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Version")
+local module = oRA:NewModule("Version", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision: 150 $"):sub(12, -3))
@@ -19,11 +19,18 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommVersion")
 	oRA.RegisterCallback(self, "OnGroupChanged")
+	
+	self:RegisterChatCommand("raver", "OpenVersionCheck")
+	self:RegisterChatCommand("raversion", "OpenVersionCheck")
 end
 
 function module:OnShutdown()
 	wipe(versions)
 	f:SetScript("OnUpdate", nil)
+end
+
+function module:OpenVersionCheck()
+	oRA:OpenToList(L["Version"])
 end
 
 do
