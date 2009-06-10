@@ -691,7 +691,7 @@ function addon:SetupGUI()
 	oRA3Frame.oRAtabs = {} -- setup the tab listing
 	self:SetupPanels() -- fill the tab listing
 
-	local listFrame = CreateFrame("ScrollFrame", "oRA3ListFrame", contentFrame)
+	local listFrame = CreateFrame("Frame", "oRA3ListFrame", contentFrame)
 	listFrame:SetAllPoints(contentFrame)
 	
 	-- Scrolling body
@@ -700,13 +700,6 @@ function addon:SetupGUI()
 	sframe:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -26, -25)
 	contentFrame.scrollFrame = sframe
 	contentFrame.listFrame = listFrame
-	local function updateScroll()
-		self:UpdateScrollContents()
-	end
-	
-	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updateScroll)
-	end)
 
 	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", listFrame)
 	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
@@ -1228,7 +1221,7 @@ function hideLists()
 		f:Hide()
 	end
 	contentFrame.listFrame:Hide()
-	contentFrame.scrollFrame:Hide()
+	-- contentFrame.scrollFrame:Hide()
 end
 
 
