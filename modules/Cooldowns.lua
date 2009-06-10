@@ -341,14 +341,18 @@ do
 		db.barTexture = list[value]
 		restyleBars()
 	end
-
+	local function alignChanged(widget, event, value)
+		db.barLabelAlign = value
+		restyleBars()
+	end
+	
 	local plainFrame = nil
 	local function show()
 		if not plainFrame then
 			plainFrame = CreateFrame("Frame", nil, UIParent)
 			local f = plainFrame
 			f:SetWidth(240)
-			f:SetHeight(300)
+			f:SetHeight(348)
 			f:SetPoint("CENTER", UIParent, "CENTER")
 			f:SetMovable(true)
 			f:EnableMouse(true)
@@ -498,6 +502,13 @@ do
 			tex:SetLabel(L["Texture"])
 			tex:SetCallback("OnValueChanged", textureChanged)
 			tex:SetFullWidth(true)
+			
+			local align = AceGUI:Create("Dropdown")
+			align:SetList( { ["LEFT"] = L["Left"], ["CENTER"] = L["Center"], ["RIGHT"] = L["Right"] } )
+			align:SetValue( db.barLabelAlign )
+			align:SetLabel(L["Label Align"])
+			align:SetCallback("OnValueChanged", alignChanged)
+			align:SetFullWidth(true)
 
 			local header = AceGUI:Create("Heading")
 			header:SetText(L["Show"])
@@ -538,7 +549,7 @@ do
 			short:SetCallback("OnValueChanged", toggleChanged)
 			--short:SetRelativeWidth(0.5)
 			
-			frame:AddChildren(test, classColor, picker, height, scale, tex, header, icon, duration, unit, spell, short)
+			frame:AddChildren(test, classColor, picker, height, scale, tex, align, header, icon, duration, unit, spell, short)
 			frame.frame:Show()
 		end
 		plainFrame:Show()
@@ -615,6 +626,7 @@ do
 		else
 			bar:SetLabel()
 		end
+		bar.candyBarLabel:SetJustifyH(db.barLabelAlign)
 		if db.barClassColor then
 			local c = RAID_CLASS_COLORS[bar:Get("ora3cd:unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
@@ -839,6 +851,7 @@ function module:OnRegister()
 			barShowUnit = true,
 			barShowSpell = true,
 			barClassColor = true,
+			barLabelAlign = "CENTER",
 			barColor = { 0.25, 0.33, 0.68, 1 },
 			barTexture = "oRA3",
 		},
