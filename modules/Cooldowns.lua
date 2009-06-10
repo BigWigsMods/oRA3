@@ -119,6 +119,7 @@ local spells = {
 		[51271] = 120, -- Unbreakable Armor
 		[55233] = 120, -- Vampiric Blood
 		[49222] = 120, -- Bone Shield
+		[47528] = 10, -- Mind Freeze
 	},
 }
 
