@@ -22,6 +22,9 @@ L["SHAMAN"] = "Schamane"
 L["ROGUE"] = "Schurke"
 L["DEATHKNIGHT"] = "Todesritter"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Einige permanente Optionen können hier verändert werden. Alle akuten Dinge werden aber im Schlachtzugsfenster behandelt."
+
 -- Ready check module
 L["The following players are not ready: %s"] = "Die folgenden Spieler sind nicht bereit: %s"
 L["Ready Check (%d seconds)"] = "Bereitschaftscheck (%d Sekunden)"
@@ -29,6 +32,11 @@ L["Ready"] = "Bereit"
 L["Not Ready"] = "Nicht bereit"
 L["No Response"] = "Keine Antwort"
 L["Offline"] = "Offline"
+L["Play a sound when a ready check is performed."] = "Sound abspielen, wenn ein Bereitschaftscheck durchgeführt wird."
+L["GUI"] = "GUI"
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "Zeigt die oRA3 Bereitschaftscheck GUI, wenn ein Bereitschaftscheck durchgeführt wird."
+L["Auto Hide"] = "Auto-Verstecken"
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Versteckt die oRA3 Bereitschaftscheck GUI automatisch, wenn ein Bereitschaftscheck durchgelaufen ist."
 
 -- Durability module
 L["Durability"] = "Haltbarkeit"
@@ -84,7 +92,7 @@ L["Cooldowns"] = "Cooldowns"
 L["Monitor settings"] = "Einstellungen der Anzeige"
 L["Show monitor"] = "Anzeige einschalten"
 L["Lock monitor"] = "Anzeige sperren"
-L["Show or hide the cooldown bar display in the game world."] = "Zeigt oder versteckt die Anzeige der Cooldowns in der Spielwelt."
+L["Show or hide the cooldown bar display in the game world."] = "Schaltet die Anzeige der Cooldowns in der Spielwelt ein oder aus."
 L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = "Beachte, dass das Sperren der Anzeige den Titel versteckt und die Möglichkeiten entfernt, die Größe zu ändern, die Anzeige zu bewegen oder die Leistenoptionen aufzurufen."
 L["Only show my own spells"] = "Nur eigene Zaubersprüche anzeigen"
 L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."] = "Entscheidet, ob nur eigene Abklingzeiten angezeigt werden sollen. Funktioniert wie ein normales Addon zur Anzeige eigener Cooldowns."
@@ -93,6 +101,7 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = "Klasse wählen"
 L["Never show my own spells"] = "Niemals eigene Zaubersprüche anzeigen"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Entscheidet, ob nur die Abklingzeiten anderer Spieler angezeigt werden sollen. Nützlich, wenn Du z.B. zur Anzeige deiner Cooldowns ein anderes Addon nutzt."
+
 -- monitor
 L["Right-Click me for options!"] = "Rechts-klicken für Optionen!"
 L["Bar Settings"] = "Leisteneinstellungen"
@@ -107,9 +116,16 @@ L["Duration"] = "Dauer"
 L["Unit name"] = "Spielername"
 L["Spell name"] = "Zauberspruch"
 L["Short Spell name"] = "Zauberspruch abkürzen"
+L["Label Align"] = "Textausrichtung"
+L["Left"] = "Links"
+L["Right"] = "Rechts"
+L["Center"] = "Mittig"
 
 -- Zone module
 L["Zone"] = "Zone"
 
 -- Version module
 L["Version"] = "Version"
+
+-- Loot module
+L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst zum Plündermeister zu machen."
