@@ -308,8 +308,7 @@ function addon:InParty()
 end
 
 function actuallyDisband()
-	if not addon:IsPromoted() then return end
-	if addon:InRaid() or addon:InParty() then
+	if addon:IsPromoted() then
 		local pName = UnitName("player")
 		SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
 		if addon:InRaid() then
