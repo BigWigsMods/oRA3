@@ -599,23 +599,23 @@ do
 	
 	local function restyleBar(bar)
 		bar:SetHeight(db.barHeight)
-		bar:SetIcon(db.barShowIcon and bar:Get("icon") or nil)
+		bar:SetIcon(db.barShowIcon and bar:Get("ora3cd:icon") or nil)
 		bar:SetTimeVisibility(db.barShowDuration)
 		bar:SetScale(db.barScale)
 		bar:SetTexture(media:Fetch(mType, db.barTexture))
-		local spell = bar:Get("spell")
+		local spell = bar:Get("ora3cd:spell")
 		if db.barShorthand then spell = shorts[spell] end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
-			bar:SetLabel(("%s: %s"):format(bar:Get("unit"), spell))
+			bar:SetLabel(("%s: %s"):format(bar:Get("ora3cd:unit"), spell))
 		elseif db.barShowSpell then
 			bar:SetLabel(spell)
 		elseif db.barShowUnit and not db.onlyShowMine then
-			bar:SetLabel(bar:Get("unit"))
+			bar:SetLabel(bar:Get("ora3cd:unit"))
 		else
 			bar:SetLabel()
 		end
 		if db.barClassColor then
-			local c = RAID_CLASS_COLORS[bar:Get("unitclass")]
+			local c = RAID_CLASS_COLORS[bar:Get("ora3cd:unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
 		else
 			bar:SetColor(unpack(db.barColor))
@@ -790,12 +790,21 @@ do
 	setupCooldownDisplay = setup
 	
 	local function start(unit, id, name, icon, duration)
-		local bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", display:GetWidth(), db.barHeight)
+		local bar
+		for b, v in pairs(visibleBars) do
+			if b:Get("ora3cd:unit") == unit and b:Get("ora3cd:spell") == name then
+				bar = b
+				break;
+			end
+		end
+		if not bar then
+			bar = candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", display:GetWidth(), db.barHeight)
+		end
 		visibleBars[bar] = true
-		bar:Set("unitclass", classLookup[id])
-		bar:Set("unit", unit)
-		bar:Set("spell", name)
-		bar:Set("icon", icon)
+		bar:Set("ora3cd:unitclass", classLookup[id])
+		bar:Set("ora3cd:unit", unit)
+		bar:Set("ora3cd:spell", name)
+		bar:Set("ora3cd:icon", icon)
 		bar:SetDuration(duration)
 		restyleBar(bar)
 		bar:Start()
