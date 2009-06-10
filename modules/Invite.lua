@@ -200,7 +200,12 @@ end
 local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
-	if not frame or not IsInGuild() then return end
+	if not frame then return end
+	if not IsInGuild() then
+		frame:ResumeLayout()
+		frame:DoLayout()
+		return
+	end
 	frame:PauseLayout()
 	local i = 1
 	while (i <= #frame.children) do
