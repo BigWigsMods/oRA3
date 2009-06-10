@@ -114,6 +114,10 @@ L["Duration"] = "時間"
 L["Unit name"] = "名字"
 L["Spell name"] = "技能"
 L["Short Spell name"] = "技能縮寫"
+L["Label Align"] = "標記對齊"
+L["Left"] = "左"
+L["Right"] = "右"
+L["Center"] = "中"
 
 -- Zone module
 L["Zone"] = "區域"
