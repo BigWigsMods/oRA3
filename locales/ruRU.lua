@@ -21,6 +21,9 @@ L["SHAMAN"] = "Шаман"
 L["ROGUE"] = "Разбойник"
 L["DEATHKNIGHT"] = "Рыцарь смерти"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Вы здесь можете настроить некоторые опции. Все остальные действия выполняются с панели окна рейда."
+
 -- Ready check module
 L["The following players are not ready: %s"] = "Следующие игроки не готовы: %s"
 L["Ready Check (%d seconds)"] = "Проверка готовности (%d секунд)"
@@ -28,6 +31,11 @@ L["Ready"] = "Готов"
 L["Not Ready"] = "Не готов"
 L["No Response"] = "Нет ответа"
 L["Offline"] = "Вышел из сети"
+L["Play a sound when a ready check is performed."] = "Проиграть звук при выполнении проверги готовности."
+L["GUI"] = "Интерфейс"
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "Показать интерфейс проверки готовности oRA3 при выполнении проверки."
+L["Auto Hide"] = "Авто скрытие"
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Автоматически скрывать интерфейс проверки готовности oRA3 после завершения проверки."
 
 -- Durability module
 L["Durability"] = "Прочность"
@@ -93,7 +101,7 @@ L["Select class"] = "Выберите класс"
 L["Never show my own spells"] = "Не показывать мои способности"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Отключает отображение перезарядки ваших способностей. К примеру если для отображения перезарядок ваших способностей вы используете другой аддон."
 -- monitor
-L["Right-Click me for options!"] = "нажмите [Правый-клик] для настройки."
+L["Right-Click me for options!"] = "[Правый-клик] открывает настройки."
 L["Bar Settings"] = "Настройка панели"
 L["Spawn test bar"] = "Запустить тест панель"
 L["Use class color"] = "Окраска класса"
@@ -106,9 +114,16 @@ L["Duration"] = "Длительность"
 L["Unit name"] = "Персонаж"
 L["Spell name"] = "Заклинание"
 L["Short Spell name"] = "Сокр. заклинание"
+L["Label Align"] = "Выравнивать"
+L["Left"] = "Влева"
+L["Right"] = "Вправа"
+L["Center"] = "По центру"
 
 -- Zone module
 L["Zone"] = "Зона"
 
 -- Version module
 L["Version"] = "Версия"
+
+-- Loot module
+ L["Leave empty to make yourself Master Looter."] = "Оставьте пустыми чтобы сделать себя ответственным за добычу."
