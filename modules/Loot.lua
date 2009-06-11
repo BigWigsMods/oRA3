@@ -36,11 +36,11 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 function module:SetLoot()
-	if oRA:IsPromoted() and ( IsRaidLeader() or oRA.groupStatus == oRA.INPARTY ) then
+	if oRA:IsPromoted() and ( IsRaidLeader() or oRA:InParty() ) then
 		local method = db.raid.method
 		local threshold = db.raid.threshold
 		local master = db.raid.master
-		if oRA.INPARTY then
+		if oRA:InParty() then
 			method = db.party.method
 			threshold = db.party.threshold
 			master = db.party.master
