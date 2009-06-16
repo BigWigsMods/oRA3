@@ -46,6 +46,8 @@ function module:SetLoot()
 			master = db.party.master
 		end
 		if not master then master = UnitName("player") end
+		local current = GetLootMethod()
+		if current and current == method then return end
 		SetLootMethod(method, master, threshold)
 		if method == "master" or method == "group" then
 			frame.threshold = threshold
@@ -139,3 +141,4 @@ function module:GetOptions()
 	}
 	return options
 end
+
