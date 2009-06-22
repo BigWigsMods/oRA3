@@ -993,7 +993,7 @@ function module:UpdateCooldownModifiers()
 		addMod(12051, rank * 60)
 		if rank > 0 then
 			local percent = rank * 15
-			local currentCD = getCooldown(66)
+			local currentCd = getCooldown(66)
 			addMod(66, (currentCd * percent) / 100)
 		end
 	elseif playerClass == "PRIEST" then
