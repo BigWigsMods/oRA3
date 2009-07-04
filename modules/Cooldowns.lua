@@ -172,7 +172,7 @@ do
 	local function spellCheckboxCallback(widget, event, value)
 		local id = widget:GetUserData("id")
 		if not id then return end
-		db.spells[id] = value and true or nil
+		db.spells[id] = value and true or false
 	end
 
 	local function dropdownGroupCallback(widget, event, key)
@@ -870,16 +870,12 @@ function module:OnRegister()
 		if name then broadcastSpells[name] = spell end
 	end
 	
-	setupCooldownDisplay()
-	
-	oRA.RegisterCallback(self, "OnCommCooldown")
-	oRA.RegisterCallback(self, "OnStartup")
-	oRA.RegisterCallback(self, "OnShutdown")
-	
-	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 	if media then
 		media:Register(mType, "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
 	end
+	
+	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnShutdown")
 end
 
 do
@@ -909,6 +905,10 @@ local function getCooldown(spellId)
 end
 
 function module:OnEnable()
+	setupCooldownDisplay()
+	oRA.RegisterCallback(self, "OnCommCooldown")
+	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
+
 	--self:RegisterEvent("CHARACTER_POINTS_CHANGED", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:UpdateCooldownModifiers()
