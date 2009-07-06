@@ -717,8 +717,11 @@ function addon:SetupGUI()
 	sframetop:SetBackdropBorderColor(.8, .8, .8)
 	sframetop:SetBackdropColor(0,0,0,0)
 
+	
+	local function updScroll() addon:UpdateScroll() end
+	
 	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, function() addon:UpdateScroll() end )
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updScroll )
 	end)
 
 	local function resizebg(frame)
