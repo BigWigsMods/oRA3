@@ -176,7 +176,7 @@ function module:UpdateGUI()
 	topnum = 0
 	if oRA:InRaid() then
 		num = GetNumRaidMembers()
-		local diff = GetCurrentDungeonDifficulty()
+		local diff = GetInstanceDifficulty()
 		local highgroup = 8 -- 40 man it
 		if diff and diff == 1 then -- normal
 			highgroup = 2
