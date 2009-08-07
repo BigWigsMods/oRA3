@@ -36,7 +36,7 @@ local glyphCooldowns = {
 local spells = {
 	DRUID = {
 		[26994] = 1200, -- Rebirth
-		[29166] = 360, -- Innervate
+		[29166] = 180, -- Innervate
 		[17116] = 180, -- Nature's Swiftness
 		[5209] = 180, -- Challenging Roar
 	},
