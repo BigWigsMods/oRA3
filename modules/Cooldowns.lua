@@ -139,7 +139,7 @@ do
 		hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
 	end
 	for class in pairs(spells) do
-		classes[class] = hexColors[class] .. L[class] .. "|r"
+		classes[class] = hexColors[class] .. LOCALIZED_CLASS_NAMES_MALE[class] .. "|r"
 	end
 	wipe(hexColors)
 	hexColors = nil

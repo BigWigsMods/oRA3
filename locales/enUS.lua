@@ -9,17 +9,6 @@ L["<oRA3> Disbanding group."] = true
 L["Click to open/close oRA3"] = true
 L["Unknown"] = true
 
-L["WARLOCK"] = "Warlock"
-L["WARRIOR"] = "Warrior"
-L["HUNTER"] = "Hunter"
-L["MAGE"] = "Mage"
-L["PRIEST"] = "Priest"
-L["DRUID"] = "Druid"
-L["PALADIN"] = "Paladin"
-L["SHAMAN"] = "Shaman"
-L["ROGUE"] = "Rogue"
-L["DEATHKNIGHT"] = "Death Knight"
-
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = true
 

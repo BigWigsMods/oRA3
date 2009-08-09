@@ -10,17 +10,6 @@ L["<oRA3> Disbanding group."] = "<oRA3>正在解散团队"
 L["Click to open/close oRA3"] = "打开/关闭 oRA3"
 L["Unknown"] = "未知"
 
-L["WARLOCK"] = "术士"
-L["WARRIOR"] = "战士"
-L["HUNTER"] = "猎人"
-L["MAGE"] = "法师"
-L["PRIEST"] = "牧师"
-L["DRUID"] = "德鲁伊"
-L["PALADIN"] = "圣骑士"
-L["SHAMAN"] = "萨满祭司"
-L["ROGUE"] = "潜行者"
-L["DEATHKNIGHT"] = "死亡骑士"
-
 -- Ready check module
 L["The following players are not ready: %s"] = "下列队员未准备好:%s"
 L["Ready check over in %d seconds"] = "就位确认还有%d秒结束"

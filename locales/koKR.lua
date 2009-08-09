@@ -10,17 +10,6 @@ L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
 L["Click to open/close oRA3"] = "클릭 - oRA3 열기/닫기"
 L["Unknown"] = "알수 없음"
 
-L["WARLOCK"] = "흑마법사"
-L["WARRIOR"] = "전사"
-L["HUNTER"] = "사냥꾼"
-L["MAGE"] = "마법사"
-L["PRIEST"] = "사제"
-L["DRUID"] = "드루이드"
-L["PALADIN"] = "성기사"
-L["SHAMAN"] = "주술사"
-L["ROGUE"] = "도적"
-L["DEATHKNIGHT"] = "죽음의 기사"
-
 -- Ready check module
 L["The following players are not ready: %s"] = "준비가 되지 않은 플레이어: %s"
 L["Ready check over in %d seconds"] = "%d 초 이내에 준비 확인 종료"

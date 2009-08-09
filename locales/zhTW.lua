@@ -9,18 +9,6 @@ L["Options"] = "選項"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散團隊"
 L["Click to open/close oRA3"] = "打開/關閉 oRA3"
 L["Unknown"] = "未知"
-
-L["WARLOCK"] = "術士"
-L["WARRIOR"] = "戰士"
-L["HUNTER"] = "獵人"
-L["MAGE"] = "法師"
-L["PRIEST"] = "牧師"
-L["DRUID"] = "德魯伊"
-L["PALADIN"] = "聖騎士"
-L["SHAMAN"] = "薩滿"
-L["ROGUE"] = "盜賊"
-L["DEATHKNIGHT"] = "死亡騎士"
-
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這做一些設定。所有的實際動作從團隊框架面板中完成。"
 

@@ -10,17 +10,6 @@ L["<oRA3> Disbanding group."] = "<oRA3> группа распущена."
 L["Click to open/close oRA3"] = "Кликните чтобы открыть/закрыть oRA3"
 L["Unknown"] = "Неизвестно"
 
-L["WARLOCK"] = "Чернокнижник"
-L["WARRIOR"] = "Воин"
-L["HUNTER"] = "Охотник"
-L["MAGE"] = "Маг"
-L["PRIEST"] = "Жрец"
-L["DRUID"] = "Друид"
-L["PALADIN"] = "Паладин"
-L["SHAMAN"] = "Шаман"
-L["ROGUE"] = "Разбойник"
-L["DEATHKNIGHT"] = "Рыцарь смерти"
-
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Вы здесь можете настроить некоторые опции. Все остальные действия выполняются с панели окна рейда."
 
