@@ -1,5 +1,5 @@
 
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceHook-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon -- Debug
 
@@ -114,9 +114,6 @@ local function giveOptions()
 	return options
 end
 
-
-
-
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
 	db = self.db.profile
@@ -146,6 +143,25 @@ function addon:OnEnable()
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
+	
+	self:HookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
+	self:HookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
+end
+
+do
+	local wasOpen = nil
+	function addon:RaidInfoClosed()
+		if not wasOpen then return end
+		db.open = true
+		self:UpdateFrameStatus()
+	end
+
+	function addon:RaidInfoOpened()
+		wasOpen = oRA3FrameSub:IsShown()
+		if not wasOpen then return end
+		db.open = false
+		self:UpdateFrameStatus()
+	end
 end
 
 function addon:OnDisable()
