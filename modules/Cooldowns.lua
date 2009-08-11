@@ -744,6 +744,10 @@ do
 	end
 
 	local function setup()
+		if display then
+			showDisplay()
+			return
+		end
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
 		display:SetMinResize(100, 20)
 		display:SetWidth(200)
@@ -876,6 +880,7 @@ function module:OnRegister()
 	
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 end
 
 do
@@ -904,18 +909,12 @@ local function getCooldown(spellId)
 	return cd
 end
 
-function module:OnEnable()
+function module:OnStartup()
 	setupCooldownDisplay()
 	oRA.RegisterCallback(self, "OnCommCooldown")
-	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
-
-	--self:RegisterEvent("CHARACTER_POINTS_CHANGED", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
-	self:UpdateCooldownModifiers()
-end
-
-function module:OnStartup()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:UpdateCooldownModifiers()
 	if playerClass == "SHAMAN" then
 		local resTime = GetTime()
 		local ankhs = GetItemCount(17030)
@@ -934,6 +933,8 @@ function module:OnStartup()
 end
 
 function module:OnShutdown()
+	hideDisplay()
+	oRA.UnregisterCallback(self, "OnCommCooldown")
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 
