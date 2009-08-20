@@ -721,18 +721,41 @@ function addon:SetupGUI()
 	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
 	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
 	sframebottom:SetFrameLevel(contentFrame:GetFrameLevel())
-	sframebottom:SetBackdrop(backdrop)
-	sframebottom:SetBackdropBorderColor(.8, .8, .8)
-	sframebottom:SetBackdropColor(0,0,0,0)
+	--sframebottom:SetBackdrop(backdrop)
+	--sframebottom:SetBackdropBorderColor(.8, .8, .8)
+	--sframebottom:SetBackdropColor(0,0,0,0)
+
+	local bar = CreateFrame("Button", nil, sframebottom )
+	sframebottom.bar = bar
+	bar:Show()
+	bar:SetPoint("TOPLEFT", sframebottom, "TOPLEFT", 3, 2)
+	bar:SetPoint("TOPRIGHT", sframebottom, "TOPRIGHT", -4, 2)
+	bar:SetHeight(8)
+
+	local barmiddle = bar:CreateTexture(nil, "BORDER")
+	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetAllPoints(bar)
+	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 	
 	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", listFrame)
 	sframetop:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
 	sframetop:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, 0)
 	sframetop:SetHeight(27)
-	sframetop:SetBackdrop(backdrop)
-	sframetop:SetBackdropBorderColor(.8, .8, .8)
-	sframetop:SetBackdropColor(0,0,0,0)
+	--sframetop:SetBackdrop(backdrop)
+	--sframetop:SetBackdropBorderColor(.8, .8, .8)
+	--sframetop:SetBackdropColor(0,0,0,0)
 
+	bar = CreateFrame("Button", nil, sframetop )
+	sframetop.bar = bar
+	bar:Show()
+	bar:SetPoint("BOTTOMLEFT", sframetop, "BOTTOMLEFT", 3, -2)
+	bar:SetPoint("BOTTOMRIGHT", sframetop, "BOTTOMRIGHT", -4, -2)
+	bar:SetHeight(8)
+
+	barmiddle = bar:CreateTexture(nil, "BORDER")
+	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetAllPoints(bar)
+	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 	
 	local function updScroll() addon:UpdateScroll() end
 	
