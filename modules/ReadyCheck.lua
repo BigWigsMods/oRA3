@@ -214,7 +214,7 @@ function module:UpdateGUI()
 	local yoff = ((math.ceil(topnum/2)*14) + 37) * -1
 	frame.bar:ClearAllPoints()
 	frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
-	frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, yoff)
+	frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, yoff)
 
 	if bottomnum == 0 then
 		frame.bar:Hide()
@@ -344,7 +344,7 @@ function module:SetupGUI()
 	frame.bar = bar
 	bar:Show()
 	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -150)
-	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -150)
+	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -150)
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
