@@ -122,8 +122,8 @@ local function OnLeave(this)
 	this.highlight:Hide()
 end
 
-local function CreateButton( name, parent)
-		local frame = CreateFrame("Button", name, parent)
+local function CreateButton( name, parent, template)
+		local frame = CreateFrame("Button", name, parent, template)
 		frame:SetWidth(16)
 		frame:SetHeight(16)
 		frame:EnableMouse(true)
@@ -223,11 +223,12 @@ function module:CreateFrame()
 			module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
 		end)
-		topscrolls[i].tankbutton = CreateButton("oRA3TankTopScrollTank"..i, topscrolls[i])
+		topscrolls[i].tankbutton = CreateButton("oRA3TankTopScrollTank"..i, topscrolls[i], "SecureActionButtonTemplate")
 		topscrolls[i].tankbutton:SetPoint("TOPRIGHT", topscrolls[i].deletebutton, "TOPLEFT", -2, 0)
 		topscrolls[i].tankbutton.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
 		topscrolls[i].tankbutton.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-		topscrolls[i].tankbutton:EnableMouse(false)
+		topscrolls[i].tankbutton:SetAttribute("type", "maintank")
+		topscrolls[i].tankbutton:SetAttribute("action", "toggle")
 		
 		topscrolls[i].downbutton = CreateButton("oRA3TankTopScrollDown"..i, topscrolls[i])
 		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
@@ -339,6 +340,7 @@ function module:UpdateTopScroll()
 				topscrolls[i].deletebutton:EnableMouse(true)
 			end
 			topscrolls[i].unitName = list[j]
+			topscrolls[i].tankbutton:SetAttribute("unit", list[j])
 			topscrolls[i].nametext:SetText(oRA.coloredNames[list[j]])
 			topscrolls[i]:Show()
 		else
