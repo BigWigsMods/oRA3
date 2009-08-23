@@ -745,7 +745,7 @@ do
 
 	local function setup()
 		if display then
-			showDisplay()
+			if db.showDisplay then showDisplay() end
 			return
 		end
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
