@@ -233,6 +233,7 @@ function module:CreateFrame()
 		topscrolls[i].downbutton.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
 		topscrolls[i].downbutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 		topscrolls[i].downbutton:SetScript("OnClick", function(self)
+			if self.disabled then return end
 			local value = topscrolls[i].unitName
 			local k = util:inTable( module.db.persistentTanks, value)
 			local temp = module.db.persistentTanks[k]
@@ -247,6 +248,7 @@ function module:CreateFrame()
 		topscrolls[i].upbutton.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up")
 		topscrolls[i].upbutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 		topscrolls[i].upbutton:SetScript("OnClick", function(self)
+			if self.disabled then return end
 			local value = topscrolls[i].unitName
 			local k = util:inTable( module.db.persistentTanks, value)
 			local temp = module.db.persistentTanks[k]
@@ -311,13 +313,17 @@ function module:UpdateTopScroll()
 		if j <= nr then
 			if j == 1 then
 				topscrolls[i].upbutton:SetAlpha(.3)
+				topscrolls[i].upbutton.disabled = true
 			else
 				topscrolls[i].upbutton:SetAlpha(1)
+				topscrolls[i].upbutton.disabled = nil
 			end
 			if j == nr then
 				topscrolls[i].downbutton:SetAlpha(.3)
+				topscrolls[i].downbutton.disabled = true
 			else
 				topscrolls[i].downbutton:SetAlpha(1)
+				topscrolls[i].downbutton.disabled = nil
 			end
 			if util:inTable( btanks, list[j]) then
 				topscrolls[i].tankbutton:SetAlpha(1)
