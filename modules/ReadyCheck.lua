@@ -344,7 +344,7 @@ function module:SetupGUI()
 	frame.bar = bar
 	bar:Show()
 	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -150)
-	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -150)
+	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -150)
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
