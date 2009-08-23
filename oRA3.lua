@@ -270,7 +270,7 @@ do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
 				if n then
 					table.insert(tmpGroup, n)
-					if role == "maintank" then
+					if role == "MAINTANK" then
 						table.insert(tmpTanks, n)
 					end
 				end

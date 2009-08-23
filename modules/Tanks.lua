@@ -194,7 +194,7 @@ function module:CreateFrame()
 	for i = 1, 10 do
 		topscrolls[i] = CreateFrame("Button", nil, frame)
 		topscrolls[i]:SetHeight(16)
-		topscrolls[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+		-- topscrolls[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
 		if i == 1 then
 			topscrolls[i]:SetPoint("TOPLEFT", frame.topscroll, "TOPLEFT")
 			topscrolls[i]:SetPoint("TOPRIGHT", frame.topscroll, "TOPRIGHT")
@@ -268,6 +268,7 @@ function module:CreateFrame()
 			if util:inTable( module.db.persistentTanks, value) then return true end
 			table.insert(module.db.persistentTanks, value)
 			namedPersistent[value] = true
+			namedTanks[value] =true
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
 		end)
 		if i == 1 then
@@ -313,24 +314,28 @@ function module:UpdateTopScroll()
 		if j <= nr then
 			if j == 1 then
 				topscrolls[i].upbutton:SetAlpha(.3)
-				topscrolls[i].upbutton.disabled = true
+				topscrolls[i].upbutton:EnableMouse(false)
 			else
 				topscrolls[i].upbutton:SetAlpha(1)
-				topscrolls[i].upbutton.disabled = nil
+				topscrolls[i].upbutton:EnableMouse(true)
 			end
 			if j == nr then
 				topscrolls[i].downbutton:SetAlpha(.3)
-				topscrolls[i].downbutton.disabled = true
+				topscrolls[i].downbutton:EnableMouse(false)
 			else
 				topscrolls[i].downbutton:SetAlpha(1)
-				topscrolls[i].downbutton.disabled = nil
+				topscrolls[i].downbutton:EnableMouse(true)
 			end
 			if util:inTable( btanks, list[j]) then
 				topscrolls[i].tankbutton:SetAlpha(1)
+				topscrolls[i].tankbutton:EnableMouse(true)
 				topscrolls[i].deletebutton:SetAlpha(.3)
+				topscrolls[i].deletebutton:EnableMouse(false)
 			else
 				topscrolls[i].tankbutton:SetAlpha(.3)
+				topscrolls[i].tankbutton:EnableMouse(false)
 				topscrolls[i].deletebutton:SetAlpha(1)
+				topscrolls[i].deletebutton:EnableMouse(true)
 			end
 			topscrolls[i].unitName = list[j]
 			topscrolls[i].nametext:SetText(oRA.coloredNames[list[j]])
