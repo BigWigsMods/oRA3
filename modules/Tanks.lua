@@ -211,6 +211,8 @@ function module:CreateFrame()
 		topscrolls[i].deletebutton.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
 		topscrolls[i].deletebutton:SetScript("OnClick", function(self)
 			local value = topscrolls[i].unitName
+			local btanks = oRA:GetBlizzardTanks()
+			if util:inTable( btanks, value) then return end
 			for k, v in ipairs(module.db.persistentTanks) do
 				if v == value then
 					table.remove(module.db.persistentTanks, k)
@@ -319,8 +321,10 @@ function module:UpdateTopScroll()
 			end
 			if util:inTable( btanks, list[j]) then
 				topscrolls[i].tankbutton:SetAlpha(1)
+				topscrolls[i].deletebutton:SetAlpha(.3)
 			else
 				topscrolls[i].tankbutton:SetAlpha(.3)
+				topscrolls[i].deletebutton:SetAlpha(1)
 			end
 			topscrolls[i].unitName = list[j]
 			topscrolls[i].nametext:SetText(oRA.coloredNames[list[j]])
