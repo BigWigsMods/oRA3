@@ -227,6 +227,7 @@ function module:CreateFrame()
 		topscrolls[i].tankbutton:SetPoint("TOPRIGHT", topscrolls[i].deletebutton, "TOPLEFT", -2, 0)
 		topscrolls[i].tankbutton.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
 		topscrolls[i].tankbutton.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		topscrolls[i].tankbutton:EnableMouse(false)
 		
 		topscrolls[i].downbutton = CreateButton("oRA3TankTopScrollDown"..i, topscrolls[i])
 		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
@@ -328,12 +329,12 @@ function module:UpdateTopScroll()
 			end
 			if util:inTable( btanks, list[j]) then
 				topscrolls[i].tankbutton:SetAlpha(1)
-				topscrolls[i].tankbutton:EnableMouse(true)
+				--topscrolls[i].tankbutton:EnableMouse(true)
 				topscrolls[i].deletebutton:SetAlpha(.3)
 				topscrolls[i].deletebutton:EnableMouse(false)
 			else
 				topscrolls[i].tankbutton:SetAlpha(.3)
-				topscrolls[i].tankbutton:EnableMouse(false)
+				--topscrolls[i].tankbutton:EnableMouse(false)
 				topscrolls[i].deletebutton:SetAlpha(1)
 				topscrolls[i].deletebutton:EnableMouse(true)
 			end
