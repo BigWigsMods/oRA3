@@ -392,7 +392,7 @@ end
 -- Comm handling
 
 function addon:SendComm( ... )
-	if groupStatus == UNGROUPED then return end
+	if groupStatus == UNGROUPED or UnitInBattleground("player") then return end
 	self:SendCommMessage("oRA3", self:Serialize(...), "RAID") -- we always send to raid, blizzard will default to party if you're in a party
 end
 
@@ -728,8 +728,8 @@ function addon:SetupGUI()
 	local bar = CreateFrame("Button", nil, sframebottom )
 	sframebottom.bar = bar
 	bar:Show()
-	bar:SetPoint("TOPLEFT", sframebottom, "TOPLEFT", 3, 2)
-	bar:SetPoint("TOPRIGHT", sframebottom, "TOPRIGHT", -4, 2)
+	bar:SetPoint("TOPLEFT", sframebottom, "TOPLEFT", 3, 3)
+	bar:SetPoint("TOPRIGHT", sframebottom, "TOPRIGHT", -4, 3)
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")

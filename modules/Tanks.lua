@@ -11,17 +11,19 @@ local indexedTanks = {}
 local namedTanks = {}
 local tmpTanks = {}
 local namedPersistent = {}
+local topscrolls = {}
+local bottomscrolls = {}
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
-	oRA:SetAllPointsToPanel(frame.frame)
-	frame.frame:Show()
+	oRA:SetAllPointsToPanel(frame)
+	frame:Show()
+	module:UpdateScrolls()
 end
 
 local function hideConfig()
 	if frame then
-		frame:Release()
-		frame = nil
+		frame:Hide()
 	end
 end
 
@@ -46,17 +48,17 @@ end
 
 local function sortTanks()
 	wipe(indexedTanks)
-	-- FIXME: use the true sorted tanks based on config
-	for tank, v in pairs(namedTanks) do 
-		table.insert(indexedTanks, tank)
+	for k, tank in ipairs(module.db.persistentTanks) do
+		if namedTanks[tank] then
+			table.insert(indexedTanks, tank)
+		end
 	end
 	if oRA.groupStatus == oRA.INRAID then
 		oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
 	end
 end
 
-function module:OnGroupChanged(event, status, members)
-	local updateSort = nil
+function module:OnGroupChanged(event, status, members, updateSort)
 	if status == oRA.INRAID then
 		wipe(tmpTanks)
 		for tank, v in pairs(namedTanks) do
@@ -78,17 +80,21 @@ function module:OnGroupChanged(event, status, members)
 		if updateSort then
 			sortTanks()
 		end
+		if frame and frame:IsVisible() then
+			self:UpdateScrolls()
+		end
 	end
 end
 
-function module:OnTanksChanged(event, tanks)
-	local updateSort = nil
+function module:OnTanksChanged(event, tanks, updateSort)
 	wipe(tmpTanks)
 	for tank, v in pairs(namedTanks) do
 		tmpTanks[tank] = v
 	end
 	for k, tank in ipairs(tanks) do
 		if not namedTanks[tank] then
+			table.insert(module.db.persistentTanks, tank)
+			namedPersistent[tank] = true
 			updateSort = true
 			namedTanks[tank] = true
 		end
@@ -103,102 +109,248 @@ function module:OnTanksChanged(event, tanks)
 	if updateSort then
 		sortTanks()
 	end
+	if frame and frame:IsVisible() then
+		self:UpdateScrolls()
+	end
 end
+
+local function OnEnter(this)
+	this.highlight:Show()
+end
+	
+local function OnLeave(this)
+	this.highlight:Hide()
+end
+
+local function CreateButton( name, parent)
+		local frame = CreateFrame("Button", name, parent)
+		frame:SetWidth(16)
+		frame:SetHeight(16)
+		frame:EnableMouse(true)
+		frame:SetScript("OnLeave", OnLeave)
+		frame:SetScript("OnEnter", OnEnter)
+		
+		
+		local image = frame:CreateTexture(nil,"BACKGROUND")
+		frame.icon = image
+		image:SetAllPoints(frame)
+		
+		local highlight = frame:CreateTexture(nil,"OVERLAY")
+		frame.highlight = highlight
+		highlight:SetAllPoints(frame)
+		highlight:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight")
+		highlight:SetTexCoord(0,1,0.23,0.77)
+		highlight:SetBlendMode("ADD")
+		highlight:Hide()
+		return frame
+end
+
 
 function module:CreateFrame()
 	if frame then return end
-	frame = AceGUI:Create("ScrollFrame")
-	frame:PauseLayout()
-	frame:SetLayout("Flow")
-	--[[
-		Persistent Tanks 
-			-- List of Personal Tanks
-			-- Sorting,
-				1. Alpha or Index
-				2. Asending/Descening
-				3. Groups i.e. dont show if the tank is in sub group 6-8 for instance
-				4. Group By Class/Role/Group
-	--]]
-	local persistentHeading = AceGUI:Create("Heading")
-	persistentHeading:SetText("Persistent tanks")
-	persistentHeading:SetFullWidth(true)
 	
-	local moduleDescription = AceGUI:Create("Label")
-	moduleDescription:SetText("Persistent tanks are players you always want present in the sort list. If they're made main tanks by anyone, you'll automatically sort them according to your own preference.")
-	moduleDescription:SetFullWidth(true)
-	moduleDescription:SetFontObject(GameFontHighlight)
+	frame = CreateFrame("Frame")
 
-	local add = AceGUI:Create("EditBox")
-	local delete = AceGUI:Create("Dropdown")
+	local bar = CreateFrame("Button", nil, frame )
+	frame.middlebar = bar
+	bar:Show()
+	bar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -5, 142)
+	bar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 142)
+	bar:SetHeight(8)
 
-	add:SetLabel(L["Add"])
-	add:SetText()
-	add:SetCallback("OnEnterPressed", function(widget, event, value)
-		if util:inTable( self.db.persistentTanks, value) then return true end
-		print(value)
-		table.insert(self.db.persistentTanks, value)
-		namedPersistent[value] = true
-		add:SetText()
-		delete:SetList(self.db.persistentTanks)
-		delete:SetDisabled(#self.db.persistentTanks < 1)
-		module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
-		module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
-	end)
-	add:SetRelativeWidth(0.5)
+	local barmiddle = bar:CreateTexture(nil, "BORDER")
+	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetAllPoints(bar)
+	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
+	
+	bar = CreateFrame("Button", nil, frame )
+	frame.topbar = bar
+	bar:Show()
+	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", -5, -42)
+	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -42)
+	bar:SetHeight(8)
 
-	delete:SetValue("")
-	delete:SetLabel(L["Remove"])
-	delete:SetList(self.db.persistentTanks)
-	delete:SetCallback("OnValueChanged", function(widget, event, value)
-		print(value)
-		table.remove(self.db.persistentTanks, value)
-		namedPersistent[value] = nil
-		delete:SetList(self.db.persistentTanks)
-		delete:SetValue("")
-		delete:SetDisabled(#self.db.persistentTanks < 1)
-		-- update
-		module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
-		module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
-	end)
-	delete:SetDisabled(#self.db.persistentTanks < 1)
-	delete:SetRelativeWidth(0.5)
+	barmiddle = bar:CreateTexture(nil, "BORDER")
+	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetAllPoints(bar)
+	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
-	local sort = AceGUI:Create("Heading")
-	sort:SetText("Sort")
-	sort:SetFullWidth(true)
+	frame.topscroll = CreateFrame("ScrollFrame", "oRA3TankTopScrollFrame", frame, "FauxScrollFrameTemplate")
+	frame.topscroll:SetPoint("TOPLEFT", frame.topbar, "BOTTOMLEFT", 4, 2)
+	frame.topscroll:SetPoint("BOTTOMRIGHT", frame.middlebar, "TOPRIGHT", -22, -2)
 
-	local box = AceGUI:Create("SimpleGroup")
-	box:SetLayout("Flow")
-	box:SetFullWidth(true)
+	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
+	frame.bottomscroll:SetPoint("TOPLEFT", frame.middlebar, "BOTTOMLEFT", 4, 2) 
+	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -22, 0)
+	
+	local help = frame:CreateFontString(nil, "ARTWORK")
+	help:SetFontObject(GameFontNormal)
+	help:SetPoint("TOPLEFT", 0, 0)
+	help:SetPoint("BOTTOMRIGHT", frame.topbar, "TOPRIGHT")
+	help:SetText("Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list.")
 
-	-- ZZZ Possibly use clickable labels instead? With a modifier key to move down,
-	-- ZZZ and default to moving up, or something like that.
-	local format = "%d. %s"
-	local i = 1
-	for name, class in pairs(oRA._testUnits) do
-		local up = AceGUI:Create("Icon")
-		up:SetImage("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up", 0.25, 0.75, 0.25, 0.75)
-		up:SetImageSize(16, 16)
-		up:SetWidth(20)
-		up:SetHeight(20)
-		local down = AceGUI:Create("Icon")
-		down:SetImage("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up", 0.25, 0.75, 0.25, 0.75)
-		down:SetImageSize(16, 16)
-		down:SetWidth(20)
-		down:SetHeight(20)
-		local label = AceGUI:Create("Label")
-		label:SetText(format:format(i, oRA.coloredNames[name]))
-		label:SetFontObject(GameFontHighlightLarge)
-		local spacer = AceGUI:Create("Label")
-		spacer:SetText("")
-		spacer:SetFullWidth(true)
-		box:AddChildren(up, down, label, spacer)
-		i = i + 1
+	-- 10 top
+	-- 9 bottom
+	for i = 1, 10 do
+		topscrolls[i] = CreateFrame("Button", nil, frame)
+		topscrolls[i]:SetHeight(16)
+		topscrolls[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+		if i == 1 then
+			topscrolls[i]:SetPoint("TOPLEFT", frame.topscroll, "TOPLEFT")
+			topscrolls[i]:SetPoint("TOPRIGHT", frame.topscroll, "TOPRIGHT")
+		else
+			topscrolls[i]:SetPoint("TOPLEFT", topscrolls[i-1], "BOTTOMLEFT")
+			topscrolls[i]:SetPoint("TOPRIGHT", topscrolls[i-1], "BOTTOMRIGHT")
+		end
+		topscrolls[i].nametext = oRA:CreateScrollEntry(topscrolls[i])
+		topscrolls[i].nametext:SetPoint("TOPLEFT", topscrolls[i], "TOPLEFT")
+		topscrolls[i].nametext:SetText(L["Name"])
+		
+		topscrolls[i].deletebutton = CreateButton("oRA3TankTopScrollDelete"..i, topscrolls[i])
+		topscrolls[i].deletebutton:SetPoint("TOPRIGHT", topscrolls[i], "TOPRIGHT")
+		topscrolls[i].deletebutton.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
+		topscrolls[i].deletebutton:SetScript("OnClick", function(self)
+			local value = topscrolls[i].unitName
+			for k, v in ipairs(module.db.persistentTanks) do
+				if v == value then
+					table.remove(module.db.persistentTanks, k)
+					break
+				end
+			end
+			namedPersistent[value] = nil
+			module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
+		end)
+		topscrolls[i].tankbutton = CreateButton("oRA3TankTopScrollTank"..i, topscrolls[i])
+		topscrolls[i].tankbutton:SetPoint("TOPRIGHT", topscrolls[i].deletebutton, "TOPLEFT", -2, 0)
+		topscrolls[i].tankbutton.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
+		topscrolls[i].tankbutton.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		
+		topscrolls[i].downbutton = CreateButton("oRA3TankTopScrollDown"..i, topscrolls[i])
+		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
+		topscrolls[i].downbutton.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
+		topscrolls[i].downbutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
+		topscrolls[i].downbutton:SetScript("OnClick", function(self)
+			local value = topscrolls[i].unitName
+			local k = util:inTable( module.db.persistentTanks, value)
+			local temp = module.db.persistentTanks[k]
+			module.db.persistentTanks[k] = module.db.persistentTanks[k+1]
+			module.db.persistentTanks[k+1] = temp
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
+		end)
+		
+		
+		topscrolls[i].upbutton = CreateButton("oRA3TankTopScrollUp"..i, topscrolls[i])
+		topscrolls[i].upbutton:SetPoint("TOPRIGHT", topscrolls[i].downbutton, "TOPLEFT", -2, 0)
+		topscrolls[i].upbutton.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up")
+		topscrolls[i].upbutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
+		topscrolls[i].upbutton:SetScript("OnClick", function(self)
+			local value = topscrolls[i].unitName
+			local k = util:inTable( module.db.persistentTanks, value)
+			local temp = module.db.persistentTanks[k]
+			module.db.persistentTanks[k] = module.db.persistentTanks[k-1]
+			module.db.persistentTanks[k-1] = temp
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
+		end)
 	end
-
-	frame:AddChildren(persistentHeading, moduleDescription, add, delete, sort, box)
 	
-	frame:ResumeLayout()
-	frame:DoLayout()
+	for i = 1, 9 do
+		bottomscrolls[i] = CreateFrame("Button", nil, frame)
+		bottomscrolls[i]:SetHeight(16)
+		bottomscrolls[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+		bottomscrolls[i]:EnableMouse(true)
+		bottomscrolls[i]:SetScript("OnClick", function( self ) 
+			local value = self.unitName
+			if util:inTable( module.db.persistentTanks, value) then return true end
+			table.insert(module.db.persistentTanks, value)
+			namedPersistent[value] = true
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
+		end)
+		if i == 1 then
+			bottomscrolls[i]:SetPoint("TOPLEFT", frame.bottomscroll, "TOPLEFT")
+			bottomscrolls[i]:SetPoint("TOPRIGHT", frame.bottomscroll, "TOPRIGHT")
+		else
+			bottomscrolls[i]:SetPoint("TOPLEFT", bottomscrolls[i-1], "BOTTOMLEFT")
+			bottomscrolls[i]:SetPoint("TOPRIGHT", bottomscrolls[i-1], "BOTTOMRIGHT")
+		end
+		bottomscrolls[i].nametext = oRA:CreateScrollEntry(bottomscrolls[i])
+		bottomscrolls[i].nametext:SetPoint("TOPLEFT", bottomscrolls[i], "TOPLEFT")
+		bottomscrolls[i].nametext:SetPoint("BOTTOMRIGHT", bottomscrolls[i], "BOTTOMRIGHT")
+		bottomscrolls[i].nametext:SetText(L["Name"])
+		bottomscrolls[i].unitName = L["Name"]
+	end
+	
+	local function updTopScroll() module:UpdateTopScroll() end
+	local function updBottomScroll() module:UpdateBottomScroll() end
+	
+	frame.topscroll:SetScript("OnVerticalScroll", function(self, offset)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updTopScroll )
+	end)
+	
+	frame.bottomscroll:SetScript("OnVerticalScroll", function(self, offset)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updBottomScroll )
+	end)
+end
+
+function module:UpdateScrolls()
+	self:UpdateTopScroll()
+	self:UpdateBottomScroll()
+end
+
+local ngroup = {}
+function module:UpdateTopScroll()
+	if not frame then return end
+	local list = self.db.persistentTanks
+	local nr = #list
+	local btanks = oRA:GetBlizzardTanks()
+	FauxScrollFrame_Update(frame.topscroll, nr, 10, 16)
+	for i = 1, 10 do
+		local j = i + FauxScrollFrame_GetOffset(frame.topscroll)
+		if j <= nr then
+			if j == 1 then
+				topscrolls[i].upbutton:SetAlpha(.3)
+			else
+				topscrolls[i].upbutton:SetAlpha(1)
+			end
+			if j == nr then
+				topscrolls[i].downbutton:SetAlpha(.3)
+			else
+				topscrolls[i].downbutton:SetAlpha(1)
+			end
+			if util:inTable( btanks, list[j]) then
+				topscrolls[i].tankbutton:SetAlpha(1)
+			else
+				topscrolls[i].tankbutton:SetAlpha(.3)
+			end
+			topscrolls[i].unitName = list[j]
+			topscrolls[i].nametext:SetText(oRA.coloredNames[list[j]])
+			topscrolls[i]:Show()
+		else
+			topscrolls[i]:Hide()
+		end
+	end
+end
+
+function module:UpdateBottomScroll()
+	if not frame then return end
+	local group = oRA:GetGroupMembers()
+	wipe(ngroup)
+	for	k, v in pairs(group) do
+		if not namedPersistent[v] then -- only add not in the tanklist
+			table.insert(ngroup, v)
+		end
+	end
+	local nr = #ngroup
+	FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16)
+	for i = 1, 9 do
+		local j = i + FauxScrollFrame_GetOffset(frame.bottomscroll)
+		if j <= nr then
+			bottomscrolls[i].unitName = ngroup[j]
+			bottomscrolls[i].nametext:SetText(oRA.coloredNames[ngroup[j]])
+			bottomscrolls[i]:Show()
+		else
+			bottomscrolls[i]:Hide()
+		end
+	end
 end
 
