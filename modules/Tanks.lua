@@ -372,7 +372,7 @@ function module:UpdateBottomScroll()
 	end
 end
 
-function oRA:GetSortedTankList()
+function oRA:GetSortedTanks()
 	return indexedTanks
 end
 
