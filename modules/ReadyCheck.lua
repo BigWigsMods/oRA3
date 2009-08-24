@@ -242,12 +242,15 @@ function module:SetupGUI()
 
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
 	local f = frame
-	f:SetPoint("BOTTOM", UIParent, "CENTER", 0, 30 )
 	f:SetWidth( 320 )
 	f:SetHeight( 300 )
 	f:SetMovable(true)
 	f:EnableMouse(true)
 	f:SetClampedToScreen(true)
+	if not oRA3:RestorePosition("oRA3ReadyCheck") then
+		f:ClearAllPoints()
+		f:SetPoint("CENTER", UIParent, "CENTER", 0, 180 )
+	end
 
 	local titlebg = f:CreateTexture(nil, "BACKGROUND")
 	titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
@@ -338,6 +341,7 @@ function module:SetupGUI()
 	titlebutton:SetScript("OnDragStop", function()
 		f.moving = nil
 		f:StopMovingOrSizing()
+		oRA3:SavePosition("oRA3ReadyCheck")
 	end)
 
 	local bar = CreateFrame("Button", nil, frame )
