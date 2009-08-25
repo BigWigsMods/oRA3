@@ -85,7 +85,7 @@ L["Show or hide the cooldown bar display in the game world."] = "Schaltet die An
 L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = "Beachte, dass das Sperren der Anzeige den Titel versteckt und die Möglichkeiten entfernt, die Größe zu ändern, die Anzeige zu bewegen oder die Leistenoptionen aufzurufen."
 L["Only show my own spells"] = "Nur eigene Zaubersprüche anzeigen"
 L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."] = "Entscheidet, ob nur eigene Abklingzeiten angezeigt werden sollen. Funktioniert wie ein normales Addon zur Anzeige eigener Cooldowns."
-L["Cooldown settings"] = "Einstellungen der Cooldowns"
+L["Cooldown settings"] = "Auswahl der Cooldowns"
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = "Wähle über das untenstehende Dropdown Menü und die Checkboxen, welche Cooldowns angezeigt werden sollen. Jede Klasse verfügt über ein paar voreingestellte Zaubersprüche, deren Cooldowns dann über die Anzeige eingesehen werden können. Wähle eine Klasse und markiere dann die Sprüche, die deinen Vorlieben entsprechen."
 L["Select class"] = "Klasse wählen"
 L["Never show my own spells"] = "Niemals eigene Zaubersprüche anzeigen"
@@ -118,3 +118,7 @@ L["Version"] = "Version"
 
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst zum Plündermeister zu machen."
+
+-- Tanks module
+L["Tanks"] = "Tanks"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "Liste oben: Sortierte Tanks. Liste unten: Potentielle Tanks.\nKlicke Spieler in der unteren Liste an, um sie in die obere zu verschieben."
