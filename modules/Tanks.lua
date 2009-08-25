@@ -35,7 +35,7 @@ function module:OnRegister()
 	})
 	self.db = database.factionrealm
 	oRA:RegisterPanel(
-		"Tanks",
+		L["Tanks"],
 		showConfig,
 		hideConfig
 	)
@@ -44,6 +44,8 @@ function module:OnRegister()
 	end
 	oRA.RegisterCallback(self, "OnTanksChanged")
 	oRA.RegisterCallback(self, "OnGroupChanged")
+	oRA.RegisterCallback(self, "OnPromoted")
+	oRA.RegisterCallback(self, "OnDemoted")
 end
 
 local function sortTanks()
@@ -55,6 +57,20 @@ local function sortTanks()
 	end
 	if oRA.groupStatus == oRA.INRAID then
 		oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
+	end
+end
+
+function module:OnPromoted(event, status)
+	if not frame then return end
+	for k, v in ipairs(topscrolls) do
+		v.tankbutton:EnableMouse(true)
+	end
+end
+
+function module:OnDemoted(event, status)
+	if not frame then return end
+	for k, v in ipairs(topscrolls) do
+		v.tankbutton:EnableMouse(false)
 	end
 end
 
@@ -187,7 +203,7 @@ function module:CreateFrame()
 	help:SetFontObject(GameFontNormal)
 	help:SetPoint("TOPLEFT", 0, 0)
 	help:SetPoint("BOTTOMRIGHT", frame.topbar, "TOPRIGHT")
-	help:SetText("Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list.")
+	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."])
 
 	-- 10 top
 	-- 9 bottom
@@ -229,6 +245,7 @@ function module:CreateFrame()
 		topscrolls[i].tankbutton.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		topscrolls[i].tankbutton:SetAttribute("type", "maintank")
 		topscrolls[i].tankbutton:SetAttribute("action", "toggle")
+		topscrolls[i].tankbutton:EnableMouse( oRA:IsPromoted() )
 		
 		topscrolls[i].downbutton = CreateButton("oRA3TankTopScrollDown"..i, topscrolls[i])
 		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
@@ -330,12 +347,10 @@ function module:UpdateTopScroll()
 			end
 			if util:inTable( btanks, list[j]) then
 				topscrolls[i].tankbutton:SetAlpha(1)
-				--topscrolls[i].tankbutton:EnableMouse(true)
 				topscrolls[i].deletebutton:SetAlpha(.3)
 				topscrolls[i].deletebutton:EnableMouse(false)
 			else
 				topscrolls[i].tankbutton:SetAlpha(.3)
-				--topscrolls[i].tankbutton:EnableMouse(false)
 				topscrolls[i].deletebutton:SetAlpha(1)
 				topscrolls[i].deletebutton:EnableMouse(true)
 			end

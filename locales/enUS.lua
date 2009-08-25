@@ -115,5 +115,9 @@ L["Version"] = true
 
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = true
+ 
+-- Tanks module
+L["Tanks"] = true
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = true
 
 
