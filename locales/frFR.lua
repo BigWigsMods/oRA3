@@ -13,7 +13,7 @@ L["Unknown"] = "Inconnu"
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Vous pouvez configurer quelques options ici. Tout le reste se trouve dans le panneau de l'onglet raid."
 
 -- Ready check module
-L["The following players are not ready: %s"] = "Les joueurs suivants ne sont pas prêts : %s"
+L["The following players are not ready: %s"] = "Les joueurs suivants ne sont pas prêts : %s"
 L["Ready check (%d seconds)"] = "Appel (%d |4seconde:secondes;)."
 L["Ready"] = "Prêt"
 L["Not Ready"] = "Pas prêt"
@@ -22,8 +22,8 @@ L["Offline"] = "Hors ligne"
 L["Play a sound when a ready check is performed."] = "Joue un son quand un appel est lancé."
 L["GUI"] = "GUI"
 L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "Affiche le GUI d'appel de oRA3 quand un appel est lancé."
-L["Auto Hide"] = "Masquer auto."
-L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Masque automatiquement le GUI d'appel de oRA3 quand un appel est terminé."
+L["Auto Hide"] = "Cacher auto."
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Cache automatiquement le GUI d'appel de oRA3 quand un appel est terminé."
 
 -- Durability module
 L["Durability"] = "Durabilité"
@@ -80,7 +80,7 @@ L["Monitor settings"] = "Paramètres du moniteur"
 L["Show monitor"] = "Afficher le moniteur"
 L["Lock monitor"] = "Verrouiller le moniteur"
 L["Show or hide the cooldown bar display in the game world."] = "Affiche ou non l'affichage des temps de recharge via des barres."
-L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = "Notez que le verrouillage du moniteur des temps de regarde masquera le titre et la poignée de saisie, rendant ainsi le moniteur impossible à déplacer ou à redimensionner. Il ne sera également pas possible d'ouvrir le menu des options des barres."
+L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = "Notez que le verrouillage du moniteur des temps de regarde cachera le titre et la poignée de saisie, rendant ainsi le moniteur impossible à déplacer ou à redimensionner. Il ne sera également pas possible d'ouvrir le menu des options des barres."
 L["Only show my own spells"] = "Afficher uniquement mes propres sorts"
 L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."] = "Affiche ou non uniquement les temps de recharge concernant votre personnage."
 L["Cooldown settings"] = "Paramètres des temps de recharge"
@@ -89,7 +89,7 @@ L["Select class"] = "Choix de la classe"
 L["Never show my own spells"] = "Ne jamais afficher mes propres sorts"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Enlève ou non vos propres temps de recharge de l'affichage des temps de recharge. À cocher par exemple si vous utilisez un autre addon pour afficher vos temps de recharge."
 -- monitor
-L["Right-Click me for options!"] = "Clic droit pour les options !"
+L["Right-Click me for options!"] = "Clic droit pour les options !"
 L["Bar Settings"] = "Param. des barres"
 L["Spawn test bar"] = "Afficher une barre de test"
 L["Use class color"] = "Couleur de classe"
@@ -114,4 +114,8 @@ L["Zone"] = "Zone"
 L["Version"] = "Version"
 
 -- Loot module
- L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de vous le maître du butin."
+L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de vous le maître du butin."
+
+-- Tanks module
+L["Tanks"] = "Tanks"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "Haut : tanks triés. Bas : tanks potentiels.\nCliquez sur les personnes de la liste du bas pour les placer dans la liste du haut."
