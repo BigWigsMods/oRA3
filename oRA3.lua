@@ -1,7 +1,7 @@
 
 local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceHook-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
-_G.oRA3 = addon -- Debug
+_G.oRA3 = addon
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
