@@ -288,7 +288,7 @@ function module:CreateFrame()
 			table.insert(module.db.persistentTanks, value)
 			namedPersistent[value] = true
 			namedTanks[value] =true
-			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true )
 		end)
 		if i == 1 then
 			bottomscrolls[i]:SetPoint("TOPLEFT", frame.bottomscroll, "TOPLEFT")
