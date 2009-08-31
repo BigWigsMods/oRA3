@@ -9,12 +9,13 @@ L["Options"] = "選項"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散團隊"
 L["Click to open/close oRA3"] = "打開/關閉 oRA3"
 L["Unknown"] = "未知"
+
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這做一些設定。所有的實際動作從團隊框架面板中完成。"
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列隊員未準備好:%s"
-L["Ready check over in %d seconds"] = "就位確認還有%d秒結束"
+L["Ready Check (%d seconds)"] = "準備確認(%d秒)"
 L["Ready"] = "準備好"
 L["Not Ready"] = "未準備好"
 L["No Response"] = "未確認"
@@ -115,3 +116,7 @@ L["Version"] = "版本"
 
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "留空使自己分配戰利品。"
+
+-- Tanks module
+L["Tanks"] = "坦克"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "置頂名單:排序坦克。置底名單:潛在坦克。\n在置底名單點選擺放在置頂名單。"
