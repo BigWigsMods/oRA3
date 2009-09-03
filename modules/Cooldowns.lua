@@ -562,7 +562,7 @@ end
 -- Bar display
 --
 
-local startBar, setupCooldownDisplay, barStopped
+local startBar, setupCooldownDisplay, barStopped, stopAll
 do
 	local display = nil
 	local maximum = 10
@@ -639,6 +639,12 @@ do
 	function restyleBars()
 		for bar in pairs(visibleBars) do
 			restyleBar(bar)
+		end
+	end
+	
+	function stopAll()
+		for bar in pairs(visibleBars) do
+			bar:Stop()
 		end
 	end
 	
@@ -939,6 +945,7 @@ function module:OnStartup()
 end
 
 function module:OnShutdown()
+	stopAll()
 	hideDisplay()
 	oRA.UnregisterCallback(self, "OnCommCooldown")
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
