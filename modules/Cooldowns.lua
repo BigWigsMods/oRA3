@@ -3,6 +3,7 @@
 --
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -914,6 +915,7 @@ function module:OnStartup()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UpdateCooldownModifiers()
 	if playerClass == "SHAMAN" then
 		local resTime = GetTime()
@@ -936,6 +938,7 @@ function module:OnShutdown()
 	hideDisplay()
 	oRA.UnregisterCallback(self, "OnCommCooldown")
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
@@ -1024,4 +1027,13 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 		oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
 	end
 end
+
+function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, _, _, _, _, spellId, spellName)
+	if clueevent ~= "SPELL_CAST_SUCCESS" then return end
+	if not source or source == playerName then return end
+	if allSpells[spellId] and util:inTable(oRA:GetGroupMembers(), source) then -- FIXME: use bitflag to check groupmembers
+		self:OnCommCooldown("RAID", source, spellId, allSpells[spellId])
+	end
+end
+
 
