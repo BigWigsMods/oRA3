@@ -703,6 +703,7 @@ do
 
 	function lockDisplay()
 		if locked then return end
+		if not display then setupCooldownDisplay() end
 		display:EnableMouse(false)
 		display:SetMovable(false)
 		display:SetResizable(false)
@@ -720,6 +721,7 @@ do
 	end
 	function unlockDisplay()
 		if not locked then return end
+		if not display then setupCooldownDisplay() end
 		display:EnableMouse(true)
 		display:SetMovable(true)
 		display:SetResizable(true)
@@ -736,10 +738,12 @@ do
 		locked = nil
 	end
 	function showDisplay()
+		if not display then setupCooldownDisplay() end
 		display:Show()
 		shown = true
 	end
 	function hideDisplay()
+		if not display then return end
 		display:Hide()
 		shown = nil
 	end
