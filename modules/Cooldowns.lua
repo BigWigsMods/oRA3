@@ -1040,7 +1040,7 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 end
 
 function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, _, _, _, _, spellId, spellName)
-	if clueevent ~= "SPELL_CAST_SUCCESS" then return end
+	if clueevent ~= "SPELL_RESURRECT" and clueevent ~= "SPELL_CAST_SUCCESS" then return end
 	if not source or source == playerName then return end
 	if allSpells[spellId] and util:inTable(oRA:GetGroupMembers(), source) then -- FIXME: use bitflag to check groupmembers
 		self:OnCommCooldown("RAID", source, spellId, allSpells[spellId])
