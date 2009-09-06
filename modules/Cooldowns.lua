@@ -350,112 +350,16 @@ do
 	local plainFrame = nil
 	local function show()
 		if not plainFrame then
-			plainFrame = CreateFrame("Frame", nil, UIParent)
-			local f = plainFrame
-			f:SetWidth(240)
-			f:SetHeight(348)
-			f:SetPoint("CENTER", UIParent, "CENTER")
-			f:SetMovable(true)
-			f:EnableMouse(true)
-			f:SetClampedToScreen(true)
-			
-			local titlebg = f:CreateTexture(nil, "BACKGROUND")
-			titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
-			titlebg:SetPoint("TOPLEFT", 9, -6)
-			titlebg:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -28, -24)
-			
-			local dialogbg = f:CreateTexture(nil, "BACKGROUND")
-			dialogbg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
-			dialogbg:SetPoint("TOPLEFT", 8, -24)
-			dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
-			dialogbg:SetVertexColor(0, 0, 0, .75)
-			
-			local topleft = f:CreateTexture(nil, "BORDER")
-			topleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			topleft:SetWidth(64)
-			topleft:SetHeight(64)
-			topleft:SetPoint("TOPLEFT")
-			topleft:SetTexCoord(0.501953125, 0.625, 0, 1)
-			
-			local topright = f:CreateTexture(nil, "BORDER")
-			topright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			topright:SetWidth(64)
-			topright:SetHeight(64)
-			topright:SetPoint("TOPRIGHT")
-			topright:SetTexCoord(0.625, 0.75, 0, 1)
-			
-			local top = f:CreateTexture(nil, "BORDER")
-			top:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			top:SetHeight(64)
-			top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
-			top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
-			top:SetTexCoord(0.25, 0.369140625, 0, 1)
-			
-			local bottomleft = f:CreateTexture(nil, "BORDER")
-			bottomleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			bottomleft:SetWidth(64)
-			bottomleft:SetHeight(64)
-			bottomleft:SetPoint("BOTTOMLEFT")
-			bottomleft:SetTexCoord(0.751953125, 0.875, 0, 1)
-			
-			local bottomright = f:CreateTexture(nil, "BORDER")
-			bottomright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			bottomright:SetWidth(64)
-			bottomright:SetHeight(64)
-			bottomright:SetPoint("BOTTOMRIGHT")
-			bottomright:SetTexCoord(0.875, 1, 0, 1)
-			
-			local bottom = f:CreateTexture(nil, "BORDER")
-			bottom:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			bottom:SetHeight(64)
-			bottom:SetPoint("BOTTOMLEFT", bottomleft, "BOTTOMRIGHT")
-			bottom:SetPoint("BOTTOMRIGHT", bottomright, "BOTTOMLEFT")
-			bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
-			
-			local left = f:CreateTexture(nil, "BORDER")
-			left:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			left:SetWidth(64)
-			left:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
-			left:SetPoint("BOTTOMLEFT", bottomleft, "TOPLEFT")
-			left:SetTexCoord(0.001953125, 0.125, 0, 1)
-			
-			local right = f:CreateTexture(nil, "BORDER")
-			right:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
-			right:SetWidth(64)
-			right:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
-			right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
-			right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
-			
-			local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-			close:SetPoint("TOPRIGHT", 2, 1)
-			close:SetScript("OnClick", function(self, button) f:Hide() end)
-			
-			local title = f:CreateFontString(nil, "ARTWORK")
-			title:SetFontObject(GameFontNormal)
-			title:SetPoint("TOPLEFT", 12, -8)
-			title:SetPoint("TOPRIGHT", -32, -8)
-			title:SetText(L["Bar Settings"])
-			
-			local titlebutton = CreateFrame("Button", nil, f)
-			titlebutton:SetPoint("TOPLEFT", titlebg)
-			titlebutton:SetPoint("BOTTOMRIGHT", titlebg)
-			titlebutton:RegisterForDrag("LeftButton")
-			titlebutton:SetScript("OnDragStart", function()
-				f.moving = true
-				f:StartMoving()
-			end)
-			titlebutton:SetScript("OnDragStop", function()
-				f.moving = nil
-				f:StopMovingOrSizing()
-			end)
-			
-			local frame = AceGUI:Create("SimpleGroup")
-			frame:SetLayout("Flow")
-			frame:SetWidth(216) -- set width so flow layout fricking works
-			frame:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -32)
-			frame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -12, 12)
-			frame.frame:SetParent(f)
+			plainFrame = AceGUI:Create("Window")
+			plainFrame:SetWidth(240)
+			plainFrame:SetHeight(348)
+			plainFrame:SetPoint("CENTER", UIParent, "CENTER")
+			plainFrame:SetTitle( L["Bar Settings"] )
 
+			local group = AceGUI:Create("ScrollFrame")
+			group:SetLayout("Flow")
+			group:SetFullWidth(true)
+			
 			local test = AceGUI:Create("Button")
 			test:SetText(L["Spawn test bar"])
 			test:SetCallback("OnClick", onTestClick)
@@ -550,8 +454,8 @@ do
 			short:SetCallback("OnValueChanged", toggleChanged)
 			--short:SetRelativeWidth(0.5)
 			
-			frame:AddChildren(test, classColor, picker, height, scale, tex, align, header, icon, duration, unit, spell, short)
-			frame.frame:Show()
+			group:AddChildren(test, classColor, picker, height, scale, tex, align, header, icon, duration, unit, spell, short)
+			plainFrame:AddChildren(group)
 		end
 		plainFrame:Show()
 	end
