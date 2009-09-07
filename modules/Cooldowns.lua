@@ -26,12 +26,12 @@ local glyphCooldowns = {
 	[58618] = {47476, 20}, -- Strangulate, 20sec
 	[56373] = {31687, 30}, -- Summon Water Elemental, 30sec
 	[63229] = {47585, 45}, -- Dispersion, 45sec
-	[63329] = {871, 120}, -- Shield Wall, 2min
-	[57903] = {5384, 5}, -- Feign Death, 5sec
-	[57858] = {5209, 30}, -- Challenging Roar, 30sec
-	[55678] = {6346, 60}, -- Fear Ward, 60sec
+	[63329] = {871, 120},  -- Shield Wall, 2min
+	[57903] = {5384, 5},   -- Feign Death, 5sec
+	[57858] = {5209, 30},  -- Challenging Roar, 30sec
+	[55678] = {6346, 60},  -- Fear Ward, 60sec
 	[58376] = {12975, 60}, -- Last Stand, 1min
-	[57955] = {633, 300}, -- Lay on Hands, 5min
+	[57955] = {633, 300},  -- Lay on Hands, 5min
 }
 
 local spells = {
@@ -111,6 +111,7 @@ local spells = {
 		[55694] = 180, -- Enraged Regeneration
 	},
 	DEATHKNIGHT = {
+		[48792] = 120, -- Icebound Fortitude
 		[42650] = 1200, -- Army of the Dead
 		[61999] = 900, -- Raise Ally
 		[49028] = 90, -- Dancing Rune Weapon
