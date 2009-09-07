@@ -863,6 +863,7 @@ function module:OnCommCooldown(commType, sender, spell, cd)
 	if not db.spells[spell] then return end
 	if db.onlyShowMine and sender ~= playerName then return end
 	if db.neverShowMine and sender == playerName then return end
+	if not db.showDisplay then return end
 	local name, _, icon = GetSpellInfo(spell)
 	if not name or not icon then return end
 	startBar(sender, spell, name, icon, cd)
