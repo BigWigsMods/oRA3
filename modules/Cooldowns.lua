@@ -46,6 +46,7 @@ local spells = {
 		[5384] = 30, -- Feign Death
 		[62757] = 1800, -- Call Stabled Pet
 		[781] = 25, -- Disengage
+		[34490] = 20, -- Silencing Shot
 	},
 	MAGE = {
 		[45438] = 300, -- Iceblock
@@ -90,6 +91,7 @@ local spells = {
 		[2894] = 1200, -- Fire Elemental Totem
 		[2062] = 1200, -- Earth Elemental Totem
 		[16188] = 180, -- Nature's Swiftness
+		[57994] = 6, -- Wind Shear
 	},
 	WARLOCK = {
 		[27239] = 1800, -- Soulstone Resurrection
@@ -109,6 +111,7 @@ local spells = {
 		[5246] = 180, -- Intimidating Shout
 		[64380] = 300, -- Shattering Throw (could be 64382)
 		[55694] = 180, -- Enraged Regeneration
+		[72] = 12, -- Shield Bash
 	},
 	DEATHKNIGHT = {
 		[48792] = 120, -- Icebound Fortitude
