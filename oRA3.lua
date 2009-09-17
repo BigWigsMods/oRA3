@@ -349,7 +349,7 @@ function addon:DisbandGroup()
 	--if not self:IsPromoted() then return end
 	if not StaticPopupDialogs["oRA3DisbandGroup"] then
 		StaticPopupDialogs["oRA3DisbandGroup"] = {
-			text = "Are you sure you want to disband your group?",
+			text = L["Are you sure you want to disband your group?"],
 			button1 = YES,
 			button2 = NO,
 			whileDead = 1,
@@ -688,7 +688,7 @@ function addon:SetupGUI()
 	disband:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 		GameTooltip:AddLine(L["Disband Group"])
-		GameTooltip:AddLine("Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog.", 1, 1, 1, 1)
+		GameTooltip:AddLine(L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."], 1, 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	disband:SetScript("OnLeave", function(self) GameTooltip:Hide() end)

@@ -5,8 +5,10 @@ if not L then return end
 L["Name"] = "이름"
 L["Checks"] = "체크"
 L["Disband Group"] = "파티 해산"
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "당신이 구성하고 있는 파티/공격대를 모두 해산시킵니다. 각 파티/공대원들은 자동적으로 추방이 되어 솔로 상태가 됩니다."
 L["Options"] = "옵션"
 L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
+L["Are you sure you want to disband your group?"] = "정말로 당신의 파티/공격대를 해산하겠습니까?"
 L["Click to open/close oRA3"] = "클릭 - oRA3 열기/닫기"
 L["Unknown"] = "알수 없음"
 

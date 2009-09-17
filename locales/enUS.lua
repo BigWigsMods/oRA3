@@ -4,8 +4,10 @@ local L = LibStub("AceLocale-3.0"):NewLocale("oRA3", "enUS", true)
 L["Name"] = true
 L["Checks"] = true
 L["Disband Group"] = true
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = true
 L["Options"] = true
 L["<oRA3> Disbanding group."] = true
+L["Are you sure you want to disband your group?"] = true
 L["Click to open/close oRA3"] = true
 L["Unknown"] = true
 
