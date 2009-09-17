@@ -679,7 +679,7 @@ do
 		display.bg = bg
 		local header = display:CreateFontString(nil, "OVERLAY")
 		header:SetFontObject(GameFontNormal)
-		header:SetText("Cooldowns")
+		header:SetText(L["Cooldowns"])
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
 		local help = display:CreateFontString(nil, "OVERLAY")
 		help:SetFontObject(GameFontNormal)

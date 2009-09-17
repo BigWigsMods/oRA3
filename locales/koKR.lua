@@ -91,7 +91,9 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = "직업 선택"
 L["Never show my own spells"] = "자신의 기술을 표시하지 않음"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "자신의 재사용 대기시간의 표시하지 않도록 전환합니다. 예를 들어 보통 다른 애드온으로 자신의 재사용 대기시간을 표시를 합니다."
+
 -- monitor
+L["Cooldowns"] = "재사용 대기시간"
 L["Right-Click me for options!"] = "옵션 설정은 우-클릭!"
 L["Bar Settings"] = "바 설정"
 L["Spawn test bar"] = "테스트 바 표시"

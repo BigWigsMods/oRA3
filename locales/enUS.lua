@@ -90,7 +90,9 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = true
 L["Never show my own spells"] = true
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = true
+
 -- monitor
+L["Cooldowns"] = true
 L["Right-Click me for options!"] = true
 L["Bar Settings"] = true
 L["Spawn test bar"] = true
