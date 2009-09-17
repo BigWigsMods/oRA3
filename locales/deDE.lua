@@ -6,8 +6,10 @@ if not L then return end
 L["Name"] = "Name"
 L["Checks"] = "Checks"
 L["Disband Group"] = "Gruppe auflösen"
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "Löst die Gruppe oder den Schlachtzug auf, indem nacheinander jeder rausgeworfen wird, bis nur noch du übrig bist.\n\nDa dies sehr destruktiv sein kann, wirst du eine Bestätigung sehen. Halte STRG gedrückt, um diesen Dialog zu umgehen."
 L["Options"] = "Optionen"
 L["<oRA3> Disbanding group."] = "<oRA3> Gruppe aufgelöst."
+L["Are you sure you want to disband your group?"] = "Bist du sicher, dass du die Gruppe auflösen willst?"
 L["Click to open/close oRA3"] = "Klicken, um oRA3 zu öffnen / schließen."
 L["Unknown"] = "Unbekannt"
 
