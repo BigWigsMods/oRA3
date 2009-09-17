@@ -10,13 +10,21 @@ L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
 L["Click to open/close oRA3"] = "클릭 - oRA3 열기/닫기"
 L["Unknown"] = "알수 없음"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "몇 가지의 옵션을 설정할 수있습니다. 모든 실재 동작은 공격대 프레임창에서 패널을 통해 확인가능합니다."
+
 -- Ready check module
 L["The following players are not ready: %s"] = "준비가 되지 않은 플레이어: %s"
-L["Ready check over in %d seconds"] = "%d 초 이내에 준비 확인 종료"
+L["Ready Check (%d seconds)"] = "준비 확인 (%d 초)"
 L["Ready"] = "준비 완료"
 L["Not Ready"] = "준비 안됨"
 L["No Response"] = "응답 없음"
 L["Offline"] = "오프라인"
+L["Play a sound when a ready check is performed."] = "준비 확인 수행시 소리를 재생합니다."
+L["GUI"] = "GUI"
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "준비 확인 수행시 'oRA3 확인 GUI'를 표시합니다."
+L["Auto Hide"] = "자동 숨김"
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "준비 확인이 끝나면 'oRA3 확인 GUI'를 자동으로 숨깁니다."
 
 -- Durability module
 L["Durability"] = "내구도"
@@ -44,7 +52,7 @@ L["<oRA3> Sorry, the group is full."] = "<oRA3> 죄송합니다. 공격대의 �
 L["Invite all guild members of rank %s or higher."] = "%s 등급 이상인 모든 길드원을 공격대에 초대합니다."
 L["Keyword"] = "키워드"
 L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."] = "아래 키워드로 사람들이 당신에게 귓속말시에 자동으로 당신의 파티에 초대됩니다. 만약 당신이 파티중이며 5명일경우 자동으로 공격대로 전환됩니다. 공격대가 40명이 찰경우에는 키워드 작동이 더이상되지 않습니다."
-L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."] = "설정된 키워드로 귓속말을 하면 즉시 자동으로 자신의 공격대로 초대합니다. 만약 당신이 파티장이고 파티의 정원이 찼을 경우에 자동적으로 공격대로 전환됩니다. 만약 40명이 정원이 찼다면 작동을 중지합니다."
+L["Anyone who whispers you this keyword will automatically and immediately be invited to your group."] = "설정된 키워드로 귓속말을 하면 즉시 자동으로 자신의 공격대로 초대합니다."
 L["Guild Keyword"] = "길드 키워드"
 L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."] = "모든 길드원이 키워드로 당신에게 귓속말시에 자동으로 즉시 파티에 초대됩니다."
 L["Invite guild"] = "길드원 초대"
@@ -81,7 +89,6 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = "직업 선택"
 L["Never show my own spells"] = "자신의 기술을 표시하지 않음"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "자신의 재사용 대기시간의 표시하지 않도록 전환합니다. 예를 들어 보통 다른 애드온으로 자신의 재사용 대기시간을 표시를 합니다."
-
 -- monitor
 L["Right-Click me for options!"] = "옵션 설정은 우-클릭!"
 L["Bar Settings"] = "바 설정"
@@ -96,10 +103,21 @@ L["Duration"] = "지속 시간"
 L["Unit name"] = "유닛 이름"
 L["Spell name"] = "주문 이름"
 L["Short Spell name"] = "짧은 주문 이름"
+L["Label Align"] = "Label 정렬"
+L["Left"] = "좌측"
+L["Right"] = "우측"
+L["Center"] = "중앙"
 
 -- Zone module
 L["Zone"] = "지역"
 
 -- Version module
 L["Version"] = "버전"
+
+-- Loot module
+ L["Leave empty to make yourself Master Looter."] = "자신이 담당자 획득이면 비워 둡니다."
+ 
+-- Tanks module
+L["Tanks"] = "탱커"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "상단 목록: 탱커 정렬. 하단 목록: 가능한 탱커.\n상단 목록에 탱커로 지정하기 위해 하단 목록에 있는 가능한 탱커를 클릭하세요."
 
