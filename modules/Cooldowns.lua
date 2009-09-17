@@ -36,7 +36,7 @@ local glyphCooldowns = {
 
 local spells = {
 	DRUID = {
-		[26994] = 1200, -- Rebirth
+		[48477] = 1200, -- Rebirth
 		[29166] = 180, -- Innervate
 		[17116] = 180, -- Nature's Swiftness
 		[5209] = 180, -- Challenging Roar
@@ -757,7 +757,7 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[26994] = true,
+				[48477] = true,
 				[19752] = true,
 				[20608] = true,
 				[27239] = true,
