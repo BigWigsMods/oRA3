@@ -5,8 +5,10 @@ if not L then return end
 L["Name"] = "名稱"
 L["Checks"] = "狀態檢查"
 L["Disband Group"] = "解散團隊"
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "解散你目前隊伍或團隊，從你團隊逐一踢除每一個人，直到剩下你一個。\n\n由於這是可能非常具有破壞性，你會看到一個確認對話框。按住控制隱藏此對話框。"
 L["Options"] = "選項"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散團隊"
+L["Are you sure you want to disband your group?"] = "你確定要解散團隊?"
 L["Click to open/close oRA3"] = "打開/關閉 oRA3"
 L["Unknown"] = "未知"
 
@@ -89,7 +91,9 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = "選擇職業"
 L["Never show my own spells"] = "從不顯示我的法術"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "是否顯示你的法術冷卻。來說如果你使用其它插件來顯示你的冷卻。"
+
 -- monitor
+L["Cooldowns"] = "冷卻"
 L["Right-Click me for options!"] = "右鍵點擊設定"
 L["Bar Settings"] = "計時條設定"
 L["Spawn test bar"] = "顯示測試計時條"
