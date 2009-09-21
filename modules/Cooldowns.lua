@@ -40,6 +40,7 @@ local spells = {
 		[29166] = 180, -- Innervate
 		[17116] = 180, -- Nature's Swiftness
 		[5209] = 180, -- Challenging Roar
+		[61336] = 180, -- Survival Instincts
 	},
 	HUNTER = {
 		[34477] = 30, -- Misdirect
