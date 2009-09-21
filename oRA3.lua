@@ -291,9 +291,11 @@ do
 			self.callbacks:Fire("OnTanksChanged", Tanks)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
+			self:AdjustPanelInset()
 			self:OnShutdown()
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
+			self:AdjustPanelInset()
 			self:OnStartup()
 			self.callbacks:Fire("OnStartup", groupStatus)
 		end
@@ -307,7 +309,6 @@ do
 				self.callbacks:Fire("OnDemoted", playerPromoted)
 			end
 		end
-		self:AdjustPanelInset()
 	end
 end
 
