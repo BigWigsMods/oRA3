@@ -95,7 +95,7 @@ local spells = {
 		[57994] = 6, -- Wind Shear
 	},
 	WARLOCK = {
-		[27239] = 1800, -- Soulstone Resurrection
+		[47883] = 1800, -- Soulstone Resurrection
 		[29858] = 180, -- Soulshatter
 		[47241] = 180, -- Metamorphosis
 		[18708] = 900, -- Fel Domination
