@@ -360,6 +360,7 @@ do
 			plainFrame:SetHeight(348)
 			plainFrame:SetPoint("CENTER", UIParent, "CENTER")
 			plainFrame:SetTitle( L["Bar Settings"] )
+			plainFrame:SetLayout("Fill")
 
 			local group = AceGUI:Create("ScrollFrame")
 			group:SetLayout("Flow")
