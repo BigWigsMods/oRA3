@@ -4,8 +4,10 @@ if not L then return end
 L["Name"] = "Nom"
 L["Checks"] = "Vérif."
 L["Disband Group"] = "Dissoudre raid"
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "Dissout votre groupe ou raid actuel en renvoyant ses membres un par un jusqu'à ce que vous soyez le dernier présent.\n\nComme il s'agit d'une méthode radicale, une fenêtre de dialogue de confirmation vous sera présentée. Maintenez enfoncé la touche Contrôle pour éviter son apparition."
 L["Options"] = "Options"
 L["<oRA3> Disbanding group."] = "<oRA3> Dissolution du groupe de raid."
+L["Are you sure you want to disband your group?"] = "Êtes-vous sûr de vouloir dissoudre votre groupe ?"
 L["Click to open/close oRA3"] = "Cliquez pour ouvrir/fermer oRA3."
 L["Unknown"] = "Inconnu"
 
@@ -88,7 +90,9 @@ L["Select which cooldowns to display using the dropdown and checkboxes below. Ea
 L["Select class"] = "Choix de la classe"
 L["Never show my own spells"] = "Ne jamais afficher mes propres sorts"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Enlève ou non vos propres temps de recharge de l'affichage des temps de recharge. À cocher par exemple si vous utilisez un autre addon pour afficher vos temps de recharge."
+
 -- monitor
+L["Cooldowns"] = "Temps de recharge"
 L["Right-Click me for options!"] = "Clic droit pour les options !"
 L["Bar Settings"] = "Param. des barres"
 L["Spawn test bar"] = "Afficher une barre de test"
