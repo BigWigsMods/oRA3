@@ -764,7 +764,7 @@ function module:OnRegister()
 				[20608] = true,
 				[27239] = true,
 			},
-			showDisplay = false,
+			showDisplay = true,
 			onlyShowMine = nil,
 			neverShowMine = nil,
 			lockDisplay = false,

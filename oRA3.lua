@@ -377,12 +377,7 @@ function addon:IsPromoted(name)
 	if groupStatus == UNGROUPED then
 		return false
 	elseif groupStatus == INRAID then
-		if name == playerName then return IsRaidLeader() or IsRaidOfficer() end
-		local raidNum = GetNumRaidMembers()
-		for i=1,raidNum do
-			local rname, rank = GetRaidRosterInfo(i)
-			if rname == name then return rank > 0 end
-		end
+		return UnitIsRaidOfficer(name)
 	elseif groupStatus == INPARTY then
 		local li = GetPartyLeaderIndex()
 		return (li == 0 and name == playerName) or (li>0 and name == UnitName("party"..li))
