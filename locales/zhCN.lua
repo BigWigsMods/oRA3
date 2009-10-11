@@ -5,18 +5,28 @@ if not L then return end
 L["Name"] = "oRA3"
 L["Checks"] = "状态检查"
 L["Disband Group"] = "解散团队"
+L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "解散当前的小队或团队, 会将所有人踢出队伍, 直到只省下你一个人. 由于潜在的危险, 你会看到一个确认框. 按住CTRL跳过确认."
 L["Options"] = "选项"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散团队"
+L["Are you sure you want to disband your group?"] = "你确认要解散团队么?"
 L["Click to open/close oRA3"] = "打开/关闭 oRA3"
 L["Unknown"] = "未知"
 
+-- Core
+L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在这里调整设置, 所有实际操作都在团队面板进行"
+
 -- Ready check module
 L["The following players are not ready: %s"] = "下列队员未准备好:%s"
-L["Ready check over in %d seconds"] = "就位确认还有%d秒结束"
+L["Ready Check (%d seconds)"] = "就位确认还有%d秒结束"
 L["Ready"] = "准备好"
 L["Not Ready"] = "未准备好"
 L["No Response"] = "未确认"
 L["Offline"] = "离线"
+L["Play a sound when a ready check is performed."] = "就绪检查时播放提示音效"
+L["GUI"] = "面板"
+L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "就绪检查时显示oRA3的就绪检查面板"
+L["Auto Hide"] = "自动隐藏"
+L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "就绪检查完毕后自动隐藏面板"
 
 -- Durability module
 L["Durability"] = "耐久度"
@@ -43,7 +53,10 @@ L["All characters of rank %s or higher will be invited to raid in 10 seconds. Pl
 L["<oRA3> Sorry, the group is full."] = "抱歉，队伍已满。"
 L["Invite all guild members of rank %s or higher."] = "邀请公会中所有会阶在%s以上的玩家"
 L["Keyword"] = "组队关键字"
-L["Anyone who whispers you the keyword set below will automatically and immediately be invited to your group. If you're in a party and it's full, you will convert to raid automatically if you are the party leader. The keyword will only stop working when you have a full raid of 40 people. Set the keyword box empty to disable keyword invites."] = "自动邀请对你密语关键字的玩家。如果你处于小队且为队长，当小队满员后自动转为团队。当团队组满40人，组队关键字自动失效。设置组队关键字为空将自动禁用该功能。"
+L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."] = "当有人密语以下关键字后, 他将会被自动邀请加入你的队伍. 如果你不在一个小队或队伍已达到上限, 插件将自动转换为团队. 团队满40人后此功能会失效. 留空为禁止"
+L["Anyone who whispers you this keyword will automatically and immediately be invited to your group."] = "任何人密语你这个关键字会被邀请至你的队伍"
+L["Guild Keyword"] = "工会关键字"
+L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."] = "任何工会成员密语这个关键字会被邀请至你的队伍"
 L["Invite guild"] = "公会邀请"
 L["Invite everyone in your guild at the maximum level."] = "邀请公会中满级的玩家"
 L["Invite zone"] = "地区邀请"
@@ -76,17 +89,28 @@ L["Toggle whether the cooldown display should only show the cooldown for spells 
 L["Cooldown settings"] = "冷却选项"
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = "通过下拉列表选择你想要监视的技能冷却。每个职业都有一套可用的监视的技能冷却列表，根据需要取舍。"
 L["Select class"] = "选择职业"
+L["Never show my own spells"] = "不显示我的法术"
+L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "冷却显示器将不显示你的法术冷却. 例如你用冷却监视插件时可以勾选本项."
+
 -- monitor
+L["Cooldowns"] = "法术冷却"
+L["Right-Click me for options!"] = "右键打开设置"
 L["Bar Settings"] = "计时条设置"
 L["Spawn test bar"] = "显示测试计时条"
 L["Use class color"] = "使用职业颜色"
-L["Bar height"] = "计时条高度"
+L["Height"] = "高度"
+L["Scale"] = "缩放"
+L["Texture"] = "材质"
 L["Icon"] = "图标"
 L["Show"] = "显示"
 L["Duration"] = "耐久度"
 L["Unit name"] = "名字"
 L["Spell name"] = "技能"
 L["Short Spell name"] = "技能缩写"
+L["Label Align"] = "标签位置"
+L["Left"] = "左"
+L["Right"] = "右"
+L["Center"] = "中间"
 
 -- Zone module
 L["Zone"] = "地区"
@@ -94,5 +118,11 @@ L["Zone"] = "地区"
 -- Version module
 L["Version"] = "版本"
 
+-- Loot module
+ L["Leave empty to make yourself Master Looter."] = "留空表示设置你自己为拾取者"
+ 
+-- Tanks module
+L["Tanks"] = "主坦克"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克.\n点击底部名单中的名字将其放入顶部名单."
 
 
