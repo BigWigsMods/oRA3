@@ -3,7 +3,7 @@ if not L then return end
 
 -- Generic
 L["Name"] = "oRA3"
-L["Checks"] = "状态检查"
+L["Checks"] = "检查"
 L["Disband Group"] = "解散团队"
 L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."] = "解散当前的小队或团队, 会将所有人踢出队伍, 直到只省下你一个人. 由于潜在的危险, 你会看到一个确认框. 按住CTRL跳过确认."
 L["Options"] = "选项"
@@ -46,7 +46,7 @@ L["Arcane"] = "奥术"
 L["%s is ressing %s."] = "%s正在复活%s"
 
 -- Invite module
-L["Invite"] = "组队邀请"
+L["Invite"] = "邀请"
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有满级玩家会被在10秒内被邀请，请保持没有队伍！"
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有在%s的玩家会被在10秒内被邀请，请保持没有队伍！"
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有会阶在%s以上的玩家会被在10秒内被邀请，请保持没有队伍！" 
@@ -65,7 +65,7 @@ L["Guild rank invites"] = "会阶邀请"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "自动邀请会阶高于等于所选等级的工会成员，按下该按钮会自动在工会和官员频道发送要求10秒内离队待组的消息，10秒后自动开始组人"
 
 -- Promote module
-L["Promote"] = "自动提升"
+L["Promote"] = "提升"
 L["Mass promotion"] = "批量提升"
 L["Everyone"] = "所有人"
 L["Promote everyone automatically."] = "自动提升所有人"
@@ -78,7 +78,7 @@ L["Add"] = "添加"
 L["Remove"] = "删除"
 
 -- Cooldowns module
-L["Cooldowns"] = "冷却监视"
+L["Cooldowns"] = "冷却"
 L["Monitor settings"] = "监视器设置"
 L["Show monitor"] = "显示"
 L["Lock monitor"] = "锁定"
@@ -93,7 +93,7 @@ L["Never show my own spells"] = "不显示我的法术"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "冷却显示器将不显示你的法术冷却. 例如你用冷却监视插件时可以勾选本项."
 
 -- monitor
-L["Cooldowns"] = "法术冷却"
+L["Cooldowns"] = "冷却"
 L["Right-Click me for options!"] = "右键打开设置"
 L["Bar Settings"] = "计时条设置"
 L["Spawn test bar"] = "显示测试计时条"
@@ -122,7 +122,7 @@ L["Version"] = "版本"
  L["Leave empty to make yourself Master Looter."] = "留空表示设置你自己为拾取者"
  
 -- Tanks module
-L["Tanks"] = "主坦克"
+L["Tanks"] = "坦克"
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克.\n点击底部名单中的名字将其放入顶部名单."
 
 
