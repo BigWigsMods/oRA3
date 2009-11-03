@@ -9,6 +9,7 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 local frame = nil
 local db = nil
 local peopleToInvite = {}
+local rankButtons = {}
 
 local function canInvite()
 	return ( oRA:InGroup() and oRA:IsPromoted() ) or not oRA:InGroup()
@@ -22,8 +23,10 @@ end
 
 local function hideConfig()
 	if frame then
+		frame:ReleaseChildren()
 		frame:Release()
 		frame = nil
+		wipe(rankButtons)
 	end
 end
 
@@ -207,16 +210,10 @@ local function updateRankButtons()
 		return
 	end
 	frame:PauseLayout()
-	local i = 1
-	while (i <= #frame.children) do
-		local widget = frame.children[i]
-		if widget:GetUserData("rank") then
-			table.remove(frame.children, i)
-			widget:Release()
-		else -- only increase i if we didn't delete an entry
-			i = i + 1
-		end
+	for i, button in next, rankButtons do
+		button:Release()
 	end
+	wipe(rankButtons)
 	local ranks = oRA:GetGuildRanks()
 	for i = 1, #ranks do
 		local rankName = ranks[i]
@@ -230,6 +227,7 @@ local function updateRankButtons()
 			inviteRank(i, rankName)
 		end)
 		button:SetRelativeWidth(0.33)
+		table.insert(rankButtons, button)
 		frame:AddChild(button)
 	end
 	frame:ResumeLayout()

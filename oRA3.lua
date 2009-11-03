@@ -791,6 +791,13 @@ function addon:SetupGUI()
 	end
 
 	oRA3Frame:SetScript("OnShow", function() addon:UpdateGUI() end )
+	oRA3Frame:SetScript("OnHide", function()
+		for k, v in ipairs(addon.panels) do
+			if type(v.hide) == "function" then
+				v.hide()
+			end
+		end
+	end )
 	
 	oRA3Frame.resizebg = resizebg
 	resizebg(frame)
