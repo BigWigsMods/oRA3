@@ -79,7 +79,7 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 	-- this event only fires when promoted, no need to check
 	--oRA:Print(event, id, confirm)
 	local name = UnitName(id)
-	if confirm == 1 then -- ready
+	if confirm then -- ready
 		readycheck[name] = RD_READY
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
