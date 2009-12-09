@@ -22,7 +22,7 @@ local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 
 local glyphCooldowns = {
-	[55455] = {2894, 600}, -- Fire Elemental Totem, 10min
+	[55455] = {2894, 300}, -- Fire Elemental Totem, 5min
 	[58618] = {47476, 20}, -- Strangulate, 20sec
 	[56373] = {31687, 30}, -- Summon Water Elemental, 30sec
 	[63229] = {47585, 45}, -- Dispersion, 45sec
@@ -36,7 +36,7 @@ local glyphCooldowns = {
 
 local spells = {
 	DRUID = {
-		[48477] = 1200, -- Rebirth
+		[48477] = 600, -- Rebirth
 		[29166] = 180, -- Innervate
 		[17116] = 180, -- Nature's Swiftness
 		[5209] = 180, -- Challenging Roar
@@ -45,7 +45,7 @@ local spells = {
 	HUNTER = {
 		[34477] = 30, -- Misdirect
 		[5384] = 30, -- Feign Death
-		[62757] = 1800, -- Call Stabled Pet
+		[62757] = 300, -- Call Stabled Pet
 		[781] = 25, -- Disengage
 		[34490] = 20, -- Silencing Shot
 	},
@@ -57,7 +57,7 @@ local spells = {
 		[66] = 180, -- Invisibility
 	},
 	PALADIN = {
-		[19752] = 1200, -- Divine Intervention
+		[19752] = 600, -- Divine Intervention
 		[642] = 300, -- Divine Shield
 		[64205] = 120, -- Divine Sacrifice
 		[498] = 180, -- Divine Protection
@@ -69,7 +69,7 @@ local spells = {
 		[33206] = 180, -- Pain Suppression
 		[47788] = 180, -- Guardian Spirit
 		[6346] = 180, -- Fear Ward
-		[64843] = 600, -- Divine Hymn
+		[64843] = 480, -- Divine Hymn
 		[64901] = 360, -- Hymn of Hope
 		[34433] = 300, -- Shadowfiend
 		[10060] = 120, -- Power Infusion
@@ -87,15 +87,15 @@ local spells = {
 	},
 	SHAMAN = {
 		[bloodlustId] = 300, -- Bloodlust/Heroism
-		[20608] = 3600, -- Reincarnation
+		[20608] = 1800, -- Reincarnation
 		[16190] = 300, -- Mana Tide Totem
-		[2894] = 1200, -- Fire Elemental Totem
-		[2062] = 1200, -- Earth Elemental Totem
+		[2894] = 600, -- Fire Elemental Totem
+		[2062] = 600, -- Earth Elemental Totem
 		[16188] = 180, -- Nature's Swiftness
 		[57994] = 6, -- Wind Shear
 	},
 	WARLOCK = {
-		[47883] = 1800, -- Soulstone Resurrection
+		[47883] = 900, -- Soulstone Resurrection
 		[29858] = 180, -- Soulshatter
 		[47241] = 180, -- Metamorphosis
 		[18708] = 900, -- Fel Domination
@@ -116,8 +116,8 @@ local spells = {
 	},
 	DEATHKNIGHT = {
 		[48792] = 120, -- Icebound Fortitude
-		[42650] = 1200, -- Army of the Dead
-		[61999] = 900, -- Raise Ally
+		[42650] = 600, -- Army of the Dead
+		[61999] = 600, -- Raise Ally
 		[49028] = 90, -- Dancing Rune Weapon
 		[49206] = 180, -- Summon Gargoyle
 		[47476] = 120, -- Strangulate
