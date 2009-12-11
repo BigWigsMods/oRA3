@@ -88,7 +88,8 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 end
 
 
-function module:READY_CHECK_FINISHED(event)
+function module:READY_CHECK_FINISHED(event, someBoolean)
+	if someBoolean then return end -- This seems to be true in 5mans and false in raids, no matter what people actually click.
 	if frame then
 		if db.autohide then frame.fadeTimer = 1 end
 		frame.timer = 0
