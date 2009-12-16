@@ -358,7 +358,7 @@ do
 		if not plainFrame then
 			plainFrame = AceGUI:Create("Window")
 			plainFrame:SetWidth(240)
-			plainFrame:SetHeight(348)
+			plainFrame:SetHeight(380)
 			plainFrame:SetPoint("CENTER", UIParent, "CENTER")
 			plainFrame:SetTitle( L["Bar Settings"] )
 			plainFrame:SetLayout("Fill")
@@ -421,6 +421,12 @@ do
 			align:SetLabel(L["Label Align"])
 			align:SetCallback("OnValueChanged", alignChanged)
 			align:SetFullWidth(true)
+			
+			local growup = AceGUI:Create("CheckBox")
+			growup:SetValue(db.cooldownBarGrowUp)
+			growup:SetLabel(L["Grow up"])
+			growup:SetUserData("key", "barGrowUp")
+			growup:SetCallback("OnValueChanged", toggleChanged)
 
 			local header = AceGUI:Create("Heading")
 			header:SetText(L["Show"])
@@ -461,7 +467,7 @@ do
 			short:SetCallback("OnValueChanged", toggleChanged)
 			--short:SetRelativeWidth(0.5)
 			
-			group:AddChildren(test, classColor, picker, height, scale, tex, align, header, icon, duration, unit, spell, short)
+			group:AddChildren(test, classColor, picker, height, scale, tex, align, growup, header, icon, duration, unit, spell, short)
 			plainFrame:AddChildren(group)
 		end
 		plainFrame:Show()
@@ -547,11 +553,6 @@ do
 		end
 	end
 	
-	function restyleBars()
-		for bar in pairs(visibleBars) do
-			restyleBar(bar)
-		end
-	end
 	
 	function stopAll()
 		for bar in pairs(visibleBars) do
@@ -574,11 +575,21 @@ do
 			bar:ClearAllPoints()
 			if i <= maximum then
 				if not lastBar then
-					bar:SetPoint("TOPLEFT", display, 4, -4)
-					bar:SetPoint("TOPRIGHT", display, -4, -4)
+					if db.barGrowUp then
+						bar:SetPoint("BOTTOMLEFT", display, 4, 4)
+						bar:SetPoint("BOTTOMRIGHT", display, -4, 4)
+					else
+						bar:SetPoint("TOPLEFT", display, 4, -4)
+						bar:SetPoint("TOPRIGHT", display, -4, -4)
+					end
 				else
-					bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT")
-					bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT")
+					if db.barGrowUp then
+						bar:SetPoint("BOTTOMLEFT", lastBar, "TOPLEFT")
+						bar:SetPoint("BOTTOMRIGHT", lastBar, "TOPRIGHT")
+					else
+						bar:SetPoint("TOPLEFT", lastBar, "BOTTOMLEFT")
+						bar:SetPoint("TOPRIGHT", lastBar, "BOTTOMRIGHT")
+					end
 				end
 				lastBar = bar
 				bar:Show()
@@ -588,6 +599,13 @@ do
 		end
 	end
 
+	function restyleBars()
+		for bar in pairs(visibleBars) do
+			restyleBar(bar)
+		end
+		rearrangeBars()
+	end
+	
 	function barStopped(event, bar)
 		if visibleBars[bar] then
 			visibleBars[bar] = nil
@@ -777,6 +795,7 @@ function module:OnRegister()
 			barShowUnit = true,
 			barShowSpell = true,
 			barClassColor = true,
+			barGrowUp = false,
 			barLabelAlign = "CENTER",
 			barColor = { 0.25, 0.33, 0.68, 1 },
 			barTexture = "oRA3",

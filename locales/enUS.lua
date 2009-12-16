@@ -110,6 +110,7 @@ L["Label Align"] = true
 L["Left"] = true
 L["Right"] = true
 L["Center"] = true
+L["Grow up"] = true
 
 -- Zone module
 L["Zone"] = true
