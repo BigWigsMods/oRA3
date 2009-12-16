@@ -111,6 +111,7 @@ L["Label Align"] = "Textausrichtung"
 L["Left"] = "Links"
 L["Right"] = "Rechts"
 L["Center"] = "Mittig"
+L["Grow up"] = "Nach oben erweitern"
 
 -- Zone module
 L["Zone"] = "Zone"
