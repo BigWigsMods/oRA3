@@ -111,6 +111,7 @@ L["Label Align"] = "Выравнивать"
 L["Left"] = "Влево"
 L["Right"] = "Вправо"
 L["Center"] = "По центру"
+L["Grow up"] = "Рост вверх"
 
 -- Zone module
 L["Zone"] = "Зона"
@@ -121,6 +122,6 @@ L["Version"] = "Версия"
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = "Оставьте пустыми чтобы сделать себя ответственным за добычу."
  
- -- Tanks module
+-- Tanks module
 L["Tanks"] = "Танки"
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "Вверху: Назначенные танки. Внизу: возможные танки.\nНажмите на участника в нижнем списке чтобы добавит его в верхний список."
