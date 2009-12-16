@@ -95,7 +95,8 @@ local spells = {
 		[57994] = 6, -- Wind Shear
 	},
 	WARLOCK = {
-		[47883] = 900, -- Soulstone Resurrection
+		-- [47883] = 900, -- Soulstone Resurrection, removed this spellcast_success is hit with 6203 for all ranks
+		[6203] = 900, -- Soulstone
 		[29858] = 180, -- Soulshatter
 		[47241] = 180, -- Metamorphosis
 		[18708] = 900, -- Fel Domination
