@@ -111,6 +111,7 @@ L["Label Align"] = "Label 정렬"
 L["Left"] = "좌측"
 L["Right"] = "우측"
 L["Center"] = "중앙"
+L["Grow up"] = "성장 방향"
 
 -- Zone module
 L["Zone"] = "지역"
