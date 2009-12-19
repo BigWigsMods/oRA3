@@ -778,7 +778,7 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[48477] = true,
+				[6203] = true,
 				[19752] = true,
 				[20608] = true,
 				[27239] = true,
