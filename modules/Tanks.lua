@@ -373,6 +373,7 @@ function module:UpdateBottomScroll()
 			table.insert(ngroup, v)
 		end
 	end
+	table.sort(ngroup)
 	local nr = #ngroup
 	FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16)
 	for i = 1, 9 do
