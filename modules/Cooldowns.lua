@@ -801,6 +801,11 @@ function module:OnRegister()
 			barTexture = "oRA3",
 		},
 	})
+	for k, v in pairs(database.profile.spells) do
+		if not classLookup[k] then
+			database.profile.spells[k] = nil
+		end
+	end
 	db = database.profile
 
 	oRA:RegisterPanel(
