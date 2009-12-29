@@ -7,10 +7,13 @@ local AceGUI = LibStub("AceGUI-3.0")
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local frame = nil
-local indexedTanks = {}
-local namedTanks = {}
-local tmpTanks = {}
-local namedPersistent = {}
+local indexedTanks = {} -- table containing the final tank list
+local namedTanks = {} -- table containing current active tanks by name
+local tmpTanks = {} -- temp tank table reused
+local namedPersistent = {} -- table containing named persistent list filled from db.persistentTanks
+local allIndexedTanks = {} -- table containing the top scroll sorted list of indexed tanks
+local sessionTanks = {} -- Tanks you pushed to the top for this session
+
 local topscrolls = {}
 local bottomscrolls = {}
 
@@ -41,6 +44,8 @@ function module:OnRegister()
 	)
 	for k, tank in ipairs(self.db.persistentTanks) do
 		namedPersistent[tank] = true
+		sessionTanks[tank] = true
+		table.insert(allIndexedTanks, tank)
 	end
 	oRA.RegisterCallback(self, "OnTanksChanged")
 	oRA.RegisterCallback(self, "OnGroupChanged")
@@ -50,7 +55,7 @@ end
 
 local function sortTanks()
 	wipe(indexedTanks)
-	for k, tank in ipairs(module.db.persistentTanks) do
+	for k, tank in ipairs(allIndexedTanks) do
 		if namedTanks[tank] then
 			table.insert(indexedTanks, tank)
 		end
@@ -109,15 +114,20 @@ function module:OnTanksChanged(event, tanks, updateSort)
 	end
 	for k, tank in ipairs(tanks) do
 		if not namedTanks[tank] then
-			table.insert(module.db.persistentTanks, tank)
-			namedPersistent[tank] = true
+			table.insert(allIndexedTanks, tank)
 			updateSort = true
 			namedTanks[tank] = true
 		end
 		tmpTanks[tank] = nil
 	end
 	for tank, v in pairs(tmpTanks) do
-		if not namedPersistent[tank] then -- remove any leftover tanks that are not persistent
+		if not namedPersistent[tank] and not sessionTanks[tank] then -- remove any leftover tanks that are not persistent or set for the session
+			for kk, vv in ipairs(allIndexedTanks) do
+				if vv == tank then
+					table.remove(allIndexedTanks, kk)
+					break
+				end
+			end
 			updateSort = true
 			namedTanks[tank] = nil
 		end
@@ -229,6 +239,7 @@ function module:CreateFrame()
 			local value = topscrolls[i].unitName
 			local btanks = oRA:GetBlizzardTanks()
 			if util:inTable( btanks, value) then return end
+			-- remove from persistant if in there
 			for k, v in ipairs(module.db.persistentTanks) do
 				if v == value then
 					table.remove(module.db.persistentTanks, k)
@@ -236,6 +247,14 @@ function module:CreateFrame()
 				end
 			end
 			namedPersistent[value] = nil
+			-- remove from the list
+			for k, v in ipairs(allIndexedTanks) do
+				if v == value then
+					table.remove(allIndexedTanks, k)
+				end
+			end
+			sessionTanks[value] = nil
+			-- update
 			module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
 		end)
@@ -246,18 +265,48 @@ function module:CreateFrame()
 		topscrolls[i].tankbutton:SetAttribute("type", "maintank")
 		topscrolls[i].tankbutton:SetAttribute("action", "toggle")
 		topscrolls[i].tankbutton:EnableMouse( oRA:IsPromoted() )
+
+		topscrolls[i].savebutton = CreateButton("oRA3TankTopScrollSave"..i, topscrolls[i])
+		topscrolls[i].savebutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
+		topscrolls[i].savebutton.icon:SetTexture(READY_CHECK_READY_TEXTURE)
+		-- topscrolls[i].savebutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
+		topscrolls[i].savebutton:SetScript("OnClick", function(self)
+			if self.disabled then return end
+			local value = topscrolls[i].unitName
+			local k = util:inTable( module.db.persistentTanks, value)
+			if k then
+				table.remove(module.db.persistentTanks, k)
+				namedPersistent[value] = nil
+			else
+				namedPersistent[value] = true
+				wipe(module.db.persistentTanks)
+				for k, v in ipairs(allIndexedTanks) do
+					if namedPersistent[v] then
+						table.insert(module.db.persistentTanks, v)
+					end
+				end
+			end
+			module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers() )
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks() )
+		end)
 		
 		topscrolls[i].downbutton = CreateButton("oRA3TankTopScrollDown"..i, topscrolls[i])
-		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].tankbutton, "TOPLEFT", -2, 0)
+		topscrolls[i].downbutton:SetPoint("TOPRIGHT", topscrolls[i].savebutton, "TOPLEFT", -2, 0)
 		topscrolls[i].downbutton.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
 		topscrolls[i].downbutton.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 		topscrolls[i].downbutton:SetScript("OnClick", function(self)
 			if self.disabled then return end
 			local value = topscrolls[i].unitName
-			local k = util:inTable( module.db.persistentTanks, value)
-			local temp = module.db.persistentTanks[k]
-			module.db.persistentTanks[k] = module.db.persistentTanks[k+1]
-			module.db.persistentTanks[k+1] = temp
+			local k = util:inTable( allIndexedTanks, value)
+			local temp = allIndexedTanks[k]
+			allIndexedTanks[k] = allIndexedTanks[k+1]
+			allIndexedTanks[k+1] = temp
+			wipe(module.db.persistentTanks)
+			for k, v in ipairs(allIndexedTanks) do
+				if namedPersistent[v] then
+					table.insert(module.db.persistentTanks, v)
+				end
+			end
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 		end)
 		
@@ -269,10 +318,16 @@ function module:CreateFrame()
 		topscrolls[i].upbutton:SetScript("OnClick", function(self)
 			if self.disabled then return end
 			local value = topscrolls[i].unitName
-			local k = util:inTable( module.db.persistentTanks, value)
-			local temp = module.db.persistentTanks[k]
-			module.db.persistentTanks[k] = module.db.persistentTanks[k-1]
-			module.db.persistentTanks[k-1] = temp
+			local k = util:inTable( allIndexedTanks, value)
+			local temp = allIndexedTanks[k]
+			allIndexedTanks[k] = allIndexedTanks[k-1]
+			allIndexedTanks[k-1] = temp
+			wipe(module.db.persistentTanks)
+			for k, v in ipairs(allIndexedTanks) do
+				if namedPersistent[v] then
+					table.insert(module.db.persistentTanks, v)
+				end
+			end
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 		end)
 	end
@@ -284,11 +339,12 @@ function module:CreateFrame()
 		bottomscrolls[i]:EnableMouse(true)
 		bottomscrolls[i]:SetScript("OnClick", function( self ) 
 			local value = self.unitName
-			if util:inTable( module.db.persistentTanks, value) then return true end
-			table.insert(module.db.persistentTanks, value)
-			namedPersistent[value] = true
-			namedTanks[value] =true
+			if util:inTable( allIndexedTanks, value) then return true end
+			table.insert(allIndexedTanks, value)
+			sessionTanks[value] = true
+			namedTanks[value] = true
 			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true )
+			module:UpdateScrolls()
 		end)
 		if i == 1 then
 			bottomscrolls[i]:SetPoint("TOPLEFT", frame.bottomscroll, "TOPLEFT")
@@ -324,7 +380,7 @@ end
 local ngroup = {}
 function module:UpdateTopScroll()
 	if not frame then return end
-	local list = self.db.persistentTanks
+	local list = allIndexedTanks
 	local nr = #list
 	local btanks = oRA:GetBlizzardTanks()
 	FauxScrollFrame_Update(frame.topscroll, nr, 10, 16)
@@ -354,6 +410,11 @@ function module:UpdateTopScroll()
 				topscrolls[i].deletebutton:SetAlpha(1)
 				topscrolls[i].deletebutton:EnableMouse(true)
 			end
+			if namedPersistent[list[j]] then
+				topscrolls[i].savebutton:SetAlpha(1)
+			else
+				topscrolls[i].savebutton:SetAlpha(.3)
+			end
 			topscrolls[i].unitName = list[j]
 			topscrolls[i].tankbutton:SetAttribute("unit", list[j])
 			topscrolls[i].nametext:SetText(oRA.coloredNames[list[j]])
@@ -369,7 +430,7 @@ function module:UpdateBottomScroll()
 	local group = oRA:GetGroupMembers()
 	wipe(ngroup)
 	for	k, v in pairs(group) do
-		if not namedPersistent[v] then -- only add not in the tanklist
+		if not namedTanks[v] then -- only add not in the tanklist
 			table.insert(ngroup, v)
 		end
 	end
