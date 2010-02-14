@@ -189,10 +189,10 @@ do
 		if spells[key] then
 			-- Class spells
 			for id in pairs(spells[key]) do
-				table.insert(tmp, id)
+				tmp[#tmp + 1] = id
 			end
 			table.sort(tmp) -- ZZZ Sorted by spell ID, oh well!
-			for i, v in ipairs(tmp) do
+			for i, v in next, tmp do
 				local name = GetSpellInfo(v)
 				if not name then break end
 				local checkbox = AceGUI:Create("CheckBox")
@@ -567,11 +567,11 @@ do
 	local function rearrangeBars()
 		wipe(tmp)
 		for bar in pairs(visibleBars) do
-			table.insert(tmp, bar)
+			tmp[#tmp + 1] = bar
 		end
 		table.sort(tmp, barSorter)
 		local lastBar = nil
-		for i, bar in ipairs(tmp) do
+		for i, bar in next, tmp do
 			bar:ClearAllPoints()
 			if i <= maximum then
 				if not lastBar then
@@ -835,7 +835,7 @@ do
 		if not spellList then
 			spellList = {}
 			reverseClass = {}
-			for k in pairs(allSpells) do table.insert(spellList, k) end
+			for k in pairs(allSpells) do spellList[#spellList + 1] = k end
 			for name, class in pairs(oRA._testUnits) do reverseClass[class] = name end
 		end
 		local spell = spellList[math.random(1, #spellList)]

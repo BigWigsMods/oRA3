@@ -119,7 +119,7 @@ do
 
 			local guildRanks = oRA:GetGuildRanks()
 			ranks:SetList(guildRanks)
-			for i, v in ipairs(guildRanks) do
+			for i, v in next, guildRanks do
 				ranks:SetItemValue(i, guildRankDb[i])
 			end
 		end
@@ -265,7 +265,7 @@ end
 function module:OnGuildRanksUpdate(event, r)
 	if ranks then
 		ranks:SetList(r)
-		for i, v in ipairs(r) do
+		for i, v in next, r do
 			ranks:SetItemValue(i, guildRankDb[i])
 		end
 	end

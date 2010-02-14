@@ -94,12 +94,10 @@ function doActualInvites()
 		end
 		return
 	end
-	for i, v in ipairs(peopleToInvite) do
+	for i, v in next, peopleToInvite do
 		InviteUnit(v)
 	end
-	for k in pairs(peopleToInvite) do
-		peopleToInvite[k] = nil
-	end
+	wipe(peopleToInvite)
 end
 
 local function doGuildInvites(level, zone, rank)
@@ -107,12 +105,12 @@ local function doGuildInvites(level, zone, rank)
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
 		if name and online and not UnitInParty(name) and not UnitInRaid(name) then
 			if level and level <= unitLevel then
-				table.insert(peopleToInvite, name)
+				peopleToInvite[#peopleToInvite + 1] = name
 			elseif zone and zone == unitZone then
-				table.insert(peopleToInvite, name)
+				peopleToInvite[#peopleToInvite + 1] = name
 			-- See the wowwiki docs for GetGuildRosterInfo, need to add +1 to the rank index
 			elseif rank and (rankIndex + 1) <= rank then
-				table.insert(peopleToInvite, name)
+				peopleToInvite[#peopleToInvite + 1] = name
 			end
 		end
 	end
@@ -141,6 +139,7 @@ end
 
 local function inviteGuild()
 	if not canInvite() then return end
+	GuildRoster()
 	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(MAX_PLAYER_LEVEL), "GUILD")
 	inviteFrame.level = MAX_PLAYER_LEVEL
 	inviteFrame.zone = nil
@@ -150,6 +149,7 @@ end
 
 local function inviteZone()
 	if not canInvite() then return end
+	GuildRoster()
 	local currentZone = GetRealZoneText()
 	chat((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
 	inviteFrame.level = nil
@@ -160,6 +160,7 @@ end
 
 local function inviteRank(rank, name)
 	if not canInvite() then return end
+	GuildRoster()
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
@@ -183,7 +184,7 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 		elseif isIn and instanceType == "raid" and diff == 2 and raid == 25 then
 			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)]]
 		elseif party == 4 and raid == 0 then
-			table.insert(peopleToInvite, author)
+			peopleToInvite[#peopleToInvite + 1] = author
 			doActualInvites()
 		elseif raid == 40 then
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
