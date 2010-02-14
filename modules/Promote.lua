@@ -17,6 +17,7 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 local guildRankDb = nil
 local factionDb = nil
 local queuePromotes = nil
+local dontPromoteThisSession = {}
 
 --------------------------------------------------------------------------------
 -- GUI
@@ -198,6 +199,7 @@ end
 
 do
 	local function shouldPromote(name)
+		if dontPromoteThisSession[name] then return false end
 		local gML = oRA:GetGuildMembers()
 		if factionDb.promoteAll then return true
 		elseif factionDb.promoteGuild and gML[name] then return true
@@ -206,27 +208,23 @@ do
 		end
 	end
 
-	local f = CreateFrame("Frame")
-	local total = 0
-	local firedPromotes = nil
 	local promotes = {}
-	local function onUpdate(self, elapsed)
+
+	local f = CreateFrame("Frame")
+	f:Hide()
+	local total = 0
+	f:SetScript("OnHide", function() total = 0 end)
+	f:SetScript("OnUpdate", function(self, elapsed)
 		total = total + elapsed
 		if total < 2 then return end
-		if next(promotes) then
-			for k in pairs(promotes) do
-				PromoteToAssistant(k)
-				promotes[k] = nil
-			end
-			firedPromotes = true
-			total = 0
-		elseif firedPromotes then
-			firedPromotes = nil
-			total = 0
-			self:SetScript("OnUpdate", nil)
+		for k in pairs(promotes) do
+			PromoteToAssistant(k)
+			promotes[k] = nil
 		end
-	end
+		f:Hide()
+	end)
 	function queuePromotes()
+		if f:IsShown() then f:Hide() end
 		if not IsRaidLeader() or oRA.groupStatus ~= oRA.INRAID then return end
 		for i = 1, GetNumRaidMembers() do
 			local n, r = GetRaidRosterInfo(i)
@@ -235,23 +233,24 @@ do
 			end
 		end
 		if next(promotes) then
-			f:SetScript("OnUpdate", onUpdate)
+			f:Show()
 		end
 	end
 	function module:OnGroupChanged(event, status, members)
-		if #members > 0 and total == 0 then
+		if #members > 0 then
 			queuePromotes()
 		end
 	end
 	function module:OnPromoted()
-		if total == 0 then
-			queuePromotes()
-		end
+		queuePromotes()
 	end
 
 	function module:OnEnable()
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
+		self:SecureHook("DemoteAssistant", true, function(player)
+			dontPromoteThisSession[player] = true
+		end)
 	end
 end
 

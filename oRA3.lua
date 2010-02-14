@@ -201,7 +201,7 @@ end
 do
 	local function isIndexedEqual(a, b)
 		if #a ~= #b then return false end
-		for i, v in ipairs(a) do
+		for i, v in next, a do
 			if v ~= b[i] then return false end
 		end
 		return true
@@ -227,10 +227,9 @@ do
 		wipe(tmpRanks)
 		wipe(tmpMembers)
 		for i = 1, GuildControlGetNumRanks() do
-			table.insert(tmpRanks, GuildControlGetRankName(i))
+			tmpRanks[#tmpRanks + 1] = GuildControlGetRankName(i)
 		end
-		local numGuildMembers = GetNumGuildMembers()
-		for i = 1, numGuildMembers do
+		for i = 1, GetNumGuildMembers(true) do
 			local name, _, rankIndex = GetGuildRosterInfo(i)
 			if name then tmpMembers[name] = rankIndex + 1 end
 		end
@@ -269,9 +268,9 @@ do
 			for i = 1, GetNumRaidMembers() do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
 				if n then
-					table.insert(tmpGroup, n)
+					tmpGroup[#tmpGroup + 1] = n
 					if role == "MAINTANK" then
-						table.insert(tmpTanks, n)
+						tmpTanks[#tmpTanks + 1] = n
 					end
 				end
 			end
@@ -279,7 +278,7 @@ do
 			table.insert(tmpGroup, playerName)
 			for i = 1, 4 do
 				local n = UnitName("party" .. i)
-				if n then table.insert(tmpGroup, n) end
+				if n then tmpGroup[#tmpGroup + 1] = n end
 			end
 		end
 		if oldStatus ~= groupStatus or not isIndexedEqual(tmpGroup, groupMembers) then
