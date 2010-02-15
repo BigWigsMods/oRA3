@@ -936,6 +936,8 @@ function module:UpdateCooldownModifiers()
 	elseif playerClass == "DEATHKNIGHT" then
 		local _, _, _, _, rank = GetTalentInfo(3, 6)
 		addMod(49576, rank * 5)
+		_, _, _, _, rank = GetTalentInfo(3, 13)
+		addMod(42650, rank * 120)
 	elseif playerClass == "HUNTER" then
 		local _, _, _, _, rank = GetTalentInfo(3, 11)
 		addMod(781, rank * 2)
