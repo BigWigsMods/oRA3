@@ -248,7 +248,7 @@ do
 	function module:OnEnable()
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
-		self:SecureHook("DemoteAssistant", true, function(player)
+		self:SecureHook("DemoteAssistant", function(player)
 			dontPromoteThisSession[player] = true
 		end)
 	end
