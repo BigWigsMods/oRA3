@@ -7,7 +7,7 @@
 
 ## SavedVariables: oRA3DB
 
-## OptionalDeps: Ace3, LibResComm-1.0, LibCandyBar-3.0, LibSharedMedia-3.0
+## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: true
@@ -34,9 +34,7 @@ modules\Zone.lua
 modules\Version.lua
 modules\Invite.lua
 modules\Promote.lua
-modules\Resurrection.lua
 modules\Cooldowns.lua
 modules\Tanks.lua
 modules\Loot.lua
-
 

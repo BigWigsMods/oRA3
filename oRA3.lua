@@ -48,6 +48,7 @@ local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
 local Tanks = {} -- Index:Name
 local playerPromoted = nil
+local oRA3Frame = nil
 
 -- couple of local constants used for party size
 local UNGROUPED = 0
@@ -422,8 +423,8 @@ end
 
 function addon:SetupGUI()
 	if oRA3Frame then return end
-
-	local frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
+	oRA3Frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
+	local frame = oRA3Frame
 
 	frame:SetWidth(640)
 	frame:SetHeight(512)
@@ -508,7 +509,6 @@ function addon:SetupGUI()
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
-	--self:SetFrameTooltip(close, "Click to close the oRA3 GUI")
 
 	local titlereg = CreateFrame("Button", nil, frame)
 	titlereg:SetPoint("TOPLEFT", 5, -5)
@@ -523,16 +523,13 @@ function addon:SetupGUI()
 	titlereg:SetScript("OnMouseUp", function(f)
 		local parent = f:GetParent()
 		parent:StopMovingOrSizing()
-		-- self:SavePosition("oRA3Frame")
 	end)
-									
+
 	local title = frame:CreateFontString(nil, "ARTWORK")
 	title:SetFontObject(GameFontNormal)
 	title:SetPoint("TOP", 0, -6)
 	title:SetText("oRA3")
 
-	
-	
 	frame:EnableMouse()
 	frame:SetMovable(1)
 	frame:SetResizable(1)
@@ -542,19 +539,8 @@ function addon:SetupGUI()
 	frame:SetWidth(325)
 	frame:SetHeight(450)
 
-	frame.bg1 = bg1
-	frame.bg2 = bg2
-	frame.bg3 = bg3
-	frame.top = top
 	frame.bot = bot
-	frame.topleft = topleft
-	frame.topright = topright
-	frame.botleft = botleft
-	frame.botright = botright
 	frame.close = close
-	frame.mid = mid
-	frame.midleft = midleft
-	frame.midright = midright
 	frame.titlereg = titlereg
 	frame.title = title
 	
@@ -617,45 +603,39 @@ function addon:SetupGUI()
 		min,max = max,min
 	end
 
-	if not frame.handle then
-		frame.handle = CreateFrame("Button", nil, frame)
-	end
-
-	frame.handle:SetWidth(8)
-	frame.handle:SetHeight(128)
-	frame.handle:SetPoint("LEFT", frame, "RIGHT", 0, 0)
-	frame.handle:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\tabhandle")
-
-	frame.handle:RegisterForClicks("AnyUp")
-	frame.handle:SetScript("OnClick", function(self, button)
+	local handle = CreateFrame("Button", nil, frame)
+	handle:SetWidth(8)
+	handle:SetHeight(128)
+	handle:SetPoint("LEFT", frame, "RIGHT", 0, 0)
+	handle:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\tabhandle")
+	handle:RegisterForClicks("AnyUp")
+	handle:SetScript("OnClick", function()
 		frame:SetScript("OnUpdate", onupdate)
 	end)
-	frame:SetScript("OnClick", function(self, button)
+	frame:SetScript("OnClick", function()
 		frame:SetScript("OnUpdate", onupdate)
 	end)
-
-	frame.handle:SetScript("OnEnter", function(self)
+	handle:SetScript("OnEnter", function(self)
 		SetCursor("INTERACT_CURSOR")
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		GameTooltip:SetText(L["Click to open/close oRA3"])
 		GameTooltip:Show()
 	end)
-
-	frame.handle:SetScript("OnLeave",function(self)
+	handle:SetScript("OnLeave",function(self)
 		SetCursor(nil)
 		GameTooltip:Hide()
 	end)
+	frame.handle = handle
 
-	frame.close:SetScript("OnClick", function() 
+	close:SetScript("OnClick", function()
 		if RaidFrame:IsVisible() then
 			HideUIPanel(FriendsFrame)
 		else
-			frame.handle:Click() 
+			handle:Click()
 		end
 	end)
 
-	local subframe = CreateFrame("Frame", "oRA3FrameSub", oRA3Frame)
-	--subframe:SetPoint("TOPLEFT", 40, -56)
+	local subframe = CreateFrame("Frame", "oRA3FrameSub", frame)
 	subframe:SetPoint("TOPLEFT", 14, -56)
 	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
 	subframe:SetAlpha(0)
@@ -700,7 +680,7 @@ function addon:SetupGUI()
 	options:SetScript( "OnClick", function()  self:ShowOptions() end )
 	
 	
-	oRA3Frame.oRAtabs = {} -- setup the tab listing
+	frame.oRAtabs = {} -- setup the tab listing
 	self:SetupPanels() -- fill the tab listing
 
 	local listFrame = CreateFrame("Frame", "oRA3ListFrame", contentFrame)
@@ -717,12 +697,8 @@ function addon:SetupGUI()
 	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
 	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
 	sframebottom:SetFrameLevel(contentFrame:GetFrameLevel())
-	--sframebottom:SetBackdrop(backdrop)
-	--sframebottom:SetBackdropBorderColor(.8, .8, .8)
-	--sframebottom:SetBackdropColor(0,0,0,0)
 
-	local bar = CreateFrame("Button", nil, sframebottom )
-	sframebottom.bar = bar
+	local bar = CreateFrame("Button", nil, sframebottom)
 	bar:Show()
 	bar:SetPoint("TOPLEFT", sframebottom, "TOPLEFT", 3, 3)
 	bar:SetPoint("TOPRIGHT", sframebottom, "TOPRIGHT", -4, 3)
@@ -732,17 +708,13 @@ function addon:SetupGUI()
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
-	
+
 	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", listFrame)
 	sframetop:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
 	sframetop:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, 0)
 	sframetop:SetHeight(27)
-	--sframetop:SetBackdrop(backdrop)
-	--sframetop:SetBackdropBorderColor(.8, .8, .8)
-	--sframetop:SetBackdropColor(0,0,0,0)
 
-	bar = CreateFrame("Button", nil, sframetop )
-	sframetop.bar = bar
+	bar = CreateFrame("Button", nil, sframetop)
 	bar:Show()
 	bar:SetPoint("BOTTOMLEFT", sframetop, "BOTTOMLEFT", 3, -2)
 	bar:SetPoint("BOTTOMRIGHT", sframetop, "BOTTOMRIGHT", -4, -2)
@@ -754,9 +726,8 @@ function addon:SetupGUI()
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 	
 	local function updScroll() addon:UpdateScroll() end
-	
 	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updScroll )
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updScroll)
 	end)
 
 	local function resizebg(frame)
@@ -772,37 +743,36 @@ function addon:SetupGUI()
 		end
 
 		if bg2w > 0 then
-			frame.bg2:SetWidth(bg2w)
-			frame.bg2:SetTexCoord(0, (bg2w / 256), 0, 1)
-			frame.bg2:Show()
+			bg2:SetWidth(bg2w)
+			bg2:SetTexCoord(0, (bg2w / 256), 0, 1)
+			bg2:Show()
 		else
-			frame.bg2:Hide()
+			bg2:Hide()
 		end
 
 		
 		if bg3w and bg3w > 0 then
-			frame.bg3:SetWidth(bg3w)
-			frame.bg3:SetTexCoord(0, (bg3w / 256), 0, 1)
-			frame.bg3:Show()
+			bg3:SetWidth(bg3w)
+			bg3:SetTexCoord(0, (bg3w / 256), 0, 1)
+			bg3:Show()
 		else
-			frame.bg3:Hide()
+			bg3:Hide()
 		end
 	end
 
-	oRA3Frame:SetScript("OnShow", function() addon:UpdateGUI() end )
-	oRA3Frame:SetScript("OnHide", function()
-		for k, v in ipairs(addon.panels) do
+	frame:SetScript("OnShow", function() addon:UpdateGUI() end)
+	frame:SetScript("OnHide", function()
+		for k, v in next, addon.panels do
 			if type(v.hide) == "function" then
 				v.hide()
 			end
 		end
-	end )
+	end)
 	
-	oRA3Frame.resizebg = resizebg
+	frame.resizebg = resizebg
 	resizebg(frame)
 	
 	self:UpdateFrameStatus()
-	
 	self:SelectPanel()
 end
 
@@ -827,7 +797,6 @@ function addon:SetAllPointsToPanel(frame)
 		frame:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", -4, 6)
 	end
 end
-
 
 function addon:UpdateFrameStatus()
 	local subframe = oRA3FrameSub
@@ -859,19 +828,19 @@ function addon:UpdateFrameStatus()
 end
 
 function addon:SavePosition(name, nosize)
-    local f = getglobal(name)
-    local x,y = f:GetLeft(), f:GetTop()
-    local s = f:GetEffectiveScale()
-    
-    x,y = x*s,y*s
-    
+	local f = getglobal(name)
+	local x,y = f:GetLeft(), f:GetTop()
+	local s = f:GetEffectiveScale()
+
+	x,y = x*s,y*s
+
 	local opt = db.positions[name]
 	if not opt then 
 		db.positions[name] = {}
 		opt = db.positions[name]
 	end
-    opt.PosX = x
-    opt.PosY = y
+	opt.PosX = x
+	opt.PosY = y
 	if not nosize then
 		opt.Width = f:GetWidth()
 		opt.Height = f:GetHeight()
@@ -889,17 +858,17 @@ function addon:RestorePosition(name)
 	local x = opt.PosX
 	local y = opt.PosY
 
-    local s = f:GetEffectiveScale()
-        
-    if not x or not y then
-        f:ClearAllPoints()
-        f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-        return false
-    end
+	local s = f:GetEffectiveScale()
+		
+	if not x or not y then
+		f:ClearAllPoints()
+		f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		return false
+	end
 
-    x,y = x/s,y/s
+	x,y = x/s,y/s
 
-    f:ClearAllPoints()
+	f:ClearAllPoints()
 	f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
 
 	-- restore height/width if stored
@@ -941,7 +910,7 @@ function addon:UpdateScroll()
 	for i = 1, 19 do
 		local j = i + FauxScrollFrame_GetOffset(contentFrame.scrollFrame)
 		if j <= nr then
-			for k, v in ipairs(scrollheaders) do
+			for k, v in next, scrollheaders do
 				if k == 1 then
 					v.entries[i]:SetText(coloredNames[list.contents[j][k]])
 				else
@@ -951,7 +920,7 @@ function addon:UpdateScroll()
 			end
 			scrollhighs[i]:Show()
 		else
-			for k, v in ipairs(scrollheaders) do
+			for k, v in next, scrollheaders do
 				v.entries[i]:Hide()
 			end
 			scrollhighs[i]:Hide()
@@ -970,21 +939,21 @@ function addon:CreateScrollHeader()
 	local nr = #scrollheaders + 1
 	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
 	f:SetScript("OnClick", function() self:SortColumn(nr) end)
-	table.insert( scrollheaders, f)
+	scrollheaders[#scrollheaders + 1] = f
 	
 	if #scrollheaders == 1 then
 		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 1, -2)
 	else
 		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
 	end
-	
+
 	local entries = {}
 	-- create childs
 	local text = self:CreateScrollEntry(f)
 	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0 )
 	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
 	entries[1] = text
-	
+
 	if #scrollheaders == 1 then
 		scrollhighs[1] = CreateFrame("Button", "oRA3ScrollHigh1", contentFrame.listFrame)
 		scrollhighs[1]:SetPoint("TOPLEFT", entries[1], "TOPLEFT", 0, 0)
@@ -1020,7 +989,6 @@ function addon:CreateScrollEntry( header )
 	return f
 end
 
-
 function addon:CreateListButton(name)
 	if not contentFrame then return end
 	local nr = #listbuttons + 1
@@ -1032,7 +1000,7 @@ function addon:CreateListButton(name)
 	f:SetDisabledFontObject(GameFontDisableSmall)
 	f:SetText(name)
 	f:SetScript("OnClick", function() self:SelectList(name) end)
-	table.insert( listbuttons, f)
+	listbuttons[#listbuttons + 1] = f
 	
 	if #listbuttons == 1 then
 		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 5, -4)
@@ -1042,7 +1010,7 @@ function addon:CreateListButton(name)
 	return f
 end
 
-function addon:UpdateGUI( name )
+function addon:UpdateGUI(name)
 	self:SetupGUI()
 	if not openedPanel then
 		openedPanel = self.panels[1].name
@@ -1077,7 +1045,7 @@ function addon:UnregisterPanel(name)
 end
 
 function addon:SetupPanels()
-	for k, v in ipairs(self.panels) do
+	for k, v in next, self.panels do
 		self:SetupPanel(v.name)
 	end
 end
@@ -1101,7 +1069,7 @@ function addon:RegisterList(name, contents, ...)
 		for i = 1, select("#", ...) do
 			local cname = select(i, ...)
 			if cname then
-				table.insert( self.lists[name].cols, { name = cname } )
+				self.lists[name].cols[#self.lists[name].cols + 1] = { name = cname }
 			end
 		end
 	end
@@ -1131,7 +1099,7 @@ function addon:SetupList(name)
 end
 
 function addon:SetupLists()
-	for k, v in ipairs(self.lists) do
+	for k, v in next, self.lists do
 		self:SetupList(v.name)
 	end
 end
@@ -1178,7 +1146,7 @@ function addon:SelectPanel(name)
 	openedPanel = name
 	
 	selectedTab = 1
-	for k, v in ipairs(self.panels) do
+	for k, v in next, self.panels do
 		if v.name ~= name and type(v.hide) == "function" then
 			v.hide()
 		end
@@ -1196,7 +1164,7 @@ end
 
 function addon:SelectList( name )
 	openedList = name
-	for k, v in ipairs(self.lists) do
+	for k, v in next, self.lists do
 		if v.name == openedList then
 			v.button:SetNormalFontObject(GameFontHighlightSmall)
 		else
@@ -1206,7 +1174,7 @@ function addon:SelectList( name )
 	showLists()
 end
 
-function addon:OpenToList( name )
+function addon:OpenToList(name)
 	ToggleFriendsFrame(5) -- raidframe tab
 	if not db.open then
 		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
@@ -1220,7 +1188,7 @@ function showLists()
 	addon:SetupLists()
 	
 	-- hide all scrollheaders per default
-	for k, f in ipairs(scrollheaders) do
+	for k, f in next, scrollheaders do
 		f:Hide()
 	end
 	
@@ -1249,7 +1217,7 @@ function showLists()
 		-- otherwise it will be too big due to the scrollbar being present or not
 		scrollhighs[i]:SetWidth(totalwidth)
 	end
-	for k, v in ipairs(list.cols) do
+	for k, v in next, list.cols do
 		scrollheaders[k]:SetText(v.name)
 		if k == 1 or #list.cols == 2 then
 			addon:SetScrollHeaderWidth(k, width*2)
@@ -1262,7 +1230,7 @@ function showLists()
 end
 
 function hideLists()
-	for k, f in ipairs(scrollheaders) do
+	for k, f in next, scrollheaders do
 		f:Hide()
 	end
 	contentFrame.listFrame:Hide()

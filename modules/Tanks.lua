@@ -145,7 +145,7 @@ end
 local function OnEnter(self) self.highlight:Show() end
 local function OnLeave(self) self.highlight:Hide() end
 
-local function CreateButton(name, parent, template)
+local function createButton(name, parent, template)
 	local frame = CreateFrame("Button", name, parent, template)
 	frame:SetWidth(16)
 	frame:SetHeight(16)
@@ -153,15 +153,15 @@ local function CreateButton(name, parent, template)
 	frame:SetScript("OnLeave", OnLeave)
 	frame:SetScript("OnEnter", OnEnter)
 
-	local image = frame:CreateTexture(nil,"BACKGROUND")
+	local image = frame:CreateTexture(nil, "BACKGROUND")
 	frame.icon = image
 	image:SetAllPoints(frame)
 
-	local highlight = frame:CreateTexture(nil,"OVERLAY")
+	local highlight = frame:CreateTexture(nil, "OVERLAY")
 	frame.highlight = highlight
 	highlight:SetAllPoints(frame)
 	highlight:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight")
-	highlight:SetTexCoord(0,1,0.23,0.77)
+	highlight:SetTexCoord(0, 1, 0.23, 0.77)
 	highlight:SetBlendMode("ADD")
 	highlight:Hide()
 	return frame
@@ -213,8 +213,7 @@ end
 
 local function topScrollDownClick(self)
 	if self.disabled then return end
-	local value = self:GetParent().unitName
-	local k = util:inTable(allIndexedTanks, value)
+	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
 	local temp = allIndexedTanks[k]
 	allIndexedTanks[k] = allIndexedTanks[k + 1]
 	allIndexedTanks[k + 1] = temp
@@ -229,8 +228,7 @@ end
 
 local function topScrollUpClick(self)
 	if self.disabled then return end
-	local value = self:GetParent().unitName
-	local k = util:inTable(allIndexedTanks, value)
+	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
 	local temp = allIndexedTanks[k]
 	allIndexedTanks[k] = allIndexedTanks[k - 1]
 	allIndexedTanks[k - 1] = temp
@@ -254,46 +252,38 @@ local function bottomScrollClick(self)
 end
 
 function module:CreateFrame()
-	if frame then return end
-	
 	frame = CreateFrame("Frame")
 
-	local bar = CreateFrame("Button", nil, frame)
-	frame.middlebar = bar
-	bar:Show()
-	bar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -5, 142)
-	bar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 142)
-	bar:SetHeight(8)
+	local centerBar = CreateFrame("Button", nil, frame)
+	centerBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -5, 142)
+	centerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 142)
+	centerBar:SetHeight(8)
+	local texture = centerBar:CreateTexture(nil, "BORDER")
+	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	texture:SetAllPoints(centerBar)
+	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
-	local barmiddle = bar:CreateTexture(nil, "BORDER")
-	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
-	barmiddle:SetAllPoints(bar)
-	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
-	
-	bar = CreateFrame("Button", nil, frame)
-	frame.topbar = bar
-	bar:Show()
-	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", -5, -42)
-	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -42)
-	bar:SetHeight(8)
-
-	barmiddle = bar:CreateTexture(nil, "BORDER")
-	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
-	barmiddle:SetAllPoints(bar)
-	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
+	local topBar = CreateFrame("Button", nil, frame)
+	topBar:SetPoint("TOPLEFT", frame, "TOPLEFT", -5, -42)
+	topBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -42)
+	topBar:SetHeight(8)
+	texture = topBar:CreateTexture(nil, "BORDER")
+	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	texture:SetAllPoints(topBar)
+	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	frame.topscroll = CreateFrame("ScrollFrame", "oRA3TankTopScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.topscroll:SetPoint("TOPLEFT", frame.topbar, "BOTTOMLEFT", 4, 2)
-	frame.topscroll:SetPoint("BOTTOMRIGHT", frame.middlebar, "TOPRIGHT", -22, -2)
+	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 2)
+	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -22, -2)
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.bottomscroll:SetPoint("TOPLEFT", frame.middlebar, "BOTTOMLEFT", 4, 2) 
+	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -22, 0)
 	
 	local help = frame:CreateFontString(nil, "ARTWORK")
 	help:SetFontObject(GameFontNormal)
-	help:SetPoint("TOPLEFT", 0, 0)
-	help:SetPoint("BOTTOMRIGHT", frame.topbar, "TOPRIGHT")
+	help:SetPoint("TOPLEFT")
+	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT")
 	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."])
 
 	-- 10 top
@@ -314,13 +304,13 @@ function module:CreateFrame()
 		name:SetText(L["Name"])
 		t.label = name
 
-		local delete = CreateButton("oRA3TankTopScrollDelete"..i, t)
+		local delete = createButton("oRA3TankTopScrollDelete"..i, t)
 		delete:SetPoint("TOPRIGHT", t, "TOPRIGHT")
 		delete.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
 		delete:SetScript("OnClick", topScrollDeleteClick)
 		t.delete = delete
 
-		local tank = CreateButton("oRA3TankTopScrollTank"..i, t, "SecureActionButtonTemplate")
+		local tank = createButton("oRA3TankTopScrollTank"..i, t, "SecureActionButtonTemplate")
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
 		tank.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
 		tank.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
@@ -329,20 +319,20 @@ function module:CreateFrame()
 		tank:EnableMouse(oRA:IsPromoted())
 		t.tank = tank
 
-		local save = CreateButton("oRA3TankTopScrollSave"..i, t)
+		local save = createButton("oRA3TankTopScrollSave"..i, t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
 		save:SetScript("OnClick", topScrollSaveClick)
 		t.save = save
 
-		local down = CreateButton("oRA3TankTopScrollDown"..i, t)
+		local down = createButton("oRA3TankTopScrollDown"..i, t)
 		down:SetPoint("TOPRIGHT", save, "TOPLEFT", -2, 0)
 		down.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
 		down.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 		down:SetScript("OnClick", topScrollDownClick)
 		t.down = down
 
-		local up = CreateButton("oRA3TankTopScrollUp"..i, t)
+		local up = createButton("oRA3TankTopScrollUp"..i, t)
 		up:SetPoint("TOPRIGHT", down, "TOPLEFT", -2, 0)
 		up.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up")
 		up.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
@@ -376,14 +366,13 @@ function module:CreateFrame()
 	
 	local function updTopScroll() module:UpdateTopScroll() end
 	local function updBottomScroll() module:UpdateBottomScroll() end
-	
 	frame.topscroll:SetScript("OnVerticalScroll", function(self, offset)
 		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updTopScroll)
 	end)
-	
 	frame.bottomscroll:SetScript("OnVerticalScroll", function(self, offset)
 		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updBottomScroll)
 	end)
+	self.CreateFrame = nil
 end
 
 function module:UpdateScrolls()
