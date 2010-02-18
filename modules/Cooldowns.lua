@@ -31,7 +31,7 @@ local glyphCooldowns = {
 	[57858] = {5209, 30},  -- Challenging Roar, 30sec
 	[55678] = {6346, 60},  -- Fear Ward, 60sec
 	[58376] = {12975, 60}, -- Last Stand, 1min
-	[57955] = {633, 300},  -- Lay on Hands, 5min
+	[57955] = {48788, 300},  -- Lay on Hands, 5min
 }
 
 local spells = {
@@ -63,7 +63,7 @@ local spells = {
 		[498] = 180, -- Divine Protection
 		[10278] = 300, -- Hand of Protection
 		[6940] = 120, -- Hand of Sacrifice
-		[633] = 1200, -- Lay on Hands
+		[48788] = 1200, -- Lay on Hands
 	},
 	PRIEST = {
 		[33206] = 180, -- Pain Suppression
@@ -921,7 +921,7 @@ function module:UpdateCooldownModifiers()
 		local _, _, _, _, rank = GetTalentInfo(2, 4)
 		addMod(10278, rank * 60)
 		_, _, _, _, rank = GetTalentInfo(1, 8)
-		addMod(633, rank * 120)
+		addMod(48788, rank * 120)
 		_, _, _, _, rank = GetTalentInfo(2, 14)
 		addMod(642, rank * 30)
 		addMod(498, rank * 30)

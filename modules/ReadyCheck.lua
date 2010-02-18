@@ -243,8 +243,8 @@ function module:SetupGUI()
 
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
 	local f = frame
-	f:SetWidth( 320 )
-	f:SetHeight( 300 )
+	f:SetWidth(320)
+	f:SetHeight(300)
 	f:SetMovable(true)
 	f:EnableMouse(true)
 	f:SetClampedToScreen(true)
@@ -345,7 +345,7 @@ function module:SetupGUI()
 		oRA3:SavePosition("oRA3ReadyCheck")
 	end)
 
-	local bar = CreateFrame("Button", nil, frame )
+	local bar = CreateFrame("Button", nil, frame)
 	frame.bar = bar
 	bar:Show()
 	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -150)
@@ -356,27 +356,26 @@ function module:SetupGUI()
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
-	
-	frame:SetScript("OnUpdate", function(this,elapsed)
-				if this.timer and this.timer > 0 then
-					this.timer = this.timer - elapsed
-					if this.oldtimer - this.timer >= 1  or this.oldtimer == -1 then
-						this.oldtimer = this.timer
-						title:SetText( string.format(RD_READY_CHECK_OVER_IN, floor(this.timer) ) )
-					end
-				end
-				if this.fadeTimer and this.fadeTimer > 0 then
-					this.fadeTimer = this.fadeTimer - elapsed
-					if this.fadeTimer <= 0 then
-						module:HideGUI()
-					else
-						this:SetAlpha(this.fadeTimer)
-					end
-				end
-		end )
+
+	frame:SetScript("OnUpdate", function(self, elapsed)
+		if self.timer and self.timer > 0 then
+			self.timer = self.timer - elapsed
+			if self.oldtimer - self.timer >= 1 or self.oldtimer == -1 then
+				self.oldtimer = self.timer
+				title:SetText(RD_READY_CHECK_OVER_IN:format(floor(self.timer)))
+			end
+		end
+		if self.fadeTimer and self.fadeTimer > 0 then
+			self.fadeTimer = self.fadeTimer - elapsed
+			if self.fadeTimer <= 0 then
+				module:HideGUI()
+			else
+				self:SetAlpha(self.fadeTimer)
+			end
+		end
+	end)
 end
 -- 10px omghoof
-
 
 function module:CreateMemberFrame(num, bottom)
 	local fname = "oRA3ReadyCheckMember"
@@ -399,10 +398,10 @@ function module:CreateMemberFrame(num, bottom)
 	if num % 2 == 0 then xoff = 160 end
 	yoff = yoff + ((math.floor(num/2) + (num % 2)) * -14)
 	
-	f:SetWidth( 150)
+	f:SetWidth(150)
 	f:SetHeight(14)
 	if bottom then
-		f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff ) -- fixme relative to the marker
+		f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff) -- fixme relative to the marker
 	else
 		f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
 	end
@@ -418,7 +417,7 @@ function module:CreateMemberFrame(num, bottom)
 	f.NameText = rdt
 	rdt:SetJustifyH("LEFT")
 	rdt:SetFontObject(GameFontNormal)
-	rdt:SetPoint("LEFT", f.Icon, "RIGHT", 3 )
+	rdt:SetPoint("LEFT", f.Icon, "RIGHT", 3)
 	rdt:SetHeight(14)
 	rdt:SetWidth(136)
 	
