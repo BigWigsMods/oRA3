@@ -860,6 +860,7 @@ function module:OnStartup()
 	setupCooldownDisplay()
 	oRA.RegisterCallback(self, "OnCommCooldown")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UpdateCooldownModifiers()
@@ -868,6 +869,7 @@ function module:OnStartup()
 		local ankhs = GetItemCount(17030)
 		self:RegisterEvent("PLAYER_ALIVE", function()
 			resTime = GetTime()
+			self:UpdateCooldownModifiers()
 		end)
 		self:RegisterEvent("BAG_UPDATE", function()
 			if (GetTime() - (resTime or 0)) > 1 then return end
@@ -877,6 +879,8 @@ function module:OnStartup()
 			end
 			ankhs = newankhs
 		end)
+	else
+		self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	end
 end
 
@@ -909,6 +913,63 @@ local function addMod(s, m)
 	end
 end
 
+local function getRank(tab, talent)
+	local _, _, _, _, rank = GetTalentInfo(tab, talent)
+	return rank or 0
+end
+
+local talentScanners = {
+	PALADIN = function()
+		addMod(10278, getRank(2, 4) * 60)
+		addMod(48788, getRank(1, 8) * 120)
+		local rank = getRank(2, 14)
+		addMod(642, rank * 30)
+		addMod(498, rank * 30)
+	end,
+	SHAMAN = function()
+		addMod(20608, getRank(3, 3) * 600)
+	end,
+	WARRIOR = function()
+		local rank = getRank(3, 13)
+		addMod(871, rank * 30)
+		addMod(1719, rank * 30)
+		addMod(20230, rank * 30)
+	end,
+	DEATHKNIGHT = function()
+		addMod(49576, getRank(3, 6) * 5)
+		addMod(42650, getRank(3, 13) * 120)
+	end,
+	HUNTER = function()
+		addMod(781, getRank(3, 11) * 2)
+	end,
+	MAGE = function()
+		local rank = getRank(1, 24)
+		addMod(12051, rank * 60)
+		if rank > 0 then
+			local percent = rank * 15
+			local currentCd = getCooldown(66)
+			addMod(66, (currentCd * percent) / 100)
+		end
+	end,
+	PRIEST = function()
+		local rank = getRank(1, 23)
+		if rank > 0 then
+			local percent = rank * 10
+			local currentCd = getCooldown(10060)
+			addMod(10060, (currentCd * percent) / 100)
+			currentCd = getCooldown(33206)
+			addMod(33206, (currentCd * percent) / 100)
+		end
+	end,
+	ROGUE = function()
+		addMod(11305, getRank(2, 7) * 30)
+		addMod(1725, getRank(3, 26) * 5)
+		local rank = getRank(3, 7)
+		addMod(26889, rank * 30)
+		addMod(31224, rank * 15)
+	end,
+}
+
 function module:UpdateCooldownModifiers()
 	wipe(cdModifiers)
 	for i = 1, GetNumGlyphSockets() do
@@ -918,55 +979,8 @@ function module:UpdateCooldownModifiers()
 			addMod(info[1], info[2])
 		end
 	end
-	if playerClass == "PALADIN" then
-		local _, _, _, _, rank = GetTalentInfo(2, 4)
-		addMod(10278, rank * 60)
-		_, _, _, _, rank = GetTalentInfo(1, 8)
-		addMod(48788, rank * 120)
-		_, _, _, _, rank = GetTalentInfo(2, 14)
-		addMod(642, rank * 30)
-		addMod(498, rank * 30)
-	elseif playerClass == "SHAMAN" then
-		local _, _, _, _, rank = GetTalentInfo(3, 3)
-		addMod(20608, rank * 600)
-	elseif playerClass == "WARRIOR" then
-		local _, _, _, _, rank = GetTalentInfo(3, 13)
-		addMod(871, rank * 30)
-		addMod(1719, rank * 30)
-		addMod(20230, rank * 30)
-	elseif playerClass == "DEATHKNIGHT" then
-		local _, _, _, _, rank = GetTalentInfo(3, 6)
-		addMod(49576, rank * 5)
-		_, _, _, _, rank = GetTalentInfo(3, 13)
-		addMod(42650, rank * 120)
-	elseif playerClass == "HUNTER" then
-		local _, _, _, _, rank = GetTalentInfo(3, 11)
-		addMod(781, rank * 2)
-	elseif playerClass == "MAGE" then
-		local _, _, _, _, rank = GetTalentInfo(1, 24)
-		addMod(12051, rank * 60)
-		if rank > 0 then
-			local percent = rank * 15
-			local currentCd = getCooldown(66)
-			addMod(66, (currentCd * percent) / 100)
-		end
-	elseif playerClass == "PRIEST" then
-		local _, _, _, _, rank = GetTalentInfo(1, 23)
-		if rank > 0 then
-			local percent = rank * 10
-			local currentCd = getCooldown(10060)
-			addMod(10060, (currentCd * percent) / 100)
-			currentCd = getCooldown(33206)
-			addMod(33206, (currentCd * percent) / 100)
-		end
-	elseif playerClass == "ROGUE" then
-		local _, _, _, _, rank = GetTalentInfo(2, 7)
-		addMod(11305, rank * 30)
-		_, _, _, _, rank = GetTalentInfo(3, 7)
-		addMod(26889, rank * 30)
-		addMod(31224, rank * 15)
-		_, _, _, _, rank = GetTalentInfo(3, 26)
-		addMod(1725, rank * 5)
+	if talentScanners[playerClass] then
+		talentScanners[playerClass]()
 	end
 end
 
