@@ -40,11 +40,11 @@ local function addIconAndName(frame)
 	rdt:SetFontObject(GameFontNormal)
 	rdt:SetPoint("LEFT", rdc, "RIGHT", 3)
 	rdt:SetHeight(14)
-	rdt:SetWidth(136)
+	rdt:SetWidth(120)
 
 	local bg = frame:CreateTexture(nil, "ARTWORK")
-	bg:SetTexture("Interface\\ChatFrame\\ChatFrameColorSwatch")
-	bg:SetAllPoints(frame)
+	bg:SetTexture(1, 0, 0, 0.3)
+	bg:SetAllPoints(rdt)
 	frame.bg = bg
 	bg:Hide()
 end
@@ -93,14 +93,14 @@ local function setMemberStatus(num, bottom, name, class)
 	f:Show()
 	f.bg:Show()
 	if readycheck[name] == RD_READY then
-		f.bg:SetVertexColor(0, 1, 0, 0.3)
+		f.bg:SetTexture(0, 1, 0, 0.3)
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
 	elseif readycheck[name] == RD_NOTREADY then
-		f.bg:SetVertexColor(1, 0, 0, 0.3)
+		f.bg:SetTexture(1, 0, 0, 0.3)
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
 	elseif readycheck[name] == RD_OFFLINE then
 		f:SetAlpha(.5)
-		f.bg:SetVertexColor(1, 0, 0, 0.3)
+		f.bg:SetTexture(1, 0, 0, 0.3)
 		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
 	else
 		f.bg:Hide()
