@@ -66,6 +66,8 @@ L["Guild rank invites"] = "Gildenränge einladen"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "Sobald Du auf einen der unteren Buttons klickst, werden alle Mitglieder des ausgewählten Rangs UND DARÜBERLIEGENDE in deine Gruppe eingeladen. Dementsprechend läd z.B. das Klicken auf den dritten Button jeden des Rangs 1, 2 und 3 ein. Dies wird zudem entweder eine Nachricht im Gilden- oder Offizierschat auslösen, die deinen Gildenmitgliedern 10 Sekunden Zeit gibt, ihre Gruppen zu verlassen, bevor sie wirklich eingeladen werden."
 
 -- Promote module
+L["Demote everyone"] = "Massendegradierung"
+L["Demotes everyone in the current group."] = "Degradiert jeden in deiner aktuellen Gruppe."
 L["Promote"] = "Befördern"
 L["Mass promotion"] = "Massenbeförderung"
 L["Everyone"] = "Jeder"
