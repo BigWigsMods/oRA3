@@ -64,6 +64,8 @@ L["Guild rank invites"] = true
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = true
 
 -- Promote module
+L["Demote everyone"] = true
+L["Demotes everyone in the current group."] = true
 L["Promote"] = true
 L["Mass promotion"] = true
 L["Everyone"] = true

@@ -237,6 +237,7 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
+		frame:SetLayout("Flow")
 		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
 
 		local monitorHeading = AceGUI:Create("Heading")

@@ -23,6 +23,16 @@ local dontPromoteThisSession = {}
 -- GUI
 --
 
+local demoteButton = nil
+local function updateDemoteButton()
+	if not demoteButton then return end
+	if GetNumRaidMembers() > 0 and IsRaidLeader() then
+		demoteButton:SetDisabled(false)
+	else
+		demoteButton:SetDisabled(true)
+	end
+end
+
 local ranks, showPane, hidePane
 do
 	local frame = nil
@@ -77,6 +87,16 @@ do
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
 	end
 
+	local function demoteRaid()
+		if not IsRaidLeader() then return end
+		for i = 1, GetNumRaidMembers() do
+			local n, rank = GetRaidRosterInfo(i)
+			if n and rank == 1 then
+				DemoteAssistant(n)
+			end
+		end
+	end
+
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
@@ -85,6 +105,15 @@ do
 		local spacer = AceGUI:Create("Label")
 		spacer:SetText(" ")
 		spacer:SetFullWidth(true)
+
+		demoteButton = AceGUI:Create("Button")
+		demoteButton:SetText(L["Demote everyone"])
+		demoteButton:SetUserData("tooltip", L["Demotes everyone in the current group."])
+		demoteButton:SetCallback("OnEnter", onControlEnter)
+		demoteButton:SetCallback("OnLeave", onControlLeave)
+		demoteButton:SetCallback("OnClick", demoteRaid)
+		demoteButton:SetFullWidth(true)
+		updateDemoteButton()
 
 		local massHeader = AceGUI:Create("Heading")
 		massHeader:SetText(L["Mass promotion"])
@@ -150,9 +179,9 @@ do
 		delete:SetRelativeWidth(0.5)
 
 		if guildRankDb then
-			frame:AddChildren(massHeader, everyone, guild, ranks, spacer, individualHeader, description, add, delete)
+			frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, description, add, delete)
 		else
-			frame:AddChildren(massHeader, everyone, spacer, individualHeader, description, add, delete)
+			frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
 		end
 	end
 
@@ -237,11 +266,13 @@ do
 		end
 	end
 	function module:OnGroupChanged(event, status, members)
+		updateDemoteButton()
 		if #members > 0 then
 			queuePromotes()
 		end
 	end
 	function module:OnPromoted()
+		updateDemoteButton()
 		queuePromotes()
 	end
 
