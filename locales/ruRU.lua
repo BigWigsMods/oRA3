@@ -65,7 +65,9 @@ L["Guild rank invites"] = "Пригласить по рангу гильдии"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "При нажатии любой из кнопок ниже, пригласит любого из выбранных званий и выше в вашу группу. К примеру нажав кнопку 3, пригласит всех кто со званием 1, 2 или 3. Изначально будет выведено сообщение в канал гильдии или офицерский канал, что даст членам вашей гильдии 10 секунд, для того чтобы они покинули свои группы, прежде чем вы начнёте приглашать их."
 
 -- Promote module
-L["Promote"] = "Произвести"
+L["Demote everyone"] = "Разжаловать всех"
+L["Demotes everyone in the current group."] = "Разжаловать всех в текущей группе."
+L["Promote"] = "Повысить"
 L["Mass promotion"] = "Масс повышение"
 L["Everyone"] = "Всех"
 L["Promote everyone automatically."] = "Произвести всех автоматически"
