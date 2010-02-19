@@ -7,10 +7,8 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
 
-local readyAuthor = "" -- author of the current readycheck
+local readyAuthor = nil -- author of the current readycheck
 local playerName = UnitName("player")
-local playerClass = select(2,UnitClass("player"))
-local noreply, notready = "", "" -- result of ready check strings
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 
 -- local constants
@@ -29,127 +27,58 @@ local defaults = {
 	}
 }
 
-function module:OnRegister()
-	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
-	db = self.db.profile
+local function addIconAndName(frame)
+	local rdc = frame:CreateTexture(nil, "OVERLAY")
+	frame.IconTexture = rdc
+	rdc:SetWidth(11)
+	rdc:SetHeight(11)
+	rdc:SetPoint("LEFT", frame)
+
+	local rdt = frame:CreateFontString(nil, "OVERLAY")
+	frame.NameText = rdt
+	rdt:SetJustifyH("LEFT")
+	rdt:SetFontObject(GameFontNormal)
+	rdt:SetPoint("LEFT", rdc, "RIGHT", 3)
+	rdt:SetHeight(14)
+	rdt:SetWidth(136)
 end
 
-function module:OnEnable()
-	-- Ready Check Events
-	self:RegisterEvent("READY_CHECK")
-	self:RegisterEvent("READY_CHECK_CONFIRM")
-	self:RegisterEvent("READY_CHECK_FINISHED")
-
-	self:RegisterChatCommand("rar", DoReadyCheck)
-	self:RegisterChatCommand("raready", DoReadyCheck)
+local function createTopFrame()
+	local f = CreateFrame("Frame", nil, frame)
+	table.insert(topMemberFrames, f)
+	local num = #topMemberFrames
+	local xoff = 15
+	local yoff = -17
+	if num % 2 == 0 then xoff = 160 end
+	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
+	f:SetWidth(150)
+	f:SetHeight(14)
+	f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
+	addIconAndName(f)
+	return f
 end
 
-function module:READY_CHECK(event, name, duration)
-	if db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
-	if not oRA:IsPromoted() then return end
-
-	wipe(readycheck)
-	-- fill with default 'no response' 
-	if oRA:InRaid() then
-		for i = 1, GetNumRaidMembers(), 1 do
-			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			readycheck[rname] = online and RD_NORESPONSE or RD_OFFLINE
-		end
-	else
-		readycheck[playerName] = -1
-		for i =1, MAX_PARTY_MEMBERS, 1 do
-			if GetPartyMember(i) then
-				readycheck[UnitName("party"..i)] = RD_NORESPONSE
-			end
-		end
-	end
-	readycheck[name] = RD_READY -- the sender is always ready
-	readyAuthor = name
-
-	-- show the readycheck result frame
-	if db.gui then
-		self:ShowGUI()
-		frame.timer = duration
-		frame.oldtimer = -1
-		self:UpdateGUI()
-	end
+local function createBottomFrame()
+	local f = CreateFrame("Frame", nil, frame)
+	table.insert(bottomMemberFrames, f)
+	local num = #bottomMemberFrames
+	local xoff = 7
+	local yoff = 5
+	if num % 2 == 0 then xoff = 160 end
+	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
+	f:SetWidth(150)
+	f:SetHeight(14)
+	f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff)
+	addIconAndName(f)
+	return f
 end
 
-function module:READY_CHECK_CONFIRM(event, id, confirm)
-	-- this event only fires when promoted, no need to check
-	--oRA:Print(event, id, confirm)
-	local name = UnitName(id)
-	if confirm then -- ready
-		readycheck[name] = RD_READY
-	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
-		readycheck[name] = RD_NOTREADY
-	end
-	self:UpdateGUI()
-end
-
-
-function module:READY_CHECK_FINISHED(event, someBoolean)
-	if someBoolean then return end -- This seems to be true in 5mans and false in raids, no matter what people actually click.
-	if frame then
-		if db.autohide then frame.fadeTimer = 1 end
-		frame.timer = 0
-		frame.title:SetText(READY_CHECK_FINISHED)
-	end
-	
-	-- report if promoted
-	if not oRA:IsPromoted() then return end
-	-- report results
-
-	noreply, notready = "", ""
-	for name, ready in pairs(readycheck) do
-		if ready == RD_NORESPONSE then
-			if noreply ~= "" then noreply = noreply..", " end
-			noreply = noreply..name
-		elseif ready == RD_NOTREADY then
-			if notready ~= "" then notready = notready.."," end
-			notready = notready..name
-		end
-	end
-
-	local info = ChatTypeInfo["SYSTEM"]
-	if readyAuthor ~= playerName then -- mimic true readycheck results for assistants/leader that did not start the readycheck
-		DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_FINISHED, info.r, info.g, info.b, info.id)
-		if noreply ~= "" then
-			DEFAULT_CHAT_FRAME:AddMessage(string.format(RAID_MEMBERS_AFK, noreply), info.r, info.g, info.b, info.id)
-		elseif notready == "" and noreply == "" then
-			DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, info.r, info.g, info.b, info.id)
-		elseif noreply == "" then
-			DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_NO_AFK, info.r, info.g, info.b, info.id)
-		end
-	end
-	if notready ~= "" then
-		DEFAULT_CHAT_FRAME:AddMessage(string.format(RD_RAID_MEMBERS_NOTREADY, notready), info.r, info.g, info.b, info.id)
-	end
-end
-
--- GUI
-
-function module:ShowGUI()
-	if not db.gui then return end
-	self:SetupGUI()
-	frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
-	frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
-	frame:Show()
-end
-
-function module:HideGUI()
-	if not frame then return end
-	frame:SetAlpha(1) -- reset
-	frame.fadeTimer = nil -- reset
-	frame:Hide()
-end
-
-function module:SetMemberStatus(num, bottom, name, class)
+local function setMemberStatus(num, bottom, name, class)
 	local f
 	if bottom then
-		f = bottomMemberFrames[num] or self:CreateMemberFrame(num, bottom)
+		f = bottomMemberFrames[num] or createBottomFrame()
 	else
-		f = topMemberFrames[num] or self:CreateMemberFrame(num, bottom)
+		f = topMemberFrames[num] or createTopFrame()
 	end
 	local color = RAID_CLASS_COLORS[class]
 	f.NameText:SetText(name)
@@ -168,15 +97,16 @@ function module:SetMemberStatus(num, bottom, name, class)
 	end
 end
 
-function module:UpdateGUI()
+local function updateWindow()
 	if not db.gui then return end
-	self:SetupGUI()
-	-- loop and update
-	local num, f, bottomnum, topnum
-	bottomnum = 0
-	topnum = 0
+
+	for i, v in next, topMemberFrames do v:Hide() end
+	for i, v in next, bottomMemberFrames do v:Hide() end
+
+	frame.bar:Hide()
+
+	local total = 1
 	if oRA:InRaid() then
-		num = GetNumRaidMembers()
 		local diff = GetInstanceDifficulty()
 		local highgroup = 8 -- 40 man it
 		if diff and diff == 1 then -- normal
@@ -184,64 +114,49 @@ function module:UpdateGUI()
 		elseif diff and diff == 2 then -- heroic
 			highgroup = 5
 		end
-		
-		for i = 1, num, 1 do
-			local rname, _, subgroup, _, _, fileName, _, online = GetRaidRosterInfo(i)
-			if subgroup > highgroup then
-				bottomnum = bottomnum + 1
-				self:SetMemberStatus(bottomnum, true, rname, fileName)
-			else
-				topnum = topnum + 1
-				self:SetMemberStatus(topnum, false, rname, fileName)
+
+		local bottom, top = 0, 0
+		total = GetNumRaidMembers()
+
+		for i = 1, total do
+			local rname, _, subgroup, _, _, fileName = GetRaidRosterInfo(i)
+			if rname then
+				if subgroup > highgroup then
+					bottom = bottom + 1
+					setMemberStatus(bottom, true, rname, fileName)
+				else
+					top = top + 1
+					setMemberStatus(top, false, rname, fileName)
+				end
 			end
 		end
+		-- position the spacer
+		local yoff = ((math.ceil(top / 2) * 14) + 37) * -1
+		frame.bar:ClearAllPoints()
+		frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
+		frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, yoff)
+
+		if bottom > 0 then
+			frame.bar:Show()
+		end
 	else
-		num = 1
-		topnum = 1
-		self:SetMemberStatus(num, false, playerName, playerClass)
-		for i =1, MAX_PARTY_MEMBERS, 1 do
+		setMemberStatus(total, false, playerName, select(2, UnitClass("player")))
+		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
-				num = num + 1
-				topnum = topnum + 1
-				self:SetMemberStatus(num, false, UnitName("party"..i), select(2,UnitClass("party"..i)) )
+				total = total + 1
+				setMemberStatus(total, false, UnitName("party"..i), select(2,UnitClass("party"..i)) )
 			end
 		end
 	end
 
-	local height = math.max( ( math.ceil(bottomnum/2) *14 ) + (math.ceil(topnum/2)*14) + 66, 128)
+	local height = math.max((total * 14) + 66, 128)
 	frame:SetHeight(height)
-	
-	-- position the spacer
-	local yoff = ((math.ceil(topnum/2)*14) + 37) * -1
-	frame.bar:ClearAllPoints()
-	frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
-	frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, yoff)
-
-	if bottomnum == 0 then
-		frame.bar:Hide()
-	else
-		frame.bar:Show()
-	end
-	
-	bottomnum = bottomnum + 1
-	while( bottomMemberFrames[bottomnum] ) do
-		bottomMemberFrames[bottomnum]:Hide()
-		bottomnum = bottomnum + 1
-	end
-	
-	topnum = topnum + 1 
-	while( topMemberFrames[topnum] ) do
-		topMemberFrames[topnum]:Hide()
-		topnum = topnum + 1
-	end
-
 end
 
-
-function module:SetupGUI()
+local function createWindow()
 	if frame then return end
-
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
+
 	local f = frame
 	f:SetWidth(320)
 	f:SetHeight(300)
@@ -250,7 +165,7 @@ function module:SetupGUI()
 	f:SetClampedToScreen(true)
 	if not oRA3:RestorePosition("oRA3ReadyCheck") then
 		f:ClearAllPoints()
-		f:SetPoint("CENTER", UIParent, "CENTER", 0, 180 )
+		f:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
 	end
 
 	local titlebg = f:CreateTexture(nil, "BACKGROUND")
@@ -368,68 +283,130 @@ function module:SetupGUI()
 		if self.fadeTimer and self.fadeTimer > 0 then
 			self.fadeTimer = self.fadeTimer - elapsed
 			if self.fadeTimer <= 0 then
-				module:HideGUI()
+				self:SetAlpha(1) -- reset
+				self.fadeTimer = nil -- reset
+				self:Hide()
 			else
 				self:SetAlpha(self.fadeTimer)
 			end
 		end
 	end)
 end
--- 10px omghoof
 
-function module:CreateMemberFrame(num, bottom)
-	local fname = "oRA3ReadyCheckMember"
-	if bottom then
-		fname = fname .. "Bottom"
-	else
-		fname = fname .. "Top"
-	end
-	fname = fname..num
+function module:OnRegister()
+	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
+	db = self.db.profile
+end
 
-	local f = CreateFrame("Frame", fname, frame)
-	if bottom then
-		bottomMemberFrames[num] = f
+function module:OnEnable()
+	-- Ready Check Events
+	self:RegisterEvent("READY_CHECK")
+	self:RegisterEvent("READY_CHECK_CONFIRM")
+	self:RegisterEvent("READY_CHECK_FINISHED")
+
+	self:RegisterChatCommand("rar", DoReadyCheck)
+	self:RegisterChatCommand("raready", DoReadyCheck)
+end
+
+function module:READY_CHECK(event, name, duration)
+	if db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
+	if not oRA:IsPromoted() then return end
+
+	wipe(readycheck)
+	-- fill with default 'no response' 
+	if oRA:InRaid() then
+		for i = 1, GetNumRaidMembers() do
+			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+			readycheck[rname] = online and RD_NORESPONSE or RD_OFFLINE
+		end
 	else
-		topMemberFrames[num] = f
+		readycheck[playerName] = -1
+		for i =1, MAX_PARTY_MEMBERS do
+			if GetPartyMember(i) then
+				readycheck[UnitName("party"..i)] = RD_NORESPONSE
+			end
+		end
 	end
-	
-	local xoff = bottom and 7 or 15
-	local yoff = bottom and 5 or -17
-	if num % 2 == 0 then xoff = 160 end
-	yoff = yoff + ((math.floor(num/2) + (num % 2)) * -14)
-	
-	f:SetWidth(150)
-	f:SetHeight(14)
-	if bottom then
-		f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff) -- fixme relative to the marker
-	else
-		f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
+	readycheck[name] = RD_READY -- the sender is always ready
+	readyAuthor = name
+
+	-- show the readycheck result frame
+	if db.gui then
+		createWindow()
+		frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
+		frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
+		frame:Show()
+		frame.timer = duration
+		frame.oldtimer = -1
+		updateWindow()
 	end
-	
-	local rdc = CreateFrame("Frame", fname.."Icon", f, "ReadyCheckStatusTemplate")
-	f.Icon = rdc
-	f.IconTexture = _G[fname.."IconTexture"]
-	rdc:SetWidth(11)
-	rdc:SetHeight(11)
-	rdc:SetPoint("LEFT", f, "LEFT")
-	
-	local rdt = f:CreateFontString(fname.."Name","OVERLAY")
-	f.NameText = rdt
-	rdt:SetJustifyH("LEFT")
-	rdt:SetFontObject(GameFontNormal)
-	rdt:SetPoint("LEFT", f.Icon, "RIGHT", 3)
-	rdt:SetHeight(14)
-	rdt:SetWidth(136)
-	
-	return f
+end
+
+function module:READY_CHECK_CONFIRM(event, id, confirm)
+	-- this event only fires when promoted, no need to check
+	--oRA:Print(event, id, confirm)
+	local name = UnitName(id)
+	if confirm then -- ready
+		readycheck[name] = RD_READY
+	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
+		readycheck[name] = RD_NOTREADY
+	end
+	if db.gui then
+		updateWindow()
+	end
+end
+
+local function sysPrint(msg)
+	local c = ChatTypeInfo["SYSTEM"]
+	DEFAULT_CHAT_FRAME:AddMessage(msg, c.r, c.g, c.b, c.id)
+end
+
+
+function module:READY_CHECK_FINISHED(event, someBoolean)
+	-- This seems to be true in 5mans and false in raids, no matter what people actually click.
+	if someBoolean then return end
+	if not oRA:IsPromoted() then return end
+
+	if frame then
+		if db.autohide then frame.fadeTimer = 1 end
+		frame.timer = 0
+		frame.title:SetText(READY_CHECK_FINISHED)
+	end
+
+	local noReply = {}
+	local notReady = {}
+	for name, ready in pairs(readycheck) do
+		if ready == RD_NORESPONSE then
+			noReply[#noReply + 1] = name
+		elseif ready == RD_NOTREADY then
+			notReady[#notReady + 1] = name
+		end
+	end
+
+	-- mimic true readycheck results for assistants/leader that did not start the readycheck
+	if readyAuthor ~= playerName then
+		sysPrint(READY_CHECK_FINISHED)
+
+		if #noReply > 0 then
+			sysPrint(RAID_MEMBERS_AFK:format(table.concat(noReply, ", ")))
+		elseif #notReady == 0 and #noReply == 0 then
+			sysPrint(READY_CHECK_ALL_READY)
+		elseif #noReply == 0 then
+			sysPrint(READY_CHECK_NO_AFK)
+		end
+	end
+
+	if #notReady > 0 then
+		sysPrint(RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", ")))
+	end
 end
 
 function module:GetOptions()
 	local options = {
 		type = "group",
 		name = READY_CHECK,
-		get = function( k ) return db[k.arg] end,
-		set = function( k, v ) db[k.arg] = v end,
+		get = function(k) return db[k.arg] end,
+		set = function(k, v) db[k.arg] = v end,
 		args = {
 			sound = {
 				type = "toggle",
@@ -453,3 +430,4 @@ function module:GetOptions()
 	}
 	return options
 end
+

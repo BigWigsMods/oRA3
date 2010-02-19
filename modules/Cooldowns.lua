@@ -753,7 +753,7 @@ do
 		for b, v in pairs(visibleBars) do
 			if b:Get("ora3cd:unit") == unit and b:Get("ora3cd:spell") == name then
 				bar = b
-				break;
+				break
 			end
 		end
 		if not bar then

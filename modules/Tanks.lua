@@ -192,7 +192,6 @@ local function topScrollDeleteClick(self)
 end
 
 local function topScrollSaveClick(self)
-	if self.disabled then return end
 	local value = self:GetParent().unitName
 	local k = util:inTable(module.db.persistentTanks, value)
 	if k then
@@ -212,7 +211,6 @@ local function topScrollSaveClick(self)
 end
 
 local function topScrollDownClick(self)
-	if self.disabled then return end
 	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
 	local temp = allIndexedTanks[k]
 	allIndexedTanks[k] = allIndexedTanks[k + 1]
@@ -227,7 +225,6 @@ local function topScrollDownClick(self)
 end
 
 local function topScrollUpClick(self)
-	if self.disabled then return end
 	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
 	local temp = allIndexedTanks[k]
 	allIndexedTanks[k] = allIndexedTanks[k - 1]
