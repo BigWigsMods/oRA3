@@ -65,23 +65,25 @@ L["Guild rank invites"] = "階級邀請"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "自動邀請階級高於等於所選等級的公會成員，按下該按鈕會自動在公會和幹部頻道發送要求10秒內離隊待組的消息，10秒後自動開始組人。"
 
 -- Promote module
-L["Promote"] = "自動提升"
-L["Mass promotion"] = "批量提升"
+L["Demote everyone"] = "降級所有人"
+L["Demotes everyone in the current group."] = "降級在目前群組的所有人"
+L["Promote"] = "晉升"
+L["Mass promotion"] = "大量晉升"
 L["Everyone"] = "所有人"
-L["Promote everyone automatically."] = "自動提升所有人"
+L["Promote everyone automatically."] = "自動晉升所有人"
 L["Guild"] = "公會"
-L["Promote all guild members automatically."] = "自動提升團隊中的公會成員"
-L["By guild rank"] = "根據階級"
-L["Individual promotions"] = "單獨提升"
-L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."] = "注意，玩家名字區分大小寫。要新增玩家,在輸入框輸入玩家名稱按下Enter或是點擊彈出的按鈕。在下拉列表中選中一個玩家就可以刪除該玩家的自動提升。"
+L["Promote all guild members automatically."] = "自動晉升所有公會成員"
+L["By guild rank"] = "根據公會階級"
+L["Individual promotions"] = "單獨晉升"
+L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."] = "注意，玩家名字區分大小寫。要新增玩家,在輸入框輸入玩家名稱按下Enter或是點擊彈出的按鈕。在下拉列表中選中一個玩家就可以刪除該玩家的自動晉升。"
 L["Add"] = "增加"
 L["Remove"] = "刪除"
 
 -- Cooldowns module
 L["Cooldowns"] = "冷卻監視"
 L["Monitor settings"] = "監視器設定"
-L["Show monitor"] = "顯示"
-L["Lock monitor"] = "鎖定"
+L["Show monitor"] = "顯示監視器"
+L["Lock monitor"] = "鎖定監視器"
 L["Show or hide the cooldown bar display in the game world."] = "是否顯示冷卻監視器"
 L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."] = "鎖定後將隱藏監視器的標題並將無法拖曳，設定大小，打開設定。"
 L["Only show my own spells"] = "只顯示我的法術冷卻"
@@ -111,6 +113,7 @@ L["Label Align"] = "標記對齊"
 L["Left"] = "左"
 L["Right"] = "右"
 L["Center"] = "中"
+L["Grow up"] = "向上遞增"
 
 -- Zone module
 L["Zone"] = "區域"
@@ -119,7 +122,7 @@ L["Zone"] = "區域"
 L["Version"] = "版本"
 
 -- Loot module
-L["Leave empty to make yourself Master Looter."] = "留空使自己分配戰利品。"
+L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利品。"
 
 -- Tanks module
 L["Tanks"] = "坦克"
