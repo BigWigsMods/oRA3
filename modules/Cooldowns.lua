@@ -32,6 +32,7 @@ local glyphCooldowns = {
 	[55678] = {6346, 60},    -- Fear Ward, 60sec
 	[58376] = {12975, 60},   -- Last Stand, 1min
 	[57955] = {48788, 300},  -- Lay on Hands, 5min
+	[63252] = {51690, 45},   -- Killing Spree, 45sec
 }
 
 local spells = {
@@ -85,6 +86,15 @@ local spells = {
 		[14177] = 180,  -- Cold Blood
 		[11305] = 180,  -- Sprint
 		[26889] = 180,  -- Vanish
+		[57934] = 30,   -- Tricks of the Trade
+		[2094] = 180,   -- Blind
+		[26669] = 180,  -- Evasion
+		[14185] = 480,  -- Preparation
+		[36554] = 30,   -- Shadowstep
+		[14177] = 180,  -- Cold Blood
+		[51690] = 120,  -- Killing Spree
+		[51713] = 60,   -- Shadow Dance
+		[14183] = 20,   -- Premeditation
 	},
 	SHAMAN = {
 		[bloodlustId] = 300, -- Bloodlust/Heroism
@@ -964,11 +974,28 @@ local talentScanners = {
 		end
 	end,
 	ROGUE = function()
-		addMod(11305, getRank(2, 7) * 30)
-		addMod(1725, getRank(3, 26) * 5)
-		local rank = getRank(3, 7)
-		addMod(26889, rank * 30)
-		addMod(31224, rank * 15)
+		-- 2, 7 = Combat/Endurance
+		local endurance = getRank(2, 7)
+		-- Sprint, Evasion
+		addMod(11305, endurance * 30)
+		addMod(26669, endurance * 30)
+
+		-- 3, 26 = Subtlety/Filthy Tricks
+		local filthyTricks = getRank(3, 26)
+		-- Distract, Tricks, Shadowstep
+		addMod(1725, filthyTricks * 5)
+		addMod(57934, filthyTricks * 5)
+		addMod(36554, filthyTricks * 5)
+		-- Preparation
+		addMod(14185, filthyTricks * 90)
+		
+		-- 3, 7 = Subtlety/Elusiveness
+		local elusiveness = getRank(3, 7)
+		-- Vanish, Blind
+		addMod(26889, elusiveness * 30)
+		addMod(2094, elusiveness * 30)
+		-- Cloak of Shadows
+		addMod(31224, elusiveness * 15)
 	end,
 }
 

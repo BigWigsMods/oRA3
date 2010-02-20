@@ -131,11 +131,11 @@ function module:OnGroupChanged(event, status, members)
 	oRA:UpdateList(L["Zone"])
 end
 
-local function addPlayer( name, zone )
+local function addPlayer(name, zone)
 	if not name then return end
 	local k = util:inTable(zones, name, 1)
 	if not k then
-		table.insert(zones, { name } )
+		zones[#zones + 1] = { name }
 		k = util:inTable(zones, name, 1)
 	end
 	zone = zone or L["Unknown"]
@@ -153,7 +153,7 @@ function module:UpdateZoneList()
 		if not tip then
 			createTooltip()
 		end
-		addPlayer( UnitName("player"), GetRealZoneText())
+		addPlayer(UnitName("player"), GetRealZoneText())
 		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
 				local name = UnitName("party"..i)
