@@ -186,6 +186,7 @@ local function topScrollDeleteClick(self)
 		end
 	end
 	sessionTanks[value] = nil
+	PlaySound("igMainMenuOptionCheckBoxOff")
 	-- update
 	module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers())
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
@@ -195,9 +196,11 @@ local function topScrollSaveClick(self)
 	local value = self:GetParent().unitName
 	local k = util:inTable(module.db.persistentTanks, value)
 	if k then
+		PlaySound("igMainMenuOptionCheckBoxOff")
 		table.remove(module.db.persistentTanks, k)
 		namedPersistent[value] = nil
 	else
+		PlaySound("igMainMenuOptionCheckBoxOn")
 		namedPersistent[value] = true
 		wipe(module.db.persistentTanks)
 		for k, v in next, allIndexedTanks do
@@ -221,6 +224,7 @@ local function topScrollDownClick(self)
 			module.db.persistentTanks[#module.db.persistentTanks + 1] = v
 		end
 	end
+	PlaySound("UChatScrollButton")
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 end
 
@@ -235,6 +239,7 @@ local function topScrollUpClick(self)
 			module.db.persistentTanks[#module.db.persistentTanks + 1] = v
 		end
 	end
+	PlaySound("UChatScrollButton")
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 end
 
@@ -244,6 +249,7 @@ local function bottomScrollClick(self)
 	allIndexedTanks[#allIndexedTanks + 1] = value
 	sessionTanks[value] = true
 	namedTanks[value] = true
+	PlaySound("igMainMenuOptionCheckBoxOn")
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 	module:UpdateScrolls()
 end

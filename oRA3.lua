@@ -1051,6 +1051,7 @@ function addon:SetupPanels()
 end
 
 local function selectPanel(self)
+	PlaySound("igCharacterInfoTab")
 	addon:SelectPanel(self.tabName)
 end
 
@@ -1105,6 +1106,7 @@ function addon:SetupLists()
 end
 
 local function selectlist(self)
+	PlaySound("igCharacterInfoTab")
 	addon:SelectList(self.tabName)
 end
 

@@ -215,6 +215,7 @@ do
 				checkbox:SetFullWidth(true)
 				widget:AddChild(checkbox)
 			end
+			PlaySound("UChatScrollButton")
 		end
 		widget:ResumeLayout()
 		-- DoLayout the parent to update the scroll bar for the new height of the dropdowngroup
