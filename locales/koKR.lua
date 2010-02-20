@@ -65,6 +65,8 @@ L["Guild rank invites"] = "길드 등급 초대"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "지정된 등급 이상의 모든 길드원을 공격대에 초대합니다."
 
 -- Promote module
+L["Demote everyone"] = "모두 강등"
+L["Demotes everyone in the current group."] = "현재 파티/공격대의 모두를 강등시킵니다."
 L["Promote"] = "승급"
 L["Mass promotion"] = "집단 승급"
 L["Everyone"] = "모든 사람"
