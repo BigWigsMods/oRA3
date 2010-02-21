@@ -12,7 +12,7 @@ local peopleToInvite = {}
 local rankButtons = {}
 
 local function canInvite()
-	return ( oRA:InGroup() and oRA:IsPromoted() ) or not oRA:InGroup()
+	return (oRA:InGroup() and oRA:IsPromoted()) or not oRA:InGroup()
 end
 
 local function showConfig()
@@ -172,17 +172,12 @@ local function inviteRank(rank, name)
 end
 
 function module:CHAT_MSG_WHISPER(event, msg, author)
-	if ( db.keyword and msg == db.keyword ) or ( db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author) ) and canInvite() then
+	if (db.keyword and msg == db.keyword) or (db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
 		local raid = GetNumRaidMembers()
-		local diff = GetInstanceDifficulty()
 		if isIn and instanceType == "party" and party == 4 then
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
-		--[[elseif isIn and instanceType == "raid" and diff == 1 and raid == 10 then
-			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)
-		elseif isIn and instanceType == "raid" and diff == 2 and raid == 25 then
-			SendChatMessage("<oRA> Sorry, the group is full.", "WHISPER", nil, author)]]
 		elseif party == 4 and raid == 0 then
 			peopleToInvite[#peopleToInvite + 1] = author
 			doActualInvites()

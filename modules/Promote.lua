@@ -26,7 +26,7 @@ local dontPromoteThisSession = {}
 local demoteButton = nil
 local function updateDemoteButton()
 	if not demoteButton then return end
-	if GetNumRaidMembers() > 0 and IsRaidLeader() then
+	if IsRaidLeader() then
 		demoteButton:SetDisabled(false)
 	else
 		demoteButton:SetDisabled(true)
@@ -254,7 +254,7 @@ do
 	end)
 	function queuePromotes()
 		if f:IsShown() then f:Hide() end
-		if not IsRaidLeader() or oRA.groupStatus ~= oRA.INRAID then return end
+		if not IsRaidLeader() then return end
 		for i = 1, GetNumRaidMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then

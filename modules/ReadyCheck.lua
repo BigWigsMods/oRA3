@@ -116,7 +116,7 @@ local function updateWindow()
 
 	frame.bar:Hide()
 
-	local total = 1
+	local total = 0
 	if oRA:InRaid() then
 		local diff = GetInstanceDifficulty()
 		local highgroup = 8 -- 40 man it
@@ -127,9 +127,7 @@ local function updateWindow()
 		end
 
 		local bottom, top = 0, 0
-		total = GetNumRaidMembers()
-
-		for i = 1, total do
+		for i = 1, GetNumRaidMembers() do
 			local rname, _, subgroup, _, _, fileName = GetRaidRosterInfo(i)
 			if rname then
 				if subgroup > highgroup then
@@ -141,6 +139,8 @@ local function updateWindow()
 				end
 			end
 		end
+		total = bottom + top / 2
+
 		-- position the spacer
 		local yoff = ((math.ceil(top / 2) * 14) + 37) * -1
 		frame.bar:ClearAllPoints()
@@ -151,6 +151,7 @@ local function updateWindow()
 			frame.bar:Show()
 		end
 	else
+		total = 1
 		setMemberStatus(total, false, playerName, select(2, UnitClass("player")))
 		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
@@ -332,7 +333,7 @@ function module:READY_CHECK(event, name, duration)
 		end
 	else
 		readycheck[playerName] = -1
-		for i =1, MAX_PARTY_MEMBERS do
+		for i = 1, MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
 				readycheck[UnitName("party"..i)] = RD_NORESPONSE
 			end
