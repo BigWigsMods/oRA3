@@ -1138,23 +1138,24 @@ function addon:SelectPanel(name)
 	if not contentFrame then return end
 	if not name then name = self.panels[1].name end
 	local panel = self.panels[name]
-	if not panel then return end -- should not happen?
+	if not panel then return end
 	openedPanel = name
-	
+
 	selectedTab = 1
-	for k, v in next, self.panels do
+	-- Since self.panels contains non-indexed entries, we need to ipairs instead of next.
+	for i, v in ipairs(self.panels) do
 		if v.name ~= name and type(v.hide) == "function" then
 			v.hide()
 		end
 		if v.name == name then
-			selectedTab = k
+			selectedTab = i
 		end
 	end
-	
+
 	oRA3Frame.title:SetText(name)
 	oRA3Frame.selectedTab = selectedTab
 	PanelTemplates_UpdateTabs(oRA3Frame)
-	
+
 	panel.show()
 end
 
