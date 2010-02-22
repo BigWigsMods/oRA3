@@ -66,6 +66,7 @@ local spells = {
 		[10278] = 300,  -- Hand of Protection
 		[6940] = 120,   -- Hand of Sacrifice
 		[48788] = 1200, -- Lay on Hands
+		[66233] = 120,  -- Ardent Defender
 	},
 	PRIEST = {
 		[33206] = 180,  -- Pain Suppression
@@ -142,6 +143,10 @@ local spells = {
 	},
 }
 
+-- Special handling of some spells that are only triggered by SPELL_AURA_APPLIED.
+local spellAuraApplied = {
+	[66233] = true,  -- Ardent Defender
+}
 local allSpells = {}
 local classLookup = {}
 for class, spells in pairs(spells) do
@@ -869,9 +874,25 @@ local function getCooldown(spellId)
 	return cd
 end
 
+local inGroup = nil
+do
+	local band = bit.band
+	local group = 0x7
+	if COMBATLOG_OBJECT_AFFILIATION_MINE then
+		group = COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
+	end
+	function module:ADDON_LOADED(event, addon)
+		if addon == "Blizzard_CombatLog" then
+			group = COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
+		end
+	end
+	function inGroup(source) return 	band(source, group) ~= 0 end
+end
+
 function module:OnStartup()
 	setupCooldownDisplay()
 	oRA.RegisterCallback(self, "OnCommCooldown")
+	self:RegisterEvent("ADDON_LOADED")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -1022,10 +1043,20 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	end
 end
 
-function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, _, _, _, _, spellId, spellName)
+function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, srcFlags, _, _, _, spellId, spellName)
+	-- These spells are not caught by the UNIT_SPELLCAST_SUCCEEDED event
+	if clueevent == "SPELL_AURA_APPLIED" and spellAuraApplied[spellId] then
+		if source == playerName then
+			oRA:SendComm("Cooldown", spellId, getCooldown(spellId)) -- Spell ID + CD in seconds
+		elseif inGroup(srcFlags) then
+			self:OnCommCooldown("RAID", source, spellId, allSpells[spellId])
+		end
+		return
+	end
+
 	if clueevent ~= "SPELL_RESURRECT" and clueevent ~= "SPELL_CAST_SUCCESS" then return end
 	if not source or source == playerName then return end
-	if allSpells[spellId] and util:inTable(oRA:GetGroupMembers(), source) then -- FIXME: use bitflag to check groupmembers
+	if allSpells[spellId] and inGroup(srcFlags) then
 		self:OnCommCooldown("RAID", source, spellId, allSpells[spellId])
 	end
 end
