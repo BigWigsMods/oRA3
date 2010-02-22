@@ -886,7 +886,7 @@ do
 			group = COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 		end
 	end
-	function inGroup(source) return 	band(source, group) ~= 0 end
+	function inGroup(source) return band(source, group) ~= 0 end
 end
 
 function module:OnStartup()

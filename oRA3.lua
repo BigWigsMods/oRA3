@@ -71,7 +71,18 @@ local sortIndex -- current index (scrollheader) being sorted
 local scrollhighs = {} -- scroll highlights
 local slideOnUpdate = nil
 
-local actuallyDisband -- function to disband the group, defined later on
+local function actuallyDisband()
+	if addon:IsPromoted() then
+		SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
+		for i, unit in next, groupMembers do
+			if unit ~= playerName then
+				UninviteUnit(unit)
+			end
+		end
+		LeaveParty()
+	end
+end
+
 
 addon.lists = {}
 addon.panels = {}
@@ -138,7 +149,7 @@ function addon:OnEnable()
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	
-	self:RegisterChatCommand( "radisband", actuallyDisband )
+	self:RegisterChatCommand("radisband", actuallyDisband)
 	
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
@@ -166,12 +177,6 @@ end
 
 function addon:OnDisable()
 	self:HideGUI()
-end
-
-function addon:OnStartup()
-end
-
-function addon:OnShutdown()
 end
 
 function addon:OnPromoted()
@@ -293,10 +298,8 @@ do
 			self.callbacks:Fire("OnTanksChanged", Tanks)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
-			self:OnShutdown()
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
-			self:OnStartup()
 			self.callbacks:Fire("OnStartup", groupStatus)
 		end
 		if playerPromoted ~= self:IsPromoted() then
@@ -327,39 +330,6 @@ function addon:InParty()
 	return groupStatus == INPARTY
 end
 
-function actuallyDisband()
-	if addon:IsPromoted() then
-		local pName = UnitName("player")
-		SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
-		for i, unit in next, groupMembers do
-			if unit ~= pName then
-				UninviteUnit(unit)
-			end
-		end
-		LeaveParty()
-	end
-end
-
-function addon:DisbandGroup()
-	--if not self:IsPromoted() then return end
-	if not StaticPopupDialogs["oRA3DisbandGroup"] then
-		StaticPopupDialogs["oRA3DisbandGroup"] = {
-			text = L["Are you sure you want to disband your group?"],
-			button1 = YES,
-			button2 = NO,
-			whileDead = 1,
-			hideOnEscape = 1,
-			timeout = 0,
-			OnAccept = actuallyDisband,
-		}
-	end
-	if IsControlKeyDown() then
-		actuallyDisband()
-	else
-		StaticPopup_Show("oRA3DisbandGroup")
-	end
-end
-
 function addon:ShowOptions()
 	InterfaceOptionsFrame_OpenToCategory("oRA3")
 end
@@ -383,18 +353,19 @@ end
 
 function addon:SendComm( ... )
 	if groupStatus == UNGROUPED or UnitInBattleground("player") then return end
-	self:SendCommMessage("oRA3", self:Serialize(...), "RAID") -- we always send to raid, blizzard will default to party if you're in a party
+	 -- we always send to raid, blizzard will default to party if you're in a party
+	self:SendCommMessage("oRA3", self:Serialize(...), "RAID")
+end
+
+local function dispatchComm(sender, ok, commType, ...)
+	if ok and type(commType) == "string" then
+		addon.callbacks:Fire("OnComm"..commType, sender, ...)
+	end
 end
 
 function addon:OnCommReceived(prefix, message, distribution, sender)
 	if distribution ~= "RAID" and distribution ~= "PARTY" then return end
-	addon:DispatchComm(sender, self:Deserialize(message))
-end
-
-function addon:DispatchComm(sender, ok, commType, ...)
-	if ok and type(commType) == "string" then
-		self.callbacks:Fire("OnComm"..commType, sender, ...)
-	end
+	dispatchComm(sender, self:Deserialize(message))
 end
 
 -- GUI
@@ -652,7 +623,24 @@ function addon:SetupGUI()
 	disband:SetDisabledFontObject(GameFontDisableSmall)
 	disband:SetText(L["Disband Group"])
 	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 4, 11)
-	disband:SetScript("OnClick", function() self:DisbandGroup() end)
+	disband:SetScript("OnClick", function()
+		if not StaticPopupDialogs["oRA3DisbandGroup"] then
+			StaticPopupDialogs["oRA3DisbandGroup"] = {
+				text = L["Are you sure you want to disband your group?"],
+				button1 = YES,
+				button2 = NO,
+				whileDead = 1,
+				hideOnEscape = 1,
+				timeout = 0,
+				OnAccept = actuallyDisband,
+			}
+		end
+		if IsControlKeyDown() then
+			actuallyDisband()
+		else
+			StaticPopup_Show("oRA3DisbandGroup")
+		end
+	end)
 	disband:Disable() -- will get enabled on startup
 	disband:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
@@ -773,16 +761,12 @@ function addon:SetupGUI()
 	self:UpdateFrameStatus()
 end
 
-
 function addon:AdjustPanelInset()
 	if oRA3Frame then
 		if self:InRaid() then
 			contentFrame:SetPoint("TOPLEFT", 40, -56)
 		else
 			contentFrame:SetPoint("TOPLEFT", 14, -56)
-		end
-		if openedOverview == L["Checks"] then
-			showLists()
 		end
 	end
 end
@@ -1016,12 +1000,8 @@ function addon:CreateListButton(name)
 end
 
 function addon:UpdateGUI(name)
-	self:SetupGUI()
-	if not openedPanel then
-		openedPanel = self.panels[1].name
-	end
-	if not oRA3Frame:IsVisible() or (name and openedOverview ~= name) then return end
-	-- update the overviews
+	if not oRA3Frame:IsVisible() then return end
+	if not openedPanel then openedPanel = self.panels[1].name end
 	self:SelectPanel(openedPanel)
 end
 
@@ -1077,10 +1057,10 @@ end
 
 do
 	local total = 0
+	local tabs = {}
 	function addon:SetupPanel(name)
 		if not oRA3Frame then return end
-
-		if not oRA3Frame.oRAtabs[name] then
+		if not tabs[name] then
 			total = total + 1
 			local f = CreateFrame("Button", "oRA3FrameTab"..total, oRA3Frame, "CharacterFrameTabButtonTemplate")
 			f:ClearAllPoints()
@@ -1094,14 +1074,14 @@ do
 			f:SetScript("OnClick", selectPanel)
 			f:SetScript("OnShow", tabOnShow)
 		
-			oRA3Frame.oRAtabs[name] = f
+			tabs[name] = f
 			if not oRA3Frame.selectedTab then
 				oRA3Frame.selectedTab = 1
 			end
 			PanelTemplates_SetNumTabs(oRA3Frame, total)
 			PanelTemplates_UpdateTabs(oRA3Frame)
 		end
-		oRA3Frame.oRAtabs[name]:Show()
+		tabs[name]:Show()
 	end
 end
 
@@ -1151,7 +1131,6 @@ function addon:OpenToList(name)
 	end
 end
 
-
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
@@ -1194,7 +1173,6 @@ function hideLists()
 	contentFrame.listFrame:Hide()
 	-- contentFrame.scrollFrame:Hide()
 end
-
 
 function util:inTable(t, value, subindex)
 	for k, v in pairs(t) do
