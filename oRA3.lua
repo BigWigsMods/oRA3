@@ -61,14 +61,13 @@ addon.groupStatus = UNGROUPED -- flag indicating groupsize
 local groupStatus = addon.groupStatus -- local upvalue
 
 -- overview drek
-local openedPanel = nil -- name of the current opened Panel
-local openedList = nil -- name of the current opened List in the List panel
+local openedPanel = L["Checks"] -- name of the current opened Panel
+local openedList = 1 -- index of the current opened List
+
 local contentFrame = nil -- content frame for the views
-local lastTab = 0 -- last tab in the list
 local scrollheaders = {} -- scrollheader frames
 local listbuttons = {} -- check list buttons
 local sortIndex -- current index (scrollheader) being sorted
-local selectedTab = 1
 local scrollhighs = {} -- scroll highlights
 local slideOnUpdate = nil
 
@@ -672,10 +671,11 @@ function addon:SetupGUI()
 	options:SetText(L["Options"])
 	options:SetPoint("BOTTOMRIGHT", contentFrame, "TOPRIGHT", -6, 11)
 	options:SetScript( "OnClick", function()  self:ShowOptions() end )
-	
-	
+
 	frame.oRAtabs = {} -- setup the tab listing
-	self:SetupPanels() -- fill the tab listing
+	for i, tab in next, self.panels do
+		self:SetupPanel(tab.name)
+	end
 
 	local listFrame = CreateFrame("Frame", "oRA3ListFrame", contentFrame)
 	listFrame:SetAllPoints(contentFrame)
@@ -756,18 +756,21 @@ function addon:SetupGUI()
 
 	frame:SetScript("OnShow", function() addon:UpdateGUI() end)
 	frame:SetScript("OnHide", function()
-		for k, v in next, addon.panels do
-			if type(v.hide) == "function" then
-				v.hide()
+		for i, tab in next, addon.panels do
+			if type(tab.hide) == "function" then
+				tab.hide()
 			end
 		end
 	end)
 	
 	frame.resizebg = resizebg
 	resizebg(frame)
-	
+
+	for i, list in next, self.lists do
+		list.button = self:CreateListButton(list.name)
+	end
+
 	self:UpdateFrameStatus()
-	self:SelectPanel()
 end
 
 
@@ -922,7 +925,7 @@ function addon:UpdateScroll()
 	end
 end
 
-function addon:SetScrollHeaderWidth( nr, width )
+function addon:SetScrollHeaderWidth(nr, width)
 	if not scrollheaders[nr] then return end
 	scrollheaders[nr]:SetWidth(width)
 	getglobal(scrollheaders[nr]:GetName().."Middle"):SetWidth(width-9)
@@ -972,7 +975,7 @@ function addon:CreateScrollHeader()
 	f.entries = entries
 end
 
-function addon:CreateScrollEntry( header )
+function addon:CreateScrollEntry(header)
 	local f = header:CreateFontString(nil,"OVERLAY")
 	f:SetHeight(16)
 	f:SetFontObject(GameFontNormalSmall)
@@ -983,17 +986,25 @@ function addon:CreateScrollEntry( header )
 	return f
 end
 
+local function listButtonClick(self)
+	for i, list in next, addon.lists do
+		if list.name == self:GetText() then
+			addon:SelectList(i)
+			break
+		end
+	end
+end
 function addon:CreateListButton(name)
 	if not contentFrame then return end
 	local nr = #listbuttons + 1
 	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.listFrame, "UIPanelButtonTemplate")
 	f:SetWidth(81)
 	f:SetHeight(21)
-	f:SetNormalFontObject(GameFontNormalSmall)
+	f:SetNormalFontObject(nr == 1 and GameFontHighlightSmall or GameFontNormalSmall)
 	f:SetHighlightFontObject(GameFontHighlightSmall)
 	f:SetDisabledFontObject(GameFontDisableSmall)
 	f:SetText(name)
-	f:SetScript("OnClick", function() self:SelectList(name) end)
+	f:SetScript("OnClick", listButtonClick)
 	listbuttons[#listbuttons + 1] = f
 	
 	if #listbuttons == 1 then
@@ -1014,158 +1025,113 @@ function addon:UpdateGUI(name)
 	self:SelectPanel(openedPanel)
 end
 
-
 -- Panels
 
 -- register a panel
 function addon:RegisterPanel(name, show, hide)
-	self.panels[name] = {
+	table.insert(self.panels, {
 		name = name,
 		show = show,
 		hide = hide
-	}
-	table.insert(self.panels, self.panels[name]) -- used to ipairs loop
+	})
 	self:SetupPanel(name)
 end
-
-function addon:UnregisterPanel(name)
-	if oRA3Frame and oRA3Frame.oRAtabs[name] then
-		oRA3Frame.oRAtabs[name]:Hide()
-		if openedPanel == name then
-			openedPanel = nil
-			self:UpdateGUI()
-		end
-	end
-end
-
-function addon:SetupPanels()
-	for k, v in next, self.panels do
-		self:SetupPanel(v.name)
-	end
-end
-
-local function selectPanel(self)
-	PlaySound("igCharacterInfoTab")
-	addon:SelectPanel(self.tabName)
-end
-
 
 -- register a list view
 -- name (string) - name of the list
 -- contents (table) - contents of the list
 -- .. tuple - name, width  -- contains name of the sortable column and type of the column
 function addon:RegisterList(name, contents, ...)
-	self.lists[name] = {
+	local newList = {
 		name = name,
 		contents = contents,
 	}
 	if select("#", ...) > 0 then
-		self.lists[name].cols = {}
+		local cols = {}
 		for i = 1, select("#", ...) do
 			local cname = select(i, ...)
 			if cname then
-				self.lists[name].cols[#self.lists[name].cols + 1] = { name = cname }
+				cols[#cols + 1] = { name = cname }
 			end
 		end
+		newList.cols = cols
 	end
-	table.insert(self.lists, self.lists[name]) -- used to ipairs loop
-	self:SetupList(name)
-end
-
-function addon:UnregisterList(name)
-	if openedList == name then
-		openedList = nil
-		self:UpdateGUI()
-	end
+	table.insert(self.lists, newList)
 end
 
 function addon:UpdateList(name)
 	if not oRA3Frame:IsVisible() then return end
 	if openedPanel ~= L["Checks"] then return end
-	if openedList ~= name then return end
+	if self.lists[openedList].name ~= name then return end
 	showLists()
 end
 
-function addon:SetupList(name)
-	local list = self.lists[name]
-	if not list.button then
-		list.button = self:CreateListButton(name)
-	end
+local function tabOnShow(self)
+	PanelTemplates_TabResize(self, 0)
 end
 
-function addon:SetupLists()
-	for k, v in next, self.lists do
-		self:SetupList(v.name)
-	end
-end
-
-local function selectlist(self)
+local function selectPanel(self)
 	PlaySound("igCharacterInfoTab")
-	addon:SelectList(self.tabName)
+	addon:SelectPanel(self:GetText())
 end
 
-local function tabOnShow(self) PanelTemplates_TabResize(self, 0) end
+do
+	local total = 0
+	function addon:SetupPanel(name)
+		if not oRA3Frame then return end
 
-function addon:SetupPanel(name)
-	if not oRA3Frame then return end
-
-	if not oRA3Frame.oRAtabs[name] then
-		lastTab = lastTab + 1
-		local f = CreateFrame("Button", "oRA3FrameTab"..lastTab, oRA3Frame, "CharacterFrameTabButtonTemplate")
-		f:ClearAllPoints()
-		if lastTab > 1 then
-			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(lastTab-1)], "TOPRIGHT", -16, 0)
-		else
-			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
-		end
-		f.tabName = name
-		f:SetText(name)
-		f:SetParent(contentFrame)
-		f:SetScript("OnClick", selectPanel)
-		f:SetScript("OnShow", tabOnShow)
+		if not oRA3Frame.oRAtabs[name] then
+			total = total + 1
+			local f = CreateFrame("Button", "oRA3FrameTab"..total, oRA3Frame, "CharacterFrameTabButtonTemplate")
+			f:ClearAllPoints()
+			if total > 1 then
+				f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(total - 1)], "TOPRIGHT", -16, 0)
+			else
+				f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
+			end
+			f:SetText(name)
+			f:SetParent(contentFrame)
+			f:SetScript("OnClick", selectPanel)
+			f:SetScript("OnShow", tabOnShow)
 		
-		oRA3Frame.oRAtabs[name] = f
-		if not oRA3Frame.selectedTab then
-			oRA3Frame.selectedTab = 1
+			oRA3Frame.oRAtabs[name] = f
+			if not oRA3Frame.selectedTab then
+				oRA3Frame.selectedTab = 1
+			end
+			PanelTemplates_SetNumTabs(oRA3Frame, total)
+			PanelTemplates_UpdateTabs(oRA3Frame)
 		end
-		PanelTemplates_SetNumTabs(oRA3Frame, lastTab)
-		PanelTemplates_UpdateTabs(oRA3Frame)
+		oRA3Frame.oRAtabs[name]:Show()
 	end
-	oRA3Frame.oRAtabs[name]:Show()
 end
 
 function addon:SelectPanel(name)
 	if not contentFrame then return end
-	if not name then name = self.panels[1].name end
-	local panel = self.panels[name]
-	if not panel then return end
 	openedPanel = name
 
-	selectedTab = 1
-	-- Since self.panels contains non-indexed entries, we need to ipairs instead of next.
-	for i, v in ipairs(self.panels) do
-		if v.name ~= name and type(v.hide) == "function" then
-			v.hide()
-		end
-		if v.name == name then
-			selectedTab = i
+	local index = 1
+	for i, tab in next, self.panels do
+		if tab.name == name then
+			index = i
+		elseif type(tab.hide) == "function" then
+			tab.hide()
 		end
 	end
 
 	oRA3Frame.title:SetText(name)
-	oRA3Frame.selectedTab = selectedTab
+	oRA3Frame.selectedTab = index
 	PanelTemplates_UpdateTabs(oRA3Frame)
 
-	panel.show()
+	self.panels[index].show()
 end
 
-function addon:SelectList( name )
-	openedList = name
-	for k, v in next, self.lists do
-		if v.name == openedList then
-			v.button:SetNormalFontObject(GameFontHighlightSmall)
+function addon:SelectList(index)
+	openedList = index
+	for i, list in next, self.lists do
+		if i == index then
+			list.button:SetNormalFontObject(GameFontHighlightSmall)
 		else
-			v.button:SetNormalFontObject(GameFontNormalSmall)
+			list.button:SetNormalFontObject(GameFontNormalSmall)
 		end
 	end
 	showLists()
@@ -1177,36 +1143,31 @@ function addon:OpenToList(name)
 		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
 	end
 	self:SelectPanel(L["Checks"])
-	self:SelectList(name)
+	for i, list in next, self.lists do
+		if list.name == name then
+			self:SelectList(i)
+			break
+		end
+	end
 end
 
 
 function showLists()
-	addon:SetupLists()
-	
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
 		f:Hide()
 	end
-	
-	if not openedList then
-		openedList = addon.lists[1].name
-		addon:SelectList(openedList)
-		return -- recursive protection
-	end
-
-	addon.callbacks:Fire("OnListSelected", openedList)	
-	oRA3Frame.title:SetText(openedPanel.." - "..openedList)
 
 	local list = addon.lists[openedList]
-	if not list then return end
-	
+	addon.callbacks:Fire("OnListSelected", list.name)
+	oRA3Frame.title:SetText(openedPanel.." - "..list.name)
+
 	contentFrame.listFrame:Show()
 	contentFrame.scrollFrame:Show()
-	local count = max( #list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
+	local count = max(#list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth/count
-	while( #list.cols > #scrollheaders ) do
+	while (#list.cols > #scrollheaders) do
 		addon:CreateScrollHeader()
 	end	
 	for i = 1, 19 do
