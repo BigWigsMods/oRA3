@@ -164,5 +164,3 @@ function module:UpdateZoneList()
 	end
 end
 
-
-

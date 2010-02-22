@@ -91,19 +91,18 @@ local function setMemberStatus(num, bottom, name, class)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 	f:Show()
-	f.bg:Show()
 	if readycheck[name] == RD_READY then
-		f.bg:SetTexture(0, 1, 0, 0.3)
+		f.bg:Hide()
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
 	elseif readycheck[name] == RD_NOTREADY then
-		f.bg:SetTexture(1, 0, 0, 0.3)
+		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
 	elseif readycheck[name] == RD_OFFLINE then
 		f:SetAlpha(.5)
-		f.bg:SetTexture(1, 0, 0, 0.3)
+		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
 	else
-		f.bg:Hide()
+		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
 	end
 end

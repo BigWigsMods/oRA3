@@ -19,6 +19,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommVersion")
 	oRA.RegisterCallback(self, "OnGroupChanged")
+	oRA.RegisterCallback(self, "OnCommRequestUpdate")
 	
 	self:RegisterChatCommand("raver", "OpenVersionCheck")
 	self:RegisterChatCommand("raversion", "OpenVersionCheck")
@@ -31,6 +32,10 @@ end
 
 function module:OpenVersionCheck()
 	oRA:OpenToList(L["Version"])
+end
+
+function module:OnCommRequestUpdate()
+	self:OnGroupChanged()
 end
 
 do

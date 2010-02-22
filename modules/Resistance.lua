@@ -24,6 +24,7 @@ function module:OnRegister()
 		L["Arcane"]
 	)
 	oRA.RegisterCallback(self, "OnCommResistance")
+	oRA.RegisterCallback(self, "OnCommRequestUpdate")
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	
@@ -42,10 +43,15 @@ function module:OnShutdown()
 	wipe(resistances)
 	f:UnregisterEvent("UNIT_INVENTORY_CHANGED")
 	f:UnregisterEvent("UNIT_RESISTANCES")
+	f:SetScript("OnUpdate", nil)
 end
 
 function module:OpenResistanceCheck()
 	oRA:OpenToList(L["Resistances"])
+end
+
+function module:OnCommRequestUpdate()
+	self:CheckResistance()
 end
 
 do
@@ -73,7 +79,7 @@ do
 		wipe(ret)
 		for i = 2, 6 do
 			local _, r = UnitResistance("player", i)
-			table.insert(ret, r)
+			ret[#ret + 1] = r
 		end
 		oRA:SendComm("Resistance", unpack(ret))
 	end

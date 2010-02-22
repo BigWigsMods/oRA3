@@ -24,6 +24,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommDurability")
+	oRA.RegisterCallback(self, "OnCommRequestUpdate")
 	
 	self:RegisterChatCommand("radur", "OpenDurabilityCheck")
 	self:RegisterChatCommand("radurability", "OpenDurabilityCheck")
@@ -48,28 +49,23 @@ function module:OpenDurabilityCheck()
 	oRA:OpenToList(L["Durability"])
 end
 
-local oldperc, oldbroken, oldminimum = 0,0,0
+function module:OnCommRequestUpdate()
+	self:CheckDurability()
+end
 
 function module:CheckDurability(event)
-	local perc, cur, max, broken, imin, imax, vmin = 0, 0, 0, 0, 0, 0, 100
-	for i=1,18 do
-		imin, imax = GetInventoryItemDurability( i )
+	local cur, max, broken, vmin = 0, 0, 0, 100
+	for i = 1, 18 do
+		local imin, imax = GetInventoryItemDurability(i)
 		if imin and imax then
-			vmin = math.min( math.floor(imin/imax * 100), vmin)
+			vmin = math.min(math.floor(imin / imax * 100), vmin)
 			if imin == 0 then broken = broken + 1 end
 			cur = cur + imin
 			max = max + imax
 		end
 	end
-	perc = math.floor(cur / max * 100)
-
-	if oldperc ~= perc or oldbroken ~= broken or oldminimum ~= vmin or override then
-		override = false
-		oldperc = perc
-		oldbroken = broken
-		oldminimum = vmin
-		oRA:SendComm("Durability", perc, vmin, broken) -- durability here is not localized on purpose, we don't localize comm transmissions
-	end
+	local perc = math.floor(cur / max * 100)
+	oRA:SendComm("Durability", perc, vmin, broken)
 end
 
 -- Durability answer

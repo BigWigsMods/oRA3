@@ -260,6 +260,9 @@ do
 		else
 			groupStatus = UNGROUPED
 		end
+		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
+			self:SendComm("RequestUpdate")
+		end
 
 		addon.groupStatus = groupStatus
 
