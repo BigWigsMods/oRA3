@@ -62,18 +62,13 @@ local oRA3Frame = nil
 local UNGROUPED = 0
 local INPARTY = 1
 local INRAID = 2
-addon.UNGROUPED = UNGROUPED
-addon.INPARTY = INPARTY
-addon.INRAID = INRAID
-addon.groupStatus = UNGROUPED -- flag indicating groupsize
-local groupStatus = addon.groupStatus -- local upvalue
+local groupStatus = UNGROUPED -- flag indicating groupsize
 
 -- overview drek
 local openedList = nil -- index of the current opened List
 
 local contentFrame = nil -- content frame for the views
 local scrollheaders = {} -- scrollheader frames
-local sortIndex -- current index (scrollheader) being sorted
 local scrollhighs = {} -- scroll highlights
 local slideOnUpdate = nil
 
@@ -145,19 +140,19 @@ end
 function addon:OnEnable()
 	-- Comm register
 	self:RegisterComm("oRA3")
-	
+
 	-- Roster Status Events
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
-	
+
 	self:RegisterChatCommand("radisband", actuallyDisband)
-	
+
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
-	
+
 	self:HookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
 	self:HookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
 	self:HookScript(FriendsFrame, "OnShow", "SetupGUI")
@@ -267,8 +262,6 @@ do
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
-
-		addon.groupStatus = groupStatus
 
 		wipe(tmpGroup)
 		wipe(tmpTanks)
@@ -999,6 +992,7 @@ function addon:CreateScrollEntry(header)
 	return f
 end
 
+local sortIndex -- current index (scrollheader) being sorted
 local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
 local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
 local function toggleColumn(header)
@@ -1011,7 +1005,7 @@ local function toggleColumn(header)
 	else
 		table.sort(list.contents, sortDesc)
 	end
-	self:UpdateScroll()
+	addon:UpdateScroll()
 end
 
 local function createScrollHeader()

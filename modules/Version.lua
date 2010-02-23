@@ -66,14 +66,14 @@ end
 function module:OnCommVersion(commType, sender, version)
 	local k = util:inTable(versions, sender, 1)
 	if not k then
-		table.insert(versions, { sender } )
-		k = util:inTable(versions, sender, 1)
+		versions[#versions + 1] = { sender }
+		k = #versions
 	end
 	versions[k][2] = version
 
-	if version > oRA.VERSION then
+	--if version > oRA.VERSION then
 		-- upgrade notice?
-	end
+	--end
 	
 	oRA:UpdateList(L["Version"])
 end

@@ -89,8 +89,8 @@ end
 function module:OnCommResistance(commType, sender, fr, nr, frr, sr, ar)
 	local k = util:inTable(resistances, sender, 1)
 	if not k then
-		table.insert(resistances, { sender } )
-		k = util:inTable(resistances, sender, 1)
+		resistances[#resistances + 1] = { sender }
+		k = #resistances
 	end
 	resistances[k][2] = fr
 	resistances[k][3] = nr

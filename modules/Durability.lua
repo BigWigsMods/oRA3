@@ -72,8 +72,8 @@ end
 function module:OnCommDurability(commType, sender, perc, minimum, broken)
 	local k = util:inTable(durability, sender, 1)
 	if not k then
-		table.insert(durability, { sender } )
-		k = util:inTable(durability, sender, 1)
+		durability[#durability + 1] = { sender }
+		k = #durability
 	end
 	durability[k][2] = perc
 	durability[k][3] = minimum

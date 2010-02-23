@@ -61,7 +61,7 @@ local function sortTanks()
 			indexedTanks[#indexedTanks + 1] = tank
 		end
 	end
-	if oRA.groupStatus == oRA.INRAID then
+	if oRA:InRaid() then
 		oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
 	end
 end
@@ -81,7 +81,7 @@ function module:OnDemoted(event, status)
 end
 
 function module:OnGroupChanged(event, status, members, updateSort)
-	if status == oRA.INRAID then
+	if oRA:InRaid() then
 		wipe(tmpTanks)
 		for tank, v in pairs(namedTanks) do
 			tmpTanks[tank] = v
@@ -188,7 +188,7 @@ local function topScrollDeleteClick(self)
 	sessionTanks[value] = nil
 	PlaySound("igMainMenuOptionCheckBoxOff")
 	-- update
-	module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers())
+	module:OnGroupChanged("OnGroupChanged", nil, oRA:GetGroupMembers())
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
 end
 
@@ -209,7 +209,7 @@ local function topScrollSaveClick(self)
 			end
 		end
 	end
-	module:OnGroupChanged("OnGroupChanged", oRA.groupStatus, oRA:GetGroupMembers())
+	module:OnGroupChanged("OnGroupChanged", nil, oRA:GetGroupMembers())
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
 end
 

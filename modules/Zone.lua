@@ -136,7 +136,7 @@ local function addPlayer(name, zone)
 	local k = util:inTable(zones, name, 1)
 	if not k then
 		zones[#zones + 1] = { name }
-		k = util:inTable(zones, name, 1)
+		k = #zones
 	end
 	zone = zone or L["Unknown"]
 	zones[k][2] = zone
@@ -144,12 +144,12 @@ end
 
 function module:UpdateZoneList()
 	wipe(zones)
-	if oRA.groupStatus == oRA.INRAID then
+	if oRA:InRaid() then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
 			addPlayer(name, zone)
 		end
-	elseif oRA.groupStatus == oRA.INPARTY then
+	elseif oRA:InParty() then
 		if not tip then
 			createTooltip()
 		end
