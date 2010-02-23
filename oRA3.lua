@@ -40,6 +40,14 @@ addon.coloredNames = coloredNames
 
 addon.util = {}
 local util = addon.util
+function util:inTable(t, value, subindex)
+	for k, v in pairs(t) do
+		if subindex then
+			if type(v) == "table" and v[subindex] == value then return k end
+		elseif v == value then return k end
+	end
+	return nil
+end
 
 -- Locals
 local playerName = UnitName("player")
@@ -61,12 +69,10 @@ addon.groupStatus = UNGROUPED -- flag indicating groupsize
 local groupStatus = addon.groupStatus -- local upvalue
 
 -- overview drek
-local openedPanel = L["Checks"] -- name of the current opened Panel
-local openedList = 1 -- index of the current opened List
+local openedList = nil -- index of the current opened List
 
 local contentFrame = nil -- content frame for the views
 local scrollheaders = {} -- scrollheader frames
-local listbuttons = {} -- check list buttons
 local sortIndex -- current index (scrollheader) being sorted
 local scrollhighs = {} -- scroll highlights
 local slideOnUpdate = nil
@@ -83,9 +89,8 @@ local function actuallyDisband()
 	end
 end
 
-
-addon.lists = {}
-addon.panels = {}
+local lists = {}
+local panels = {}
 
 local db
 local defaults = {
@@ -101,7 +106,6 @@ local selectList -- implemented down the file
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
 
-
 local options = nil
 local function giveOptions()
 	options = {
@@ -115,31 +119,30 @@ local function giveOptions()
 			}
 		}
 	}
-	
+
 	for k, m in addon:IterateModules() do
 		if m.GetOptions then
 			options.args[m.name] = m.GetOptions()
 		end
 	end
-	
+
 	return options
 end
 
 function addon:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, "Default")
+	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 	db = self.db.profile
-	
+
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
-	
+
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
-	
+
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
 end
 
 function addon:OnEnable()
-	self:ShowGUI()
 	-- Comm register
 	self:RegisterComm("oRA3")
 	
@@ -157,6 +160,11 @@ function addon:OnEnable()
 	
 	self:HookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
 	self:HookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
+	self:HookScript(FriendsFrame, "OnShow", "SetupGUI")
+
+	if oRA3Frame then
+		oRA3Frame:Show()
+	end
 end
 
 do
@@ -168,7 +176,7 @@ do
 	end
 
 	function addon:RaidInfoOpened()
-		wasOpen = oRA3FrameSub:IsShown()
+		wasOpen = contentFrame:IsShown()
 		if not wasOpen then return end
 		db.open = false
 		self:UpdateFrameStatus()
@@ -176,19 +184,7 @@ do
 end
 
 function addon:OnDisable()
-	self:HideGUI()
-end
-
-function addon:OnPromoted()
-	if oRA3Disband then
-		oRA3Disband:Enable()
-	end
-end
-
-function addon:OnDemoted()
-	if oRA3Disband then
-		oRA3Disband:Disable()
-	end
+	if oRA3Frame then oRA3Frame:Hide() end
 end
 
 do
@@ -202,6 +198,10 @@ do
 		end
 	end
 end
+
+-----------------------------------------------------------------------
+-- Guild and group roster
+--
 
 do
 	local function isIndexedEqual(a, b)
@@ -312,8 +312,12 @@ do
 				self.callbacks:Fire("OnDemoted", playerPromoted)
 			end
 		end
-		if not InCombatLockdown() then
-			self:AdjustPanelInset()
+		if not InCombatLockdown() and contentFrame then
+			if groupStatus == INRAID then
+				contentFrame:SetPoint("TOPLEFT", 40, -56)
+			else
+				contentFrame:SetPoint("TOPLEFT", 14, -56)
+			end
 		end
 	end
 end
@@ -330,12 +334,6 @@ function addon:InParty()
 	return groupStatus == INPARTY
 end
 
-function addon:ShowOptions()
-	InterfaceOptionsFrame_OpenToCategory("oRA3")
-end
-
--- utility functions
-
 function addon:IsPromoted(name)
 	if not name then name = playerName end
 	if groupStatus == UNGROUPED then
@@ -349,7 +347,9 @@ function addon:IsPromoted(name)
 	return false
 end
 
+-----------------------------------------------------------------------
 -- Comm handling
+--
 
 function addon:SendComm( ... )
 	if groupStatus == UNGROUPED or UnitInBattleground("player") then return end
@@ -368,19 +368,9 @@ function addon:OnCommReceived(prefix, message, distribution, sender)
 	dispatchComm(sender, self:Deserialize(message))
 end
 
--- GUI
-
-function addon:ShowGUI()
-	self:SetupGUI()
-	oRA3Frame:Show()
-	self:UpdateGUI(openedPanel)
-end
-
-function addon:HideGUI()
-	-- hide gui here
-	oRA3Frame:Hide()
-end
-
+-----------------------------------------------------------------------
+-- oRA3 main window
+--
 
 -- The Sliding/Detaching GUI pane is courtsey of Cladhaire and originally from LightHeaded
 -- This code was used with permission.
@@ -390,68 +380,70 @@ function addon:SetupGUI()
 	oRA3Frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
 	local frame = oRA3Frame
 
-	frame:SetWidth(640)
-	frame:SetHeight(512)
+	frame:SetFrameStrata("MEDIUM")
+	frame:SetWidth(375)
+	frame:SetHeight(425)
 	frame:SetPoint("LEFT", RaidFrame, "RIGHT", 0, 19)
+	frame:SetFrameLevel(0)
 	
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
 	topleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
 	topleft:SetWidth(128)
 	topleft:SetHeight(256)
-	topleft:SetPoint("TOPLEFT", 0, 0)
+	topleft:SetPoint("TOPLEFT")
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopRight")
 	topright:SetWidth(140)
 	topright:SetHeight(256)
-	topright:SetPoint("TOPRIGHT", 0, 0)
+	topright:SetPoint("TOPRIGHT")
 	topright:SetTexCoord(0, (140 / 256), 0, 1)
 
 	local top = frame:CreateTexture(nil, "ARTWORK")
 	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
 	top:SetHeight(256)
-	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT", 0, 0)
-	top:SetPoint("TOPRIGHT", topright, "TOPLEFT", 0, 0)
+	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
+	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 
 	local botleft = frame:CreateTexture(nil, "ARTWORK")
 	botleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotLeft")
 	botleft:SetWidth(128)
 	botleft:SetHeight(168)
-	botleft:SetPoint("BOTTOMLEFT", 0, 0)
+	botleft:SetPoint("BOTTOMLEFT")
 	botleft:SetTexCoord(0, 1, 0, (168 / 256))
 
 	local botright = frame:CreateTexture(nil, "ARTWORK")
 	botright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotRIght")
 	botright:SetWidth(140)
 	botright:SetHeight(168)
-	botright:SetPoint("BOTTOMRIGHT", 0, 0)
+	botright:SetPoint("BOTTOMRIGHT")
 	botright:SetTexCoord(0, (140 / 256), 0, (168 / 256))
 
 	local bot = frame:CreateTexture(nil, "ARTWORK")
 	bot:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Bot")
 	bot:SetHeight(168)
-	bot:SetPoint("TOPLEFT", botleft, "TOPRIGHT", 0, 0)
-	bot:SetPoint("TOPRIGHT", botright, "TOPLEFT", 0, 0)
+	bot:SetPoint("TOPLEFT", botleft, "TOPRIGHT")
+	bot:SetPoint("TOPRIGHT", botright, "TOPLEFT")
 	bot:SetTexCoord(0, 1, 0, (168 / 256))
 
 	local midleft = frame:CreateTexture(nil, "ARTWORK")
 	midleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
 	midleft:SetWidth(128)
-	midleft:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT", 0, 0)
-	midleft:SetPoint("BOTTOMLEFT", botleft, "TOPLEFT", 0, 0)
+	midleft:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
+	midleft:SetPoint("BOTTOMLEFT", botleft, "TOPLEFT")
 	midleft:SetTexCoord(0, 1, (240 / 256), 1)
 
 	local midright = frame:CreateTexture(nil, "ARTWORK")
 	midright:SetTexture("Interface\\AddOns\\oRA3\\images\\MidRight")
 	midright:SetWidth(140)
-	midright:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT", 0, 0)
-	midright:SetPoint("BOTTOMRIGHT", botright, "TOPRIGHT", 0, 0)
+	midright:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
+	midright:SetPoint("BOTTOMRIGHT", botright, "TOPRIGHT")
 	midright:SetTexCoord(0, (140 / 256), 0, 1)
 
 	local mid = frame:CreateTexture(nil, "ARTWORK")
 	mid:SetTexture("Interface\\AddOns\\oRA3\\images\\Mid")
-	mid:SetPoint("TOPLEFT", midleft, "TOPRIGHT", 0, 0)
-	mid:SetPoint("BOTTOMRIGHT", midright, "BOTTOMLEFT", 0, 0)
+	mid:SetPoint("TOPLEFT", midleft, "TOPRIGHT")
+	mid:SetPoint("BOTTOMRIGHT", midright, "BOTTOMLEFT")
 	
 	local bg1 = frame:CreateTexture(nil, "BACKGROUND")
 	bg1:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
@@ -462,52 +454,24 @@ function addon:SetupGUI()
 	local bg2 = frame:CreateTexture(nil, "BACKGROUND")
 	bg2:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
 	bg2:SetHeight(64)
-	bg2:SetPoint("TOPLEFT", bg1, "TOPRIGHT", 0, 0)
+	bg2:SetPoint("TOPLEFT", bg1, "TOPRIGHT")
 	bg2:SetWidth(256)
 
 	local bg3 = frame:CreateTexture(nil, "BACKGROUND")
 	bg3:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
 	bg3:SetHeight(64)
-	bg3:SetPoint("TOPLEFT", bg2, "TOPRIGHT", 0, 0)
+	bg3:SetPoint("TOPLEFT", bg2, "TOPRIGHT")
 	bg3:SetWidth(256)
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
 
-	local titlereg = CreateFrame("Button", nil, frame)
-	titlereg:SetPoint("TOPLEFT", 5, -5)
-	titlereg:SetPoint("TOPRIGHT", 0, 0)
-	titlereg:SetHeight(20)
-	titlereg:SetScript("OnMouseDown", function(f)
-		local parent = f:GetParent()
-		if parent:IsMovable() then
-			parent:StartMoving()
-		end
-	end)
-	titlereg:SetScript("OnMouseUp", function(f)
-		local parent = f:GetParent()
-		parent:StopMovingOrSizing()
-	end)
-
 	local title = frame:CreateFontString(nil, "ARTWORK")
 	title:SetFontObject(GameFontNormal)
 	title:SetPoint("TOP", 0, -6)
 	title:SetText("oRA3")
-
-	frame:EnableMouse()
-	frame:SetMovable(1)
-	frame:SetResizable(1)
-	frame:SetMinResize(300, 300)
-	frame:SetWidth(400)
-	frame:SetFrameLevel(0)
-	frame:SetWidth(325)
-	frame:SetHeight(450)
-
-	frame.bot = bot
-	frame.close = close
-	frame.titlereg = titlereg
 	frame.title = title
-	
+
 	local cos = math.cos
 	local pi = math.pi
 
@@ -538,22 +502,22 @@ function addon:SetupGUI()
 			
 			-- Do the frame fading
 			if not db.open then
-				if oRA3FrameSub.justclosed == true then
-					oRA3FrameSub.justclosed = false
-					oRA3FrameSub:Hide()
+				if contentFrame.justclosed == true then
+					contentFrame.justclosed = false
+					contentFrame:Hide()
 					frame:RegisterForClicks("AnyUp")
 				else
-					UIFrameFadeIn(oRA3FrameSub, 0.1, 0, 1)
-					oRA3FrameSub:Show()
+					UIFrameFadeIn(contentFrame, 0.1, 0, 1)
+					contentFrame:Show()
 					db.open = true
 					frame:RegisterForClicks(nil)
 				end
 			end
 			return
 		elseif count == 1 and db.open then
-			UIFrameFadeOut(oRA3FrameSub, 0.1, 1, 0)
+			UIFrameFadeOut(contentFrame, 0.1, 1, 0)
 			db.open = false
-			oRA3FrameSub.justclosed = true
+			contentFrame.justclosed = true
 		end
 		
 		local offset = cosineInterpolation(min, max, mod * totalElapsed)
@@ -570,7 +534,7 @@ function addon:SetupGUI()
 	local handle = CreateFrame("Button", nil, frame)
 	handle:SetWidth(8)
 	handle:SetHeight(128)
-	handle:SetPoint("LEFT", frame, "RIGHT", 0, 0)
+	handle:SetPoint("LEFT", frame, "RIGHT")
 	handle:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\tabhandle")
 	handle:RegisterForClicks("AnyUp")
 	handle:SetScript("OnClick", function()
@@ -589,40 +553,34 @@ function addon:SetupGUI()
 		SetCursor(nil)
 		GameTooltip:Hide()
 	end)
-	frame.handle = handle
 
 	close:SetScript("OnClick", function()
-		if RaidFrame:IsVisible() then
-			HideUIPanel(FriendsFrame)
-		else
-			handle:Click()
-		end
+		HideUIPanel(FriendsFrame)
 	end)
 
-	local subframe = CreateFrame("Frame", "oRA3FrameSub", frame)
+	local subframe = CreateFrame("Frame", nil, frame)
 	subframe:SetPoint("TOPLEFT", 14, -56)
 	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
-	subframe:SetAlpha(0)
-
 	contentFrame = subframe
+
 	local backdrop = {
 		bgFile = [[Interface\AddOns\oRA3\images\tiled-noise-2]],
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 		tile = true, edgeSize = 16, tileSize = 64,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
 	}
-	contentFrame:SetBackdrop(backdrop)
-	contentFrame:SetBackdropColor(0.08, 0.08, 0.08)
-	contentFrame:SetBackdropBorderColor(.8, .8, .8)
+	subframe:SetBackdrop(backdrop)
+	subframe:SetBackdropColor(0.08, 0.08, 0.08)
+	subframe:SetBackdropBorderColor(.8, .8, .8)
 
-	local disband = CreateFrame("Button", "oRA3Disband", contentFrame, "UIPanelButtonTemplate")
+	local disband = CreateFrame("Button", "oRA3Disband", subframe, "UIPanelButtonTemplate")
 	disband:SetWidth(115)
 	disband:SetHeight(21)
 	disband:SetNormalFontObject(GameFontNormalSmall)
 	disband:SetHighlightFontObject(GameFontHighlightSmall)
 	disband:SetDisabledFontObject(GameFontDisableSmall)
 	disband:SetText(L["Disband Group"])
-	disband:SetPoint("BOTTOMLEFT", contentFrame, "TOPLEFT", 4, 11)
+	disband:SetPoint("BOTTOMLEFT", subframe, "TOPLEFT", 4, 11)
 	disband:SetScript("OnClick", function()
 		if not StaticPopupDialogs["oRA3DisbandGroup"] then
 			StaticPopupDialogs["oRA3DisbandGroup"] = {
@@ -650,40 +608,48 @@ function addon:SetupGUI()
 	end)
 	disband:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
 
-	local options = CreateFrame("Button", "oRA3Options", contentFrame, "UIPanelButtonTemplate")
+	local options = CreateFrame("Button", "oRA3Options", subframe, "UIPanelButtonTemplate")
 	options:SetWidth(115)
 	options:SetHeight(21)
 	options:SetNormalFontObject(GameFontNormalSmall)
 	options:SetHighlightFontObject(GameFontHighlightSmall)
 	options:SetDisabledFontObject(GameFontDisableSmall)
 	options:SetText(L["Options"])
-	options:SetPoint("BOTTOMRIGHT", contentFrame, "TOPRIGHT", -6, 11)
-	options:SetScript( "OnClick", function()  self:ShowOptions() end )
+	options:SetPoint("BOTTOMRIGHT", subframe, "TOPRIGHT", -6, 11)
+	options:SetScript("OnClick", function()
+		InterfaceOptionsFrame_OpenToCategory("oRA3")
+	end)
 
-	frame.oRAtabs = {} -- setup the tab listing
-	for i, tab in next, self.panels do
-		self:SetupPanel(tab.name)
+	frame.selectedTab = 1
+	for i, tab in next, panels do
+		self:SetupPanel(i)
 	end
 
-	local listFrame = CreateFrame("Frame", "oRA3ListFrame", contentFrame)
-	listFrame:SetAllPoints(contentFrame)
+	local listFrame = CreateFrame("Frame", "oRA3ListFrame", subframe)
+	listFrame:SetAllPoints(subframe)
 	
 	-- Scrolling body
 	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", listFrame, "FauxScrollFrameTemplate")
-	sframe:SetPoint("BOTTOMLEFT", listFrame, "BOTTOMLEFT", 0, 30)
-	sframe:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -26, -25)
-	contentFrame.scrollFrame = sframe
-	contentFrame.listFrame = listFrame
+	sframe:SetPoint("BOTTOMLEFT", listFrame, 0, 30)
+	sframe:SetPoint("TOPRIGHT", listFrame, -26, -25)
+
+	local function updScroll() addon:UpdateScroll() end
+	sframe:SetScript("OnVerticalScroll", function(self, offset)
+		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updScroll)
+	end)
+
+	subframe.scrollFrame = sframe
+	subframe.listFrame = listFrame
 
 	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", listFrame)
-	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, 0)
-	sframebottom:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", 0, 0)
-	sframebottom:SetFrameLevel(contentFrame:GetFrameLevel())
+	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT")
+	sframebottom:SetPoint("BOTTOMRIGHT", subframe, "BOTTOMRIGHT")
+	sframebottom:SetFrameLevel(subframe:GetFrameLevel())
 
 	local bar = CreateFrame("Button", nil, sframebottom)
 	bar:Show()
-	bar:SetPoint("TOPLEFT", sframebottom, "TOPLEFT", 3, 3)
-	bar:SetPoint("TOPRIGHT", sframebottom, "TOPRIGHT", -4, 3)
+	bar:SetPoint("TOPLEFT", sframebottom, 3, 3)
+	bar:SetPoint("TOPRIGHT", sframebottom, -4, 3)
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
@@ -692,25 +658,20 @@ function addon:SetupGUI()
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	local sframetop = CreateFrame("Frame", "oRA3ScrollFrameTop", listFrame)
-	sframetop:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 0, 0)
-	sframetop:SetPoint("TOPRIGHT", contentFrame, "TOPRIGHT", 0, 0)
+	sframetop:SetPoint("TOPLEFT", subframe)
+	sframetop:SetPoint("TOPRIGHT", subframe)
 	sframetop:SetHeight(27)
 
 	bar = CreateFrame("Button", nil, sframetop)
 	bar:Show()
-	bar:SetPoint("BOTTOMLEFT", sframetop, "BOTTOMLEFT", 3, -2)
-	bar:SetPoint("BOTTOMRIGHT", sframetop, "BOTTOMRIGHT", -4, -2)
+	bar:SetPoint("BOTTOMLEFT", sframetop, 3, -2)
+	bar:SetPoint("BOTTOMRIGHT", sframetop, -4, -2)
 	bar:SetHeight(8)
 
 	barmiddle = bar:CreateTexture(nil, "BORDER")
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
-	
-	local function updScroll() addon:UpdateScroll() end
-	sframe:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll(self, offset, 16, updScroll)
-	end)
 
 	local function resizebg(frame)
 		local width = frame:GetWidth() - 5
@@ -742,74 +703,86 @@ function addon:SetupGUI()
 		end
 	end
 
-	frame:SetScript("OnShow", function() addon:UpdateGUI() end)
+	frame:SetScript("OnShow", function(self)
+		if not self:IsVisible() then return end
+		addon:SelectPanel()
+	end)
 	frame:SetScript("OnHide", function()
-		for i, tab in next, addon.panels do
+		for i, tab in next, panels do
 			if type(tab.hide) == "function" then
 				tab.hide()
 			end
 		end
 	end)
-	
+
 	frame.resizebg = resizebg
 	resizebg(frame)
 
-	for i, list in next, self.lists do
-		list.button = self:CreateListButton(list.name)
+	local function listButtonClick(self)
+		addon:SelectList(self.listIndex)
+	end
+	for i, list in next, lists do
+		local f = CreateFrame("Button", "oRA3ListButton"..i, contentFrame.listFrame, "UIPanelButtonTemplate")
+		f:SetWidth(81)
+		f:SetHeight(21)
+		f:SetNormalFontObject(i == 1 and GameFontHighlightSmall or GameFontNormalSmall)
+		f:SetHighlightFontObject(GameFontHighlightSmall)
+		f:SetDisabledFontObject(GameFontDisableSmall)
+		f:SetText(list.name)
+		f.listIndex = i
+		f:SetScript("OnClick", listButtonClick)
+	
+		if i == 1 then
+			f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 5, -4)
+		else
+			f:SetPoint("LEFT", lists[i - 1].button, "RIGHT")
+		end
+		list.button = f
 	end
 
 	self:UpdateFrameStatus()
 end
 
-function addon:AdjustPanelInset()
-	if oRA3Frame then
-		if self:InRaid() then
-			contentFrame:SetPoint("TOPLEFT", 40, -56)
-		else
-			contentFrame:SetPoint("TOPLEFT", 14, -56)
-		end
+function addon:OnPromoted()
+	if oRA3Disband then
+		oRA3Disband:Enable()
+	end
+end
+
+function addon:OnDemoted()
+	if oRA3Disband then
+		oRA3Disband:Disable()
 	end
 end
 
 function addon:SetAllPointsToPanel(frame)
 	if contentFrame then
 		frame:SetParent(contentFrame)
-		frame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 8, -4)
-		frame:SetPoint("BOTTOMRIGHT", contentFrame, "BOTTOMRIGHT", -4, 6)
+		frame:SetPoint("TOPLEFT", contentFrame, 8, -4)
+		frame:SetPoint("BOTTOMRIGHT", contentFrame, -4, 6)
 	end
 end
 
 function addon:UpdateFrameStatus()
-	local subframe = oRA3FrameSub
-
-	oRA3Frame:ClearAllPoints()
-
-	-- Lock the frame
-	oRA3Frame.titlereg:Hide()
-	oRA3Frame.handle:Show()
-	oRA3Frame:SetWidth(375)
-	oRA3Frame:SetHeight(425) 
 	oRA3Frame.resizebg(oRA3Frame)
-	oRA3Frame:SetFrameStrata("MEDIUM")
-	oRA3Frame.close:Show()
-	oRA3Frame:SetParent(RaidFrame)
 
 	if db.open then
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
-		subframe:Show()
-		subframe:SetAlpha(1)
-		subframe.open = true
 		oRA3Frame:RegisterForClicks(nil)
+		contentFrame:Show()
 	else
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
-		oRA3Frame:RegisterForClicks("AnyUp")
-		subframe:Hide()
-		subframe:SetAlpha(0)
+		oRA3Frame:RegisterForClicks("anyup")
+		contentFrame:Hide()
 	end
 end
 
+-----------------------------------------------------------------------
+-- Window position saving
+--
+
 function addon:SavePosition(name, nosize)
-	local f = getglobal(name)
+	local f = _G[name]
 	local x,y = f:GetLeft(), f:GetTop()
 	local s = f:GetEffectiveScale()
 
@@ -829,7 +802,7 @@ function addon:SavePosition(name, nosize)
 end
 
 function addon:RestorePosition(name)
-	local f = getglobal(name)
+	local f = _G[name]
 	local opt = db.positions[name]
 	if not opt then 
 		db.positions[name] = {}
@@ -843,7 +816,7 @@ function addon:RestorePosition(name)
 		
 	if not x or not y then
 		f:ClearAllPoints()
-		f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		f:SetPoint("CENTER", UIParent)
 		return false
 	end
 
@@ -868,24 +841,132 @@ function addon:RestorePosition(name)
 	return true
 end
 
+-----------------------------------------------------------------------
+-- Panel handling
+-- (panels are the tabs at the bottom)
+--
 
-local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
-local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
+-- register a panel
+function addon:RegisterPanel(name, show, hide)
+	table.insert(panels, {
+		name = name,
+		show = show,
+		hide = hide
+	})
+end
 
-function addon:SortColumn(nr)
-	local list = self.lists[openedList]
-	scrollheaders[nr].sortDir = not scrollheaders[nr].sortDir
-	sortIndex = nr
-	if scrollheaders[nr].sortDir then
-		table.sort(list.contents, sortAsc)
-	else
-		table.sort(list.contents, sortDesc)
+local function tabOnShow(self)
+	PanelTemplates_TabResize(self, 0)
+end
+
+local function selectPanel(self)
+	PlaySound("igCharacterInfoTab")
+	addon:SelectPanel(self:GetText())
+end
+
+function addon:SetupPanel(index)
+	if not oRA3Frame then return end
+	if not panels[index].setup then
+		local f = CreateFrame("Button", "oRA3FrameTab"..index, contentFrame, "CharacterFrameTabButtonTemplate")
+		if index > 1 then
+			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(index - 1)], "TOPRIGHT", -16, 0)
+		else
+			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
+		end
+		f:SetText(panels[index].name)
+		f:SetScript("OnClick", selectPanel)
+		f:SetScript("OnShow", tabOnShow)
+
+		PanelTemplates_SetNumTabs(oRA3Frame, index)
+		PanelTemplates_UpdateTabs(oRA3Frame)
+
+		panels[index].setup = true
 	end
-	self:UpdateScroll()
+end
+
+function addon:SelectPanel(name)
+	if not contentFrame then return end
+	if not name then name = panels[1].name end
+
+	local index = 1
+	for i, tab in next, panels do
+		if tab.name == name then
+			index = i
+		elseif type(tab.hide) == "function" then
+			tab.hide()
+		end
+	end
+
+	oRA3Frame.title:SetText(name)
+	oRA3Frame.selectedTab = index
+	PanelTemplates_UpdateTabs(oRA3Frame)
+
+	panels[index].show()
+end
+
+-----------------------------------------------------------------------
+-- List handling
+-- (lists are the views in the Checks panel)
+--
+
+-- register a list view
+-- name (string) - name of the list
+-- contents (table) - contents of the list
+-- .. tuple - name, width  -- contains name of the sortable column and type of the column
+function addon:RegisterList(name, contents, ...)
+	local newList = {
+		name = name,
+		contents = contents,
+	}
+	if select("#", ...) > 0 then
+		local cols = {}
+		for i = 1, select("#", ...) do
+			local cname = select(i, ...)
+			if cname then
+				cols[#cols + 1] = { name = cname }
+			end
+		end
+		newList.cols = cols
+	end
+	table.insert(lists, newList)
+end
+
+function addon:UpdateList(name)
+	if not openedList or not oRA3Frame:IsVisible() then return end
+	if lists[openedList].name ~= name then return end
+	showLists()
+end
+
+function addon:SelectList(index)
+	openedList = index
+	for i, list in next, lists do
+		if i == index then
+			list.button:SetNormalFontObject(GameFontHighlightSmall)
+		else
+			list.button:SetNormalFontObject(GameFontNormalSmall)
+		end
+	end
+	showLists()
+end
+
+function addon:OpenToList(name)
+	if not FriendsFrame:IsShown() or PanelTemplates_GetSelectedTab(FriendsFrame) ~= 5 then
+		ToggleFriendsFrame(5)
+	end
+	if not db.open then
+		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
+	end
+	self:SelectPanel(L["Checks"])
+	for i, list in next, lists do
+		if list.name == name then
+			self:SelectList(i)
+			break
+		end
+	end
 end
 
 function addon:UpdateScroll()
-	local list = self.lists[openedList]
+	local list = lists[openedList]
 	local nr = #list.contents
 	FauxScrollFrame_Update(contentFrame.scrollFrame, nr, 19, 16)
 	for i = 1, 19 do
@@ -909,246 +990,98 @@ function addon:UpdateScroll()
 	end
 end
 
-function addon:SetScrollHeaderWidth(nr, width)
-	if not scrollheaders[nr] then return end
-	scrollheaders[nr]:SetWidth(width)
-	getglobal(scrollheaders[nr]:GetName().."Middle"):SetWidth(width-9)
+local function createScrollEntry(header)
+	local f = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	f:SetHeight(16)
+	f:SetJustifyH("LEFT")
+	f:SetTextColor(1, 1, 1, 1)
+	return f
 end
 
-function addon:CreateScrollHeader()
+local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
+local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
+local function toggleColumn(header)
+	local list = lists[openedList]
+	local nr = header.headerIndex
+	scrollheaders[nr].sortDir = not scrollheaders[nr].sortDir
+	sortIndex = nr
+	if scrollheaders[nr].sortDir then
+		table.sort(list.contents, sortAsc)
+	else
+		table.sort(list.contents, sortDesc)
+	end
+	self:UpdateScroll()
+end
+
+local function createScrollHeader()
 	if not contentFrame then return end
 	local nr = #scrollheaders + 1
 	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
-	f:SetScript("OnClick", function() self:SortColumn(nr) end)
+	f.headerIndex = nr
+	f:SetScript("OnClick", toggleColumn)
 	scrollheaders[#scrollheaders + 1] = f
 	
 	if #scrollheaders == 1 then
-		f:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", 1, -2)
+		f:SetPoint("TOPLEFT", contentFrame, 1, -2)
 	else
 		f:SetPoint("LEFT", scrollheaders[#scrollheaders - 1], "RIGHT")
 	end
 
 	local entries = {}
-	-- create childs
-	local text = self:CreateScrollEntry(f)
+	local text = createScrollEntry(f)
 	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0 )
 	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
 	entries[1] = text
 
 	if #scrollheaders == 1 then
 		scrollhighs[1] = CreateFrame("Button", "oRA3ScrollHigh1", contentFrame.listFrame)
-		scrollhighs[1]:SetPoint("TOPLEFT", entries[1], "TOPLEFT", 0, 0)
+		scrollhighs[1]:SetPoint("TOPLEFT", entries[1])
 		scrollhighs[1]:SetWidth(contentFrame.scrollFrame:GetWidth())
 		scrollhighs[1]:SetHeight(16)
 		scrollhighs[1]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
 	end
 
 	for i = 2, 19 do
-		text = self:CreateScrollEntry(f)
-		text:SetPoint("TOPLEFT", entries[i-1], "BOTTOMLEFT")
-		text:SetPoint("TOPRIGHT", entries[i-1], "BOTTOMRIGHT")
+		local text = createScrollEntry(f)
+		text:SetPoint("TOPLEFT", entries[i - 1], "BOTTOMLEFT")
+		text:SetPoint("TOPRIGHT", entries[i - 1], "BOTTOMRIGHT")
 		entries[i] = text
 		if #scrollheaders == 1 then
 			scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame)
-			scrollhighs[i]:SetPoint("TOPLEFT", entries[i], "TOPLEFT", 0, 0)
+			scrollhighs[i]:SetPoint("TOPLEFT", entries[i])
 			scrollhighs[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
 			scrollhighs[i]:SetHeight(16)
-			scrollhighs[i]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
+			scrollhighs[i]:SetHighlightTexture([[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]])
 		end
 	end
 	f.entries = entries
 end
 
-function addon:CreateScrollEntry(header)
-	local f = header:CreateFontString(nil,"OVERLAY")
-	f:SetHeight(16)
-	f:SetFontObject(GameFontNormalSmall)
-	f:SetJustifyH("LEFT")
-	f:SetTextColor(1, 1, 1, 1)
-	f:ClearAllPoints()
-
-	return f
+local function setScrollHeaderWidth(nr, width)
+	scrollheaders[nr]:SetWidth(width)
+	_G[scrollheaders[nr]:GetName().."Middle"]:SetWidth(width - 9)
 end
 
-local function listButtonClick(self)
-	for i, list in next, addon.lists do
-		if list.name == self:GetText() then
-			addon:SelectList(i)
-			break
-		end
-	end
-end
-function addon:CreateListButton(name)
-	if not contentFrame then return end
-	local nr = #listbuttons + 1
-	local f = CreateFrame("Button", "oRA3ListButton"..nr, contentFrame.listFrame, "UIPanelButtonTemplate")
-	f:SetWidth(81)
-	f:SetHeight(21)
-	f:SetNormalFontObject(nr == 1 and GameFontHighlightSmall or GameFontNormalSmall)
-	f:SetHighlightFontObject(GameFontHighlightSmall)
-	f:SetDisabledFontObject(GameFontDisableSmall)
-	f:SetText(name)
-	f:SetScript("OnClick", listButtonClick)
-	listbuttons[#listbuttons + 1] = f
-	
-	if #listbuttons == 1 then
-		f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 5, -4)
-	else
-		f:SetPoint("LEFT", listbuttons[#listbuttons - 1], "RIGHT")
-	end
-	return f
-end
-
-function addon:UpdateGUI(name)
-	if not oRA3Frame:IsVisible() then return end
-	if not openedPanel then openedPanel = self.panels[1].name end
-	self:SelectPanel(openedPanel)
-end
-
--- Panels
-
--- register a panel
-function addon:RegisterPanel(name, show, hide)
-	table.insert(self.panels, {
-		name = name,
-		show = show,
-		hide = hide
-	})
-	self:SetupPanel(name)
-end
-
--- register a list view
--- name (string) - name of the list
--- contents (table) - contents of the list
--- .. tuple - name, width  -- contains name of the sortable column and type of the column
-function addon:RegisterList(name, contents, ...)
-	local newList = {
-		name = name,
-		contents = contents,
-	}
-	if select("#", ...) > 0 then
-		local cols = {}
-		for i = 1, select("#", ...) do
-			local cname = select(i, ...)
-			if cname then
-				cols[#cols + 1] = { name = cname }
-			end
-		end
-		newList.cols = cols
-	end
-	table.insert(self.lists, newList)
-end
-
-function addon:UpdateList(name)
-	if not oRA3Frame:IsVisible() then return end
-	if openedPanel ~= L["Checks"] then return end
-	if self.lists[openedList].name ~= name then return end
-	showLists()
-end
-
-local function tabOnShow(self)
-	PanelTemplates_TabResize(self, 0)
-end
-
-local function selectPanel(self)
-	PlaySound("igCharacterInfoTab")
-	addon:SelectPanel(self:GetText())
-end
-
-do
-	local total = 0
-	local tabs = {}
-	function addon:SetupPanel(name)
-		if not oRA3Frame then return end
-		if not tabs[name] then
-			total = total + 1
-			local f = CreateFrame("Button", "oRA3FrameTab"..total, oRA3Frame, "CharacterFrameTabButtonTemplate")
-			f:ClearAllPoints()
-			if total > 1 then
-				f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(total - 1)], "TOPRIGHT", -16, 0)
-			else
-				f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
-			end
-			f:SetText(name)
-			f:SetParent(contentFrame)
-			f:SetScript("OnClick", selectPanel)
-			f:SetScript("OnShow", tabOnShow)
-		
-			tabs[name] = f
-			if not oRA3Frame.selectedTab then
-				oRA3Frame.selectedTab = 1
-			end
-			PanelTemplates_SetNumTabs(oRA3Frame, total)
-			PanelTemplates_UpdateTabs(oRA3Frame)
-		end
-		tabs[name]:Show()
-	end
-end
-
-function addon:SelectPanel(name)
-	if not contentFrame then return end
-	openedPanel = name
-
-	local index = 1
-	for i, tab in next, self.panels do
-		if tab.name == name then
-			index = i
-		elseif type(tab.hide) == "function" then
-			tab.hide()
-		end
-	end
-
-	oRA3Frame.title:SetText(name)
-	oRA3Frame.selectedTab = index
-	PanelTemplates_UpdateTabs(oRA3Frame)
-
-	self.panels[index].show()
-end
-
-function addon:SelectList(index)
-	openedList = index
-	for i, list in next, self.lists do
-		if i == index then
-			list.button:SetNormalFontObject(GameFontHighlightSmall)
-		else
-			list.button:SetNormalFontObject(GameFontNormalSmall)
-		end
-	end
-	showLists()
-end
-
-function addon:OpenToList(name)
-	ToggleFriendsFrame(5) -- raidframe tab
-	if not db.open then
-		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
-	end
-	self:SelectPanel(L["Checks"])
-	for i, list in next, self.lists do
-		if list.name == name then
-			self:SelectList(i)
-			break
-		end
-	end
-end
-
+local listHeader = ("%s - %%s"):format(L["Checks"])
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
 		f:Hide()
 	end
 
-	local list = addon.lists[openedList]
+	if not openedList then openedList = 1 end
+	local list = lists[openedList]
 	addon.callbacks:Fire("OnListSelected", list.name)
-	oRA3Frame.title:SetText(openedPanel.." - "..list.name)
+	oRA3Frame.title:SetText(listHeader:format(list.name))
 
 	contentFrame.listFrame:Show()
 	contentFrame.scrollFrame:Show()
 	local count = max(#list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
-	local width = totalwidth/count
-	while (#list.cols > #scrollheaders) do
-		addon:CreateScrollHeader()
-	end	
+	local width = totalwidth / count
+	while #list.cols > #scrollheaders do
+		createScrollHeader()
+	end
 	for i = 1, 19 do
 		-- setting width here, needs to be scrollframe width, that is only properly calculated when shown
 		-- otherwise it will be too big due to the scrollbar being present or not
@@ -1157,9 +1090,9 @@ function showLists()
 	for k, v in next, list.cols do
 		scrollheaders[k]:SetText(v.name)
 		if k == 1 or #list.cols == 2 then
-			addon:SetScrollHeaderWidth(k, width*2)
+			setScrollHeaderWidth(k, width * 2)
 		else
-			addon:SetScrollHeaderWidth(k, width)
+			setScrollHeaderWidth(k, width)
 		end
 		scrollheaders[k]:Show()
 	end
@@ -1171,15 +1104,7 @@ function hideLists()
 		f:Hide()
 	end
 	contentFrame.listFrame:Hide()
+	openedList = nil
 	-- contentFrame.scrollFrame:Hide()
-end
-
-function util:inTable(t, value, subindex)
-	for k, v in pairs(t) do
-		if subindex then
-			if type(v) == "table" and v[subindex] == value then return k end
-		elseif v == value then return k end
-	end
-	return nil
 end
 
