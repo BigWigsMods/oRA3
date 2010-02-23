@@ -990,7 +990,8 @@ function addon:UpdateScroll()
 	end
 end
 
-local function createScrollEntry(header)
+-- Can't be local because it's also used by the Tank module at the moment
+function addon:CreateScrollEntry(header)
 	local f = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	f:SetHeight(16)
 	f:SetJustifyH("LEFT")
@@ -1028,7 +1029,7 @@ local function createScrollHeader()
 	end
 
 	local entries = {}
-	local text = createScrollEntry(f)
+	local text = addon:CreateScrollEntry(f)
 	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0 )
 	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
 	entries[1] = text
@@ -1042,7 +1043,7 @@ local function createScrollHeader()
 	end
 
 	for i = 2, 19 do
-		local text = createScrollEntry(f)
+		local text = addon:CreateScrollEntry(f)
 		text:SetPoint("TOPLEFT", entries[i - 1], "BOTTOMLEFT")
 		text:SetPoint("TOPRIGHT", entries[i - 1], "BOTTOMRIGHT")
 		entries[i] = text
