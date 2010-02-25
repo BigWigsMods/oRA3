@@ -144,6 +144,7 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", "UpdateContentFrame")
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
@@ -357,7 +358,7 @@ end
 --
 
 function addon:UpdateContentFrame()
-	if not contentFrame then return end
+	if not contentFrame or InCombatLockdown() then return end
 	if groupStatus == INRAID then
 		contentFrame:SetPoint("TOPLEFT", 40, -56)
 	else
