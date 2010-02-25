@@ -319,7 +319,7 @@ function module:OnEnable()
 end
 
 function module:READY_CHECK(event, name, duration)
-	if self.db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
+	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
@@ -341,7 +341,7 @@ function module:READY_CHECK(event, name, duration)
 	readyAuthor = name
 
 	-- show the readycheck result frame
-	if self.db.gui then
+	if self.db.profile.gui then
 		createWindow()
 		frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
 		frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
@@ -361,7 +361,7 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
 	end
-	if self.db.gui then
+	if self.db.profile.gui then
 		updateWindow()
 	end
 end
@@ -377,7 +377,7 @@ function module:READY_CHECK_FINISHED(event, someBoolean)
 	if not oRA:IsPromoted() then return end
 
 	if frame then
-		if self.db.autohide then frame.fadeTimer = 1 end
+		if self.db.profile.autohide then frame.fadeTimer = 1 end
 		frame.timer = 0
 		frame.title:SetText(READY_CHECK_FINISHED)
 	end
@@ -414,8 +414,8 @@ function module:GetOptions()
 	local options = {
 		type = "group",
 		name = READY_CHECK,
-		get = function(k) return module.db[k.arg] end,
-		set = function(k, v) module.db[k.arg] = v end,
+		get = function(k) return module.db.profile[k.arg] end,
+		set = function(k, v) module.db.profile[k.arg] = v end,
 		args = {
 			sound = {
 				type = "toggle",
