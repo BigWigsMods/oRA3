@@ -903,13 +903,17 @@ function module:OnStartup()
 		-- Maybe this is reliable? I dunno.
 		local five = 60 * 5
 		self:SecureHook("UseSoulstone", function()
+			print("oRA3: UseSoulstone invoked.")
 			-- If Reincarnation is on cooldown and it is less than
 			-- 5 minutes since we used it, we assume that this
 			-- UseSoulstone call was triggered by a Reincarnation.
 			local start, duration = GetSpellCooldown(20608)
+			print("oRA3: " .. tostring(start) .. ":" .. tostring(duration) .. ".")
 			if start and duration then
+				print("oRA3: Reincarnation is on cooldown.")
 				local t = GetTime()
 				if (start + five) > t then
+					print("oRA3: Sending Reincarnation cooldown to the raid.")
 					-- We popped Reincarnation (probably)
 					oRA:SendComm("Cooldown", 20608, getCooldown(20608))
 				end
