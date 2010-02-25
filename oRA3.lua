@@ -667,8 +667,8 @@ function addon:SetupGUI()
 		addon:SelectList(self.listIndex)
 	end
 	for i, list in next, lists do
-		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate")
-		f:SetWidth(81)
+		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate2")
+		f:SetWidth((frame:GetWidth() - 24) / #lists)
 		f:SetHeight(21)
 		f:SetNormalFontObject(i == 1 and GameFontHighlightSmall or GameFontNormalSmall)
 		f:SetHighlightFontObject(GameFontHighlightSmall)
@@ -676,7 +676,6 @@ function addon:SetupGUI()
 		f:SetText(list.name)
 		f.listIndex = i
 		f:SetScript("OnClick", listButtonClick)
-	
 		if i == 1 then
 			f:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 5, -4)
 		else
