@@ -293,8 +293,8 @@ function module:CreateFrame()
 		t:SetScript("OnClick", topScrollUpClick)
 		t:SetScript("OnLeave", OnLeave)
 		t:SetScript("OnEnter", OnEnter)
-		t.tooltipTitle = "Sort"
-		t.tooltipText = "Click to move this tank up."
+		t.tooltipTitle = L["Sort"]
+		t.tooltipText = L["Click to move this tank up."]
 
 		if i == 1 then
 			t:SetPoint("TOPLEFT", frame.topscroll)
