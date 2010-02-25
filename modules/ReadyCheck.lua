@@ -141,8 +141,8 @@ local function updateWindow()
 		-- position the spacer
 		local yoff = ((math.ceil(top / 2) * 14) + 37) * -1
 		frame.bar:ClearAllPoints()
-		frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, yoff)
-		frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, yoff)
+		frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
+		frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
 
 		if bottom > 0 then
 			frame.bar:Show()
@@ -174,7 +174,7 @@ local function createWindow()
 	f:SetClampedToScreen(true)
 	if not oRA3:RestorePosition("oRA3ReadyCheck") then
 		f:ClearAllPoints()
-		f:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
+		f:SetPoint("CENTER", UIParent, 0, 180)
 	end
 
 	local titlebg = f:CreateTexture(nil, "BACKGROUND")
@@ -271,9 +271,8 @@ local function createWindow()
 
 	local bar = CreateFrame("Button", nil, frame)
 	frame.bar = bar
-	bar:Show()
-	bar:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -150)
-	bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -150)
+	bar:SetPoint("TOPLEFT", frame, 8, -150)
+	bar:SetPoint("TOPRIGHT", frame, -6, -150)
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")

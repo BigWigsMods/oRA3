@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
+local module = oRA:NewModule("Cooldowns", "AceEvent-3.0", "AceHook-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
@@ -897,24 +897,24 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	self:UpdateCooldownModifiers()
 	if playerClass == "SHAMAN" then
-		local resTime = GetTime()
-		local ankhs = GetItemCount(17030)
-		self:RegisterEvent("PLAYER_ALIVE", function()
-			resTime = GetTime()
-			self:UpdateCooldownModifiers()
-		end)
-		self:RegisterEvent("BAG_UPDATE", function()
-			if (GetTime() - (resTime or 0)) > 1 then return end
-			local newankhs = GetItemCount(17030)
-			if newankhs == (ankhs - 1) then
-				oRA:SendComm("Cooldown", 20608, getCooldown(20608)) -- Spell ID + CD in seconds
+		-- Maybe this is reliable? I dunno.
+		local five = 60 * 5
+		self:SecureHook("UseSoulstone", function()
+			-- If Reincarnation is on cooldown and it is less than
+			-- 5 minutes since we used it, we assume that this
+			-- UseSoulstone call was triggered by a Reincarnation.
+			local start, duration = GetSpellCooldown(20608)
+			if start and duration then
+				local t = GetTime()
+				if (start + five) > t then
+					-- We popped Reincarnation (probably)
+					oRA:SendComm("Cooldown", 20608, getCooldown(20608))
+				end
 			end
-			ankhs = newankhs
 		end)
-	else
-		self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	end
 end
 
