@@ -69,14 +69,14 @@ end
 function module:OnPromoted(event, status)
 	if not frame then return end
 	for k, v in next, top do
-		v.tank:EnableMouse(true)
+		v.tank:Enable()
 	end
 end
 
 function module:OnDemoted(event, status)
 	if not frame then return end
 	for k, v in next, top do
-		v.tank:EnableMouse(false)
+		v.tank:Disable()
 	end
 end
 
@@ -156,11 +156,10 @@ local function OnLeave(self)
 	GameTooltip:Hide()
 end
 
-local function createButton(name, parent, template)
-	local frame = CreateFrame("Button", name, parent, template)
+local function createButton(parent, template)
+	local frame = CreateFrame("Button", nil, parent, template)
 	frame:SetWidth(16)
 	frame:SetHeight(16)
-	frame:EnableMouse(true)
 	frame:SetScript("OnLeave", OnLeave)
 	frame:SetScript("OnEnter", OnEnter)
 
@@ -269,8 +268,8 @@ function module:CreateFrame()
 	frame = CreateFrame("Frame")
 
 	local centerBar = CreateFrame("Button", nil, frame)
-	centerBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -5, 142)
-	centerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 142)
+	centerBar:SetPoint("BOTTOMLEFT", frame, -5, 142)
+	centerBar:SetPoint("BOTTOMRIGHT", frame, 0, 142)
 	centerBar:SetHeight(8)
 	local texture = centerBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
@@ -278,8 +277,8 @@ function module:CreateFrame()
 	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	local topBar = CreateFrame("Button", nil, frame)
-	topBar:SetPoint("TOPLEFT", frame, "TOPLEFT", -5, -42)
-	topBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, -42)
+	topBar:SetPoint("TOPLEFT", frame, -5, -42)
+	topBar:SetPoint("TOPRIGHT", frame, 0, -42)
 	topBar:SetHeight(8)
 	texture = topBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
@@ -292,7 +291,7 @@ function module:CreateFrame()
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
 	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
-	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -22, 0)
+	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -22, 0)
 	
 	local help = frame:CreateFontString(nil, "ARTWORK")
 	help:SetFontObject(GameFontNormal)
@@ -300,7 +299,7 @@ function module:CreateFrame()
 	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -20, 0)
 	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks."])
 	
-	local helpButton = createButton("oRA3TankHelpButton", frame)
+	local helpButton = createButton(frame)
 	helpButton:SetPoint("TOPRIGHT", -4, -4)
 	helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
 	helpButton.tooltipTitle = L["What is all this?"]
@@ -313,37 +312,41 @@ function module:CreateFrame()
 		t:SetHeight(16)
 
 		if i == 1 then
-			t:SetPoint("TOPLEFT", frame.topscroll, "TOPLEFT")
-			t:SetPoint("TOPRIGHT", frame.topscroll, "TOPRIGHT")
+			t:SetPoint("TOPLEFT", frame.topscroll)
+			t:SetPoint("TOPRIGHT", frame.topscroll)
 		else
 			t:SetPoint("TOPLEFT", top[i - 1], "BOTTOMLEFT")
 			t:SetPoint("TOPRIGHT", top[i - 1], "BOTTOMRIGHT")
 		end
 		local name = oRA:CreateScrollEntry(t)
-		name:SetPoint("TOPLEFT", t, "TOPLEFT")
+		name:SetPoint("TOPLEFT", t)
 		name:SetText(L["Name"])
 		t.label = name
 
-		local delete = createButton("oRA3TankTopScrollDelete"..i, t)
-		delete:SetPoint("TOPRIGHT", t, "TOPRIGHT")
+		local delete = createButton(t)
+		delete:SetPoint("TOPRIGHT", t)
 		delete.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
 		delete:SetScript("OnClick", topScrollDeleteClick)
 		delete.tooltipTitle = L.Remove
 		delete.tooltipText = L.deleteButtonHelp
 		t.delete = delete
 
-		local tank = createButton("oRA3TankTopScrollTank"..i, t, "SecureActionButtonTemplate")
+		local tank = createButton(t, "SecureActionButtonTemplate")
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
 		tank.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
 		tank.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		tank:SetAttribute("type", "maintank")
 		tank:SetAttribute("action", "toggle")
-		tank:EnableMouse(oRA:IsPromoted())
+		if oRA:IsPromoted() then
+			tank:Enable()
+		else
+			tank:Disable()
+		end
 		tank.tooltipTitle = L["Blizzard Main Tank"]
 		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
 
-		local save = createButton("oRA3TankTopScrollSave"..i, t)
+		local save = createButton(t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
 		save:SetScript("OnClick", topScrollSaveClick)
@@ -351,14 +354,14 @@ function module:CreateFrame()
 		save.tooltipText = L.saveButtonHelp
 		t.save = save
 
-		local down = createButton("oRA3TankTopScrollDown"..i, t)
+		local down = createButton(t)
 		down:SetPoint("TOPRIGHT", save, "TOPLEFT", -2, 0)
 		down.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
 		down.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 		down:SetScript("OnClick", topScrollDownClick)
 		t.down = down
 
-		local up = createButton("oRA3TankTopScrollUp"..i, t)
+		local up = createButton(t)
 		up:SetPoint("TOPRIGHT", down, "TOPLEFT", -2, 0)
 		up.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up")
 		up.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
@@ -372,18 +375,17 @@ function module:CreateFrame()
 		local b = CreateFrame("Button", nil, frame)
 		b:SetHeight(16)
 		b:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
-		b:EnableMouse(true)
 		b:SetScript("OnClick", bottomScrollClick)
 		if i == 1 then
-			b:SetPoint("TOPLEFT", frame.bottomscroll, "TOPLEFT")
-			b:SetPoint("TOPRIGHT", frame.bottomscroll, "TOPRIGHT")
+			b:SetPoint("TOPLEFT", frame.bottomscroll)
+			b:SetPoint("TOPRIGHT", frame.bottomscroll)
 		else
 			b:SetPoint("TOPLEFT", bottom[i - 1], "BOTTOMLEFT")
 			b:SetPoint("TOPRIGHT", bottom[i - 1], "BOTTOMRIGHT")
 		end
 		local name = oRA:CreateScrollEntry(b)
-		name:SetPoint("TOPLEFT", b, "TOPLEFT")
-		name:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT")
+		name:SetPoint("TOPLEFT", b)
+		name:SetPoint("BOTTOMRIGHT", b)
 		name:SetText(L["Name"])
 		b.label = name
 		b.unitName = L["Name"]
@@ -417,26 +419,26 @@ function module:UpdateTopScroll()
 		if j <= nr then
 			if j == 1 then
 				v.up:SetAlpha(.3)
-				v.up:EnableMouse(false)
+				v.up:Disable()
 			else
 				v.up:SetAlpha(1)
-				v.up:EnableMouse(true)
+				v.up:Enable()
 			end
 			if j == nr then
 				v.down:SetAlpha(.3)
-				v.down:EnableMouse(false)
+				v.down:Disable()
 			else
 				v.down:SetAlpha(1)
-				v.down:EnableMouse(true)
+				v.down:Enable()
 			end
 			if util:inTable(btanks, allIndexedTanks[j]) then
 				v.tank:SetAlpha(1)
 				v.delete:SetAlpha(.3)
-				v.delete:EnableMouse(false)
+				v.delete:Disable()
 			else
 				v.tank:SetAlpha(.3)
 				v.delete:SetAlpha(1)
-				v.delete:EnableMouse(true)
+				v.delete:Enable()
 			end
 			if namedPersistent[allIndexedTanks[j]] then
 				v.save:SetAlpha(1)
