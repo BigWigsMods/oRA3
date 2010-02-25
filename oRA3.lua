@@ -54,7 +54,7 @@ local playerName = UnitName("player")
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
-local Tanks = {} -- Index:Name
+local tanks = {} -- Index:Name
 local playerPromoted = nil
 local oRA3Frame = nil
 
@@ -148,13 +148,13 @@ function addon:OnEnable()
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
-	-- init groupStatus
-	self:RAID_ROSTER_UPDATE()
-	if IsInGuild() then GuildRoster() end
-
 	self:HookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
 	self:HookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
 	self:HookScript(FriendsFrame, "OnShow", "SetupGUI")
+
+	-- init groupStatus
+	self:RAID_ROSTER_UPDATE()
+	if IsInGuild() then GuildRoster() end
 
 	if oRA3Frame then
 		oRA3Frame:Show()
@@ -245,7 +245,7 @@ do
 	function addon:GetGuildMembers() return guildMemberList end
 	function addon:IsGuildMember(name) return guildMemberList[name] end
 	function addon:GetGroupMembers() return groupMembers end
-	function addon:GetBlizzardTanks() return Tanks end
+	function addon:GetBlizzardTanks() return tanks end
 	
 	local tmpGroup = {}
 	local tmpTanks = {}
@@ -285,9 +285,9 @@ do
 			copyToTable(tmpGroup, groupMembers)
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
-		if not isIndexedEqual(tmpTanks, Tanks) then
-			copyToTable(tmpTanks, Tanks)
-			self.callbacks:Fire("OnTanksChanged", Tanks)
+		if not isIndexedEqual(tmpTanks, tanks) then
+			copyToTable(tmpTanks, tanks)
+			self.callbacks:Fire("OnTanksChanged", tanks)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
 			self.callbacks:Fire("OnShutdown", groupStatus)
@@ -304,13 +304,7 @@ do
 				self.callbacks:Fire("OnDemoted", playerPromoted)
 			end
 		end
-		if not InCombatLockdown() and contentFrame then
-			if groupStatus == INRAID then
-				contentFrame:SetPoint("TOPLEFT", 40, -56)
-			else
-				contentFrame:SetPoint("TOPLEFT", 14, -56)
-			end
-		end
+		self:UpdateContentFrame()
 	end
 end
 
@@ -362,6 +356,15 @@ end
 -----------------------------------------------------------------------
 -- oRA3 main window
 --
+
+function addon:UpdateContentFrame()
+	if not contentFrame then return end
+	if groupStatus == INRAID then
+		contentFrame:SetPoint("TOPLEFT", 40, -56)
+	else
+		contentFrame:SetPoint("TOPLEFT", 14, -56)
+	end
+end
 
 -- The Sliding/Detaching GUI pane is courtsey of Cladhaire and originally from LightHeaded
 -- This code was used with permission.
@@ -436,23 +439,11 @@ function addon:SetupGUI()
 	mid:SetPoint("TOPLEFT", midleft, "TOPRIGHT")
 	mid:SetPoint("BOTTOMRIGHT", midright, "BOTTOMLEFT")
 	
-	local bg1 = frame:CreateTexture(nil, "BACKGROUND")
-	bg1:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
-	bg1:SetHeight(64)
-	bg1:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
-	bg1:SetWidth(256)
-
-	local bg2 = frame:CreateTexture(nil, "BACKGROUND")
-	bg2:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
-	bg2:SetHeight(64)
-	bg2:SetPoint("TOPLEFT", bg1, "TOPRIGHT")
-	bg2:SetWidth(256)
-
-	local bg3 = frame:CreateTexture(nil, "BACKGROUND")
-	bg3:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
-	bg3:SetHeight(64)
-	bg3:SetPoint("TOPLEFT", bg2, "TOPRIGHT")
-	bg3:SetWidth(256)
+	local topBg = frame:CreateTexture(nil, "BACKGROUND")
+	topBg:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
+	topBg:SetHeight(64)
+	topBg:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
+	topBg:SetWidth(256 + 114)
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
@@ -664,36 +655,6 @@ function addon:SetupGUI()
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
-	local function resizebg(frame)
-		local width = frame:GetWidth() - 5
-		-- bg1 will be okay due to minresize
-
-		-- We'll resize bg2 up to 256
-		local bg2w = width - 256
-		local bg3w
-		if bg2w > 256 then
-			bg3w = bg2w - 256
-			bg2w = 256
-		end
-
-		if bg2w > 0 then
-			bg2:SetWidth(bg2w)
-			bg2:SetTexCoord(0, (bg2w / 256), 0, 1)
-			bg2:Show()
-		else
-			bg2:Hide()
-		end
-
-		
-		if bg3w and bg3w > 0 then
-			bg3:SetWidth(bg3w)
-			bg3:SetTexCoord(0, (bg3w / 256), 0, 1)
-			bg3:Show()
-		else
-			bg3:Hide()
-		end
-	end
-
 	frame:SetScript("OnShow", function(self)
 		if not self:IsVisible() then return end
 		addon:SelectPanel()
@@ -705,9 +666,6 @@ function addon:SetupGUI()
 			end
 		end
 	end)
-
-	frame.resizebg = resizebg
-	resizebg(frame)
 
 	local function listButtonClick(self)
 		addon:SelectList(self.listIndex)
@@ -731,6 +689,7 @@ function addon:SetupGUI()
 		list.button = f
 	end
 
+	self:UpdateContentFrame()
 	self:UpdateFrameStatus()
 end
 
@@ -755,13 +714,14 @@ function addon:SetAllPointsToPanel(frame)
 end
 
 function addon:UpdateFrameStatus()
-	oRA3Frame.resizebg(oRA3Frame)
-
+	if not oRA3Frame then return end
 	if db.open then
+		-- We are slided out
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
 		oRA3Frame:RegisterForClicks(nil)
 		contentFrame:Show()
 	else
+		-- We are slided in
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
 		oRA3Frame:RegisterForClicks("anyup")
 		contentFrame:Hide()
@@ -823,11 +783,6 @@ function addon:RestorePosition(name)
 
 	if opt.Height then
 		f:SetHeight(opt.Height)
-	end
-
-	if type(f.resizebg) == "function" then
-		-- Resize the background
-		f.resizebg(f)
 	end
 	return true
 end
