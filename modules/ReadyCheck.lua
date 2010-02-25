@@ -108,8 +108,6 @@ local function setMemberStatus(num, bottom, name, class)
 end
 
 local function updateWindow()
-	if not module.gui then return end
-
 	for i, v in next, topMemberFrames do v:Hide() end
 	for i, v in next, bottomMemberFrames do v:Hide() end
 
