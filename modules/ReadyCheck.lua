@@ -108,7 +108,7 @@ local function setMemberStatus(num, bottom, name, class)
 end
 
 local function updateWindow()
-	if not db.gui then return end
+	if not module.gui then return end
 
 	for i, v in next, topMemberFrames do v:Hide() end
 	for i, v in next, bottomMemberFrames do v:Hide() end
@@ -306,7 +306,6 @@ end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
-	db = self.db.profile
 end
 
 function module:OnEnable()
@@ -320,7 +319,7 @@ function module:OnEnable()
 end
 
 function module:READY_CHECK(event, name, duration)
-	if db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
+	if self.db.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
@@ -342,7 +341,7 @@ function module:READY_CHECK(event, name, duration)
 	readyAuthor = name
 
 	-- show the readycheck result frame
-	if db.gui then
+	if self.db.gui then
 		createWindow()
 		frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
 		frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
@@ -362,7 +361,7 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
 	end
-	if db.gui then
+	if self.db.gui then
 		updateWindow()
 	end
 end
@@ -372,14 +371,13 @@ local function sysPrint(msg)
 	DEFAULT_CHAT_FRAME:AddMessage(msg, c.r, c.g, c.b, c.id)
 end
 
-
 function module:READY_CHECK_FINISHED(event, someBoolean)
 	-- This seems to be true in 5mans and false in raids, no matter what people actually click.
 	if someBoolean then return end
 	if not oRA:IsPromoted() then return end
 
 	if frame then
-		if db.autohide then frame.fadeTimer = 1 end
+		if self.db.autohide then frame.fadeTimer = 1 end
 		frame.timer = 0
 		frame.title:SetText(READY_CHECK_FINISHED)
 	end
@@ -416,8 +414,8 @@ function module:GetOptions()
 	local options = {
 		type = "group",
 		name = READY_CHECK,
-		get = function(k) return db[k.arg] end,
-		set = function(k, v) db[k.arg] = v end,
+		get = function(k) return module.db[k.arg] end,
+		set = function(k, v) module.db[k.arg] = v end,
 		args = {
 			sound = {
 				type = "toggle",

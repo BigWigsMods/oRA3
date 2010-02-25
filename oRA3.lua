@@ -66,7 +66,6 @@ local groupStatus = UNGROUPED -- flag indicating groupsize
 
 -- overview drek
 local openedList = nil -- index of the current opened List
-
 local contentFrame = nil -- content frame for the views
 local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
@@ -334,8 +333,7 @@ function addon:IsPromoted(name)
 	elseif groupStatus == INRAID then
 		return UnitIsRaidOfficer(name)
 	elseif groupStatus == INPARTY then
-		local li = GetPartyLeaderIndex()
-		return (li == 0 and name == playerName) or (li>0 and name == UnitName("party"..li))
+		return UnitIsPartyLeader(name)
 	end
 	return false
 end
