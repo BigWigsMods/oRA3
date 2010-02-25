@@ -115,9 +115,6 @@ L["Center"] = "中间"
 -- Zone module
 L["Zone"] = "地区"
 
--- Version module
-L["Version"] = "版本"
-
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = "留空表示设置你自己为拾取者"
  

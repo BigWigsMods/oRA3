@@ -114,9 +114,6 @@ L["Center"] = "Centre"
 -- Zone module
 L["Zone"] = "Zone"
 
--- Version module
-L["Version"] = "Version"
-
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de vous le maître du butin."
 

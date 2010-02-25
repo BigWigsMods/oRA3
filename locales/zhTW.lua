@@ -118,9 +118,6 @@ L["Grow up"] = "向上遞增"
 -- Zone module
 L["Zone"] = "區域"
 
--- Version module
-L["Version"] = "版本"
-
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利品。"
 

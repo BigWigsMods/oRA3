@@ -117,9 +117,6 @@ L["Grow up"] = true
 -- Zone module
 L["Zone"] = true
 
--- Version module
-L["Version"] = true
-
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = true
  

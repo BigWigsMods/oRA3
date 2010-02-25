@@ -118,9 +118,6 @@ L["Grow up"] = "성장 방향"
 -- Zone module
 L["Zone"] = "지역"
 
--- Version module
-L["Version"] = "버전"
-
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = "자신이 담당자 획득이면 비워 둡니다."
  

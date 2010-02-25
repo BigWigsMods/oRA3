@@ -118,9 +118,6 @@ L["Grow up"] = "Nach oben erweitern"
 -- Zone module
 L["Zone"] = "Zone"
 
--- Version module
-L["Version"] = "Version"
-
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst zum Plündermeister zu machen."
 
