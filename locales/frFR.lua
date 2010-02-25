@@ -64,6 +64,8 @@ L["Guild rank invites"] = "Invitation selon le rang de guilde"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "En cliquant sur un des boutons ci-dessous, vous inviterez toutes les personnes du rang choisi ainsi que ceux des rangs SUPÉRIEURS dans votre groupe de raid. Un délai de 10 secondes est accordé avant l'envoi des invitations."
 
 -- Promote module
+L["Demote everyone"] = "Dégrader tout le monde"
+L["Demotes everyone in the current group."] = "Dégrade toutes les personnes présentes dans le groupe actuel."
 L["Promote"] = "Nomination"
 L["Mass promotion"] = "Nomination en masse"
 L["Everyone"] = "Tout le monde"
@@ -92,7 +94,7 @@ L["Never show my own spells"] = "Ne jamais afficher mes propres sorts"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Enlève ou non vos propres temps de recharge de l'affichage des temps de recharge. À cocher par exemple si vous utilisez un autre addon pour afficher vos temps de recharge."
 
 -- monitor
-L["Cooldowns"] = "Temps de recharge"
+L["Cooldowns"] = "Recharge"
 L["Right-Click me for options!"] = "Clic droit pour les options !"
 L["Bar Settings"] = "Param. des barres"
 L["Spawn test bar"] = "Afficher une barre de test"
@@ -110,6 +112,7 @@ L["Label Align"] = "Alignement du libellé"
 L["Left"] = "Gauche"
 L["Right"] = "Droite"
 L["Center"] = "Centre"
+L["Grow up"] = "Ajouter vers le haut"
 
 -- Zone module
 L["Zone"] = "Zone"
@@ -120,3 +123,13 @@ L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de v
 -- Tanks module
 L["Tanks"] = "Tanks"
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Haut : tanks triés. Bas : tanks potentiels."
+-- L["Remove"] is defined above
+L.deleteButtonHelp = "Enlève ce joueur de la liste des tanks."
+L["Blizzard Main Tank"] = "Tank principal Blizzard"
+L.tankButtonHelp = "Définit ou non ce joueur comme étant un tank principal Blizzard."
+L["Save"] = "Sauver"
+L.saveButtonHelp = "Sauvegarde ce tank dans votre liste personnelle. Chaque fois que vous serez groupé avec ce joueur, il sera indiqué comme étant un tank personnel."
+L["What is all this?"] = "Qu'est-ce que tout cela ?"
+L.tankHelp = "Les joueurs de la liste du haut sont vos tanks personnels triés. Ils ne sont pas partagés avec le raid, et tout le monde peut avoir une liste de tanks personnelle différente. Cliquer sur un nom de la liste du bas permet d'ajouter le joueur dans votre liste personnelle.\n\nCliquer sur l'icône en forme de bouclier ajoutera cette personne dans la liste des tanks principaux de Blizzard. Les tanks de Blizzard sont partagées entre tous les membres de votre raid et vous devez être au moins assistant pour faire cela.\n\nLes tanks qui apparaissent dans la liste car ajoutés par quelqu'un d'autre dans la liste des tanks principaux de Blizzard seront enlevés de la liste une fois qu'ils ne sont plus des tanks principaux de Blizzard.\n\nUtiliser la coche pour sauvegarder un tank entre les sessions. La prochaine fois que vous serez dans un raid avec cette personne, il sera automatiquement définit comme étant un tank personnel."
+L["Sort"] = "Trier"
+L["Click to move this tank up."] = "Cliquez pour faire monter ce tank."
