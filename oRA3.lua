@@ -69,7 +69,6 @@ local openedList = nil -- index of the current opened List
 local contentFrame = nil -- content frame for the views
 local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
-local slideOnUpdate = nil
 
 local function actuallyDisband()
 	if addon:IsPromoted() then
@@ -448,29 +447,25 @@ function addon:SetupGUI()
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
 
-	local title = frame:CreateFontString(nil, "ARTWORK")
-	title:SetFontObject(GameFontNormal)
+	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	title:SetPoint("TOP", 0, -6)
-	title:SetText("oRA3")
 	frame.title = title
-
-	local cos = math.cos
-	local pi = math.pi
 
 	-- internal functions
 	local function cosineInterpolation(y1, y2, mu)
-		return y1+(y2-y1)*(1 - cos(pi*mu))/2
+		return y1 + (y2 - y1) * (1 - math.cos(math.pi * mu)) / 2
 	end
 
 	local min,max = -360, -50
 	local steps = 45
 	local timeToFade = .5
-	local mod = 1/timeToFade
-	local modifier = 1/steps
+	local mod = 1 / timeToFade
+	local modifier = 1 / steps
 	
 	local count = 0
 	local totalElapsed = 0
-	local function onupdate(self, elapsed)   
+	local justClosed = nil
+	local function onupdate(self, elapsed)
 		count = count + 1
 		totalElapsed = totalElapsed + elapsed
 		
@@ -484,8 +479,8 @@ function addon:SetupGUI()
 			
 			-- Do the frame fading
 			if not db.open then
-				if contentFrame.justclosed == true then
-					contentFrame.justclosed = false
+				if justClosed == true then
+					justClosed = false
 					contentFrame:Hide()
 					frame:RegisterForClicks("AnyUp")
 				else
@@ -499,14 +494,12 @@ function addon:SetupGUI()
 		elseif count == 1 and db.open then
 			UIFrameFadeOut(contentFrame, 0.1, 1, 0)
 			db.open = false
-			contentFrame.justclosed = true
+			justClosed = true
 		end
 		
 		local offset = cosineInterpolation(min, max, mod * totalElapsed)
 		self:SetPoint("LEFT", RaidFrame, "RIGHT", offset, 31)
 	end
-	-- local to the file
-	slideOnUpdate = onupdate
 	
 	-- Flip min and max, if we're supposed to be open
 	if db.open then
@@ -581,7 +574,11 @@ function addon:SetupGUI()
 			StaticPopup_Show("oRA3DisbandGroup")
 		end
 	end)
-	disband:Disable() -- will get enabled on startup
+	if UnitIsRaidOfficer(playerName) then
+		disband:Enable()
+	else
+		disband:Disable()
+	end
 	disband:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 		GameTooltip:AddLine(L["Disband Group"])
@@ -629,7 +626,6 @@ function addon:SetupGUI()
 	sframebottom:SetFrameLevel(subframe:GetFrameLevel())
 
 	local bar = CreateFrame("Button", nil, sframebottom)
-	bar:Show()
 	bar:SetPoint("TOPLEFT", sframebottom, 3, 3)
 	bar:SetPoint("TOPRIGHT", sframebottom, -4, 3)
 	bar:SetHeight(8)
@@ -645,7 +641,6 @@ function addon:SetupGUI()
 	sframetop:SetHeight(27)
 
 	bar = CreateFrame("Button", nil, sframetop)
-	bar:Show()
 	bar:SetPoint("BOTTOMLEFT", sframetop, 3, -2)
 	bar:SetPoint("BOTTOMRIGHT", sframetop, -4, -2)
 	bar:SetHeight(8)
@@ -671,7 +666,7 @@ function addon:SetupGUI()
 		addon:SelectList(self.listIndex)
 	end
 	for i, list in next, lists do
-		local f = CreateFrame("Button", "oRA3ListButton"..i, contentFrame.listFrame, "UIPanelButtonTemplate")
+		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate")
 		f:SetWidth(81)
 		f:SetHeight(21)
 		f:SetNormalFontObject(i == 1 and GameFontHighlightSmall or GameFontNormalSmall)
@@ -682,7 +677,7 @@ function addon:SetupGUI()
 		f:SetScript("OnClick", listButtonClick)
 	
 		if i == 1 then
-			f:SetPoint("TOPLEFT", contentFrame.scrollFrame, "BOTTOMLEFT", 5, -4)
+			f:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 5, -4)
 		else
 			f:SetPoint("LEFT", lists[i - 1].button, "RIGHT")
 		end
@@ -900,7 +895,8 @@ function addon:OpenToList(name)
 		ToggleFriendsFrame(5)
 	end
 	if not db.open then
-		oRA3Frame:SetScript("OnUpdate", slideOnUpdate)
+		db.open = true
+		self:UpdateFrameStatus()
 	end
 	self:SelectPanel(L["Checks"])
 	for i, list in next, lists do
@@ -1023,7 +1019,6 @@ function showLists()
 	oRA3Frame.title:SetText(listHeader:format(list.name))
 
 	contentFrame.listFrame:Show()
-	contentFrame.scrollFrame:Show()
 	local count = max(#list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth / count
@@ -1053,6 +1048,5 @@ function hideLists()
 	end
 	contentFrame.listFrame:Hide()
 	openedList = nil
-	-- contentFrame.scrollFrame:Hide()
 end
 
