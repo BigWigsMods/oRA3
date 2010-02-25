@@ -126,4 +126,4 @@ L["Version"] = "Версия"
  
 -- Tanks module
 L["Tanks"] = "Танки"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "Вверху: Назначенные танки. Внизу: возможные танки.\nНажмите на участника в нижнем списке чтобы добавит его в верхний список."
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Вверху: Назначенные танки. Внизу: возможные танки."

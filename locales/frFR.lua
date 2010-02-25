@@ -122,4 +122,4 @@ L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de v
 
 -- Tanks module
 L["Tanks"] = "Tanks"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "Haut : tanks triés. Bas : tanks potentiels.\nCliquez sur les personnes de la liste du bas pour les placer dans la liste du haut."
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Haut : tanks triés. Bas : tanks potentiels."

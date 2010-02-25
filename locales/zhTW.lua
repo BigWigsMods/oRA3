@@ -126,4 +126,4 @@ L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利�
 
 -- Tanks module
 L["Tanks"] = "坦克"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "置頂名單:排序坦克。置底名單:潛在坦克。\n在置底名單點選擺放在置頂名單。"
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "置頂名單:排序坦克。置底名單:潛在坦克。"

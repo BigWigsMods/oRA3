@@ -123,6 +123,6 @@ L["Version"] = "版本"
  
 -- Tanks module
 L["Tanks"] = "坦克"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克.\n点击底部名单中的名字将其放入顶部名单."
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克."
 
 

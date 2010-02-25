@@ -142,8 +142,18 @@ function module:OnTanksChanged(event, tanks, updateSort)
 	end
 end
 
-local function OnEnter(self) self.highlight:Show() end
-local function OnLeave(self) self.highlight:Hide() end
+local function OnEnter(self)
+	self.highlight:Show()
+	if self.tooltipText then
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetText(self.tooltipText)
+		GameTooltip:Show()
+	end
+end
+local function OnLeave(self)
+	self.highlight:Hide()
+	GameTooltip:Hide()
+end
 
 local function createButton(name, parent, template)
 	local frame = CreateFrame("Button", name, parent, template)
@@ -286,8 +296,13 @@ function module:CreateFrame()
 	local help = frame:CreateFontString(nil, "ARTWORK")
 	help:SetFontObject(GameFontNormal)
 	help:SetPoint("TOPLEFT")
-	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT")
-	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."])
+	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -20, 0)
+	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks."])
+	
+	local helpButton = createButton("oRA3TankHelpButton", frame)
+	helpButton:SetPoint("TOPRIGHT", -4, -4)
+	helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+	helpButton.tooltipText = L.tankHelp
 
 	-- 10 top
 	-- 9 bottom
@@ -311,6 +326,7 @@ function module:CreateFrame()
 		delete:SetPoint("TOPRIGHT", t, "TOPRIGHT")
 		delete.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
 		delete:SetScript("OnClick", topScrollDeleteClick)
+		delete.tooltipText = L.deleteButtonHelp
 		t.delete = delete
 
 		local tank = createButton("oRA3TankTopScrollTank"..i, t, "SecureActionButtonTemplate")
@@ -320,12 +336,14 @@ function module:CreateFrame()
 		tank:SetAttribute("type", "maintank")
 		tank:SetAttribute("action", "toggle")
 		tank:EnableMouse(oRA:IsPromoted())
+		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
 
 		local save = createButton("oRA3TankTopScrollSave"..i, t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
 		save:SetScript("OnClick", topScrollSaveClick)
+		save.tooltipText = L.saveButtonHelp
 		t.save = save
 
 		local down = createButton("oRA3TankTopScrollDown"..i, t)

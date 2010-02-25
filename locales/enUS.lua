@@ -125,6 +125,10 @@ L["Version"] = true
  
 -- Tanks module
 L["Tanks"] = true
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = true
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = true
+L.deleteButtonHelp = "Remove from the tank list"
+L.tankButtonHelp = "Toggle Blizzard maintank status"
+L.saveButtonHelp = "Store this tank\nand make it a tank again automatically\nif we encounter the tank in a raid"
+L.tankHelp = "To add someone to your personal sorted tank list\nclick their name on the bottom list.\n\nTo make someone a blizzard tan\nthat is shared between all the raid members\nyou can click the shield icon.\nYou have to be promoted in the raid to do this.\n\nClicking the checkmark icon will store this tank\nin your preferred tanks list.\nWhenever you encounter that tank in a raid\nit will automatically appear as a maintank.\nUse the X icon to delete a tank from the list.\n\nNote: Tanks that appear on the list due to\nsomeone else making them a blizzard maintank\nwill be automatically removed from the list again\nwhen their blizzard maintank status is removed."
 
 

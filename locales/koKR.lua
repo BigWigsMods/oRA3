@@ -126,5 +126,5 @@ L["Version"] = "버전"
  
 -- Tanks module
 L["Tanks"] = "탱커"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks.\nClick people on the bottom list to put them in the top list."] = "상단 목록: 탱커 정렬. 하단 목록: 가능한 탱커.\n상단 목록에 탱커로 지정하기 위해 하단 목록에 있는 가능한 탱커를 클릭하세요."
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "상단 목록: 탱커 정렬. 하단 목록: 가능한 탱커."
 
