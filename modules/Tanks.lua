@@ -143,16 +143,12 @@ function module:OnTanksChanged(event, tanks, updateSort)
 end
 
 local function OnEnter(self)
-	self.highlight:Show()
-	if self.tooltipText then
-		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:AddLine(self.tooltipTitle)
-		GameTooltip:AddLine(self.tooltipText, 1, 1, 1, 1)
-		GameTooltip:Show()
-	end
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:AddLine(self.tooltipTitle)
+	GameTooltip:AddLine(self.tooltipText, 1, 1, 1, 1)
+	GameTooltip:Show()
 end
 local function OnLeave(self)
-	self.highlight:Hide()
 	GameTooltip:Hide()
 end
 
@@ -162,18 +158,11 @@ local function createButton(parent, template)
 	frame:SetHeight(16)
 	frame:SetScript("OnLeave", OnLeave)
 	frame:SetScript("OnEnter", OnEnter)
+	frame:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
 
 	local image = frame:CreateTexture(nil, "BACKGROUND")
 	frame.icon = image
 	image:SetAllPoints(frame)
-
-	local highlight = frame:CreateTexture(nil, "OVERLAY")
-	frame.highlight = highlight
-	highlight:SetAllPoints(frame)
-	highlight:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight")
-	highlight:SetTexCoord(0, 1, 0.23, 0.77)
-	highlight:SetBlendMode("ADD")
-	highlight:Hide()
 	return frame
 end
 
@@ -223,26 +212,16 @@ local function topScrollSaveClick(self)
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
 end
 
-local function topScrollDownClick(self)
-	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
-	local temp = allIndexedTanks[k]
-	allIndexedTanks[k] = allIndexedTanks[k + 1]
-	allIndexedTanks[k + 1] = temp
-	wipe(module.db.persistentTanks)
-	for k, v in next, allIndexedTanks do
-		if namedPersistent[v] then
-			module.db.persistentTanks[#module.db.persistentTanks + 1] = v
-		end
-	end
-	PlaySound("UChatScrollButton")
-	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
-end
-
 local function topScrollUpClick(self)
-	local k = util:inTable(allIndexedTanks, self:GetParent().unitName)
+	local k = util:inTable(allIndexedTanks, self.unitName)
 	local temp = allIndexedTanks[k]
-	allIndexedTanks[k] = allIndexedTanks[k - 1]
-	allIndexedTanks[k - 1] = temp
+	if k == 1 then
+		allIndexedTanks[k] = allIndexedTanks[#allIndexedTanks]
+		allIndexedTanks[#allIndexedTanks] = temp
+	else
+		allIndexedTanks[k] = allIndexedTanks[k - 1]
+		allIndexedTanks[k - 1] = temp
+	end
 	wipe(module.db.persistentTanks)
 	for k, v in next, allIndexedTanks do
 		if namedPersistent[v] then
@@ -292,7 +271,7 @@ function module:CreateFrame()
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
 	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -22, 0)
-	
+
 	local help = frame:CreateFontString(nil, "ARTWORK")
 	help:SetFontObject(GameFontNormal)
 	help:SetPoint("TOPLEFT")
@@ -310,6 +289,12 @@ function module:CreateFrame()
 	for i = 1, 10 do
 		local t = CreateFrame("Button", nil, frame)
 		t:SetHeight(16)
+		t:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+		t:SetScript("OnClick", topScrollUpClick)
+		t:SetScript("OnLeave", OnLeave)
+		t:SetScript("OnEnter", OnEnter)
+		t.tooltipTitle = "Sort"
+		t.tooltipText = "Click to move this tank up."
 
 		if i == 1 then
 			t:SetPoint("TOPLEFT", frame.topscroll)
@@ -318,6 +303,7 @@ function module:CreateFrame()
 			t:SetPoint("TOPLEFT", top[i - 1], "BOTTOMLEFT")
 			t:SetPoint("TOPRIGHT", top[i - 1], "BOTTOMRIGHT")
 		end
+
 		local name = oRA:CreateScrollEntry(t)
 		name:SetPoint("TOPLEFT", t)
 		name:SetText(L["Name"])
@@ -353,20 +339,6 @@ function module:CreateFrame()
 		save.tooltipTitle = L.Save
 		save.tooltipText = L.saveButtonHelp
 		t.save = save
-
-		local down = createButton(t)
-		down:SetPoint("TOPRIGHT", save, "TOPLEFT", -2, 0)
-		down.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
-		down.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
-		down:SetScript("OnClick", topScrollDownClick)
-		t.down = down
-
-		local up = createButton(t)
-		up:SetPoint("TOPRIGHT", down, "TOPLEFT", -2, 0)
-		up.icon:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up")
-		up.icon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
-		up:SetScript("OnClick", topScrollUpClick)
-		t.up = up
 
 		top[i] = t
 	end
@@ -417,20 +389,6 @@ function module:UpdateTopScroll()
 	for i, v in next, top do
 		local j = i + FauxScrollFrame_GetOffset(frame.topscroll)
 		if j <= nr then
-			if j == 1 then
-				v.up:SetAlpha(.3)
-				v.up:Disable()
-			else
-				v.up:SetAlpha(1)
-				v.up:Enable()
-			end
-			if j == nr then
-				v.down:SetAlpha(.3)
-				v.down:Disable()
-			else
-				v.down:SetAlpha(1)
-				v.down:Enable()
-			end
 			if util:inTable(btanks, allIndexedTanks[j]) then
 				v.tank:SetAlpha(1)
 				v.delete:SetAlpha(.3)
