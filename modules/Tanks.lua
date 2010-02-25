@@ -319,8 +319,9 @@ function module:CreateFrame()
 
 		local tank = createButton(t, "SecureActionButtonTemplate")
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
-		tank.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
-		tank.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+--		tank.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
+		tank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+--		tank.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		tank:SetAttribute("type", "maintank")
 		tank:SetAttribute("action", "toggle")
 		if oRA:IsPromoted() then
