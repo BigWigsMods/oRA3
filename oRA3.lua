@@ -364,6 +364,9 @@ function addon:UpdateContentFrame()
 	else
 		contentFrame:SetPoint("TOPLEFT", 14, -56)
 	end
+	for i, list in next, lists do
+		list.button:SetWidth((contentFrame:GetWidth()-10)/ #lists)
+	end
 end
 
 -- The Sliding/Detaching GUI pane is courtsey of Cladhaire and originally from LightHeaded
