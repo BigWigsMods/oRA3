@@ -96,6 +96,7 @@ L["Never show my own spells"] = "Niemals eigene Zaubersprüche anzeigen"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Entscheidet, ob nur die Abklingzeiten anderer Spieler angezeigt werden sollen. Nützlich, wenn Du z.B. zur Anzeige deiner Cooldowns ein anderes Addon nutzt."
 
 -- monitor
+L["Cooldowns"] = "Cooldowns"
 L["Right-Click me for options!"] = "Rechts-klicken für Optionen!"
 L["Bar Settings"] = "Leisteneinstellungen"
 L["Spawn test bar"] = "Testleiste erzeugen"
@@ -124,3 +125,14 @@ L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst z
 -- Tanks module
 L["Tanks"] = "Tanks"
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Oben: Sortierte Tanks. Unten: Potentielle Tanks."
+-- L["Remove"]
+L.deleteButtonHelp = "Entfernt Eintrag aus der Tankliste."
+L["Blizzard Main Tank"] = "Blizzard Main Tank"
+L.tankButtonHelp = "Setzt oder entfernt den Blizzard MT-Status."
+L["Save"] = "Speichern"
+L.saveButtonHelp = "Speichert den Tank in deiner persönlichen Liste. Von nun an wird dieser Tank immer als persönlicher Tank gesetzt, sobald ihr zusammen in einer Gruppe seid."
+L["What is all this?"] = "Um was geht es hier?"
+L.tankHelp = "Spieler in der oberen Liste sind deine persönlichen, sortierten Tanks. Diese Liste wird nicht mit dem Raid geteilt, jeder kann daher eine andere persönliche Tankliste haben. Sobald du einen Namen in der unteren Liste anklickst, wird dieser zu deiner persönlichen Tankliste hinzugefügt.\n\nSobald du auf das Schild-Symbol klickst, wird der Spieler zum Blizzard Main Tank befördert. Blizzard MTs werden für alle Schlachtzugsmitglieder gesetzt, daher musst du Assistent oder höher sein.\n\nTanks, die in der Liste erscheinen, weil jemand anders sie als Blizzard MT gesetzt hat, werden automatisch aus der Liste gelöscht, sobald ihr Tankstatus entfernt wird.\n\nBenutze das Häckchen, um Tanks zwischen Schlachtzügen zu speichern. Sobald du das nächste Mal mit diesem Spieler in einem Schlachtzug bist, wird er automatisch als persönlicher Tank gesetzt."
+L["Sort"] = "Sortieren"
+L["Click to move this tank up."] = "Hier klicken, um den Tank nach oben zu schieben."
+
