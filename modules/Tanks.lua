@@ -146,7 +146,8 @@ local function OnEnter(self)
 	self.highlight:Show()
 	if self.tooltipText then
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:SetText(self.tooltipText)
+		GameTooltip:AddLine(self.tooltipTitle)
+		GameTooltip:AddLine(self.tooltipText, 1, 1, 1, 1)
 		GameTooltip:Show()
 	end
 end
@@ -302,6 +303,7 @@ function module:CreateFrame()
 	local helpButton = createButton("oRA3TankHelpButton", frame)
 	helpButton:SetPoint("TOPRIGHT", -4, -4)
 	helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+	helpButton.tooltipTitle = L["What is all this?"]
 	helpButton.tooltipText = L.tankHelp
 
 	-- 10 top
@@ -326,6 +328,7 @@ function module:CreateFrame()
 		delete:SetPoint("TOPRIGHT", t, "TOPRIGHT")
 		delete.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
 		delete:SetScript("OnClick", topScrollDeleteClick)
+		delete.tooltipTitle = L.Remove
 		delete.tooltipText = L.deleteButtonHelp
 		t.delete = delete
 
@@ -336,6 +339,7 @@ function module:CreateFrame()
 		tank:SetAttribute("type", "maintank")
 		tank:SetAttribute("action", "toggle")
 		tank:EnableMouse(oRA:IsPromoted())
+		tank.tooltipTitle = L["Blizzard Main Tank"]
 		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
 
@@ -343,6 +347,7 @@ function module:CreateFrame()
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
 		save:SetScript("OnClick", topScrollSaveClick)
+		save.tooltipTitle = L.Save
 		save.tooltipText = L.saveButtonHelp
 		t.save = save
 

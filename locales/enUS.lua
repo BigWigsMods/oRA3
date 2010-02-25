@@ -126,9 +126,12 @@ L["Version"] = true
 -- Tanks module
 L["Tanks"] = true
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = true
+-- L["Remove"] is defined above
 L.deleteButtonHelp = "Remove from the tank list"
+L["Blizzard Main Tank"] = true
 L.tankButtonHelp = "Toggle Blizzard maintank status"
-L.saveButtonHelp = "Store this tank\nand make it a tank again automatically\nif we encounter the tank in a raid"
-L.tankHelp = "To add someone to your personal sorted tank list\nclick their name on the bottom list.\n\nTo make someone a blizzard tan\nthat is shared between all the raid members\nyou can click the shield icon.\nYou have to be promoted in the raid to do this.\n\nClicking the checkmark icon will store this tank\nin your preferred tanks list.\nWhenever you encounter that tank in a raid\nit will automatically appear as a maintank.\nUse the X icon to delete a tank from the list.\n\nNote: Tanks that appear on the list due to\nsomeone else making them a blizzard maintank\nwill be automatically removed from the list again\nwhen their blizzard maintank status is removed."
-
+L["Save"] = true
+L.saveButtonHelp = "Store this tank and make it a tank again automatically if we encounter the tank in a raid"
+L["What is all this?"] = true
+L.tankHelp = "The people in the top list are your personal sorted tanks. They are not shared with the raid, and everyone can have a different personal tank list. Clicking a name in the bottom list adds them to your personal tank list.\n\nClicking on the shield icon will make that person a Blizzard Main Tank. Blizzard tanks are shared between all members of your raid and you have to be promoted to toggle this.\n\nUse the check mark to save a tank between sessions. The next time you are in a raid with that person, he will automatically be set as a personal tank. Use the X icon to remove a personal tank.\n\nTanks that appear on the list due to someone else making them a Blizzard Main Tank will be automatically removed from the list again when their main tank status is removed."
 
