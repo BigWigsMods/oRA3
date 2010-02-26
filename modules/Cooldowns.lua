@@ -916,13 +916,9 @@ function module:OnStartup()
 			total = total + elapsed
 			if total > 1 then
 				local start, duration = GetSpellCooldown(20608)
-				print("oRA3: " .. tostring(start) .. ":" .. tostring(duration) .. ".")
 				if start > 0 and duration > 0 then
-					print("oRA3: Reincarnation is on cooldown.")
 					local t = GetTime()
 					if (start + five) > t then
-						print("oRA3: Sending Reincarnation cooldown to the raid.")
-						-- We popped Reincarnation (probably)
 						oRA:SendComm("Cooldown", 20608, getCooldown(20608) - 1)
 					end
 				end
@@ -931,7 +927,6 @@ function module:OnStartup()
 			end
 		end)
 		self:SecureHook("UseSoulstone", function()
-			print("oRA3: UseSoulstone invoked.")
 			f:Show()
 		end)
 	end
