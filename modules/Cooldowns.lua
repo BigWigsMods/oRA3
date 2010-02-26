@@ -59,12 +59,16 @@ local spells = {
 		[66] = 180,     -- Invisibility
 	},
 	PALADIN = {
+		[31821] = 120,  -- Aura Mastery
+		[20216] = 120,  -- Divine Favor
+		[31842] = 180,  -- Divine Illumination
 		[19752] = 600,  -- Divine Intervention
 		[642] = 300,    -- Divine Shield
 		[64205] = 120,  -- Divine Sacrifice
 		[498] = 180,    -- Divine Protection
 		[10278] = 300,  -- Hand of Protection
 		[6940] = 120,   -- Hand of Sacrifice
+		[1038] = 120,   -- Hand of Salvation
 		[48788] = 1200, -- Lay on Hands
 		[66233] = 120,  -- Ardent Defender
 	},
