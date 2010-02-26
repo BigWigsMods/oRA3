@@ -906,29 +906,25 @@ function module:OnStartup()
 		-- Maybe this is reliable? I dunno.
 		-- If we try to check the spell cooldown when UseSoulstone
 		-- is invoked, GetSpellCooldown returns 0, so we delay
-		-- one second.
-		-- 6min is the res timer, right? Hope so.
-		local five = 60 * 6
-		local f = CreateFrame("Frame")
-		f:Hide()
-		local total = 0
-		f:SetScript("OnUpdate", function(self, elapsed)
-			total = total + elapsed
-			if total > 1 then
-				local start, duration = GetSpellCooldown(20608)
-				if start > 0 and duration > 0 then
-					local t = GetTime()
-					if (start + five) > t then
-						oRA:SendComm("Cooldown", 20608, getCooldown(20608) - 1)
-					end
-				end
-				total = 0
-				self:Hide()
-			end
-		end)
+		-- until SPELL_UPDATE_COOLDOWN.
 		self:SecureHook("UseSoulstone", function()
-			f:Show()
+			self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 		end)
+	end
+end
+
+do
+	-- 6min is the res timer, right? Hope so.
+	local six = 60 * 6
+	function module:SPELL_UPDATE_COOLDOWN()
+		self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
+		local start, duration = GetSpellCooldown(20608)
+		if start > 0 and duration > 0 then
+			local t = GetTime()
+			if (start + six) > t then
+				oRA:SendComm("Cooldown", 20608, getCooldown(20608) - 1)
+			end
+		end
 	end
 end
 
