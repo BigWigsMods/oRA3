@@ -124,3 +124,13 @@ L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利�
 -- Tanks module
 L["Tanks"] = "坦克"
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "置頂名單:排序坦克。置底名單:潛在坦克。"
+-- L["Remove"] is defined above
+L.deleteButtonHelp = "從坦克名單移除。"
+L["Blizzard Main Tank"] = "內建主坦克"
+L.tankButtonHelp = "切換是否這坦克應該為內建主坦克。"
+L["Save"] = "儲存"
+L.saveButtonHelp = "儲存坦克在你個人名單。只要你在團隊裡面有這玩家，他就會被編排作為個人坦克。"
+L["What is all this?"] = "到底怎麼回事?"
+L.tankHelp = "在置頂名單的人是你個人排序的坦克。他們並不分享給團隊，並且任何人可以擁有不同的個人坦克名單。在置底名單點選一個名稱增加他們到你個人坦克名單。\n\n在盾圖示上點擊就會讓那人成為內建主坦克。內建坦克是團隊所有人中所共享並且你必須被晉升來做切換。\n\n在名單出現的坦克基於某些人讓他們成為內建坦克，當他們不再是內建主坦克就會從名單移除。\n\n在這期間使用檢查標記來儲存。下一次團隊裡有那人，他會自動的被設定為個人坦克。"
+L["Sort"] = "排序"
+L["Click to move this tank up."] = "點擊往上移動坦克。"
