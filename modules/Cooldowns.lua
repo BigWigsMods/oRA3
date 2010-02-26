@@ -900,24 +900,39 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	self:UpdateCooldownModifiers()
 	if playerClass == "SHAMAN" then
+		-- If Reincarnation is on cooldown and it is less than
+		-- 6 minutes since we used it, we assume that this
+		-- UseSoulstone call was triggered by a Reincarnation.
 		-- Maybe this is reliable? I dunno.
-		local five = 60 * 5
+		-- If we try to check the spell cooldown when UseSoulstone
+		-- is invoked, GetSpellCooldown returns 0, so we delay
+		-- one second.
+		-- 6min is the res timer, right? Hope so.
+		local five = 60 * 6
+		local f = CreateFrame("Frame")
+		f:Hide()
+		local total = 0
+		f:SetScript("OnUpdate", function(self, elapsed)
+			total = total + elapsed
+			if total > 1 then
+				local start, duration = GetSpellCooldown(20608)
+				print("oRA3: " .. tostring(start) .. ":" .. tostring(duration) .. ".")
+				if start > 0 and duration > 0 then
+					print("oRA3: Reincarnation is on cooldown.")
+					local t = GetTime()
+					if (start + five) > t then
+						print("oRA3: Sending Reincarnation cooldown to the raid.")
+						-- We popped Reincarnation (probably)
+						oRA:SendComm("Cooldown", 20608, getCooldown(20608) - 1)
+					end
+				end
+				total = 0
+				self:Hide()
+			end
+		end)
 		self:SecureHook("UseSoulstone", function()
 			print("oRA3: UseSoulstone invoked.")
-			-- If Reincarnation is on cooldown and it is less than
-			-- 5 minutes since we used it, we assume that this
-			-- UseSoulstone call was triggered by a Reincarnation.
-			local start, duration = GetSpellCooldown(20608)
-			print("oRA3: " .. tostring(start) .. ":" .. tostring(duration) .. ".")
-			if start and duration then
-				print("oRA3: Reincarnation is on cooldown.")
-				local t = GetTime()
-				if (start + five) > t then
-					print("oRA3: Sending Reincarnation cooldown to the raid.")
-					-- We popped Reincarnation (probably)
-					oRA:SendComm("Cooldown", 20608, getCooldown(20608))
-				end
-			end
+			f:Show()
 		end)
 	end
 end
