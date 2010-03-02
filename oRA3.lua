@@ -148,9 +148,9 @@ function addon:OnEnable()
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
-	self:HookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
-	self:HookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
-	self:HookScript(FriendsFrame, "OnShow", "SetupGUI")
+	self:SecureHookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
+	self:SecureHookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
+	self:SecureHookScript(FriendsFrame, "OnShow", "SetupGUI")
 
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
@@ -164,14 +164,14 @@ end
 do
 	local wasOpen = nil
 	function addon:RaidInfoClosed()
-		if not wasOpen then return end
+		if not wasOpen or InCombatLockdown() then return end
 		db.open = true
 		self:UpdateFrameStatus()
 	end
 
 	function addon:RaidInfoOpened()
 		wasOpen = contentFrame:IsShown()
-		if not wasOpen then return end
+		if not wasOpen or InCombatLockdown() then return end
 		db.open = false
 		self:UpdateFrameStatus()
 	end
@@ -373,7 +373,7 @@ end
 -- This code was used with permission.
 
 function addon:SetupGUI()
-	if oRA3Frame then return end
+	if oRA3Frame or InCombatLockdown() then return end
 	oRA3Frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
 	local frame = oRA3Frame
 
@@ -712,7 +712,7 @@ function addon:SetAllPointsToPanel(frame)
 end
 
 function addon:UpdateFrameStatus()
-	if not oRA3Frame then return end
+	if not oRA3Frame or InCombatLockdown() then return end
 	if db.open then
 		-- We are slided out
 		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
@@ -829,7 +829,7 @@ function addon:SetupPanel(index)
 end
 
 function addon:SelectPanel(name)
-	if not contentFrame then return end
+	if not contentFrame or InCombatLockdown() then return end
 	if not name then name = panels[1].name end
 
 	local index = 1
@@ -843,6 +843,7 @@ function addon:SelectPanel(name)
 
 	oRA3Frame.title:SetText(name)
 	oRA3Frame.selectedTab = index
+
 	PanelTemplates_UpdateTabs(oRA3Frame)
 
 	panels[index].show()
