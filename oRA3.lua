@@ -294,6 +294,9 @@ do
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
 			self.callbacks:Fire("OnStartup", groupStatus)
 		end
+		if oldStatus == INPARTY and groupStatus == INRAID then
+			self.callbacks:Fire("OnConvertRaid", groupStatus)
+		end
 		if playerPromoted ~= self:IsPromoted() then
 			playerPromoted = self:IsPromoted()
 			if playerPromoted then

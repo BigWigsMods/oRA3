@@ -23,6 +23,7 @@ function module:OnRegister()
 	
 	oRA.RegisterCallback(self, "OnPromoted", "SetLoot")
 	oRA.RegisterCallback(self, "OnStartup", "SetLoot")
+	oRA.RegisterCallback(self, "OnConvertRaid", "SetLoot")
 end
 
 local frame = CreateFrame("Frame", nil, UIParent)
