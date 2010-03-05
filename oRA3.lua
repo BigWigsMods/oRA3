@@ -452,6 +452,12 @@ function addon:SetupGUI()
 	topBg:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
 	topBg:SetWidth(256 + 114)
 
+	local hiddenMsg = frame:CreateFontString(nil, "LOW", "GameFontHighlight")
+	hiddenMsg:SetText(L.uiHidden)
+	hiddenMsg:SetAllPoints(frame)
+	hiddenMsg:SetJustifyH("CENTER")
+	hiddenMsg:SetJustifyV("MIDDLE")
+
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
 
