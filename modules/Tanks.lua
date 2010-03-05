@@ -285,14 +285,16 @@ function module:CreateFrame()
 	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -22, 0)
 
-	local help = frame:CreateFontString(nil, "ARTWORK")
-	help:SetFontObject(GameFontNormal)
+	local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	help:SetJustifyH("LEFT")
 	help:SetPoint("TOPLEFT")
-	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -20, 0)
-	help:SetText(L["Top List: Sorted Tanks. Bottom List: Potential Tanks."])
+	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -28, 0)
+	help:SetText(L.tankTabTopText)
 	
 	local helpButton = createButton(frame)
-	helpButton:SetPoint("TOPRIGHT", -4, -4)
+	helpButton:SetWidth(24)
+	helpButton:SetHeight(24)
+	helpButton:SetPoint("TOPRIGHT", -4, -8)
 	helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
 	helpButton.tooltipTitle = L["What is all this?"]
 	helpButton.tooltipText = L.tankHelp

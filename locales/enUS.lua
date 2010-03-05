@@ -122,6 +122,7 @@ L["Zone"] = true
  
 -- Tanks module
 L["Tanks"] = true
+L.tankTabTopText = "Click on players in the bottom list to make them a personal tank. If you want help with all the options here then move your mouse over the question mark."
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = true
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "Remove from the tank list."
@@ -130,7 +131,7 @@ L.tankButtonHelp = "Toggle whether this tank should be a Blizzard Main Tank."
 L["Save"] = true
 L.saveButtonHelp = "Saves this tank on your personal list. Any time you are grouped with this player he will be listed as a personal tank."
 L["What is all this?"] = true
-L.tankHelp = "The people in the top list are your personal sorted tanks. They are not shared with the raid, and everyone can have different personal tank lists. Clicking a name in the bottom list adds them to your personal tank list.\n\nClicking on the shield icon will make that person a Blizzard Main Tank. Blizzard tanks are shared between all members of your raid and you have to be promoted to toggle it.\n\nTanks that appear on the list due to someone else making them a Blizzard Main Tank will be removed from the list when they are no longer a Blizzard Main Tank.\n\nUse the check mark to save a tank between sessions. The next time you are in a raid with that person, he will automatically be set as a personal tank."
+L.tankHelp = "The people in the top list are your personal sorted tanks. They are not shared with the raid, and everyone can have different personal tank lists. Clicking a name in the bottom list adds them to your personal tank list.\n\nClicking on the shield icon will make that person a Blizzard Main Tank. Blizzard tanks are shared between all members of your raid and you have to be promoted to toggle it.\n\nTanks that appear on the list due to someone else making them a Blizzard Main Tank will be removed from the list when they are no longer a Blizzard Main Tank.\n\nUse the green check mark to save a tank between sessions. The next time you are in a raid with that person, he will automatically be set as a personal tank."
 L["Sort"] = true
 L["Click to move this tank up."] = true
 L["Show"] = true
