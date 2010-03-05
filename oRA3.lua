@@ -258,6 +258,7 @@ do
 		else
 			groupStatus = UNGROUPED
 		end
+		
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
@@ -921,20 +922,28 @@ function addon:UpdateScroll()
 	for i = 1, 19 do
 		local j = i + FauxScrollFrame_GetOffset(contentFrame.scrollFrame)
 		if j <= nr then
+			local unitName = nil
 			for k, v in next, scrollheaders do
 				if k == 1 then
-					v.entries[i]:SetText(coloredNames[list.contents[j][k]])
+					unitName = list.contents[j][k]
+					v.entries[i]:SetText(coloredNames[unitName])
 				else
 					v.entries[i]:SetText(list.contents[j][k])
 				end
 				v.entries[i]:Show()
 			end
-			scrollhighs[i]:Show()
+			if unitName and not InCombatLockdown() then
+				scrollhighs[i]:SetAttribute("type", "macro")
+				scrollhighs[i]:SetAttribute("macrotext", "/target "..unitName)
+				scrollhighs[i]:Show()
+			end
 		else
 			for k, v in next, scrollheaders do
 				v.entries[i]:Hide()
 			end
-			scrollhighs[i]:Hide()
+			if not InCombatLockdown() then
+				scrollhighs[i]:Hide()
+			end
 		end
 	end
 end
@@ -985,8 +994,8 @@ local function createScrollHeader()
 	entries[1] = text
 
 	if #scrollheaders == 1 then
-		scrollhighs[1] = CreateFrame("Button", "oRA3ScrollHigh1", contentFrame.listFrame)
-		scrollhighs[1]:SetPoint("TOPLEFT", entries[1])
+		scrollhighs[1] = CreateFrame("Button", "oRA3ScrollHigh1", contentFrame.listFrame, "SecureActionButtonTemplate")
+		scrollhighs[1]:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0)
 		scrollhighs[1]:SetWidth(contentFrame.scrollFrame:GetWidth())
 		scrollhighs[1]:SetHeight(16)
 		scrollhighs[1]:SetHighlightTexture( [[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]] )
@@ -998,8 +1007,8 @@ local function createScrollHeader()
 		text:SetPoint("TOPRIGHT", entries[i - 1], "BOTTOMRIGHT")
 		entries[i] = text
 		if #scrollheaders == 1 then
-			scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame)
-			scrollhighs[i]:SetPoint("TOPLEFT", entries[i])
+			scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame, "SecureActionButtonTemplate")
+			scrollhighs[i]:SetPoint("TOPLEFT", scrollhighs[i-1], "BOTTOMLEFT")
 			scrollhighs[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
 			scrollhighs[i]:SetHeight(16)
 			scrollhighs[i]:SetHighlightTexture([[Interface\FriendsFrame\UI-FriendsFrame-HighlightBar]])
