@@ -326,8 +326,8 @@ function module:CreateFrame()
 		hidden:SetScript("OnLeave", OnLeave)
 		hidden:SetScript("OnEnter", OnEnter)
 		hidden:SetScript("OnClick", topScrollHiddenClick)
-		hidden.tooltipTitle = L.Hide
-		hidden.tooltipText = L.hideButtonHelp
+		hidden.tooltipTitle = L.Show
+		hidden.tooltipText = L.showButtonHelp
 		t.hidden = hidden
 		
 		local name = oRA:CreateScrollEntry(t)
@@ -416,29 +416,25 @@ function module:UpdateTopScroll()
 	for i, v in next, top do
 		local j = i + FauxScrollFrame_GetOffset(frame.topscroll)
 		if j <= nr then
-			if util:inTable(btanks, allIndexedTanks[j]) then
+			local name = allIndexedTanks[j]
+			if util:inTable(btanks, name) then
 				v.tank:SetAlpha(1)
 				v.delete:SetAlpha(.3)
 				v.delete:Disable()
-				v.hidden:Disable()
-				v.hidden:SetAlpha(.3)
 			else
 				v.tank:SetAlpha(.3)
 				v.delete:SetAlpha(1)
 				v.delete:Enable()
-				v.hidden:SetAlpha(1)
-				v.hidden:Enable()
 			end
-			if namedPersistent[allIndexedTanks[j]] then
+			if namedPersistent[name] then
 				v.save:SetAlpha(1)
 			else
 				v.save:SetAlpha(.3)
 			end
-			v.hidden:SetChecked( namedHidden[allIndexedTanks[j]] )
-
-			v.unitName = allIndexedTanks[j]
-			v.tank:SetAttribute("unit", allIndexedTanks[j])
-			v.label:SetText(oRA.coloredNames[allIndexedTanks[j]])
+			v.hidden:SetChecked(not namedHidden[name])
+			v.unitName = name
+			v.tank:SetAttribute("unit", name)
+			v.label:SetText(oRA.coloredNames[name])
 			v:Show()
 		else
 			v:Hide()
