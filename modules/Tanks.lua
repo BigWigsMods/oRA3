@@ -196,11 +196,11 @@ local function topScrollHiddenClick(self)
 	local value = self:GetParent().unitName
 	if namedHidden[value] then
 		namedHidden[value] = nil
-		self:SetChecked(false)
+		self:SetChecked(true)
 		PlaySound("igMainMenuOptionCheckBoxOff")
 	else
 		namedHidden[value] = true
-		self:SetChecked(true)
+		self:SetChecked(false)
 		PlaySound("igMainMenuOptionCheckBoxOn")
 	end
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
