@@ -654,10 +654,6 @@ do
 		self:StopMovingOrSizing()
 		oRA3:SavePosition("oRA3CooldownFrame")
 	end
-	local function onEnter(self)
-		if not next(visibleBars) then self.help:Show() end
-	end
-	local function onLeave(self) self.help:Hide() end
 
 	function lockDisplay()
 		if locked then return end
@@ -670,8 +666,6 @@ do
 		display:SetScript("OnDragStart", nil)
 		display:SetScript("OnDragStop", nil)
 		display:SetScript("OnMouseDown", nil)
-		display:SetScript("OnEnter", nil)
-		display:SetScript("OnLeave", nil)
 		display.drag:Hide()
 		display.header:Hide()
 		display.bg:SetTexture(0, 0, 0, 0)
@@ -688,8 +682,6 @@ do
 		display:SetScript("OnDragStart", onDragStart)
 		display:SetScript("OnDragStop", onDragStop)
 		display:SetScript("OnMouseDown", displayOnMouseDown)
-		display:SetScript("OnEnter", onEnter)
-		display:SetScript("OnLeave", onLeave)
 		display.bg:SetTexture(0, 0, 0, 0.3)
 		display.drag:Show()
 		display.header:Show()
@@ -712,11 +704,12 @@ do
 			return
 		end
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+		display:SetFrameStrata("BACKGROUND")
 		display:SetMinResize(100, 20)
 		display:SetWidth(200)
 		display:SetHeight(148)
 		oRA3:RestorePosition("oRA3CooldownFrame")
-		local bg = display:CreateTexture(nil, "PARENT")
+		local bg = display:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints(display)
 		bg:SetBlendMode("BLEND")
 		bg:SetTexture(0, 0, 0, 0.3)
@@ -725,12 +718,10 @@ do
 		header:SetFontObject(GameFontNormal)
 		header:SetText(L["Cooldowns"])
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
-		local help = display:CreateFontString(nil, "OVERLAY")
+		local help = display:CreateFontString(nil, "HIGHLIGHT")
 		help:SetFontObject(GameFontNormal)
 		help:SetText(L["Right-Click me for options!"])
 		help:SetAllPoints(display)
-		help:Hide()
-		display.help = help
 		display.header = header
 
 		local drag = CreateFrame("Frame", nil, display)
@@ -745,7 +736,7 @@ do
 		drag:SetAlpha(0.5)
 		display.drag = drag
 
-		local tex = drag:CreateTexture(nil, "BACKGROUND")
+		local tex = drag:CreateTexture(nil, "OVERLAY")
 		tex:SetTexture("Interface\\AddOns\\oRA3\\images\\draghandle")
 		tex:SetWidth(16)
 		tex:SetHeight(16)
