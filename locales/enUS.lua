@@ -13,7 +13,7 @@ L["Unknown"] = true
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = true
-L.uiHidden = "You are in combat.\nThe oRA3 interface has been temporarily disabled.\n\nEverything will return to normal\nonce you get out of combat."
+L.uiHidden = "You are in combat.\nThe oRA3 interface has been disabled temporarily.\n\nEverything will return to normal\nonce you get out of combat."
 
 -- Ready check module
 L["The following players are not ready: %s"] = true
