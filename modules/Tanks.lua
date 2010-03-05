@@ -456,7 +456,7 @@ do
 	}
 	local function sort(a, b)
 		local _, aC = UnitClass(a)
-		local _, aB = UnitClass(b)
+		local _, bC = UnitClass(b)
 		return order[bC] > order[aC]
 	end
 
