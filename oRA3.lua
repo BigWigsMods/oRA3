@@ -144,7 +144,8 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", "UpdateContentFrame")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
@@ -361,6 +362,17 @@ end
 -- oRA3 main window
 --
 
+function addon:PLAYER_REGEN_DISABLED()
+	if not contentFrame then return end
+	contentFrame:Hide()
+end
+
+function addon:PLAYER_REGEN_ENABLED()
+	if not contentFrame then return end
+	contentFrame:Show()
+	self:UpdateContentFrame()
+end
+
 function addon:UpdateContentFrame()
 	if not contentFrame or InCombatLockdown() then return end
 	if groupStatus == INRAID then
@@ -496,10 +508,13 @@ function addon:SetupGUI()
 				if justClosed == true then
 					justClosed = false
 					contentFrame:Hide()
+					hiddenMsg:Hide()
 					frame:RegisterForClicks("AnyUp")
 				else
 					UIFrameFadeIn(contentFrame, 0.1, 0, 1)
+					UIFrameFadeIn(hiddenMsg, 0.1, 0, 1)
 					contentFrame:Show()
+					hiddenMsg:Show()
 					db.open = true
 					frame:RegisterForClicks(nil)
 				end
@@ -509,6 +524,7 @@ function addon:SetupGUI()
 			UIFrameFadeOut(contentFrame, 0.1, 1, 0)
 			db.open = false
 			justClosed = true
+			hiddenMsg:Hide()
 		end
 		
 		local offset = cosineInterpolation(min, max, mod * totalElapsed)
@@ -527,12 +543,15 @@ function addon:SetupGUI()
 	handle:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\tabhandle")
 	handle:RegisterForClicks("AnyUp")
 	handle:SetScript("OnClick", function()
+		if InCombatLockdown() then return end
 		frame:SetScript("OnUpdate", onupdate)
 	end)
 	frame:SetScript("OnClick", function()
+		if InCombatLockdown() then return end
 		frame:SetScript("OnUpdate", onupdate)
 	end)
 	handle:SetScript("OnEnter", function(self)
+		if InCombatLockdown() then return end
 		SetCursor("INTERACT_CURSOR")
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		GameTooltip:SetText(L["Click to open/close oRA3"])
@@ -669,6 +688,7 @@ function addon:SetupGUI()
 		addon:SelectPanel()
 	end)
 	frame:SetScript("OnHide", function()
+		if InCombatLockdown() then return end
 		for i, tab in next, panels do
 			if type(tab.hide) == "function" then
 				tab.hide()
@@ -887,6 +907,7 @@ function addon:RegisterList(name, contents, ...)
 end
 
 function addon:UpdateList(name)
+	if InCombatLockdown() then return end
 	if not openedList or not oRA3Frame:IsVisible() then return end
 	if lists[openedList].name ~= name then return end
 	showLists()
