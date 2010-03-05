@@ -15,6 +15,7 @@ L["Unknown"] = "Unbekannt"
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Einige permanente Optionen können hier verändert werden. Alle akuten Dinge werden aber im Schlachtzugsfenster behandelt."
+L.uiHidden = "Du bist gerade im Kampf.\nDas oRA3 Interface wurde vorübergehend deaktiviert.\n\nDas Interface wird wieder aktiviert,\nsobald du aus dem Kampf kommst."
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Die folgenden Spieler sind nicht bereit: %s"
@@ -124,15 +125,17 @@ L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst z
 
 -- Tanks module
 L["Tanks"] = "Tanks"
+L.tankTabTopText = "Klicke auf Spieler in der unteren Liste, um sie zu persönlichen Tanks zu machen. Falls du Hilfe bei den verschiedenen Optionen brauchst, solltest du deine Maus über das Fragezeichen bewegen."
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Oben: Sortierte Tanks. Unten: Potentielle Tanks."
--- L["Remove"]
-L.deleteButtonHelp = "Entfernt Eintrag aus der Tankliste."
+-- L["Remove"] is defined above
+L.deleteButtonHelp = "Entfernt den Spieler aus der Tankliste."
 L["Blizzard Main Tank"] = "Blizzard Main Tank"
 L.tankButtonHelp = "Setzt oder entfernt den Blizzard MT-Status."
 L["Save"] = "Speichern"
 L.saveButtonHelp = "Speichert den Tank in deiner persönlichen Liste. Von nun an wird dieser Tank immer als persönlicher Tank gesetzt, sobald ihr zusammen in einer Gruppe seid."
 L["What is all this?"] = "Um was geht es hier?"
-L.tankHelp = "Spieler in der oberen Liste sind deine persönlichen, sortierten Tanks. Diese Liste wird nicht mit dem Raid geteilt, jeder kann daher eine andere persönliche Tankliste haben. Sobald du einen Namen in der unteren Liste anklickst, wird dieser zu deiner persönlichen Tankliste hinzugefügt.\n\nSobald du auf das Schild-Symbol klickst, wird der Spieler zum Blizzard Main Tank befördert. Blizzard MTs werden für alle Schlachtzugsmitglieder gesetzt, daher musst du Assistent oder höher sein.\n\nTanks, die in der Liste erscheinen, weil jemand anders sie als Blizzard MT gesetzt hat, werden automatisch aus der Liste gelöscht, sobald ihr Tankstatus entfernt wird.\n\nBenutze das Häckchen, um Tanks zwischen Schlachtzügen zu speichern. Sobald du das nächste Mal mit diesem Spieler in einem Schlachtzug bist, wird er automatisch als persönlicher Tank gesetzt."
+L.tankHelp = "Spieler in der oberen Liste sind deine persönlichen, sortierten Tanks. Diese Liste wird nicht mit dem Raid geteilt, jeder kann daher eine andere persönliche Tankliste haben. Sobald du einen Namen in der unteren Liste anklickst, wird dieser zu deiner persönlichen Tankliste hinzugefügt.\n\nSobald du auf das Schild-Symbol klickst, wird der Spieler zum Blizzard Main Tank befördert. Blizzard MTs werden für alle Schlachtzugsmitglieder gesetzt, daher musst du Assistent oder höher sein.\n\nTanks, die in der Liste erscheinen, weil jemand anders sie als Blizzard MT gesetzt hat, werden automatisch aus der Liste gelöscht, sobald ihr Tankstatus entfernt wird.\n\nBenutze das grüne Häckchen, um Tanks zwischen Schlachtzügen zu speichern. Sobald du das nächste Mal mit diesem Spieler in einem Schlachtzug bist, wird er automatisch als persönlicher Tank gesetzt."
 L["Sort"] = "Sortieren"
 L["Click to move this tank up."] = "Hier klicken, um den Tank nach oben zu schieben."
-
+L["Show"] = "Einblenden"
+L.showButtonHelp = "Blendet diesen Tank in deiner Tankanzeige ein. Diese Option hat nur einen lokalen Effekt und verändert nicht den Tankstatus des betroffenen Spielers für alle anderen Gruppenmitglieder."
