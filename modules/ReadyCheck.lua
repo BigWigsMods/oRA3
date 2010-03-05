@@ -358,7 +358,7 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
 	end
-	if self.db.profile.gui then
+	if self.db.profile.gui and frame then
 		updateWindow()
 	end
 end
