@@ -407,7 +407,6 @@ function module:UpdateScrolls()
 	self:UpdateBottomScroll()
 end
 
-local ngroup = {}
 function module:UpdateTopScroll()
 	if not frame then return end
 	local nr = #allIndexedTanks
@@ -442,26 +441,48 @@ function module:UpdateTopScroll()
 	end
 end
 
-function module:UpdateBottomScroll()
-	if not frame then return end
-	local group = oRA:GetGroupMembers()
-	wipe(ngroup)
-	for	k, v in pairs(group) do
-		if not namedTanks[v] then -- only add not in the tanklist
-			ngroup[#ngroup + 1] = v
-		end
+do
+	local order = {
+		WARRIOR = 1,
+		PALADIN = 2,
+		DRUID = 3,
+		DEATHKNIGHT = 4,
+		WARLOCK = 5,
+		HUNTER = 6,
+		ROGUE = 7,
+		MAGE = 8,
+		PRIEST = 9,
+		SHAMAN = 10,
+	}
+	local function sort(a, b)
+		local _, aC = UnitClass(a)
+		local _, aB = UnitClass(b)
+		return order[bC] > order[aC]
 	end
-	table.sort(ngroup)
-	local nr = #ngroup
-	FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16)
-	for i, v in next, bottom do
-		local j = i + FauxScrollFrame_GetOffset(frame.bottomscroll)
-		if j <= nr then
-			v.unitName = ngroup[j]
-			v.label:SetText(oRA.coloredNames[ngroup[j]])
-			v:Show()
-		else
-			v:Hide()
+
+	local ngroup = {}
+
+	function module:UpdateBottomScroll()
+		if not frame then return end
+		local group = oRA:GetGroupMembers()
+		wipe(ngroup)
+		for	k, v in pairs(group) do
+			if not namedTanks[v] then -- only add not in the tanklist
+				ngroup[#ngroup + 1] = v
+			end
+		end
+		table.sort(ngroup, sort)
+		local nr = #ngroup
+		FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16)
+		for i, v in next, bottom do
+			local j = i + FauxScrollFrame_GetOffset(frame.bottomscroll)
+			if j <= nr then
+				v.unitName = ngroup[j]
+				v.label:SetText(oRA.coloredNames[ngroup[j]])
+				v:Show()
+			else
+				v:Hide()
+			end
 		end
 	end
 end
