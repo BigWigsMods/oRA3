@@ -13,6 +13,7 @@ local tmpTanks = {} -- temp tank table reused
 local namedPersistent = {} -- table containing named persistent list filled from db.persistentTanks
 local allIndexedTanks = {} -- table containing the top scroll sorted list of indexed tanks
 local sessionTanks = {} -- Tanks you pushed to the top for this session
+local namedHidden = {} -- Named hidden tanks for this session
 
 -- Lists containing the scrolling rows of tanks in the GUI
 local top = {}
@@ -57,7 +58,7 @@ end
 local function sortTanks()
 	wipe(indexedTanks)
 	for k, tank in next, allIndexedTanks do
-		if namedTanks[tank] then
+		if namedTanks[tank] and not namedHidden[tank] then
 			indexedTanks[#indexedTanks + 1] = tank
 		end
 	end
@@ -191,6 +192,20 @@ local function topScrollDeleteClick(self)
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
 end
 
+local function topScrollHiddenClick(self)
+	local value = self:GetParent().unitName
+	if namedHidden[value] then
+		namedHidden[value] = nil
+		self:SetChecked(false)
+		PlaySound("igMainMenuOptionCheckBoxOff")
+	else
+		namedHidden[value] = true
+		self:SetChecked(true)
+		PlaySound("igMainMenuOptionCheckBoxOn")
+	end
+	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
+end
+
 local function topScrollSaveClick(self)
 	local value = self:GetParent().unitName
 	local k = util:inTable(module.db.persistentTanks, value)
@@ -304,8 +319,19 @@ function module:CreateFrame()
 			t:SetPoint("TOPRIGHT", top[i - 1], "BOTTOMRIGHT")
 		end
 
+		local hidden = CreateFrame("CheckButton", "oRA3TankHideButton"..i, t, "UICheckButtonTemplate")
+		hidden:SetPoint("TOPLEFT", t)
+		hidden:SetWidth(16)
+		hidden:SetHeight(16)
+		hidden:SetScript("OnLeave", OnLeave)
+		hidden:SetScript("OnEnter", OnEnter)
+		hidden:SetScript("OnClick", topScrollHiddenClick)
+		hidden.tooltipTitle = L.Hide
+		hidden.tooltipText = L.hideButtonHelp
+		t.hidden = hidden
+		
 		local name = oRA:CreateScrollEntry(t)
-		name:SetPoint("TOPLEFT", t)
+		name:SetPoint("TOPLEFT", hidden, "TOPRIGHT", 4, 0)
 		name:SetText(L["Name"])
 		t.label = name
 
@@ -394,16 +420,22 @@ function module:UpdateTopScroll()
 				v.tank:SetAlpha(1)
 				v.delete:SetAlpha(.3)
 				v.delete:Disable()
+				v.hidden:Disable()
+				v.hidden:SetAlpha(.3)
 			else
 				v.tank:SetAlpha(.3)
 				v.delete:SetAlpha(1)
 				v.delete:Enable()
+				v.hidden:SetAlpha(1)
+				v.hidden:Enable()
 			end
 			if namedPersistent[allIndexedTanks[j]] then
 				v.save:SetAlpha(1)
 			else
 				v.save:SetAlpha(.3)
 			end
+			v.hidden:SetChecked( namedHidden[allIndexedTanks[j]] )
+
 			v.unitName = allIndexedTanks[j]
 			v.tank:SetAttribute("unit", allIndexedTanks[j])
 			v.label:SetText(oRA.coloredNames[allIndexedTanks[j]])
