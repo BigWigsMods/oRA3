@@ -14,7 +14,7 @@ L["Unknown"] = "알수 없음"
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "몇 가지의 옵션을 설정할 수있습니다. 모든 실재 동작은 공격대 프레임창에서 패널을 통해 확인가능합니다."
-L.uiHidden = "당신은 전투중입니다.\noRA3의 인터페이스가 일시적으로 비활성화 되었습니다.\n\n전투가 종료되어야 정상적으로 돌아옵니다."
+L.uiHidden = "당신은 만약 전투중일 경우,\noRA3의 인터페이스가 일시적으로 비활성화 됩니다.\n\n전투가 종료되어야 정상적으로 돌아옵니다."
 
 -- Ready check module
 L["The following players are not ready: %s"] = "준비가 되지 않은 플레이어: %s"
@@ -132,10 +132,10 @@ L["Blizzard Main Tank"] = "블리자드 메인 탱커"
 L.tankButtonHelp = "여기 탱커를 블리자드 탱커로 전환합니다."
 L["Save"] = "저장"
 L.saveButtonHelp = "개인적인 탱커 목록을 저장합니다. 개인적인 탱커 목록을 그룹화합니다."
-L["What is all this?"] = "이 모두 무엇입니까? :/"
+L["What is all this?"] = "이것 모두 무엇입니까? :D"
 L.tankHelp = "위의 목록에 있는 사람들은 당신이 개인적으로 정렬시킨 탱커들입니다 그들을 공격대원과 공유하지 않으며 각 공격대원들은 자신이 원하는 탱커를 지정하여 개인적인 목록을 가질수 있습니다. 하단의 목록에서 이름을 클릭하면 개인 탱커 목록에 추가됩니다.\n\n방패 아이콘을 클릭하면 그 사람은 블리자드의 메인 탱커(방어 전담)으로 될것입니다. 블리자드 탱커(방어 전담)으로 지정시 모든 공격대원에게 공유됩니다.\n\n녹색 체크 표시를 사용하여 탱커를 저장합니다. 다음번에 당신이 그 사람과 함께 공격대에 참여할시 그는 개인적인 탱커로 자동으로 설정됩니다."
 L["Sort"] = "정렬"
-L["Click to move this tank up."] = "탱커를 이동하려면 클릭하세요."
+L["Click to move this tank up."] = "탱커를 위로 이동하려면 클릭하세요."
 L["Show"] = "표시"
 L.showButtonHelp = "이 탱커를 정렬 탱커 목록에 표시를 합니다. 이 옵션은 당신에게만 적용되며 그룹에서 다른 사람의 탱커가 변경되지 않습니다."
 
