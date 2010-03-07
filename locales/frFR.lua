@@ -13,6 +13,7 @@ L["Unknown"] = "Inconnu"
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Vous pouvez configurer quelques options ici. Tout le reste se trouve dans le panneau de l'onglet raid."
+L.uiHidden = "Vous êtes en combat.\nL'interface de oRA3 a été temporairement désactivée.\n\nTout reviendra à la normal\nune fois sorti de combat."
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Les joueurs suivants ne sont pas prêts : %s"
@@ -122,6 +123,7 @@ L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de v
 
 -- Tanks module
 L["Tanks"] = "Tanks"
+L.tankTabTopText = "Cliquez sur les joueurs de la liste du bas pour les nommer tank personnel. Si vous souhaitez obtenir de l'aide concernant les options présentes ici, survolez le '?' avec votre souris."
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Haut : tanks triés. Bas : tanks potentiels."
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "Enlève ce joueur de la liste des tanks."
@@ -133,3 +135,5 @@ L["What is all this?"] = "Qu'est-ce que tout cela ?"
 L.tankHelp = "Les joueurs de la liste du haut sont vos tanks personnels triés. Ils ne sont pas partagés avec le raid, et tout le monde peut avoir une liste de tanks personnelle différente. Cliquer sur un nom de la liste du bas permet d'ajouter le joueur dans votre liste personnelle.\n\nCliquer sur l'icône en forme de bouclier ajoutera cette personne dans la liste des tanks principaux de Blizzard. Les tanks de Blizzard sont partagées entre tous les membres de votre raid et vous devez être au moins assistant pour faire cela.\n\nLes tanks qui apparaissent dans la liste car ajoutés par quelqu'un d'autre dans la liste des tanks principaux de Blizzard seront enlevés de la liste une fois qu'ils ne sont plus des tanks principaux de Blizzard.\n\nUtiliser la coche pour sauvegarder un tank entre les sessions. La prochaine fois que vous serez dans un raid avec cette personne, il sera automatiquement définit comme étant un tank personnel."
 L["Sort"] = "Trier"
 L["Click to move this tank up."] = "Cliquez pour faire monter ce tank."
+L["Show"] = "Afficher"
+L.showButtonHelp = "Affiche ce tank dans votre affichage des tanks personnels. Cette option n'a des effets que localement et ne changera pas son statut de tank pour tous les autres membres du groupe."
