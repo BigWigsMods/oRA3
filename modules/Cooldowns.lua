@@ -929,6 +929,7 @@ function module:OnShutdown()
 	oRA.UnregisterCallback(self, "OnCommCooldown")
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:UnhookAll()
 end
 
 function module:OnCommCooldown(commType, sender, spell, cd)
