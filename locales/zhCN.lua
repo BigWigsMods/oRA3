@@ -14,6 +14,7 @@ L["Unknown"] = "未知"
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在这里调整设置, 所有实际操作都在团队面板进行"
+L.uiHidden = "你正在战斗中.\noRA3 面板暂时被关闭.\n\n脱离战斗后恢复."
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列队员未准备好:%s"
@@ -65,6 +66,8 @@ L["Guild rank invites"] = "会阶邀请"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "自动邀请会阶高于等于所选等级的工会成员，按下该按钮会自动在工会和官员频道发送要求10秒内离队待组的消息，10秒后自动开始组人"
 
 -- Promote module
+L["Demote everyone"] = "降级所有人"
+L["Demotes everyone in the current group."] = "降级在目前群组的所有人"
 L["Promote"] = "提升"
 L["Mass promotion"] = "批量提升"
 L["Everyone"] = "所有人"
@@ -111,6 +114,7 @@ L["Label Align"] = "标签位置"
 L["Left"] = "左"
 L["Right"] = "右"
 L["Center"] = "中间"
+L["Grow up"] = "向上递增"
 
 -- Zone module
 L["Zone"] = "地区"
@@ -120,6 +124,19 @@ L["Zone"] = "地区"
  
 -- Tanks module
 L["Tanks"] = "坦克"
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克."
+L.tankTabTopText = "点击下方列表将其设为坦克. 将鼠标移动到按钮上可看到操作提示."
 
+L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "顶部名单: 排序主坦克. 底部名单: 可能主坦克."
+-- L["Remove"]?is defined above
+L.deleteButtonHelp = "从坦克名单移除。"
+L["Blizzard Main Tank"] = "内建主坦克"
+L.tankButtonHelp = "切换是否这坦克应该为内建主坦克。"
+L["Save"] = "储存"
+L.saveButtonHelp = "储存坦克在你个人名单。只要你在团队里面有这玩家，他就会被编排作为个人坦克。"
+L["What is all this?"] = "到底怎麽回事?"
+L.tankHelp = "在置顶名单的人是你个人排序的坦克。他们并不分享给团队，并且任何人可以拥有不同的个人坦克名单。在置底名单点选一个名称增加他们到你个人坦克名单。\n\n在盾图示上点击就会让那人成为内建主坦克。内建坦克是团队所有人中所共享并且你必须被晋升来做切换。\n\n在名单出现的坦克基於某些人让他们成为内建坦克，当他们不再是内建主坦克就会从名单移除。\n\n在这期间使用检查标记来储存。下一次团队里有那人，他会自动的被设定为个人坦克。"
+L["Sort"] = "排序"
+L["Click to move this tank up."] = "点击往上移动坦克。"
+L["Show"] = "显示"
+L.showButtonHelp = "在你个人的坦克排列中显示这个坦克. 此项只对本地有效, 不会影响团队中其他人的配置"
 

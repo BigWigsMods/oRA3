@@ -14,6 +14,7 @@ L["Unknown"] = "未知"
 
 -- Core
 L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這做一些設定。所有的實際動作從團隊框架面板中完成。"
+L.uiHidden = "你正在戰斗中.\noRA3 面板暫時被關閉.\n\n脫離戰斗后恢復."
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列隊員未準備好:%s"
@@ -123,6 +124,8 @@ L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利�
 
 -- Tanks module
 L["Tanks"] = "坦克"
+L.tankTabTopText = "點擊下方列表將其設為坦克. 將鼠標移動到按鈕上可看到操作提示."
+
 L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "置頂名單:排序坦克。置底名單:潛在坦克。"
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "從坦克名單移除。"
@@ -134,3 +137,6 @@ L["What is all this?"] = "到底怎麼回事?"
 L.tankHelp = "在置頂名單的人是你個人排序的坦克。他們並不分享給團隊，並且任何人可以擁有不同的個人坦克名單。在置底名單點選一個名稱增加他們到你個人坦克名單。\n\n在盾圖示上點擊就會讓那人成為內建主坦克。內建坦克是團隊所有人中所共享並且你必須被晉升來做切換。\n\n在名單出現的坦克基於某些人讓他們成為內建坦克，當他們不再是內建主坦克就會從名單移除。\n\n在這期間使用檢查標記來儲存。下一次團隊裡有那人，他會自動的被設定為個人坦克。"
 L["Sort"] = "排序"
 L["Click to move this tank up."] = "點擊往上移動坦克。"
+L["Show"] = "顯示"
+L.showButtonHelp = "在你個人的坦克排列中顯示這個坦克. 此項只對本地有效, 不會影響團隊中其他人的配置"
+
