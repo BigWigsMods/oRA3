@@ -66,6 +66,7 @@ local spells = {
 		[642] = 300,    -- Divine Shield
 		[64205] = 120,  -- Divine Sacrifice
 		[498] = 180,    -- Divine Protection
+		[1044] = 25,    -- Hand of Freedom
 		[10278] = 300,  -- Hand of Protection
 		[6940] = 120,   -- Hand of Sacrifice
 		[1038] = 120,   -- Hand of Salvation
