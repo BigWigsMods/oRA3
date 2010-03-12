@@ -261,7 +261,7 @@ function module:CreateFrame()
 
 	local centerBar = CreateFrame("Button", nil, frame)
 	centerBar:SetPoint("BOTTOMLEFT", frame, -5, 142)
-	centerBar:SetPoint("BOTTOMRIGHT", frame, 0, 142)
+	centerBar:SetPoint("BOTTOMRIGHT", frame, 5, 142)
 	centerBar:SetHeight(8)
 	local texture = centerBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
@@ -270,7 +270,7 @@ function module:CreateFrame()
 
 	local topBar = CreateFrame("Button", nil, frame)
 	topBar:SetPoint("TOPLEFT", frame, -5, -42)
-	topBar:SetPoint("TOPRIGHT", frame, 0, -42)
+	topBar:SetPoint("TOPRIGHT", frame, 5, -42)
 	topBar:SetHeight(8)
 	texture = topBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
@@ -278,12 +278,12 @@ function module:CreateFrame()
 	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	frame.topscroll = CreateFrame("ScrollFrame", "oRA3TankTopScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 2)
-	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -22, -2)
+	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 0)
+	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -25, 0)
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
-	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -22, 0)
+	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 0) 
+	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -20, 0)
 
 	local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	help:SetJustifyH("LEFT")
@@ -345,9 +345,7 @@ function module:CreateFrame()
 
 		local tank = createButton(t, "SecureActionButtonTemplate")
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
---		tank.icon:SetTexture("Interface\\RaidFrame\\UI-RaidFrame-MainTank")
 		tank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
---		tank.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		tank:SetAttribute("type", "maintank")
 		tank:SetAttribute("action", "toggle")
 		if oRA:IsPromoted() then
@@ -411,7 +409,7 @@ function module:UpdateTopScroll()
 	if not frame then return end
 	local nr = #allIndexedTanks
 	local btanks = oRA:GetBlizzardTanks()
-	FauxScrollFrame_Update(frame.topscroll, nr, 10, 16)
+	FauxScrollFrame_Update(frame.topscroll, nr, 10, 16, nil, nil, nil, nil, nil, nil, true)
 	for i, v in next, top do
 		local j = i + FauxScrollFrame_GetOffset(frame.topscroll)
 		if j <= nr then
@@ -473,7 +471,7 @@ do
 		end
 		table.sort(ngroup, sort)
 		local nr = #ngroup
-		FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16)
+		FauxScrollFrame_Update(frame.bottomscroll, nr, 9, 16, nil, nil, nil, nil, nil, nil, true)
 		for i, v in next, bottom do
 			local j = i + FauxScrollFrame_GetOffset(frame.bottomscroll)
 			if j <= nr then

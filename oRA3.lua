@@ -56,7 +56,6 @@ local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
 local tanks = {} -- Index:Name
 local playerPromoted = nil
-local oRA3Frame = nil
 
 -- couple of local constants used for party size
 local UNGROUPED = 0
@@ -144,38 +143,12 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
-
-	self:SecureHookScript(RaidInfoFrame, "OnHide", "RaidInfoClosed")
-	self:SecureHookScript(RaidInfoFrame, "OnShow", "RaidInfoOpened")
-	self:SecureHookScript(FriendsFrame, "OnShow", "SetupGUI")
 
 	-- init groupStatus
 	self:RAID_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
-
-	if oRA3Frame then
-		oRA3Frame:Show()
-	end
-end
-
-do
-	local wasOpen = nil
-	function addon:RaidInfoClosed()
-		if not wasOpen or InCombatLockdown() then return end
-		db.open = true
-		self:UpdateFrameStatus()
-	end
-
-	function addon:RaidInfoOpened()
-		wasOpen = contentFrame:IsShown()
-		if not wasOpen or InCombatLockdown() then return end
-		db.open = false
-		self:UpdateFrameStatus()
-	end
 end
 
 function addon:OnDisable()
@@ -309,7 +282,6 @@ do
 				self.callbacks:Fire("OnDemoted", playerPromoted)
 			end
 		end
-		self:UpdateContentFrame()
 	end
 end
 
@@ -362,59 +334,30 @@ end
 -- oRA3 main window
 --
 
-function addon:PLAYER_REGEN_DISABLED()
-	if not contentFrame then return end
-	contentFrame:Hide()
-end
+local function setupGUI()
+	local frame = CreateFrame("Frame", "oRA3Frame", UIParent)
+	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3 , whileDead = 1, yoffset = -12, xoffset = 10 }
+	HideUIPanel(oRA3Frame)
 
-function addon:PLAYER_REGEN_ENABLED()
-	if not contentFrame then return end
-	contentFrame:Show()
-	self:UpdateContentFrame()
-end
+	frame:SetWidth(350)
+	frame:SetHeight(427)
 
-function addon:UpdateContentFrame()
-	if not contentFrame or InCombatLockdown() then return end
-	if groupStatus == INRAID then
-		contentFrame:SetPoint("TOPLEFT", 40, -56)
-	else
-		contentFrame:SetPoint("TOPLEFT", 14, -56)
-	end
-	for i, list in next, lists do
-		list.button:SetWidth((contentFrame:GetWidth()-10)/ #lists)
-	end
-end
-
--- The Sliding/Detaching GUI pane is courtsey of Cladhaire and originally from LightHeaded
--- This code was used with permission.
-
-function addon:SetupGUI()
-	if oRA3Frame or InCombatLockdown() then return end
-	oRA3Frame = CreateFrame("Button", "oRA3Frame", RaidFrame)
-	local frame = oRA3Frame
-
-	frame:SetFrameStrata("MEDIUM")
-	frame:SetWidth(375)
-	frame:SetHeight(425)
-	frame:SetPoint("LEFT", RaidFrame, "RIGHT", 0, 19)
-	frame:SetFrameLevel(0)
-	
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
 	topleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
 	topleft:SetWidth(128)
-	topleft:SetHeight(256)
+	topleft:SetHeight(258)
 	topleft:SetPoint("TOPLEFT")
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopRight")
 	topright:SetWidth(140)
-	topright:SetHeight(256)
+	topright:SetHeight(258)
 	topright:SetPoint("TOPRIGHT")
-	topright:SetTexCoord(0, (140 / 256), 0, 1)
+	topright:SetTexCoord(0, (140 / 258), 0, 1)
 
 	local top = frame:CreateTexture(nil, "ARTWORK")
 	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
-	top:SetHeight(256)
+	top:SetHeight(258)
 	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
 	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 
@@ -426,7 +369,7 @@ function addon:SetupGUI()
 	botleft:SetTexCoord(0, 1, 0, (168 / 256))
 
 	local botright = frame:CreateTexture(nil, "ARTWORK")
-	botright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotRIght")
+	botright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotRight")
 	botright:SetWidth(140)
 	botright:SetHeight(168)
 	botright:SetPoint("BOTTOMRIGHT")
@@ -439,36 +382,11 @@ function addon:SetupGUI()
 	bot:SetPoint("TOPRIGHT", botright, "TOPLEFT")
 	bot:SetTexCoord(0, 1, 0, (168 / 256))
 
-	local midleft = frame:CreateTexture(nil, "ARTWORK")
-	midleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
-	midleft:SetWidth(128)
-	midleft:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
-	midleft:SetPoint("BOTTOMLEFT", botleft, "TOPLEFT")
-	midleft:SetTexCoord(0, 1, (240 / 256), 1)
-
-	local midright = frame:CreateTexture(nil, "ARTWORK")
-	midright:SetTexture("Interface\\AddOns\\oRA3\\images\\MidRight")
-	midright:SetWidth(140)
-	midright:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
-	midright:SetPoint("BOTTOMRIGHT", botright, "TOPRIGHT")
-	midright:SetTexCoord(0, (140 / 256), 0, 1)
-
-	local mid = frame:CreateTexture(nil, "ARTWORK")
-	mid:SetTexture("Interface\\AddOns\\oRA3\\images\\Mid")
-	mid:SetPoint("TOPLEFT", midleft, "TOPRIGHT")
-	mid:SetPoint("BOTTOMRIGHT", midright, "BOTTOMLEFT")
-	
 	local topBg = frame:CreateTexture(nil, "BACKGROUND")
 	topBg:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
 	topBg:SetHeight(64)
-	topBg:SetPoint("TOPLEFT", topleft, "TOPLEFT", 5, -4)
-	topBg:SetWidth(256 + 114)
-
-	local hiddenMsg = frame:CreateFontString(nil, "LOW", "GameFontHighlight")
-	hiddenMsg:SetText(L.uiHidden)
-	hiddenMsg:SetAllPoints(frame)
-	hiddenMsg:SetJustifyH("CENTER")
-	hiddenMsg:SetJustifyV("MIDDLE")
+	topBg:SetPoint("TOPLEFT", topleft, 5, -4)
+	topBg:SetPoint("TOPRIGHT", topright, -3, -4)
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 5, 4)
@@ -477,103 +395,18 @@ function addon:SetupGUI()
 	title:SetPoint("TOP", 0, -6)
 	frame.title = title
 
-	-- internal functions
-	local function cosineInterpolation(y1, y2, mu)
-		return y1 + (y2 - y1) * (1 - math.cos(math.pi * mu)) / 2
-	end
-
-	local min,max = -360, -50
-	local steps = 45
-	local timeToFade = .5
-	local mod = 1 / timeToFade
-	local modifier = 1 / steps
-	
-	local count = 0
-	local totalElapsed = 0
-	local justClosed = nil
-	local function onupdate(self, elapsed)
-		count = count + 1
-		totalElapsed = totalElapsed + elapsed
-		
-		if totalElapsed >= timeToFade then
-			local temp = max
-			max = min
-			min = temp
-			count = 0
-			totalElapsed = 0
-			self:SetScript("OnUpdate", nil)
-			
-			-- Do the frame fading
-			if not db.open then
-				if justClosed == true then
-					justClosed = false
-					contentFrame:Hide()
-					hiddenMsg:Hide()
-					frame:RegisterForClicks("AnyUp")
-				else
-					UIFrameFadeIn(contentFrame, 0.1, 0, 1)
-					UIFrameFadeIn(hiddenMsg, 0.1, 0, 1)
-					contentFrame:Show()
-					hiddenMsg:Show()
-					db.open = true
-					frame:RegisterForClicks(nil)
-				end
-			end
-			return
-		elseif count == 1 and db.open then
-			UIFrameFadeOut(contentFrame, 0.1, 1, 0)
-			db.open = false
-			justClosed = true
-			hiddenMsg:Hide()
-		end
-		
-		local offset = cosineInterpolation(min, max, mod * totalElapsed)
-		self:SetPoint("LEFT", RaidFrame, "RIGHT", offset, 31)
-	end
-	
-	-- Flip min and max, if we're supposed to be open
-	if db.open then
-		min,max = max,min
-	end
-
-	local handle = CreateFrame("Button", nil, frame)
-	handle:SetWidth(8)
-	handle:SetHeight(128)
-	handle:SetPoint("LEFT", frame, "RIGHT")
-	handle:SetNormalTexture("Interface\\AddOns\\oRA3\\images\\tabhandle")
-	handle:RegisterForClicks("AnyUp")
-	handle:SetScript("OnClick", function()
-		if InCombatLockdown() then return end
-		frame:SetScript("OnUpdate", onupdate)
-	end)
-	frame:SetScript("OnClick", function()
-		if InCombatLockdown() then return end
-		frame:SetScript("OnUpdate", onupdate)
-	end)
-	handle:SetScript("OnEnter", function(self)
-		if InCombatLockdown() then return end
-		SetCursor("INTERACT_CURSOR")
-		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-		GameTooltip:SetText(L["Click to open/close oRA3"])
-		GameTooltip:Show()
-	end)
-	handle:SetScript("OnLeave",function(self)
-		SetCursor(nil)
-		GameTooltip:Hide()
-	end)
-
 	close:SetScript("OnClick", function()
-		HideUIPanel(FriendsFrame)
+		HideUIPanel(oRA3Frame)
 	end)
 
 	local subframe = CreateFrame("Frame", nil, frame)
-	subframe:SetPoint("TOPLEFT", 14, -56)
+	subframe:SetPoint("TOPLEFT", 7, -58)
 	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
 	contentFrame = subframe
 
 	local backdrop = {
-		bgFile = [[Interface\AddOns\oRA3\images\tiled-noise-2]],
-		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+		bgFile = "Interface\\AddOns\\oRA3\\images\\tiled-noise-2",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 		tile = true, edgeSize = 16, tileSize = 64,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
 	}
@@ -583,12 +416,12 @@ function addon:SetupGUI()
 
 	local disband = CreateFrame("Button", "oRA3Disband", subframe, "UIPanelButtonTemplate")
 	disband:SetWidth(115)
-	disband:SetHeight(21)
+	disband:SetHeight(22)
 	disband:SetNormalFontObject(GameFontNormalSmall)
 	disband:SetHighlightFontObject(GameFontHighlightSmall)
 	disband:SetDisabledFontObject(GameFontDisableSmall)
 	disband:SetText(L["Disband Group"])
-	disband:SetPoint("BOTTOMLEFT", subframe, "TOPLEFT", 4, 11)
+	disband:SetPoint("BOTTOMLEFT", subframe, "TOPLEFT", 4, 7)
 	disband:SetScript("OnClick", function()
 		if not StaticPopupDialogs["oRA3DisbandGroup"] then
 			StaticPopupDialogs["oRA3DisbandGroup"] = {
@@ -622,19 +455,19 @@ function addon:SetupGUI()
 
 	local options = CreateFrame("Button", "oRA3Options", subframe, "UIPanelButtonTemplate")
 	options:SetWidth(115)
-	options:SetHeight(21)
+	options:SetHeight(22)
 	options:SetNormalFontObject(GameFontNormalSmall)
 	options:SetHighlightFontObject(GameFontHighlightSmall)
 	options:SetDisabledFontObject(GameFontDisableSmall)
 	options:SetText(L["Options"])
-	options:SetPoint("BOTTOMRIGHT", subframe, "TOPRIGHT", -6, 11)
+	options:SetPoint("BOTTOMRIGHT", subframe, "TOPRIGHT", -6, 7)
 	options:SetScript("OnClick", function()
 		InterfaceOptionsFrame_OpenToCategory("oRA3")
 	end)
 
 	frame.selectedTab = 1
 	for i, tab in next, panels do
-		self:SetupPanel(i)
+		addon:SetupPanel(i)
 	end
 
 	local listFrame = CreateFrame("Frame", "oRA3ListFrame", subframe)
@@ -684,11 +517,15 @@ function addon:SetupGUI()
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	frame:SetScript("OnShow", function(self)
-		if not self:IsVisible() then return end
+		PlaySound("igCharacterInfoTab")
+		local w = (contentFrame:GetWidth() - 10) / #lists
+		for i, list in next, lists do
+			list.button:SetWidth(w)
+		end
 		addon:SelectPanel()
 	end)
 	frame:SetScript("OnHide", function()
-		if InCombatLockdown() then return end
+		PlaySound("igMainMenuClose")
 		for i, tab in next, panels do
 			if type(tab.hide) == "function" then
 				tab.hide()
@@ -701,7 +538,7 @@ function addon:SetupGUI()
 	end
 	for i, list in next, lists do
 		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate2")
-		f:SetWidth((frame:GetWidth() - 24) / #lists)
+		f:SetWidth(20)
 		f:SetHeight(21)
 		f:SetNormalFontObject(i == 1 and GameFontHighlightSmall or GameFontNormalSmall)
 		f:SetHighlightFontObject(GameFontHighlightSmall)
@@ -716,9 +553,18 @@ function addon:SetupGUI()
 		end
 		list.button = f
 	end
+end
 
-	self:UpdateContentFrame()
-	self:UpdateFrameStatus()
+function addon:ToggleFrame(force)
+	if setupGUI then
+		setupGUI()
+		setupGUI = nil
+	end
+	if force then
+		ShowUIPanel(oRA3Frame, true)
+	else
+		ToggleFrame(oRA3Frame)
+	end
 end
 
 function addon:OnPromoted()
@@ -737,22 +583,7 @@ function addon:SetAllPointsToPanel(frame)
 	if contentFrame then
 		frame:SetParent(contentFrame)
 		frame:SetPoint("TOPLEFT", contentFrame, 8, -4)
-		frame:SetPoint("BOTTOMRIGHT", contentFrame, -4, 6)
-	end
-end
-
-function addon:UpdateFrameStatus()
-	if not oRA3Frame or InCombatLockdown() then return end
-	if db.open then
-		-- We are slided out
-		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -50, 31)
-		oRA3Frame:RegisterForClicks(nil)
-		contentFrame:Show()
-	else
-		-- We are slided in
-		oRA3Frame:SetPoint("LEFT", RaidFrame, "RIGHT", -360, 31)
-		oRA3Frame:RegisterForClicks("anyup")
-		contentFrame:Hide()
+		frame:SetPoint("BOTTOMRIGHT", contentFrame, -8, 6)
 	end
 end
 
@@ -859,7 +690,7 @@ function addon:SetupPanel(index)
 end
 
 function addon:SelectPanel(name)
-	if not contentFrame or InCombatLockdown() then return end
+	self:ToggleFrame(true)
 	if not name then name = panels[1].name end
 
 	local index = 1
@@ -907,7 +738,6 @@ function addon:RegisterList(name, contents, ...)
 end
 
 function addon:UpdateList(name)
-	if InCombatLockdown() then return end
 	if not openedList or not oRA3Frame:IsVisible() then return end
 	if lists[openedList].name ~= name then return end
 	showLists()
@@ -926,13 +756,6 @@ function addon:SelectList(index)
 end
 
 function addon:OpenToList(name)
-	if not FriendsFrame:IsShown() or PanelTemplates_GetSelectedTab(FriendsFrame) ~= 5 then
-		ToggleFriendsFrame(5)
-	end
-	if not db.open then
-		db.open = true
-		self:UpdateFrameStatus()
-	end
 	self:SelectPanel(L["Checks"])
 	for i, list in next, lists do
 		if list.name == name then
