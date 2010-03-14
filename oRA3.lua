@@ -92,6 +92,8 @@ local defaults = {
 		positions = {
 			
 		},
+		lastSelectedPanel = nil,
+		lastSelectedList = nil,
 		open = false,
 	}
 }
@@ -650,17 +652,12 @@ end
 -- (panels are the tabs at the bottom)
 --
 
--- register a panel
 function addon:RegisterPanel(name, show, hide)
 	table.insert(panels, {
 		name = name,
 		show = show,
 		hide = hide
 	})
-end
-
-local function tabOnShow(self)
-	PanelTemplates_TabResize(self, 0)
 end
 
 local function selectPanel(self)
@@ -679,7 +676,6 @@ function addon:SetupPanel(index)
 		end
 		f:SetText(panels[index].name)
 		f:SetScript("OnClick", selectPanel)
-		f:SetScript("OnShow", tabOnShow)
 
 		PanelTemplates_SetNumTabs(oRA3Frame, index)
 		PanelTemplates_UpdateTabs(oRA3Frame)
@@ -690,7 +686,10 @@ end
 
 function addon:SelectPanel(name)
 	self:ToggleFrame(true)
-	if not name then name = panels[1].name end
+	if not name then
+		name = db.lastSelectedPanel or panels[1].name
+	end
+	db.lastSelectedPanel = name
 
 	local index = 1
 	for i, tab in next, panels do
@@ -879,7 +878,9 @@ function showLists()
 		f:Hide()
 	end
 
-	if not openedList then openedList = 1 end
+	if not openedList then openedList = db.lastSelectedList or 1 end
+	db.lastSelectedList = openedList
+
 	local list = lists[openedList]
 	addon.callbacks:Fire("OnListSelected", list.name)
 	oRA3Frame.title:SetText(listHeader:format(list.name))
