@@ -337,7 +337,7 @@ function module:CreateFrame()
 
 		local delete = createButton(t)
 		delete:SetPoint("TOPRIGHT", t)
-		delete.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\close")
+		delete.icon:SetTexture("Interface\\RaidFrame\\ReadyCheck-NotReady")
 		delete:SetScript("OnClick", topScrollDeleteClick)
 		delete.tooltipTitle = L.Remove
 		delete.tooltipText = L.deleteButtonHelp

@@ -1,5 +1,5 @@
 <Bindings>
-	<Binding name="TOGGLEORA3" description="Toggle oRA3 Pane" header="INTERFACE">
+	<Binding name="TOGGLEORA3" header="oRA3">
 		oRA3:ToggleFrame()
 	</Binding>
 </Bindings>

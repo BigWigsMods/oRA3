@@ -1,7 +1,9 @@
-
 local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceHook-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon
+
+BINDING_HEADER_oRA3 = "oRA3"
+BINDING_NAME_TOGGLEORA3 = "Toggle oRA3 Pane"
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
@@ -143,6 +145,13 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
+
+	self:SecureHookScript(RaidFrame, "OnShow", function()
+		self:ToggleFrame(true)
+	end)
+	self:SecureHookScript(RaidFrame, "OnHide", function()
+		HideUIPanel(oRA3Frame)
+	end)
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
@@ -395,26 +404,20 @@ local function setupGUI()
 	title:SetPoint("TOP", 0, -6)
 	frame.title = title
 
-	close:SetScript("OnClick", function()
-		HideUIPanel(oRA3Frame)
-	end)
-
 	local subframe = CreateFrame("Frame", nil, frame)
 	subframe:SetPoint("TOPLEFT", 7, -58)
 	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
 	contentFrame = subframe
 
 	local backdrop = {
-		bgFile = "Interface\\AddOns\\oRA3\\images\\tiled-noise-2",
+		bgFile = "Interface\\AddOns\\oRA3\\images\\UI-RaidFrame-GroupBg",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, edgeSize = 16, tileSize = 64,
+		tile = true, edgeSize = 16, tileSize = 256,
 		insets = {left = 0, right = 0, top = 0, bottom = 0},
 	}
 	subframe:SetBackdrop(backdrop)
-	subframe:SetBackdropColor(0.08, 0.08, 0.08)
-	subframe:SetBackdropBorderColor(.8, .8, .8)
 
-	local disband = CreateFrame("Button", "oRA3Disband", subframe, "UIPanelButtonTemplate")
+	local disband = CreateFrame("Button", "oRA3Disband", subframe, "UIPanelButtonTemplate2")
 	disband:SetWidth(115)
 	disband:SetHeight(22)
 	disband:SetNormalFontObject(GameFontNormalSmall)
@@ -445,15 +448,10 @@ local function setupGUI()
 	else
 		disband:Disable()
 	end
-	disband:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-		GameTooltip:AddLine(L["Disband Group"])
-		GameTooltip:AddLine(L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."], 1, 1, 1, 1)
-		GameTooltip:Show()
-	end)
-	disband:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+	disband.tooltipText = L["Disband Group"]
+	disband.newbieText = L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."]
 
-	local options = CreateFrame("Button", "oRA3Options", subframe, "UIPanelButtonTemplate")
+	local options = CreateFrame("Button", "oRA3Options", subframe, "UIPanelButtonTemplate2")
 	options:SetWidth(115)
 	options:SetHeight(22)
 	options:SetNormalFontObject(GameFontNormalSmall)
@@ -534,6 +532,7 @@ local function setupGUI()
 	end)
 
 	local function listButtonClick(self)
+		PlaySound("igMainMenuOptionCheckBoxOn")
 		addon:SelectList(self.listIndex)
 	end
 	for i, list in next, lists do
@@ -820,6 +819,7 @@ local function toggleColumn(header)
 	else
 		table.sort(list.contents, sortDesc)
 	end
+	PlaySound("igMainMenuOptionCheckBoxOn")
 	addon:UpdateScroll()
 end
 
@@ -830,7 +830,7 @@ local function createScrollHeader()
 	f.headerIndex = nr
 	f:SetScript("OnClick", toggleColumn)
 	scrollheaders[#scrollheaders + 1] = f
-	
+
 	if #scrollheaders == 1 then
 		f:SetPoint("TOPLEFT", contentFrame, 1, -2)
 	else
