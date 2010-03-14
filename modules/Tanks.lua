@@ -278,11 +278,11 @@ function module:CreateFrame()
 	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
 	frame.topscroll = CreateFrame("ScrollFrame", "oRA3TankTopScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 0)
-	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -25, 0)
+	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 2)
+	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -25, -2)
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 0) 
+	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -20, 0)
 
 	local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
