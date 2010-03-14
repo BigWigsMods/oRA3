@@ -163,7 +163,7 @@ function addon:OnEnable()
 end
 
 function addon:OnDisable()
-	if oRA3Frame then oRA3Frame:Hide() end
+	HideUIPanel(oRA3Frame) -- nil-safe
 end
 
 do
@@ -347,24 +347,25 @@ end
 
 local function setupGUI()
 	local frame = CreateFrame("Frame", "oRA3Frame", UIParent)
-	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3 , whileDead = 1, yoffset = -12, xoffset = 10 }
+	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = -12, xoffset = 10 }
 	HideUIPanel(oRA3Frame)
 
+	frame:SetFrameStrata("LOW")
 	frame:SetWidth(350)
-	frame:SetHeight(427)
+	frame:SetHeight(424)
 
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
 	topleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
 	topleft:SetWidth(128)
-	topleft:SetHeight(258)
+	topleft:SetHeight(256)
 	topleft:SetPoint("TOPLEFT")
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopRight")
 	topright:SetWidth(140)
-	topright:SetHeight(258)
+	topright:SetHeight(256)
 	topright:SetPoint("TOPRIGHT")
-	topright:SetTexCoord(0, (140 / 258), 0, 1)
+	topright:SetTexCoord(0, (140 / 256), 0, 1)
 
 	local top = frame:CreateTexture(nil, "ARTWORK")
 	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
@@ -465,9 +466,23 @@ local function setupGUI()
 		InterfaceOptionsFrame_OpenToCategory("oRA3")
 	end)
 
+	local function selectPanel(self)
+		PlaySound("igCharacterInfoTab")
+		addon:SelectPanel(self:GetText())
+	end
 	frame.selectedTab = 1
 	for i, tab in next, panels do
-		addon:SetupPanel(i)
+		local f = CreateFrame("Button", "oRA3FrameTab"..i, contentFrame, "CharacterFrameTabButtonTemplate")
+		if i > 1 then
+			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(i - 1)], "TOPRIGHT", -16, 0)
+		else
+			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
+		end
+		f:SetText(tab.name)
+		f:SetScript("OnClick", selectPanel)
+
+		PanelTemplates_SetNumTabs(oRA3Frame, i)
+		PanelTemplates_UpdateTabs(oRA3Frame)
 	end
 
 	local listFrame = CreateFrame("Frame", "oRA3ListFrame", subframe)
@@ -658,30 +673,6 @@ function addon:RegisterPanel(name, show, hide)
 		show = show,
 		hide = hide
 	})
-end
-
-local function selectPanel(self)
-	PlaySound("igCharacterInfoTab")
-	addon:SelectPanel(self:GetText())
-end
-
-function addon:SetupPanel(index)
-	if not oRA3Frame then return end
-	if not panels[index].setup then
-		local f = CreateFrame("Button", "oRA3FrameTab"..index, contentFrame, "CharacterFrameTabButtonTemplate")
-		if index > 1 then
-			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(index - 1)], "TOPRIGHT", -16, 0)
-		else
-			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
-		end
-		f:SetText(panels[index].name)
-		f:SetScript("OnClick", selectPanel)
-
-		PanelTemplates_SetNumTabs(oRA3Frame, index)
-		PanelTemplates_UpdateTabs(oRA3Frame)
-
-		panels[index].setup = true
-	end
 end
 
 function addon:SelectPanel(name)
