@@ -180,7 +180,7 @@ local broadcastSpells = {}
 
 
 local options
-function getOptions()
+local function getOptions()
 	if not options then
 		options = {
 			type = "group",
