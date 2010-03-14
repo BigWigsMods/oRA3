@@ -232,78 +232,11 @@ do
 		frame:DoLayout()
 	end
 
-	local function showCallback(widget, event, value)
-		db.showDisplay = value
-		if value then
-			showDisplay()
-		else
-			hideDisplay()
-		end
-	end
-	local function onlyMineCallback(widget, event, value)
-		db.onlyShowMine = value
-	end
-	local function neverMineCallback(widget, event, value)
-		db.neverShowMine = value
-	end
-	local function lockCallback(widget, event, value)
-		db.lockDisplay = value
-		if value then
-			lockDisplay()
-		else
-			unlockDisplay()
-		end
-	end
-
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
 		frame:SetLayout("Flow")
 		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
-
-		local monitorHeading = AceGUI:Create("Heading")
-		monitorHeading:SetText(L["Monitor settings"])
-		monitorHeading:SetFullWidth(true)
-		
-		local show = AceGUI:Create("CheckBox")
-		show:SetLabel(L["Show monitor"])
-		show:SetValue(db.showDisplay)
-		show:SetCallback("OnEnter", onControlEnter)
-		show:SetCallback("OnLeave", onControlLeave)
-		show:SetCallback("OnValueChanged", showCallback)
-		show:SetUserData("tooltip", L["Show or hide the cooldown bar display in the game world."])
-		show:SetFullWidth(true)
-		
-		local lock = AceGUI:Create("CheckBox")
-		lock:SetLabel(L["Lock monitor"])
-		lock:SetValue(db.lockDisplay)
-		lock:SetCallback("OnEnter", onControlEnter)
-		lock:SetCallback("OnLeave", onControlLeave)
-		lock:SetCallback("OnValueChanged", lockCallback)
-		lock:SetUserData("tooltip", L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."])
-		lock:SetFullWidth(true)
-
-		local only = AceGUI:Create("CheckBox")
-		only:SetLabel(L["Only show my own spells"])
-		only:SetValue(db.onlyShowMine)
-		only:SetCallback("OnEnter", onControlEnter)
-		only:SetCallback("OnLeave", onControlLeave)
-		only:SetCallback("OnValueChanged", onlyMineCallback)
-		only:SetUserData("tooltip", L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."])
-		only:SetFullWidth(true)
-		
-		local never = AceGUI:Create("CheckBox")
-		never:SetLabel(L["Never show my own spells"])
-		never:SetValue(db.neverShowMine)
-		never:SetCallback("OnEnter", onControlEnter)
-		never:SetCallback("OnLeave", onControlLeave)
-		never:SetCallback("OnValueChanged", neverMineCallback)
-		never:SetUserData("tooltip", L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."])
-		never:SetFullWidth(true)
-
-		local cooldownHeading = AceGUI:Create("Heading")
-		cooldownHeading:SetText(L["Cooldown settings"])
-		cooldownHeading:SetFullWidth(true)
 		
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
@@ -318,7 +251,7 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChildren(monitorHeading, show, lock, only, never, cooldownHeading, moduleDescription, group)
+		frame:AddChildren(moduleDescription, group)
 
 		-- resume and update layout
 		frame:ResumeLayout()
@@ -337,166 +270,6 @@ do
 			frame = nil
 		end
 	end
-end
-
---------------------------------------------------------------------------------
--- Bar config window
---
-
-local restyleBars
-local showBarConfig
-do
-	local function onTestClick() module:SpawnTestBar() end
-	local function colorChanged(widget, event, r, g, b)
-		db.barColor = {r, g, b, 1}
-		if not db.barClassColor then
-			restyleBars()
-		end
-	end
-	local function toggleChanged(widget, event, value)
-		local key = widget:GetUserData("key")
-		if not key then return end
-		db[key] = value
-		restyleBars()
-	end
-	local function heightChanged(widget, event, value)
-		db.barHeight = value
-		restyleBars()
-	end
-	local function scaleChanged(widget, event, value)
-		db.barScale = value
-		restyleBars()
-	end
-	local function textureChanged(widget, event, value)
-		local list = media:List(mType)
-		db.barTexture = list[value]
-		restyleBars()
-	end
-	local function alignChanged(widget, event, value)
-		db.barLabelAlign = value
-		restyleBars()
-	end
-	
-	local plainFrame = nil
-	local function show()
-		if not plainFrame then
-			plainFrame = AceGUI:Create("Window")
-			plainFrame:SetWidth(240)
-			plainFrame:SetHeight(380)
-			plainFrame:SetPoint("CENTER", UIParent, "CENTER")
-			plainFrame:SetTitle( L["Bar Settings"] )
-			plainFrame:SetLayout("Fill")
-
-			local group = AceGUI:Create("ScrollFrame")
-			group:SetLayout("Flow")
-			group:SetFullWidth(true)
-			
-			local test = AceGUI:Create("Button")
-			test:SetText(L["Spawn test bar"])
-			test:SetCallback("OnClick", onTestClick)
-			test:SetFullWidth(true)
-
-			local classColor = AceGUI:Create("CheckBox")
-			classColor:SetValue(db.barClassColor)
-			classColor:SetLabel(L["Use class color"])
-			classColor:SetUserData("key", "barClassColor")
-			classColor:SetCallback("OnValueChanged", toggleChanged)
-			classColor:SetRelativeWidth(0.7)
-
-			local picker = AceGUI:Create("ColorPicker")
-			picker:SetHasAlpha(false)
-			picker:SetCallback("OnValueConfirmed", colorChanged)
-			picker:SetRelativeWidth(0.3)
-			picker:SetColor(unpack(db.barColor))
-
-			local height = AceGUI:Create("Slider")
-			height:SetLabel(L["Height"])
-			height:SetValue(db.barHeight)
-			height:SetSliderValues(8, 32, 1)
-			height:SetCallback("OnValueChanged", heightChanged)
-			height:SetRelativeWidth(0.5)
-			height.editbox:Hide()
-			
-			local scale = AceGUI:Create("Slider")
-			scale:SetLabel(L["Scale"])
-			scale:SetValue(db.barScale)
-			scale:SetSliderValues(0.1, 5.0, 0.1)
-			scale:SetCallback("OnValueChanged", scaleChanged)
-			scale:SetRelativeWidth(0.5)
-			scale.editbox:Hide()
-
-			local tex = AceGUI:Create("Dropdown")
-			local list = media:List(mType)
-			local selected = nil
-			for k, v in pairs(list) do
-				if v == db.barTexture then
-					selected = k
-				end
-			end
-			tex:SetList(media:List(mType))
-			tex:SetValue(selected)
-			tex:SetLabel(L["Texture"])
-			tex:SetCallback("OnValueChanged", textureChanged)
-			tex:SetFullWidth(true)
-			
-			local align = AceGUI:Create("Dropdown")
-			align:SetList( { ["LEFT"] = L["Left"], ["CENTER"] = L["Center"], ["RIGHT"] = L["Right"] } )
-			align:SetValue( db.barLabelAlign )
-			align:SetLabel(L["Label Align"])
-			align:SetCallback("OnValueChanged", alignChanged)
-			align:SetFullWidth(true)
-			
-			local growup = AceGUI:Create("CheckBox")
-			growup:SetValue(db.cooldownBarGrowUp)
-			growup:SetLabel(L["Grow up"])
-			growup:SetUserData("key", "barGrowUp")
-			growup:SetCallback("OnValueChanged", toggleChanged)
-
-			local header = AceGUI:Create("Heading")
-			header:SetText(L["Show"])
-			header:SetFullWidth(true)
-			
-			local icon = AceGUI:Create("CheckBox")
-			icon:SetValue(db.barShowIcon)
-			icon:SetLabel(L["Icon"])
-			icon:SetUserData("key", "barShowIcon")
-			icon:SetCallback("OnValueChanged", toggleChanged)
-			icon:SetRelativeWidth(0.5)
-			
-			local duration = AceGUI:Create("CheckBox")
-			duration:SetValue(db.barShowDuration)
-			duration:SetLabel(L["Duration"])
-			duration:SetUserData("key", "barShowDuration")
-			duration:SetCallback("OnValueChanged", toggleChanged)
-			duration:SetRelativeWidth(0.5)
-			
-			local unit = AceGUI:Create("CheckBox")
-			unit:SetValue(db.barShowUnit)
-			unit:SetLabel(L["Unit name"])
-			unit:SetUserData("key", "barShowUnit")
-			unit:SetCallback("OnValueChanged", toggleChanged)
-			unit:SetRelativeWidth(0.5)
-			
-			local spell = AceGUI:Create("CheckBox")
-			spell:SetValue(db.barShowSpell)
-			spell:SetLabel(L["Spell name"])
-			spell:SetUserData("key", "barShowSpell")
-			spell:SetCallback("OnValueChanged", toggleChanged)
-			spell:SetRelativeWidth(0.5)
-			
-			local short = AceGUI:Create("CheckBox")
-			short:SetValue(db.barShorthand)
-			short:SetLabel(L["Short Spell name"])
-			short:SetUserData("key", "barShorthand")
-			short:SetCallback("OnValueChanged", toggleChanged)
-			--short:SetRelativeWidth(0.5)
-			
-			group:AddChildren(test, classColor, picker, height, scale, tex, align, growup, header, icon, duration, unit, spell, short)
-			plainFrame:AddChildren(group)
-		end
-		plainFrame:Show()
-	end
-	showBarConfig = show
 end
 
 --------------------------------------------------------------------------------
@@ -647,7 +420,9 @@ do
 	end
 	
 	local function displayOnMouseDown(self, button)
-		if button == "RightButton" then showBarConfig() end
+		if button == "RightButton" then
+			print("open interface options with the right sub-pane selected")
+		end
 	end
 	
 	local function onDragStart(self) self:StartMoving() end
@@ -896,10 +671,6 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	self:UpdateCooldownModifiers()
 	if playerClass == "SHAMAN" then
-		-- If Reincarnation is on cooldown and it is less than
-		-- 6 minutes since we used it, we assume that this
-		-- UseSoulstone call was triggered by a Reincarnation.
-		-- Maybe this is reliable? I dunno.
 		-- If we try to check the spell cooldown when UseSoulstone
 		-- is invoked, GetSpellCooldown returns 0, so we delay
 		-- until SPELL_UPDATE_COOLDOWN.
@@ -1068,4 +839,188 @@ function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, srcF
 	end
 end
 
+function module:GetOptions()
+	local options = {
+		type = "group",
+		name = L["Cooldowns"],
+		get = function(k) return db[k[#k]] end,
+		set = function(k, v) db[k[#k]] = v end,
+		args = {
+			showDisplay = {
+				type = "toggle",
+				name = L["Show monitor"],
+				desc = L["Show or hide the cooldown bar display in the game world."],
+				order = 1,
+				width = "full",
+			},
+			lockDisplay = {
+				type = "toggle",
+				name = L["Lock monitor"],
+				desc = L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."],
+				order = 2,
+				width = "full",
+			},
+			onlyShowMine = {
+				type = "toggle",
+				name = L["Only show my own spells"],
+				desc = L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."],
+				order = 3,
+				width = "full",
+			},
+			neverShowMine = {
+				type = "toggle",
+				name = L["Never show my own spells"],
+				desc = L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."],
+				order = 4,
+				width = "full",
+			},
+			separator = {
+				type = "description",
+				name = " ",
+				order = 10,
+				width = "full",
+			},
+			-- XXX add a button here to show the monitor, regardless of settings
+			test = {
+				type = "execute",
+				name = L["Spawn test bar"],
+				func = function()
+					module:SpawnTestBar()
+				end,
+				width = "full",
+				order = 11,
+			},
+			barClassColor = {
+				type = "toggle",
+				name = L["Use class color"],
+				width = "full",
+				order = 12,
+			},
+			barColor = {
+				type = "color",
+				name = "Custom color",
+				get = function() return unpack(db.barColor) end,
+				set = function() print("wtf") end,
+				order = 13,
+			},
+			barHeight = {
+				type = "range",
+				name = L["Height"],
+				order = 14,
+				width = "full",
+				min = 8,
+				max = 32,
+				step = 1,
+			},
+			barScale = {
+				type = "range",
+				name = L["Scale"],
+				order = 15,
+				width = "full",
+				min = 0.1,
+				max = 5.0,
+				step = 0.1,
+			},
+			
+		}
+	}
+	return options
+end
+--[[
+			local tex = AceGUI:Create("Dropdown")
+			local list = media:List(mType)
+			local selected = nil
+			for k, v in pairs(list) do
+				if v == db.barTexture then
+					selected = k
+				end
+			end
+			tex:SetList(media:List(mType))
+			tex:SetValue(selected)
+			tex:SetLabel(L["Texture"])
+			tex:SetCallback("OnValueChanged", textureChanged)
+			tex:SetFullWidth(true)
+			
+			local align = AceGUI:Create("Dropdown")
+			align:SetList( { ["LEFT"] = L["Left"], ["CENTER"] = L["Center"], ["RIGHT"] = L["Right"] } )
+			align:SetValue( db.barLabelAlign )
+			align:SetLabel(L["Label Align"])
+			align:SetCallback("OnValueChanged", alignChanged)
+			align:SetFullWidth(true)
+			
+			local growup = AceGUI:Create("CheckBox")
+			growup:SetValue(db.cooldownBarGrowUp)
+			growup:SetLabel(L["Grow up"])
+			growup:SetUserData("key", "barGrowUp")
+			growup:SetCallback("OnValueChanged", toggleChanged)
+
+			local header = AceGUI:Create("Heading")
+			header:SetText(L["Show"])
+			header:SetFullWidth(true)
+			
+			local icon = AceGUI:Create("CheckBox")
+			icon:SetValue(db.barShowIcon)
+			icon:SetLabel(L["Icon"])
+			icon:SetUserData("key", "barShowIcon")
+			icon:SetCallback("OnValueChanged", toggleChanged)
+			icon:SetRelativeWidth(0.5)
+			
+			local duration = AceGUI:Create("CheckBox")
+			duration:SetValue(db.barShowDuration)
+			duration:SetLabel(L["Duration"])
+			duration:SetUserData("key", "barShowDuration")
+			duration:SetCallback("OnValueChanged", toggleChanged)
+			duration:SetRelativeWidth(0.5)
+			
+			local unit = AceGUI:Create("CheckBox")
+			unit:SetValue(db.barShowUnit)
+			unit:SetLabel(L["Unit name"])
+			unit:SetUserData("key", "barShowUnit")
+			unit:SetCallback("OnValueChanged", toggleChanged)
+			unit:SetRelativeWidth(0.5)
+			
+			local spell = AceGUI:Create("CheckBox")
+			spell:SetValue(db.barShowSpell)
+			spell:SetLabel(L["Spell name"])
+			spell:SetUserData("key", "barShowSpell")
+			spell:SetCallback("OnValueChanged", toggleChanged)
+			spell:SetRelativeWidth(0.5)
+			
+			local short = AceGUI:Create("CheckBox")
+			short:SetValue(db.barShorthand)
+			short:SetLabel(L["Short Spell name"])
+			short:SetUserData("key", "barShorthand")
+			short:SetCallback("OnValueChanged", toggleChanged)
+
+	local function colorChanged(widget, event, r, g, b)
+		db.barColor = {r, g, b, 1}
+		if not db.barClassColor then
+			restyleBars()
+		end
+	end
+	local function toggleChanged(widget, event, value)
+		local key = widget:GetUserData("key")
+		if not key then return end
+		db[key] = value
+		restyleBars()
+	end
+	local function heightChanged(widget, event, value)
+		db.barHeight = value
+		restyleBars()
+	end
+	local function scaleChanged(widget, event, value)
+		db.barScale = value
+		restyleBars()
+	end
+	local function textureChanged(widget, event, value)
+		local list = media:List(mType)
+		db.barTexture = list[value]
+		restyleBars()
+	end
+	local function alignChanged(widget, event, value)
+		db.barLabelAlign = value
+		restyleBars()
+	end
+
+]]
 
