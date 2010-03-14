@@ -92,6 +92,7 @@ local defaults = {
 		positions = {
 			
 		},
+		toggleWithRaid = true,
 		lastSelectedPanel = nil,
 		lastSelectedList = nil,
 		open = false,
@@ -109,10 +110,16 @@ local function giveOptions()
 		name = "oRA3",
 		childGroups = "tab",
 		args = {
-			desc = {
-				type = "description",
-				name = L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."]
-			}
+			toggleWithRaid = {
+				type = "toggle",
+				name = "|cfffed000Open with raid pane|r",
+				desc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as /radur.",
+				descStyle = "inline",
+				order = -1,
+				width = "full",
+				get = function() return db.toggleWithRaid end,
+				set = function(_, value) db.toggleWithRaid = value end,
+			},
 		}
 	}
 
@@ -149,9 +156,11 @@ function addon:OnEnable()
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 
 	self:SecureHookScript(RaidFrame, "OnShow", function()
+		if not db.toggleWithRaid then return end
 		self:ToggleFrame(true)
 	end)
 	self:SecureHookScript(RaidFrame, "OnHide", function()
+		if not db.toggleWithRaid then return end
 		HideUIPanel(oRA3Frame)
 	end)
 
@@ -369,7 +378,7 @@ local function setupGUI()
 
 	local top = frame:CreateTexture(nil, "ARTWORK")
 	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
-	top:SetHeight(258)
+	top:SetHeight(256)
 	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
 	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 
