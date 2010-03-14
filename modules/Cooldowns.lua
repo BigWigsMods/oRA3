@@ -327,7 +327,7 @@ do
 
 	function showPane()
 		if not frame then createFrame() end
-		oRA:SetAllPointsToPanel(frame.frame)
+		oRA:SetAllPointsToPanel(frame.frame, true)
 		frame.frame:Show()
 	end
 

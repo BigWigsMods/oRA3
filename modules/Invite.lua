@@ -17,7 +17,7 @@ end
 
 local function showConfig()
 	if not frame then module:CreateFrame() end
-	oRA:SetAllPointsToPanel( frame.frame )
+	oRA:SetAllPointsToPanel(frame.frame, true)
 	frame.frame:Show()
 end
 

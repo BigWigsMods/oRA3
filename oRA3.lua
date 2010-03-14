@@ -580,10 +580,10 @@ function addon:OnDemoted()
 	end
 end
 
-function addon:SetAllPointsToPanel(frame)
+function addon:SetAllPointsToPanel(frame, aceguihacky)
 	if contentFrame then
 		frame:SetParent(contentFrame)
-		frame:SetPoint("TOPLEFT", contentFrame, 8, -4)
+		frame:SetPoint("TOPLEFT", contentFrame, 8, aceguihacky and -8 or -4)
 		frame:SetPoint("BOTTOMRIGHT", contentFrame, -8, 6)
 	end
 end
