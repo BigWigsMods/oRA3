@@ -178,6 +178,97 @@ local db = nil
 local cdModifiers = {}
 local broadcastSpells = {}
 
+
+local options
+function getOptions()
+	if not options then
+		options = {
+			type = "group",
+			name = L["Cooldowns"],
+			get = function(k) return db[k[#k]] end,
+			set = function(k, v) db[k[#k]] = v end,
+			args = {
+				showDisplay = {
+					type = "toggle",
+					name = L["Show monitor"],
+					desc = L["Show or hide the cooldown bar display in the game world."],
+					order = 1,
+					width = "full",
+				},
+				lockDisplay = {
+					type = "toggle",
+					name = L["Lock monitor"],
+					desc = L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."],
+					order = 2,
+					width = "full",
+				},
+				onlyShowMine = {
+					type = "toggle",
+					name = L["Only show my own spells"],
+					desc = L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."],
+					order = 3,
+					width = "full",
+				},
+				neverShowMine = {
+					type = "toggle",
+					name = L["Never show my own spells"],
+					desc = L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."],
+					order = 4,
+					width = "full",
+				},
+				separator = {
+					type = "description",
+					name = " ",
+					order = 10,
+					width = "full",
+				},
+				-- XXX add a button here to show the monitor, regardless of settings
+				test = {
+					type = "execute",
+					name = L["Spawn test bar"],
+					func = function()
+						module:SpawnTestBar()
+					end,
+					width = "full",
+					order = 11,
+				},
+				barClassColor = {
+					type = "toggle",
+					name = L["Use class color"],
+					width = "full",
+					order = 12,
+				},
+				barColor = {
+					type = "color",
+					name = "Custom color",
+					get = function() return unpack(db.barColor) end,
+					set = function() print("wtf") end,
+					order = 13,
+				},
+				barHeight = {
+					type = "range",
+					name = L["Height"],
+					order = 14,
+					width = "full",
+					min = 8,
+					max = 32,
+					step = 1,
+				},
+				barScale = {
+					type = "range",
+					name = L["Scale"],
+					order = 15,
+					width = "full",
+					min = 0.1,
+					max = 5.0,
+					step = 0.1,
+				},
+				
+			}
+		}
+	end
+	return options
+end
 --------------------------------------------------------------------------------
 -- GUI
 --
@@ -617,6 +708,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
+	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
 end
 
 do
@@ -839,93 +931,7 @@ function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, srcF
 	end
 end
 
-function module:GetOptions()
-	local options = {
-		type = "group",
-		name = L["Cooldowns"],
-		get = function(k) return db[k[#k]] end,
-		set = function(k, v) db[k[#k]] = v end,
-		args = {
-			showDisplay = {
-				type = "toggle",
-				name = L["Show monitor"],
-				desc = L["Show or hide the cooldown bar display in the game world."],
-				order = 1,
-				width = "full",
-			},
-			lockDisplay = {
-				type = "toggle",
-				name = L["Lock monitor"],
-				desc = L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."],
-				order = 2,
-				width = "full",
-			},
-			onlyShowMine = {
-				type = "toggle",
-				name = L["Only show my own spells"],
-				desc = L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."],
-				order = 3,
-				width = "full",
-			},
-			neverShowMine = {
-				type = "toggle",
-				name = L["Never show my own spells"],
-				desc = L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."],
-				order = 4,
-				width = "full",
-			},
-			separator = {
-				type = "description",
-				name = " ",
-				order = 10,
-				width = "full",
-			},
-			-- XXX add a button here to show the monitor, regardless of settings
-			test = {
-				type = "execute",
-				name = L["Spawn test bar"],
-				func = function()
-					module:SpawnTestBar()
-				end,
-				width = "full",
-				order = 11,
-			},
-			barClassColor = {
-				type = "toggle",
-				name = L["Use class color"],
-				width = "full",
-				order = 12,
-			},
-			barColor = {
-				type = "color",
-				name = "Custom color",
-				get = function() return unpack(db.barColor) end,
-				set = function() print("wtf") end,
-				order = 13,
-			},
-			barHeight = {
-				type = "range",
-				name = L["Height"],
-				order = 14,
-				width = "full",
-				min = 8,
-				max = 32,
-				step = 1,
-			},
-			barScale = {
-				type = "range",
-				name = L["Scale"],
-				order = 15,
-				width = "full",
-				min = 0.1,
-				max = 5.0,
-				step = 0.1,
-			},
-			
-		}
-	}
-	return options
-end
+
 --[[
 			local tex = AceGUI:Create("Dropdown")
 			local list = media:List(mType)
