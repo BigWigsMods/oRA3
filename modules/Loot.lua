@@ -17,6 +17,91 @@ local defaults = {
 	}
 }
 
+local options
+local function getOptions()
+	if not options then
+		options = {
+			type = "group",
+			name = LOOT_METHOD,
+			args = {
+				raid = {
+					order = 0,
+					type = "group",
+					name = RAID,
+					inline = true,
+					get = function( k ) return db.raid[k.arg] end,
+					set = function( k, v ) db.raid[k.arg] = v end,
+					args = {
+						method = {
+							type = "select", name = LOOT_METHOD,
+							arg = "method",
+							values = {
+								needbeforegreed = LOOT_NEED_BEFORE_GREED,
+								freeforall = LOOT_FREE_FOR_ALL,
+								roundrobin = LOOT_ROUND_ROBIN,
+								master = LOOT_MASTER_LOOTER,
+								group = LOOT_GROUP_LOOT,
+							}
+						},
+						threshold = {
+							type = "select", name = LOOT_THRESHOLD,
+							arg = "threshold",
+							values = {
+								[2] = ITEM_QUALITY2_DESC,
+								[3] = ITEM_QUALITY3_DESC,
+								[4] = ITEM_QUALITY4_DESC,
+								[5] = ITEM_QUALITY5_DESC,
+								[6] = ITEM_QUALITY6_DESC,
+							},
+						},
+						master = {
+							type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
+							arg = "master",
+						},
+					},
+				},
+				party = {
+					order = 1,
+					type = "group",
+					name = PARTY,
+					inline = true,
+					get = function( k ) return db.party[k.arg] end,
+					set = function( k, v ) db.party[k.arg] = v end,
+					args = {
+						method = {
+							type = "select", name = LOOT_METHOD,
+							arg = "method",
+							values = {
+								needbeforegreed = LOOT_NEED_BEFORE_GREED,
+								freeforall = LOOT_FREE_FOR_ALL,
+								roundrobin = LOOT_ROUND_ROBIN,
+								master = LOOT_MASTER_LOOTER,
+								group = LOOT_GROUP_LOOT,
+							}
+						},
+						threshold = {
+							type = "select", name = LOOT_THRESHOLD,
+							arg = "threshold",
+							values = {
+								[2] = ITEM_QUALITY2_DESC,
+								[3] = ITEM_QUALITY3_DESC,
+								[4] = ITEM_QUALITY4_DESC,
+								[5] = ITEM_QUALITY5_DESC,
+								[6] = ITEM_QUALITY6_DESC,
+							}
+						},
+						master = {
+							type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
+							arg = "master",
+						},
+					},
+				},
+			},
+		}
+	end
+	return options
+end
+
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("Loot", defaults)
 	db = self.db.profile
@@ -24,6 +109,8 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnPromoted", "SetLoot")
 	oRA.RegisterCallback(self, "OnStartup", "SetLoot")
 	oRA.RegisterCallback(self, "OnConvertRaid", "SetLoot")
+	
+	oRA:RegisterModuleOptions("Loot", getOptions, LOOT_METHOD)
 end
 
 local frame = CreateFrame("Frame", nil, UIParent)
@@ -61,85 +148,4 @@ function module:SetLoot()
 	end
 end
 
-function module:GetOptions()
-	local options = {
-		type = "group",
-		name = LOOT_METHOD,
-		args = {
-			raid = {
-				order = 0,
-				type = "group",
-				name = RAID,
-				inline = true,
-				get = function( k ) return db.raid[k.arg] end,
-				set = function( k, v ) db.raid[k.arg] = v end,
-				args = {
-					method = {
-						type = "select", name = LOOT_METHOD,
-						arg = "method",
-						values = {
-							needbeforegreed = LOOT_NEED_BEFORE_GREED,
-							freeforall = LOOT_FREE_FOR_ALL,
-							roundrobin = LOOT_ROUND_ROBIN,
-							master = LOOT_MASTER_LOOTER,
-							group = LOOT_GROUP_LOOT,
-						}
-					},
-					threshold = {
-						type = "select", name = LOOT_THRESHOLD,
-						arg = "threshold",
-						values = {
-							[2] = ITEM_QUALITY2_DESC,
-							[3] = ITEM_QUALITY3_DESC,
-							[4] = ITEM_QUALITY4_DESC,
-							[5] = ITEM_QUALITY5_DESC,
-							[6] = ITEM_QUALITY6_DESC,
-						},
-					},
-					master = {
-						type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
-						arg = "master",
-					},
-				},
-			},
-			party = {
-				order = 1,
-				type = "group",
-				name = PARTY,
-				inline = true,
-				get = function( k ) return db.party[k.arg] end,
-				set = function( k, v ) db.party[k.arg] = v end,
-				args = {
-					method = {
-						type = "select", name = LOOT_METHOD,
-						arg = "method",
-						values = {
-							needbeforegreed = LOOT_NEED_BEFORE_GREED,
-							freeforall = LOOT_FREE_FOR_ALL,
-							roundrobin = LOOT_ROUND_ROBIN,
-							master = LOOT_MASTER_LOOTER,
-							group = LOOT_GROUP_LOOT,
-						}
-					},
-					threshold = {
-						type = "select", name = LOOT_THRESHOLD,
-						arg = "threshold",
-						values = {
-							[2] = ITEM_QUALITY2_DESC,
-							[3] = ITEM_QUALITY3_DESC,
-							[4] = ITEM_QUALITY4_DESC,
-							[5] = ITEM_QUALITY5_DESC,
-							[6] = ITEM_QUALITY6_DESC,
-						}
-					},
-					master = {
-						type = "input", name = MASTER_LOOTER, desc = L["Leave empty to make yourself Master Looter."],
-						arg = "master",
-					},
-				},
-			},
-		},
-	}
-	return options
-end
 

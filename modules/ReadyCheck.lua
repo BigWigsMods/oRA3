@@ -27,6 +27,42 @@ local defaults = {
 	}
 }
 
+local options
+local function getOptions()
+	if not options then
+		options = {
+			type = "group",
+			name = READY_CHECK,
+			get = function(k) return module.db.profile[k.arg] end,
+			set = function(k, v) module.db.profile[k.arg] = v end,
+			args = {
+				sound = {
+					type = "toggle",
+					name = SOUND_LABEL,
+					desc = L["Play a sound when a ready check is performed."],
+					arg = "sound",
+				},
+				gui = {
+					type = "toggle",
+					name = L["GUI"],
+					desc = L["Show the oRA3 Ready Check GUI when a ready check is performed."],
+					arg = "gui",
+				},
+				autohide = {
+					type = "toggle",
+					name = L["Auto Hide"],
+					desc = L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."],
+					arg = "autohide",
+				},
+			}
+		}
+	end
+	return options
+end
+
+
+
+
 local function addIconAndName(frame)
 	local rdc = frame:CreateTexture(nil, "OVERLAY")
 	frame.IconTexture = rdc
@@ -303,6 +339,7 @@ end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
+	oRA:RegisterModuleOptions("ReadyCheck", getOptions, READY_CHECK)
 end
 
 function module:OnEnable()
@@ -405,35 +442,5 @@ function module:READY_CHECK_FINISHED(event, someBoolean)
 	if #notReady > 0 then
 		sysPrint(RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", ")))
 	end
-end
-
-function module:GetOptions()
-	local options = {
-		type = "group",
-		name = READY_CHECK,
-		get = function(k) return module.db.profile[k.arg] end,
-		set = function(k, v) module.db.profile[k.arg] = v end,
-		args = {
-			sound = {
-				type = "toggle",
-				name = SOUND_LABEL,
-				desc = L["Play a sound when a ready check is performed."],
-				arg = "sound",
-			},
-			gui = {
-				type = "toggle",
-				name = L["GUI"],
-				desc = L["Show the oRA3 Ready Check GUI when a ready check is performed."],
-				arg = "gui",
-			},
-			autohide = {
-				type = "toggle",
-				name = L["Auto Hide"],
-				desc = L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."],
-				arg = "autohide",
-			},
-		}
-	}
-	return options
 end
 

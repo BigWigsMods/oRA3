@@ -105,30 +105,25 @@ local hideLists -- implemented down the file
 
 local options = nil
 local function giveOptions()
-	options = {
-		type = "group",
-		name = "oRA3",
-		childGroups = "tab",
-		args = {
-			toggleWithRaid = {
-				type = "toggle",
-				name = "|cfffed000Open with raid pane|r",
-				desc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as /radur.",
-				descStyle = "inline",
-				order = -1,
-				width = "full",
-				get = function() return db.toggleWithRaid end,
-				set = function(_, value) db.toggleWithRaid = value end,
-			},
+	if not options then
+		options = {
+			name = "oRA3",
+			type = "group",
+			args = {
+				toggleWithRaid = {
+					type = "toggle",
+					name = "|cfffed000Open with raid pane|r",
+					desc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as /radur.",
+					descStyle = "inline",
+					order = -1,
+					width = "full",
+					get = function() return db.toggleWithRaid end,
+					set = function(_, value) db.toggleWithRaid = value end,
+				},
+			}
 		}
-	}
-
-	for k, m in addon:IterateModules() do
-		if m.GetOptions then
-			options.args[m.name] = m.GetOptions()
-		end
 	end
-
+	
 	return options
 end
 
@@ -143,6 +138,11 @@ function addon:OnInitialize()
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
+end
+
+function addon:RegisterModuleOptions(name, optionTbl, displayName)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3"..name, optionTbl)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3"..name, displayName, "oRA3")
 end
 
 function addon:OnEnable()
