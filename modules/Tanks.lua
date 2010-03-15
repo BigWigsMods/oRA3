@@ -288,7 +288,7 @@ function module:CreateFrame()
 	local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	help:SetJustifyH("LEFT")
 	help:SetPoint("TOPLEFT")
-	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -28, 0)
+	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -32, 0)
 	help:SetText(L.tankTabTopText)
 	
 	local helpButton = createButton(frame)
