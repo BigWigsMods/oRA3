@@ -190,6 +190,7 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 end
 
 local function onControlEnter(widget, event, value)
+	if not oRA.db.profile.showHelpTexts then return end
 	GameTooltip:ClearLines()
 	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
 	GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())

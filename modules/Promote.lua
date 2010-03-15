@@ -40,6 +40,7 @@ do
 	local everyone, guild, add, delete
 
 	local function onControlEnter(widget, event, value)
+		if not oRA.db.profile.showHelpTexts then return end
 		GameTooltip:ClearLines()
 		GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
 		GameTooltip:AddLine(widget.text:GetText())

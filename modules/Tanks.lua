@@ -144,6 +144,7 @@ function module:OnTanksChanged(event, tanks, updateSort)
 end
 
 local function OnEnter(self)
+	if not oRA.db.profile.showHelpTexts then return end
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
 	GameTooltip:AddLine(self.tooltipTitle)
 	GameTooltip:AddLine(self.tooltipText, 1, 1, 1, 1)
