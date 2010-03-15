@@ -387,10 +387,10 @@ local function setupGUI()
 	topleft:SetPoint("TOPLEFT")
 
 	local toplefticon = frame:CreateTexture(nil, "BACKGROUND")
-	toplefticon:SetTexture("Interface\\FriendsFrame\\FriendsFrameScrollIcon")
 	toplefticon:SetWidth(60)
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
+	SetPortraitToTexture(toplefticon, "Interface\\LFGFrame\\LFGIcon-Quest")
 	
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
