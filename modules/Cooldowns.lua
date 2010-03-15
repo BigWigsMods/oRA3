@@ -179,14 +179,21 @@ local cdModifiers = {}
 local broadcastSpells = {}
 
 
-local options
+local options, restyleBars
+local textures = media:List(mType)
 local function getOptions()
 	if not options then
 		options = {
 			type = "group",
 			name = L["Cooldowns"],
 			get = function(k) return db[k[#k]] end,
-			set = function(k, v) db[k[#k]] = v end,
+			set = function(k, v)
+				local key = k[#k]
+				db[key] = v
+				if key:find("^bar") then
+					restyleBars()
+				end
+			end,
 			args = {
 				showDisplay = {
 					type = "toggle",
@@ -242,7 +249,10 @@ local function getOptions()
 					type = "color",
 					name = "Custom color",
 					get = function() return unpack(db.barColor) end,
-					set = function() print("wtf") end,
+					set = function(info, r, g, b)
+						db.barColor = {r, g, b, 1}
+						restyleBars()
+					end,
 					order = 13,
 				},
 				barHeight = {
@@ -263,12 +273,71 @@ local function getOptions()
 					max = 5.0,
 					step = 0.1,
 				},
-				
-			}
+				barTexture = {
+					type = "select",
+					name = L["Texture"],
+					order = 16,
+					width = "full",
+					values = textures,
+					get = function()
+						for i, v in next, textures do
+							if v == db.barTexture then
+								return i
+							end
+						end
+					end,
+					set = function(_, v)
+						db.barTexture = textures[v]
+						restyleBars()
+					end,
+				},
+				barLabelAlign = {
+					type = "select",
+					name = L["Label Align"],
+					order = 17,
+					width = "full",
+					values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
+				},
+				barGrowUp = {
+					type = "toggle",
+					name = L["Grow up"],
+					order = 18,
+					width = "full",
+				},
+				show = {
+					type = "group",
+					name = L["Show"],
+					order = 19,
+					width = "full",
+					args = {
+						barShowIcon = {
+							type = "toggle",
+							name = L["Icon"],
+						},
+						barShowDuration = {
+							type = "toggle",
+							name = L["Duration"],
+						},
+						barShowUnit = {
+							type = "toggle",
+							name = L["Unit name"],
+						},
+						barShowSpell = {
+							type = "toggle",
+							name = L["Spell name"],
+						},
+						barShorthand = {
+							type = "toggle",
+							name = L["Short Spell name"],
+						},
+					},
+				},
+			},
 		}
 	end
 	return options
 end
+
 --------------------------------------------------------------------------------
 -- GUI
 --
@@ -628,6 +697,7 @@ do
 	setupCooldownDisplay = setup
 	
 	local function start(unit, id, name, icon, duration)
+		setup()
 		local bar
 		for b, v in pairs(visibleBars) do
 			if b:Get("ora3cd:unit") == unit and b:Get("ora3cd:spell") == name then
@@ -930,103 +1000,4 @@ function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, srcF
 		self:OnCommCooldown("RAID", source, spellId, allSpells[spellId])
 	end
 end
-
-
---[[
-			local tex = AceGUI:Create("Dropdown")
-			local list = media:List(mType)
-			local selected = nil
-			for k, v in pairs(list) do
-				if v == db.barTexture then
-					selected = k
-				end
-			end
-			tex:SetList(media:List(mType))
-			tex:SetValue(selected)
-			tex:SetLabel(L["Texture"])
-			tex:SetCallback("OnValueChanged", textureChanged)
-			tex:SetFullWidth(true)
-			
-			local align = AceGUI:Create("Dropdown")
-			align:SetList( { ["LEFT"] = L["Left"], ["CENTER"] = L["Center"], ["RIGHT"] = L["Right"] } )
-			align:SetValue( db.barLabelAlign )
-			align:SetLabel(L["Label Align"])
-			align:SetCallback("OnValueChanged", alignChanged)
-			align:SetFullWidth(true)
-			
-			local growup = AceGUI:Create("CheckBox")
-			growup:SetValue(db.cooldownBarGrowUp)
-			growup:SetLabel(L["Grow up"])
-			growup:SetUserData("key", "barGrowUp")
-			growup:SetCallback("OnValueChanged", toggleChanged)
-
-			local header = AceGUI:Create("Heading")
-			header:SetText(L["Show"])
-			header:SetFullWidth(true)
-			
-			local icon = AceGUI:Create("CheckBox")
-			icon:SetValue(db.barShowIcon)
-			icon:SetLabel(L["Icon"])
-			icon:SetUserData("key", "barShowIcon")
-			icon:SetCallback("OnValueChanged", toggleChanged)
-			icon:SetRelativeWidth(0.5)
-			
-			local duration = AceGUI:Create("CheckBox")
-			duration:SetValue(db.barShowDuration)
-			duration:SetLabel(L["Duration"])
-			duration:SetUserData("key", "barShowDuration")
-			duration:SetCallback("OnValueChanged", toggleChanged)
-			duration:SetRelativeWidth(0.5)
-			
-			local unit = AceGUI:Create("CheckBox")
-			unit:SetValue(db.barShowUnit)
-			unit:SetLabel(L["Unit name"])
-			unit:SetUserData("key", "barShowUnit")
-			unit:SetCallback("OnValueChanged", toggleChanged)
-			unit:SetRelativeWidth(0.5)
-			
-			local spell = AceGUI:Create("CheckBox")
-			spell:SetValue(db.barShowSpell)
-			spell:SetLabel(L["Spell name"])
-			spell:SetUserData("key", "barShowSpell")
-			spell:SetCallback("OnValueChanged", toggleChanged)
-			spell:SetRelativeWidth(0.5)
-			
-			local short = AceGUI:Create("CheckBox")
-			short:SetValue(db.barShorthand)
-			short:SetLabel(L["Short Spell name"])
-			short:SetUserData("key", "barShorthand")
-			short:SetCallback("OnValueChanged", toggleChanged)
-
-	local function colorChanged(widget, event, r, g, b)
-		db.barColor = {r, g, b, 1}
-		if not db.barClassColor then
-			restyleBars()
-		end
-	end
-	local function toggleChanged(widget, event, value)
-		local key = widget:GetUserData("key")
-		if not key then return end
-		db[key] = value
-		restyleBars()
-	end
-	local function heightChanged(widget, event, value)
-		db.barHeight = value
-		restyleBars()
-	end
-	local function scaleChanged(widget, event, value)
-		db.barScale = value
-		restyleBars()
-	end
-	local function textureChanged(widget, event, value)
-		local list = media:List(mType)
-		db.barTexture = list[value]
-		restyleBars()
-	end
-	local function alignChanged(widget, event, value)
-		db.barLabelAlign = value
-		restyleBars()
-	end
-
-]]
 
