@@ -309,6 +309,7 @@ local function getOptions()
 					name = L["Show"],
 					order = 19,
 					width = "full",
+					inline = true,
 					args = {
 						barShowIcon = {
 							type = "toggle",
