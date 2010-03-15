@@ -263,41 +263,51 @@ function module:CreateFrame()
 	centerBar:SetPoint("BOTTOMLEFT", frame, -5, 139)
 	centerBar:SetPoint("BOTTOMRIGHT", frame, 5, 139)
 	centerBar:SetHeight(8)
+
 	local texture = centerBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	texture:SetAllPoints(centerBar)
 	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
-	local topBar = CreateFrame("Button", nil, frame)
-	topBar:SetPoint("TOPLEFT", frame, -5, -42)
-	topBar:SetPoint("TOPRIGHT", frame, 5, -42)
-	topBar:SetHeight(8)
-	texture = topBar:CreateTexture(nil, "BORDER")
-	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
-	texture:SetAllPoints(topBar)
-	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
+	local topBar = nil
+	if oRA.db.profile.showHelpTexts then
+		topBar = CreateFrame("Button", nil, frame)
+		topBar:SetPoint("TOPLEFT", frame, -5, -42)
+		topBar:SetPoint("TOPRIGHT", frame, 5, -42)
+		topBar:SetHeight(8)
+		texture = topBar:CreateTexture(nil, "BORDER")
+		texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+		texture:SetAllPoints(topBar)
+		texture:SetTexCoord(0.29296875, 1, 0, 0.25)
+	end
 
 	frame.topscroll = CreateFrame("ScrollFrame", "oRA3TankTopScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 2)
+	if oRA.db.profile.showHelpTexts then
+		frame.topscroll:SetPoint("TOPLEFT", topBar, "BOTTOMLEFT", 4, 2)
+	else
+		frame.topscroll:SetPoint("TOPLEFT", frame, -5, -4)
+	end
 	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -25, -2)
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
 	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -20, 0)
 
-	local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	help:SetJustifyH("LEFT")
-	help:SetPoint("TOPLEFT")
-	help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -32, 0)
-	help:SetText(L.tankTabTopText)
+	if oRA.db.profile.showHelpTexts then
+		local help = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+		help:SetJustifyH("LEFT")
+		help:SetPoint("TOPLEFT")
+		help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -32, 0)
+		help:SetText(L.tankTabTopText)
 	
-	local helpButton = createButton(frame)
-	helpButton:SetWidth(24)
-	helpButton:SetHeight(24)
-	helpButton:SetPoint("TOPRIGHT", -4, -8)
-	helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
-	helpButton.tooltipTitle = L["What is all this?"]
-	helpButton.tooltipText = L.tankHelp
+		local helpButton = createButton(frame)
+		helpButton:SetWidth(24)
+		helpButton:SetHeight(24)
+		helpButton:SetPoint("TOPRIGHT", -4, -8)
+		helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+		helpButton.tooltipTitle = L["What is all this?"]
+		helpButton.tooltipText = L.tankHelp
+	end
 
 	-- 10 top
 	-- 9 bottom

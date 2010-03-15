@@ -412,7 +412,11 @@ do
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
-		frame:AddChildren(moduleDescription, group)
+		if oRA.db.profile.showHelpTexts then
+			frame:AddChildren(moduleDescription, group)
+		else
+			frame:AddChild(group)
+		end
 	end
 
 	function showPane()

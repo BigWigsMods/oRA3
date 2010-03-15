@@ -92,6 +92,7 @@ local defaults = {
 		positions = {
 			
 		},
+		showHelpTexts = true,
 		toggleWithRaid = true,
 		lastSelectedPanel = nil,
 		lastSelectedList = nil,
@@ -109,16 +110,24 @@ local function giveOptions()
 		options = {
 			name = "oRA3",
 			type = "group",
+			get = function(info) return db[info[#info]] end,
+			set = function(info, value) db[info[#info]] = value end,
 			args = {
 				toggleWithRaid = {
 					type = "toggle",
 					name = "|cfffed000Open with raid pane|r",
 					desc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as /radur.",
 					descStyle = "inline",
-					order = -1,
+					order = 1,
 					width = "full",
-					get = function() return db.toggleWithRaid end,
-					set = function(_, value) db.toggleWithRaid = value end,
+				},
+				showHelpTexts = {
+					type = "toggle",
+					name = "|cfffed000Show interface help|r",
+					desc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. Requires a interface reload on some panes.",
+					descStyle = "inline",
+					order = 2,
+					width = "full",
 				},
 			}
 		}

@@ -179,9 +179,17 @@ do
 		delete:SetRelativeWidth(0.5)
 
 		if guildRankDb then
-			frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, description, add, delete)
+			if oRA.db.profile.showHelpTexts then
+				frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, description, add, delete)
+			else
+				frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, add, delete)
+			end
 		else
-			frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
+			if oRA.db.profile.showHelpTexts then 
+				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
+			else
+				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, add, delete)
+			end
 		end
 	end
 

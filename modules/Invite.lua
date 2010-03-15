@@ -306,9 +306,17 @@ function module:CreateFrame()
 	end
 
 	if inGuild then
-		frame:AddChildren(guild, zone, kwDescription, keyword, guildonlykeyword, rankHeader, rankDescription)
+		if oRA.db.profile.showHelpTexts then
+			frame:AddChildren(guild, zone, kwDescription, keyword, guildonlykeyword, rankHeader, rankDescription)
+		else
+			frame:AddChildren(guild, zone, keyword, guildonlykeyword, rankHeader)
+		end
 	else
-		frame:AddChildren(kwDescription, keyword)
+		if oRA.db.profile.showHelpTexts then
+			frame:AddChildren(kwDescription, keyword)
+		else
+			frame:AddChild(keyword)
+		end
 	end
 
 	-- updateRankButtons will ResumeLayout and DoLayout
