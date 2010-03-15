@@ -180,6 +180,8 @@ local broadcastSpells = {}
 
 
 local options, restyleBars
+local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
+local showPane, hidePane
 local textures = media:List(mType)
 local function getOptions()
 	if not options then
@@ -192,6 +194,18 @@ local function getOptions()
 				db[key] = v
 				if key:find("^bar") then
 					restyleBars()
+				elseif key == "showDisplay" then
+					if v then
+						showDisplay()
+					else
+						hideDisplay()
+					end
+				elseif key == "lockDisplay" then
+					if v then
+						lockDisplay()
+					else
+						unlockDisplay()
+					end
 				end
 			end,
 			args = {
@@ -343,17 +357,6 @@ end
 -- GUI
 --
 
-local function onControlEnter(widget, event, value)
-	GameTooltip:ClearLines()
-	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
-	GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
-	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
-	GameTooltip:Show()
-end
-local function onControlLeave() GameTooltip:Hide() end
-
-local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
-local showPane, hidePane
 do
 	local frame = nil
 	local tmp = {}
