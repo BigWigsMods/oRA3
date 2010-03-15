@@ -35,7 +35,7 @@ end
 function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
-			persistentTanks = {"Omma", "Ammo", "Test", "Foo", "Bar", "Blah", "Frop", "Damn", "Doh", "Ugh"},
+			persistentTanks = {},
 		},
 	})
 	self.db = database.factionrealm
