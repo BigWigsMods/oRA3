@@ -155,14 +155,28 @@ function addon:OnEnable()
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 
-	self:SecureHookScript(RaidFrame, "OnShow", function()
+	local function show()
 		if not db.toggleWithRaid then return end
-		self:ToggleFrame(true)
-	end)
-	self:SecureHookScript(RaidFrame, "OnHide", function()
+		addon:ToggleFrame(true)
+	end
+	local function hide()
 		if not db.toggleWithRaid then return end
 		HideUIPanel(oRA3Frame)
+	end
+	self:SecureHook(RaidFrame, "SetScript", function(frame, script, handler)
+		if script == "OnHide" then
+			self:Unhook(frame, "OnHide")
+			self:SecureHookScript(frame, "OnHide", hide)
+		elseif script == "OnShow" then
+			-- Blizzard doesn't actively change the OnShow script for the
+			-- RaidFrame at the moment, but let's just rehook in case they
+			-- suddenly start doing it.
+			self:Unhook(frame, "OnShow")
+			self:SecureHookScript(frame, "OnShow", show)
+		end
 	end)
+	self:SecureHookScript(RaidFrame, "OnShow", show)
+	self:SecureHookScript(RaidFrame, "OnHide", hide)
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
