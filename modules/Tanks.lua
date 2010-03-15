@@ -35,7 +35,7 @@ end
 function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Tanks", {
 		factionrealm = {
-			persistentTanks = {},
+			persistentTanks = {"Omma", "Ammo", "Test", "Foo", "Bar", "Blah", "Frop", "Damn", "Doh", "Ugh"},
 		},
 	})
 	self.db = database.factionrealm
@@ -260,8 +260,8 @@ function module:CreateFrame()
 	frame = CreateFrame("Frame")
 
 	local centerBar = CreateFrame("Button", nil, frame)
-	centerBar:SetPoint("BOTTOMLEFT", frame, -5, 142)
-	centerBar:SetPoint("BOTTOMRIGHT", frame, 5, 142)
+	centerBar:SetPoint("BOTTOMLEFT", frame, -5, 139)
+	centerBar:SetPoint("BOTTOMRIGHT", frame, 5, 139)
 	centerBar:SetHeight(8)
 	local texture = centerBar:CreateTexture(nil, "BORDER")
 	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
