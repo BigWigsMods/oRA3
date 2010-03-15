@@ -406,7 +406,6 @@ do
 		group:SetTitle(L["Select class"])
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
-		group.dropdown:SetWidth(120)
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
@@ -573,11 +572,10 @@ do
 		-- if we have that many bars shown, hide the ones that overflow
 		rearrangeBars()
 	end
-	
-	local function displayOnMouseDown(self, button)
-		if button == "RightButton" then
-			print("open interface options with the right sub-pane selected")
-		end
+
+	local function displayOnMouseDown(self, mouseButton)
+		if mouseButton ~= "RightButton" then return end
+		InterfaceOptionsFrame_OpenToCategory(L["Cooldowns"])
 	end
 	
 	local function onDragStart(self) self:StartMoving() end
