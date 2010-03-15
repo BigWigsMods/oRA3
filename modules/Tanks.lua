@@ -374,8 +374,8 @@ function module:CreateFrame()
 		b:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
 		b:SetScript("OnClick", bottomScrollClick)
 		if i == 1 then
-			b:SetPoint("TOPLEFT", frame.bottomscroll)
-			b:SetPoint("TOPRIGHT", frame.bottomscroll)
+			b:SetPoint("TOPLEFT", frame.bottomscroll, 0, 1)
+			b:SetPoint("TOPRIGHT", frame.bottomscroll, 0, 1)
 		else
 			b:SetPoint("TOPLEFT", bottom[i - 1], "BOTTOMLEFT")
 			b:SetPoint("TOPRIGHT", bottom[i - 1], "BOTTOMRIGHT")
