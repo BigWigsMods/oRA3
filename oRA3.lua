@@ -370,87 +370,63 @@ end
 
 local function setupGUI()
 	local frame = CreateFrame("Frame", "oRA3Frame", UIParent)
-	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = -12, xoffset = 10 }
+	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 0, xoffset = 10 }
 	HideUIPanel(oRA3Frame)
 
-	frame:SetFrameStrata("LOW")
-	frame:SetWidth(350)
-	frame:SetHeight(424)
+	frame:SetWidth(384)
+	frame:SetHeight(512)
 
+	frame:SetHitRectInsets(0, 30, 0, 45)
+	frame:SetToplevel(true)
+	frame:EnableMouse(true)
+	
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
-	topleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopLeft")
-	topleft:SetWidth(128)
+	topleft:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
+	topleft:SetWidth(256)
 	topleft:SetHeight(256)
 	topleft:SetPoint("TOPLEFT")
 
+	local toplefticon = frame:CreateTexture(nil, "BACKGROUND")
+	toplefticon:SetTexture("Interface\\FriendsFrame\\FriendsFrameScrollIcon")
+	toplefticon:SetWidth(60)
+	toplefticon:SetHeight(60)
+	toplefticon:SetPoint("TOPLEFT", 7, -6)
+	
 	local topright = frame:CreateTexture(nil, "ARTWORK")
-	topright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopRight")
-	topright:SetWidth(140)
+	topright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
+	topright:SetWidth(128)
 	topright:SetHeight(256)
 	topright:SetPoint("TOPRIGHT")
-	topright:SetTexCoord(0, (140 / 256), 0, 1)
-
-	local top = frame:CreateTexture(nil, "ARTWORK")
-	top:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Top")
-	top:SetHeight(256)
-	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
-	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 
 	local botleft = frame:CreateTexture(nil, "ARTWORK")
-	botleft:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotLeft")
-	botleft:SetWidth(128)
-	botleft:SetHeight(168)
+	botleft:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
+	botleft:SetWidth(256)
+	botleft:SetHeight(256)
 	botleft:SetPoint("BOTTOMLEFT")
-	botleft:SetTexCoord(0, 1, 0, (168 / 256))
 
 	local botright = frame:CreateTexture(nil, "ARTWORK")
-	botright:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-BotRight")
-	botright:SetWidth(140)
-	botright:SetHeight(168)
+	botright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomRight")
+	botright:SetWidth(128)
+	botright:SetHeight(256)
 	botright:SetPoint("BOTTOMRIGHT")
-	botright:SetTexCoord(0, (140 / 256), 0, (168 / 256))
-
-	local bot = frame:CreateTexture(nil, "ARTWORK")
-	bot:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-Bot")
-	bot:SetHeight(168)
-	bot:SetPoint("TOPLEFT", botleft, "TOPRIGHT")
-	bot:SetPoint("TOPRIGHT", botright, "TOPLEFT")
-	bot:SetTexCoord(0, 1, 0, (168 / 256))
-
-	local topBg = frame:CreateTexture(nil, "BACKGROUND")
-	topBg:SetTexture("Interface\\WorldStateFrame\\WorldStateFinalScoreFrame-TopBackground")
-	topBg:SetHeight(64)
-	topBg:SetPoint("TOPLEFT", topleft, 5, -4)
-	topBg:SetPoint("TOPRIGHT", topright, -3, -4)
 
 	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", 5, 4)
+	close:SetPoint("TOPRIGHT", -30, -8)
 
 	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	title:SetPoint("TOP", 0, -6)
+	title:SetWidth(250)
+	title:SetHeight(16)
+	title:SetPoint("TOP", 3, -16)
 	frame.title = title
 
-	local subframe = CreateFrame("Frame", nil, frame)
-	subframe:SetPoint("TOPLEFT", 7, -58)
-	subframe:SetPoint("BOTTOMRIGHT", -1, 3)
-	contentFrame = subframe
-
-	local backdrop = {
-		bgFile = "Interface\\AddOns\\oRA3\\images\\UI-RaidFrame-GroupBg",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, edgeSize = 16, tileSize = 256,
-		insets = {left = 0, right = 0, top = 0, bottom = 0},
-	}
-	subframe:SetBackdrop(backdrop)
-
-	local disband = CreateFrame("Button", "oRA3Disband", subframe, "UIPanelButtonTemplate2")
+	local disband = CreateFrame("Button", "oRA3Disband", frame, "UIPanelButtonTemplate2")
 	disband:SetWidth(115)
 	disband:SetHeight(22)
 	disband:SetNormalFontObject(GameFontNormalSmall)
 	disband:SetHighlightFontObject(GameFontHighlightSmall)
 	disband:SetDisabledFontObject(GameFontDisableSmall)
 	disband:SetText(L["Disband Group"])
-	disband:SetPoint("BOTTOMLEFT", subframe, "TOPLEFT", 4, 7)
+	disband:SetPoint("TOPLEFT", 72, -37)
 	disband:SetScript("OnClick", function()
 		if not StaticPopupDialogs["oRA3DisbandGroup"] then
 			StaticPopupDialogs["oRA3DisbandGroup"] = {
@@ -477,14 +453,14 @@ local function setupGUI()
 	disband.tooltipText = L["Disband Group"]
 	disband.newbieText = L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."]
 
-	local options = CreateFrame("Button", "oRA3Options", subframe, "UIPanelButtonTemplate2")
+	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate2")
 	options:SetWidth(115)
 	options:SetHeight(22)
 	options:SetNormalFontObject(GameFontNormalSmall)
 	options:SetHighlightFontObject(GameFontHighlightSmall)
 	options:SetDisabledFontObject(GameFontDisableSmall)
 	options:SetText(L["Options"])
-	options:SetPoint("BOTTOMRIGHT", subframe, "TOPRIGHT", -6, 7)
+	options:SetPoint("TOPRIGHT", -40, -37)
 	options:SetScript("OnClick", function()
 		InterfaceOptionsFrame_OpenToCategory("oRA3")
 	end)
@@ -495,11 +471,11 @@ local function setupGUI()
 	end
 	frame.selectedTab = 1
 	for i, tab in next, panels do
-		local f = CreateFrame("Button", "oRA3FrameTab"..i, contentFrame, "CharacterFrameTabButtonTemplate")
+		local f = CreateFrame("Button", "oRA3FrameTab"..i, frame, "CharacterFrameTabButtonTemplate")
 		if i > 1 then
 			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(i - 1)], "TOPRIGHT", -16, 0)
 		else
-			f:SetPoint("TOPLEFT", contentFrame, "BOTTOMLEFT", 0, -1)
+			f:SetPoint("BOTTOMLEFT", 11,46)
 		end
 		f:SetText(tab.name)
 		f:SetScript("OnClick", selectPanel)
@@ -508,6 +484,14 @@ local function setupGUI()
 		PanelTemplates_UpdateTabs(oRA3Frame)
 	end
 
+	local subframe = CreateFrame("Frame", nil, frame)
+	subframe:SetPoint("TOPLEFT", 18, -70)
+	subframe:SetPoint("BOTTOMRIGHT", -40, 78)
+	contentFrame = subframe
+
+	
+	-- CHECKS GUI
+	
 	local listFrame = CreateFrame("Frame", "oRA3ListFrame", subframe)
 	listFrame:SetAllPoints(subframe)
 	
@@ -621,7 +605,7 @@ end
 function addon:SetAllPointsToPanel(frame, aceguihacky)
 	if contentFrame then
 		frame:SetParent(contentFrame)
-		frame:SetPoint("TOPLEFT", contentFrame, 8, aceguihacky and -8 or -4)
+		frame:SetPoint("TOPLEFT", contentFrame, 8, aceguihacky and -6 or -4)
 		frame:SetPoint("BOTTOMRIGHT", contentFrame, -8, 6)
 	end
 end
