@@ -395,9 +395,8 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
-		frame:SetLayout("Flow")
-		frame:PauseLayout() -- pause here to stop excessive DoLayout invocations
-		
+		frame:SetLayout("List")
+
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 		moduleDescription:SetFullWidth(true)
@@ -412,10 +411,6 @@ do
 		group:SetFullWidth(true)
 
 		frame:AddChildren(moduleDescription, group)
-
-		-- resume and update layout
-		frame:ResumeLayout()
-		frame:DoLayout()
 	end
 
 	function showPane()
