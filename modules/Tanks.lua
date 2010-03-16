@@ -55,6 +55,11 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnDemoted")
 end
 
+function module:OnEnable()
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+end
+
 local function sortTanks()
 	wipe(indexedTanks)
 	for k, tank in next, allIndexedTanks do
@@ -354,11 +359,9 @@ function module:CreateFrame()
 		delete.tooltipText = L.deleteButtonHelp
 		t.delete = delete
 
-		local tank = createButton(t, "SecureActionButtonTemplate")
+		local tank = createButton(t)
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
 		tank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
-		tank:SetAttribute("type", "maintank")
-		tank:SetAttribute("action", "toggle")
 		if oRA:IsPromoted() then
 			tank:Enable()
 		else
@@ -367,7 +370,24 @@ function module:CreateFrame()
 		tank.tooltipTitle = L["Blizzard Main Tank"]
 		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
-
+		
+		if not InCombatLockdown() then
+			local stank = createButton(t, "SecureActionButtonTemplate")
+			stank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
+			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+			stank:SetAttribute("type", "maintank")
+			stank:SetAttribute("action", "toggle")
+			if oRA:IsPromoted() then
+				stank:Enable()
+			else
+				stank:Disable()
+			end
+			stank.tooltipTitle = L["Blizzard Main Tank"]
+			stank.tooltipText = L.tankButtonHelp
+			t.stank = stank
+			t.tank:Hide()
+		end
+		
 		local save = createButton(t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
@@ -427,10 +447,12 @@ function module:UpdateTopScroll()
 			local name = allIndexedTanks[j]
 			if util:inTable(btanks, name) then
 				v.tank:SetAlpha(1)
+				if v.stank then v.stank:SetAlpha(1) end
 				v.delete:SetAlpha(.3)
 				v.delete:Disable()
 			else
 				v.tank:SetAlpha(.3)
+				if v.stank then v.stank:SetAlpha(.3) end
 				v.delete:SetAlpha(1)
 				v.delete:Enable()
 			end
@@ -441,12 +463,53 @@ function module:UpdateTopScroll()
 			end
 			v.hidden:SetChecked(not namedHidden[name])
 			v.unitName = name
-			v.tank:SetAttribute("unit", name)
+			if not InCombatLockdown() and v.stank then
+				v.stank:SetAttribute("unit", name)
+			end
 			v.label:SetText(oRA.coloredNames[name])
 			v:Show()
 		else
 			v:Hide()
 		end
+	end
+end
+
+function module:PLAYER_REGEN_ENABLED()
+	if not frame then return end
+	
+	for i = 1, 10 do
+		top[i].tank:Hide()
+		if not top[i].stank then
+			local stank = createButton(top[i], "SecureActionButtonTemplate")
+			stank:SetPoint("TOPRIGHT", top[i].delete, "TOPLEFT", -2, 0)
+			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+			stank:SetAttribute("type", "maintank")
+			stank:SetAttribute("action", "toggle")
+			if oRA:IsPromoted() then
+				stank:Enable()
+			else
+				stank:Disable()
+			end
+			stank.tooltipTitle = L["Blizzard Main Tank"]
+			stank.tooltipText = L.tankButtonHelp
+			top[i].stank = stank
+		end
+		-- reattach to the frame
+		top[i].stank:SetParent(top[i])
+		top[i].stank:SetPoint("TOPRIGHT", top[i].delete, "TOPLEFT", -2, 0)
+		top[i].stank:Show()
+	end
+	if frame:IsShown() then self:UpdateTopScroll() end
+end
+
+function module:PLAYER_REGEN_DISABLED()
+	if not frame then return end
+
+	for i = 1, 10 do
+		top[i].stank:SetParent(UIParent)
+		top[i].stank:ClearAllPoints() -- detach from the frame to prevent taint
+		top[i].stank:Hide()
+		top[i].tank:Show()
 	end
 end
 
