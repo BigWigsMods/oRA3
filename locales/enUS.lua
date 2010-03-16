@@ -13,16 +13,16 @@ L["Unknown"] = true
 
 -- Core
 L.slashCommands = [[
-oRA3 sports a range of slash commands to aid you in fast-paced raiding. Just in case you weren't around in the old CTRA days, here's a little reference.
+oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 
 |cff44ff44/radur|r - Opens the durability list.
 |cff44ff44/razone|r - Opens the zone list.
 |cff44ff44/rares|r - Opens the resistance list.
 |cff44ff44/radisband|r - Instantly disbands the raid with no verification.
 |cff44ff44/raready|r - Performs a ready check.
-|cff44ff44/rainvite|r - Invites the whole guild to your group.
-|cff44ff44/razinvite|r - Invites guild members in the same zone as you.
-|cff44ff44/rarinvite <rank name>|r - Invites guild members of the given rank.
+|cff44ff44/rainv|r - Invites the whole guild to your group.
+|cff44ff44/razinv|r - Invites guild members in the same zone as you.
+|cff44ff44/rarinv <rank name>|r - Invites guild members of the given rank.
 ]]
 
 -- Ready check module
