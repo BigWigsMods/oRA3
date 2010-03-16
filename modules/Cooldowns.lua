@@ -406,6 +406,7 @@ do
 		moduleDescription:SetFontObject(GameFontHighlight)
 
 		group = AceGUI:Create("DropdownGroup")
+		group:SetLayout("List")
 		group:SetTitle(L["Select class"])
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
