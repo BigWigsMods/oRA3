@@ -399,7 +399,28 @@ local function setupGUI()
 	toplefticon:SetWidth(60)
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
-	SetPortraitToTexture(toplefticon, "Interface\\LFGFrame\\LFGIcon-Quest")
+	local icons = {
+		"LFGFrame\\LFGIcon-Quest",
+		"WorldMap\\UI-World-Icon",
+		"WorldMap\\WorldMap-Icon",
+		"WorldMap\\TreasureChest_64",
+		"WorldMap\\Gear_64Grey",
+		"WorldMap\\QuestionMark_Gold_64Grey",
+	}
+	SetPortraitToTexture(toplefticon, "Interface\\" .. icons[1])
+	local up = CreateFrame("Frame")
+	up.total = 0
+	up.icon = 1
+	up:SetScript("OnUpdate", function(self, elapsed)
+		self.total = self.total + elapsed
+		if self.total >= 2 then
+			self.icon = self.icon + 1
+			if self.icon > #icons then self.icon = 1 end
+			SetPortraitToTexture(toplefticon, "Interface\\" .. icons[self.icon])
+			self.total = 0
+		end
+	end)
+	up:Show()
 	
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
