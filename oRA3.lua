@@ -70,6 +70,7 @@ local openedList = nil -- index of the current opened List
 local contentFrame = nil -- content frame for the views
 local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
+local secureScrollhighs = {} -- clickable secure scroll highlights
 
 local function actuallyDisband()
 	if addon:IsPromoted() then
@@ -163,6 +164,8 @@ function addon:OnEnable()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 	local function show()
 		if not db.toggleWithRaid then return end
@@ -275,7 +278,7 @@ do
 		else
 			groupStatus = UNGROUPED
 		end
-		
+		groupStatus = INPARTY
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
@@ -770,10 +773,16 @@ function addon:OpenToList(name)
 	end
 end
 
-function addon:UpdateScroll()
+function addon:UpdateScroll( forceSecure )
 	local list = lists[openedList]
 	local nr = #list.contents
 	FauxScrollFrame_Update(contentFrame.scrollFrame, nr, 19, 16, nil, nil, nil, nil, nil, nil, true)
+	local highs
+	if InCombatLockdown() or forceSecure then
+		highs = scrollhighs
+	else
+		highs = secureScrollhighs
+	end
 	for i = 1, 19 do
 		local j = i + FauxScrollFrame_GetOffset(contentFrame.scrollFrame)
 		if j <= nr then
@@ -787,18 +796,16 @@ function addon:UpdateScroll()
 				end
 				v.entries[i]:Show()
 			end
-			if unitName and scrollhighs[i].isSecure and not InCombatLockdown() then
-				scrollhighs[i]:SetAttribute("type", "macro")
-				scrollhighs[i]:SetAttribute("macrotext", "/target "..unitName)
-				scrollhighs[i]:Show()
+			if unitName and highs[i].isSecure then
+				highs[i]:SetAttribute("type", "macro")
+				highs[i]:SetAttribute("macrotext", "/target "..unitName)
 			end
+			highs[i]:Show()
 		else
 			for k, v in next, scrollheaders do
 				v.entries[i]:Hide()
 			end
-			if not InCombatLockdown() then
-				scrollhighs[i]:Hide()
-			end
+			highs[i]:Hide()
 		end
 	end
 end
@@ -829,21 +836,31 @@ local function toggleColumn(header)
 	addon:UpdateScroll()
 end
 
-local function createHighlights()
+local function createHighlights( secure )
 	local f = scrollheaders[1]
 	if not f then return end
 	local combat = InCombatLockdown()
+	if combat and secure then return end
+
+	local extra = secure and "Secure" or "InSecure"
+	local list
+	if secure then 
+		list = secureScrollhighs
+	else
+		list = scrollhighs
+	end
 	for i = 1, 19 do
-		scrollhighs[i] = CreateFrame("Button", "oRA3ScrollHigh"..i, contentFrame.listFrame, combat and nil or "SecureActionButtonTemplate")
+		list[i] = CreateFrame("Button", "oRA3ScrollHigh"..extra..i, contentFrame.listFrame, secure and "SecureActionButtonTemplate" or nil)
 		if i == 1 then
-			scrollhighs[i]:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0)
+			list[i]:SetPoint("TOPLEFT", contentFrame.listFrame, "TOPLEFT", 8, -24)
 		else
-			scrollhighs[i]:SetPoint("TOPLEFT", scrollhighs[i-1], "BOTTOMLEFT")
+			list[i]:SetPoint("TOPLEFT", list[i-1], "BOTTOMLEFT")
 		end
-		scrollhighs[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
-		scrollhighs[i]:SetHeight(16)
-		scrollhighs[i]:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
-		scrollhighs[i].isSecure = not combat
+		list[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
+		list[i]:SetHeight(16)
+		list[i]:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+		list[i].isSecure = secure
+		list[i]:Hide()
 	end
 end
 
@@ -863,6 +880,7 @@ local function createScrollHeader()
 
 	if #scrollheaders == 1 then
 		createHighlights()
+		createHighlights(true) -- secure highlights
 	end
 
 	local entries = {}
@@ -906,11 +924,6 @@ function showLists()
 	while #list.cols > #scrollheaders do
 		createScrollHeader()
 	end
-	for i = 1, 19 do
-		-- setting width here, needs to be scrollframe width, that is only properly calculated when shown
-		-- otherwise it will be too big due to the scrollbar being present or not
-		scrollhighs[i]:SetWidth(totalwidth)
-	end
 	for k, v in next, list.cols do
 		scrollheaders[k]:SetText(v.name)
 		if k == 1 or #list.cols == 2 then
@@ -931,3 +944,32 @@ function hideLists()
 	openedList = nil
 end
 
+function addon:PLAYER_REGEN_ENABLED()
+	if #scrollhighs > 0 then
+		if #secureScrollhighs == 0 then
+			createHighlights( true )
+		end
+		for i = 1, 19 do
+			scrollhighs[i]:Hide()
+			-- reattach to the listframe
+			secureScrollhighs[i]:SetParent(contentFrame.listFrame)
+			if i == 1 then
+				secureScrollhighs[i]:SetPoint("TOPLEFT", contentFrame.listFrame, "TOPLEFT", 8, -24)
+			else
+				secureScrollhighs[i]:SetPoint("TOPLEFT", secureScrollhighs[i-1], "BOTTOMLEFT")
+			end
+		end
+		if contentFrame.listFrame:IsShown() then self:UpdateScroll() end
+	end
+end
+
+function addon:PLAYER_REGEN_DISABLED()
+	if #scrollhighs > 0 then
+		for i = 1, 19 do
+			secureScrollhighs[i]:SetParent(UIParent)
+			secureScrollhighs[i]:ClearAllPoints() -- detach from the listFrame to prevent taint
+			secureScrollhighs[i]:Hide()
+		end
+		if contentFrame.listFrame:IsShown() then self:UpdateScroll( true ) end -- if the frame is shown force a secure update
+	end
+end
