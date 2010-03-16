@@ -24,6 +24,7 @@ local defaults = {
 		sound = true,
 		gui = true,
 		autohide = true,
+		hideReady = false,
 	}
 }
 
@@ -33,26 +34,36 @@ local function getOptions()
 		options = {
 			type = "group",
 			name = READY_CHECK,
-			get = function(k) return module.db.profile[k.arg] end,
-			set = function(k, v) module.db.profile[k.arg] = v end,
+			get = function(k) return module.db.profile[k[#k]] end,
+			set = function(k, v) module.db.profile[k[#k]] = v end,
 			args = {
 				sound = {
 					type = "toggle",
 					name = SOUND_LABEL,
 					desc = L["Play a sound when a ready check is performed."],
-					arg = "sound",
+					width = "full",
+					order = 1,
 				},
 				gui = {
 					type = "toggle",
-					name = L["GUI"],
-					desc = L["Show the oRA3 Ready Check GUI when a ready check is performed."],
-					arg = "gui",
+					name = "Show window",
+					desc = "Show the oRA3 ready check window when a ready check is performed.",
+					width = "full",
+					order = 2,
 				},
 				autohide = {
 					type = "toggle",
-					name = L["Auto Hide"],
-					desc = L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."],
-					arg = "autohide",
+					name = "Hide window when done",
+					desc = "Automatically hide the oRA3 ready check window when the ready check is finished.",
+					width = "full",
+					order = 3,
+				},
+				hideReady = {
+					type = "toggle",
+					name = "Hide players who are ready",
+					desc = "Hides players that are marked as ready from the oRA3 ready check window.",
+					width = "full",
+					order = 4,
 				},
 			}
 		}
@@ -130,6 +141,9 @@ local function setMemberStatus(num, bottom, name, class)
 	if readycheck[name] == RD_READY then
 		f.bg:Hide()
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
+		if module.db.profile.hideReady then
+			f:Hide()
+		end
 	elseif readycheck[name] == RD_NOTREADY then
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
