@@ -130,6 +130,20 @@ local function giveOptions()
 					order = 2,
 					width = "full",
 				},
+				slashCommands = {
+					type = "group",
+					name = "Slash commands",
+					width = "full",
+					inline = true,
+					order = 3,
+					args = {
+						slashCommandHelp = {
+							type = "description",
+							name = L.slashCommands,
+							width = "full",
+						},
+					},
+				},
 			}
 		}
 	end
@@ -278,7 +292,6 @@ do
 		else
 			groupStatus = UNGROUPED
 		end
-		groupStatus = INPARTY
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
@@ -973,3 +986,4 @@ function addon:PLAYER_REGEN_DISABLED()
 		if contentFrame.listFrame:IsShown() then self:UpdateScroll( true ) end -- if the frame is shown force a secure update
 	end
 end
+

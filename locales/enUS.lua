@@ -12,8 +12,18 @@ L["Click to open/close oRA3"] = true
 L["Unknown"] = true
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = true
-L.uiHidden = "You are in combat.\nThe oRA3 interface has been disabled temporarily.\n\nEverything will return to normal\nonce you get out of combat."
+L.slashCommands = [[
+oRA3 sports a range of slash commands to aid you in fast-paced raiding. Just in case you weren't around in the old CTRA days, here's a little reference.
+
+|cff44ff44/radur|r - Opens the durability list.
+|cff44ff44/razone|r - Opens the zone list.
+|cff44ff44/rares|r - Opens the resistance list.
+|cff44ff44/radisband|r - Instantly disbands the raid with no verification.
+|cff44ff44/raready|r - Performs a ready check.
+|cff44ff44/rainvite|r - Invites the whole guild to your group.
+|cff44ff44/razinvite|r - Invites guild members in the same zone as you.
+|cff44ff44/rarinvite <rank name>|r - Invites guild members of the given rank.
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = true

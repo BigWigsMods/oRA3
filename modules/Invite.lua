@@ -1,6 +1,6 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Invite", "AceEvent-3.0")
+local module = oRA:NewModule("Invite", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -28,22 +28,6 @@ local function hideConfig()
 		frame = nil
 		wipe(rankButtons)
 	end
-end
-
-function module:OnRegister()
-	local database = oRA.db:RegisterNamespace("Invite", {
-		global = {
-			keyword = nil,
-		},
-	})
-	db = database.global
-
-	oRA:RegisterPanel(
-		L["Invite"],
-		showConfig,
-		hideConfig
-	)
-	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 end
 
 local doActualInvites = nil
@@ -128,10 +112,6 @@ local function onUpdate(self, elapsed)
 	end
 end
 
-function module:OnEnable()
-	self:RegisterEvent("CHAT_MSG_WHISPER")
-end
-
 local function chat(msg, channel)
 	SendChatMessage(msg, channel)
 	--print(msg .. "#" .. channel)
@@ -169,6 +149,44 @@ local function inviteRank(rank, name)
 	inviteFrame.zone = nil
 	inviteFrame.rank = rank
 	inviteFrame:SetScript("OnUpdate", onUpdate)
+end
+
+local function inviteRankCommand(input)
+	local ranks = oRA:GetGuildRanks()
+	local r, n = nil, nil
+	for i, rank in next, ranks do
+		if rank:lower():find(input) then
+			r = i
+			n = rank
+			break
+		end
+	end
+	if not r or not n then return end
+	inviteRank(r, n)
+end
+
+function module:OnRegister()
+	local database = oRA.db:RegisterNamespace("Invite", {
+		global = {
+			keyword = nil,
+		},
+	})
+	db = database.global
+
+	oRA:RegisterPanel(
+		L["Invite"],
+		showConfig,
+		hideConfig
+	)
+	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+
+	self:RegisterChatCommand("rainvite", inviteGuild)
+	self:RegisterChatCommand("razinvite", inviteZone)
+	self:RegisterChatCommand("rarinvite", inviteRankCommand)
+end
+
+function module:OnEnable()
+	self:RegisterEvent("CHAT_MSG_WHISPER")
 end
 
 function module:CHAT_MSG_WHISPER(event, msg, author)
