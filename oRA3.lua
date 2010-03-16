@@ -400,12 +400,13 @@ local function setupGUI()
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
 	local icons = {
-		"LFGFrame\\LFGIcon-Quest",
-		"WorldMap\\UI-World-Icon",
-		"WorldMap\\WorldMap-Icon",
-		"WorldMap\\TreasureChest_64",
 		"WorldMap\\Gear_64Grey",
+		"WorldMap\\UI-World-Icon",
+		"RAIDFRAME\\ReadyCheck-Ready",
+		"LFGFrame\\LFGIcon-Quest",
+		"WorldMap\\WorldMap-Icon",
 		"WorldMap\\QuestionMark_Gold_64Grey",
+		"WorldMap\\TreasureChest_64",
 	}
 	SetPortraitToTexture(toplefticon, "Interface\\" .. icons[1])
 	local up = CreateFrame("Frame")
@@ -413,7 +414,7 @@ local function setupGUI()
 	up.icon = 1
 	up:SetScript("OnUpdate", function(self, elapsed)
 		self.total = self.total + elapsed
-		if self.total >= 2 then
+		if self.total >= 5 then
 			self.icon = self.icon + 1
 			if self.icon > #icons then self.icon = 1 end
 			SetPortraitToTexture(toplefticon, "Interface\\" .. icons[self.icon])
