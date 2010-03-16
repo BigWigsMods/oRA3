@@ -6,6 +6,7 @@ module.VERSION = tonumber(("$Revision: 180 $"):sub(12, -3))
 local db
 local defaults = {
 	profile = {
+		enable = false,
 		party = {
 			method = "group", -- Group Loot
 			threshold = 2, -- Green (should be blizzard default setting)
@@ -24,13 +25,24 @@ local function getOptions()
 			type = "group",
 			name = LOOT_METHOD,
 			args = {
+				enable = {
+					type = "toggle",
+					name = "Set the loot mode automatically when joining a group",
+					desc = "If you want oRA3 to automatically set the loot mode to what you specify below when entering a party or raid, enable this option.",
+					get = function() return db.enable end,
+					set = function(k, v) db.enable = v end,
+					order = 1,
+					width = "full",
+				},
 				raid = {
-					order = 0,
+					order = 2,
 					type = "group",
 					name = RAID,
 					inline = true,
 					get = function( k ) return db.raid[k.arg] end,
 					set = function( k, v ) db.raid[k.arg] = v end,
+					disabled = function() return not db.enable end,
+					width = "full",
 					args = {
 						method = {
 							type = "select", name = LOOT_METHOD,
@@ -61,12 +73,14 @@ local function getOptions()
 					},
 				},
 				party = {
-					order = 1,
+					order = 3,
 					type = "group",
 					name = PARTY,
 					inline = true,
 					get = function( k ) return db.party[k.arg] end,
 					set = function( k, v ) db.party[k.arg] = v end,
+					disabled = function() return not db.enable end,
+					width = "full",
 					args = {
 						method = {
 							type = "select", name = LOOT_METHOD,
@@ -124,6 +138,7 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 function module:SetLoot()
+	if not db.enable then return end
 	if oRA:IsPromoted() and ( IsRaidLeader() or oRA:InParty() ) then
 		local method = db.raid.method
 		local threshold = db.raid.threshold
