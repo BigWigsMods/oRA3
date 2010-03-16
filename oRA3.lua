@@ -399,29 +399,7 @@ local function setupGUI()
 	toplefticon:SetWidth(60)
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
-	local icons = {
-		"WorldMap\\Gear_64Grey",
-		"WorldMap\\UI-World-Icon",
-		"RAIDFRAME\\ReadyCheck-Ready",
-		"LFGFrame\\LFGIcon-Quest",
-		"WorldMap\\WorldMap-Icon",
-		"WorldMap\\QuestionMark_Gold_64Grey",
-		"WorldMap\\TreasureChest_64",
-	}
-	SetPortraitToTexture(toplefticon, "Interface\\" .. icons[1])
-	local up = CreateFrame("Frame")
-	up.total = 0
-	up.icon = 1
-	up:SetScript("OnUpdate", function(self, elapsed)
-		self.total = self.total + elapsed
-		if self.total >= 5 then
-			self.icon = self.icon + 1
-			if self.icon > #icons then self.icon = 1 end
-			SetPortraitToTexture(toplefticon, "Interface\\" .. icons[self.icon])
-			self.total = 0
-		end
-	end)
-	up:Show()
+	SetPortraitToTexture(toplefticon, "Interface\\WorldMap\\Gear_64Grey")
 	
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
@@ -528,8 +506,8 @@ local function setupGUI()
 	
 	-- Scrolling body
 	local sframe = CreateFrame("ScrollFrame", "oRA3ScrollFrame", listFrame, "FauxScrollFrameTemplate")
-	sframe:SetPoint("BOTTOMLEFT", listFrame, 0, 30)
-	sframe:SetPoint("TOPRIGHT", listFrame, -26, -25)
+	sframe:SetPoint("BOTTOMLEFT", listFrame, 0, 33)
+	sframe:SetPoint("TOPRIGHT", listFrame, -26, -27)
 
 	local function updScroll() addon:UpdateScroll() end
 	sframe:SetScript("OnVerticalScroll", function(self, offset)
@@ -540,7 +518,7 @@ local function setupGUI()
 	subframe.listFrame = listFrame
 
 	local sframebottom = CreateFrame("Frame", "oRA3ScrollFrameBottom", listFrame)
-	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT")
+	sframebottom:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 0, -1)
 	sframebottom:SetPoint("BOTTOMRIGHT", subframe, "BOTTOMRIGHT")
 	sframebottom:SetFrameLevel(subframe:GetFrameLevel())
 
@@ -601,7 +579,7 @@ local function setupGUI()
 		f.listIndex = i
 		f:SetScript("OnClick", listButtonClick)
 		if i == 1 then
-			f:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 5, -4)
+			f:SetPoint("TOPLEFT", sframe, "BOTTOMLEFT", 5, -6)
 		else
 			f:SetPoint("LEFT", lists[i - 1].button, "RIGHT")
 		end
