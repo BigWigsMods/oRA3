@@ -59,9 +59,6 @@ L["Shadow"] = true
 L["Nature"] = true
 L["Arcane"] = true
 
--- Resurrection module
-L["%s is ressing %s."] = true
-
 -- Invite module
 L["Invite"] = true
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = true

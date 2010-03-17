@@ -10,12 +10,26 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = "Optionen"
 L["<oRA3> Disbanding group."] = "<oRA3> Gruppe aufgelöst."
 L["Are you sure you want to disband your group?"] = "Bist du sicher, dass du die Gruppe auflösen willst?"
-L["Click to open/close oRA3"] = "Klicken, um oRA3 zu öffnen / schließen."
 L["Unknown"] = "Unbekannt"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Einige permanente Optionen können hier verändert werden. Alle akuten Dinge werden aber im Schlachtzugsfenster behandelt."
-L.uiHidden = "Du bist gerade im Kampf.\nDas oRA3 Interface wurde vorübergehend deaktiviert.\n\nDas Interface wird wieder aktiviert,\nsobald du aus dem Kampf kommst."
+L["Open with raid pane"] = "Mit Schlachtzugsfenster öffnen"
+L.toggleWithRaidDesc = "Öffnet und schließt das oRA3 Fenster zusammen mit Blizzards Schlachtzugsfenster. Falls du diese Option deaktivierst, kannst du das oRA3 Fenster nach wie vor via Tastenbelegung oder einem Befehl öffnen, z.B. |cff44ff44/radur|r."
+L["Show interface help"] = "Interface Hilfe anzeigen"
+L.showHelpTextsDesc = "Das oRA3 Interface ist voll von hilfreichen Tips, die eine bessere Beschreibung der einzelnen Elemente liefern und deren Funktion erklären. Falls du diese Option deaktivierst, begrenzt du das Durcheinander in allen Fenstern. |cffff4411Manche Fenster benötigen ein Neuladen des Interfaces.|r"
+
+L.slashCommands = [[
+oRA3 verfügt über eine Reihe von Befehlen, die in hektischer Raidumgebung hilfreich sein können. Für den Fall, dass du in den alten CTRA-Tagen nicht dabei warst: Eine kleine Referenz. Alle Befehle haben diverse Abkürzungen, aber manchmal auch längere, aussagekräftigere Alternativen.
+
+|cff44ff44/radur|r - Öffnet die Haltbarkeitsliste.
+|cff44ff44/razone|r - Öffnet die Zonenliste.
+|cff44ff44/rares|r - Öffnet die Widerstandsliste.
+|cff44ff44/radisband|r - Löst die Gruppe ohne Bestätigung auf.
+|cff44ff44/raready|r - Führt einen Bereitschaftscheck durch.
+|cff44ff44/rainv|r - Läd die gesamte Gilde in deine Gruppe ein.
+|cff44ff44/razinv|r - Läd Gildenmitglieder in deiner aktuellen Zone ein.
+|cff44ff44/rarinv <rank name>|r - Läd Gildenmitglieder eines bestimmten Rangs ein.
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Die folgenden Spieler sind nicht bereit: %s"
@@ -25,10 +39,12 @@ L["Not Ready"] = "Nicht bereit"
 L["No Response"] = "Keine Antwort"
 L["Offline"] = "Offline"
 L["Play a sound when a ready check is performed."] = "Sound abspielen, wenn ein Bereitschaftscheck durchgeführt wird."
-L["GUI"] = "GUI"
-L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "Zeigt die oRA3 Bereitschaftscheck GUI, wenn ein Bereitschaftscheck durchgeführt wird."
-L["Auto Hide"] = "Auto-Verstecken"
-L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Versteckt die oRA3 Bereitschaftscheck GUI automatisch, wenn ein Bereitschaftscheck durchgelaufen ist."
+L["Show window"] = "Fenster anzeigen"
+L["Show the window when a ready check is performed."] = "Zeigt das Fenster, wenn ein Bereitschaftscheck durchgeführt wird."
+L["Hide window when done"] = "Fenster nach Durchlauf schließen"
+L["Automatically hide the window when the ready check is finished."] = "Schließt das Fenster automatisch, sobald der Bereitschaftscheck durchgelaufen ist."
+L["Hide players who are ready"] = "Bereite Spieler ausblenden"
+L["Hide players that are marked as ready from the window."] = "Blendet Spieler, die als bereit markiert wurden, aus dem Fenster aus."
 
 -- Durability module
 L["Durability"] = "Haltbarkeit"
@@ -43,9 +59,6 @@ L["Fire"] = "Feuer"
 L["Shadow"] = "Schatten"
 L["Nature"] = "Natur"
 L["Arcane"] = "Arkan"
-
--- Resurrection module
-L["%s is ressing %s."] = "%s belebt %s."
 
 -- Invite module
 L["Invite"] = "Einladen"
@@ -82,6 +95,7 @@ L["Add"] = "Hinzufügen"
 L["Remove"] = "Entfernen"
 
 -- Cooldowns module
+L["Open monitor"] = "Anzeige öffnen"
 L["Cooldowns"] = "Cooldowns"
 L["Monitor settings"] = "Einstellungen der Anzeige"
 L["Show monitor"] = "Anzeige einschalten"
@@ -102,6 +116,7 @@ L["Right-Click me for options!"] = "Rechts-klicken für Optionen!"
 L["Bar Settings"] = "Leisteneinstellungen"
 L["Spawn test bar"] = "Testleiste erzeugen"
 L["Use class color"] = "Klassenfarben"
+L["Custom color"] = "Eigene Farbe"
 L["Height"] = "Höhe"
 L["Scale"] = "Skalierung"
 L["Texture"] = "Textur"
@@ -122,11 +137,12 @@ L["Zone"] = "Zone"
 
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "Freilassen, um dich selbst zum Plündermeister zu machen."
+L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "Lässt oRA3 die Plündermethode bei Gruppen- oder Schlachtzugsbeitritt automatisch auf unten angegebenes setzen."
+L["Set the loot mode automatically when joining a group"] = "Die Plündermethode bei Gruppenbeitritt automatisch setzen"
 
 -- Tanks module
 L["Tanks"] = "Tanks"
 L.tankTabTopText = "Klicke auf Spieler in der unteren Liste, um sie zu persönlichen Tanks zu machen. Falls du Hilfe bei den verschiedenen Optionen brauchst, solltest du deine Maus über das Fragezeichen bewegen."
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Oben: Sortierte Tanks. Unten: Potentielle Tanks."
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "Entfernt den Spieler aus der Tankliste."
 L["Blizzard Main Tank"] = "Blizzard Main Tank"
