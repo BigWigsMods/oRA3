@@ -9,12 +9,27 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = "옵션"
 L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
 L["Are you sure you want to disband your group?"] = "정말로 당신의 파티/공격대를 해산하겠습니까?"
-L["Click to open/close oRA3"] = "클릭 - oRA3 열기/닫기"
 L["Unknown"] = "알수 없음"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "몇 가지의 옵션을 설정할 수있습니다. 모든 실재 동작은 공격대 프레임창에서 패널을 통해 확인가능합니다."
-L.uiHidden = "당신은 만약 전투중일 경우,\noRA3의 인터페이스가 일시적으로 비활성화 됩니다.\n\n전투가 종료되어야 정상적으로 돌아옵니다."
+
+L["Open with raid pane"] = true
+L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
+L["Show interface help"] = true
+L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
+
+L.slashCommands = [[
+oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
+
+|cff44ff44/radur|r - Opens the durability list.
+|cff44ff44/razone|r - Opens the zone list.
+|cff44ff44/rares|r - Opens the resistance list.
+|cff44ff44/radisband|r - Instantly disbands the raid with no verification.
+|cff44ff44/raready|r - Performs a ready check.
+|cff44ff44/rainv|r - Invites the whole guild to your group.
+|cff44ff44/razinv|r - Invites guild members in the same zone as you.
+|cff44ff44/rarinv <rank name>|r - Invites guild members of the given rank.
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = "준비가 되지 않은 플레이어: %s"
@@ -81,6 +96,7 @@ L["Add"] = "추가"
 L["Remove"] = "삭제"
 
 -- Cooldowns module
+L["Open monitor"] = "모니터 열기"
 L["Cooldowns"] = "재사용 대기시간"
 L["Monitor settings"] = "모니터 설정"
 L["Show monitor"] = "모니터 표시"
@@ -101,6 +117,7 @@ L["Right-Click me for options!"] = "옵션 설정은 우-클릭!"
 L["Bar Settings"] = "바 설정"
 L["Spawn test bar"] = "테스트 바 표시"
 L["Use class color"] = "직업 색상 사용"
+L["Custom color"] = "사용자 색상"
 L["Height"] = "높이"
 L["Scale"] = "크기"
 L["Texture"] = "텍스쳐"
@@ -120,12 +137,13 @@ L["Grow up"] = "성장 방향"
 L["Zone"] = "지역"
 
 -- Loot module
- L["Leave empty to make yourself Master Looter."] = "자신이 담당자 획득이면 비워 둡니다."
+L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "파티나 공격대에 참여시 자동적으로 전리품 획득 방식을 oRA3을 통해 설정합니다."
+L["Set the loot mode automatically when joining a group"] = "참가한 그룹이 있을때 자동적으로 전리품 획득 방식을 설정합니다."
+L["Leave empty to make yourself Master Looter."] = "자신이 담당자 획득이면 비워 둡니다."
  
 -- Tanks module
 L["Tanks"] = "탱커"
 L.tankTabTopText = "하단의 목록에서 플레이어를 클릭하여 개인적인 탱커를 지정합니다. 만약에 옵션에 대한 도움이 필요하다면 물음표 표시에 마우스를 올려놓으세요."
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "상단 목록: 탱커 정렬. 하단 목록: 가능한 탱커."
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "탱커 목록에서 삭제합니다."
 L["Blizzard Main Tank"] = "블리자드 메인 탱커"
