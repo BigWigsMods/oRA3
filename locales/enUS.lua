@@ -8,10 +8,15 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = true
 L["<oRA3> Disbanding group."] = true
 L["Are you sure you want to disband your group?"] = true
-L["Click to open/close oRA3"] = true
 L["Unknown"] = true
 
 -- Core
+
+L["Open with raid pane"] = true
+L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
+L["Show interface help"] = true
+L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
+
 L.slashCommands = [[
 oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 
@@ -33,10 +38,12 @@ L["Not Ready"] = true
 L["No Response"] = true
 L["Offline"] = true
 L["Play a sound when a ready check is performed."] = true
-L["GUI"] = true
-L["Show the oRA3 Ready Check GUI when a ready check is performed."] = true
-L["Auto Hide"] = true
-L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = true
+L["Show window"] = true
+L["Show the window when a ready check is performed."] = true
+L["Hide window when done"] = true
+L["Automatically hide the window when the ready check is finished."] = true
+L["Hide players who are ready"] = true
+L["Hide players that are marked as ready from the window."] = true
 
 -- Durability module
 L["Durability"] = true
@@ -90,6 +97,7 @@ L["Add"] = true
 L["Remove"] = true
 
 -- Cooldowns module
+L["Open monitor"] = true
 L["Cooldowns"] = true
 L["Monitor settings"] = true
 L["Show monitor"] = true
@@ -110,6 +118,7 @@ L["Right-Click me for options!"] = true
 L["Bar Settings"] = true
 L["Spawn test bar"] = true
 L["Use class color"] = true
+L["Custom color"] = true
 L["Height"] = true
 L["Scale"] = true
 L["Texture"] = true
@@ -134,7 +143,6 @@ L["Zone"] = true
 -- Tanks module
 L["Tanks"] = true
 L.tankTabTopText = "Click on players in the bottom list to make them a personal tank. If you want help with all the options here then move your mouse over the question mark."
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = true
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "Remove from the tank list."
 L["Blizzard Main Tank"] = true

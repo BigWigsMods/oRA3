@@ -104,7 +104,7 @@ local defaults = {
 local selectList -- implemented down the file
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
-
+local function colorize(input) return "|cfffed000" .. input .. "|r" end
 local options = nil
 local function giveOptions()
 	if not options then
@@ -116,16 +116,16 @@ local function giveOptions()
 			args = {
 				toggleWithRaid = {
 					type = "toggle",
-					name = "|cfffed000Open with raid pane|r",
-					desc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r.",
+					name = colorize(L["Open with raid pane"]),
+					desc = L.toggleWithRaidDesc,
 					descStyle = "inline",
 					order = 1,
 					width = "full",
 				},
 				showHelpTexts = {
 					type = "toggle",
-					name = "|cfffed000Show interface help|r",
-					desc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r",
+					name = colorize(L["Show interface help"]),
+					desc = L.showHelpTextsDesc,
 					descStyle = "inline",
 					order = 2,
 					width = "full",

@@ -46,22 +46,22 @@ local function getOptions()
 				},
 				gui = {
 					type = "toggle",
-					name = "Show window",
-					desc = "Show the oRA3 ready check window when a ready check is performed.",
+					name = L["Show window"],
+					desc = L["Show the window when a ready check is performed."],
 					width = "full",
 					order = 2,
 				},
 				autohide = {
 					type = "toggle",
-					name = "Hide window when done",
-					desc = "Automatically hide the oRA3 ready check window when the ready check is finished.",
+					name = L["Hide window when done"],
+					desc = L["Automatically hide the window when the ready check is finished."],
 					width = "full",
 					order = 3,
 				},
 				hideReady = {
 					type = "toggle",
-					name = "Hide players who are ready",
-					desc = "Hides players that are marked as ready from the oRA3 ready check window.",
+					name = L["Hide players who are ready"],
+					desc = L["Hide players that are marked as ready from the window."],
 					width = "full",
 					order = 4,
 				},
@@ -70,9 +70,6 @@ local function getOptions()
 	end
 	return options
 end
-
-
-
 
 local function addIconAndName(frame)
 	local rdc = frame:CreateTexture(nil, "OVERLAY")

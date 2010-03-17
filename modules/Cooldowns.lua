@@ -243,7 +243,13 @@ local function getOptions()
 					order = 10,
 					width = "full",
 				},
-				-- XXX add a button here to show the monitor, regardless of settings
+				shownow = {
+					type = "execute",
+					name = L["Open monitor"],
+					func = showDisplay,
+					width = "full",
+					order = 11,
+				},
 				test = {
 					type = "execute",
 					name = L["Spawn test bar"],
@@ -251,99 +257,104 @@ local function getOptions()
 						module:SpawnTestBar()
 					end,
 					width = "full",
-					order = 11,
-				},
-				barClassColor = {
-					type = "toggle",
-					name = L["Use class color"],
-					width = "full",
 					order = 12,
 				},
-				barColor = {
-					type = "color",
-					name = "Custom color",
-					get = function() return unpack(db.barColor) end,
-					set = function(info, r, g, b)
-						db.barColor = {r, g, b, 1}
-						restyleBars()
-					end,
-					order = 13,
-				},
-				barHeight = {
-					type = "range",
-					name = L["Height"],
-					order = 14,
-					width = "full",
-					min = 8,
-					max = 32,
-					step = 1,
-				},
-				barScale = {
-					type = "range",
-					name = L["Scale"],
-					order = 15,
-					width = "full",
-					min = 0.1,
-					max = 5.0,
-					step = 0.1,
-				},
-				barTexture = {
-					type = "select",
-					name = L["Texture"],
-					order = 16,
-					width = "full",
-					values = textures,
-					get = function()
-						for i, v in next, textures do
-							if v == db.barTexture then
-								return i
-							end
-						end
-					end,
-					set = function(_, v)
-						db.barTexture = textures[v]
-						restyleBars()
-					end,
-				},
-				barLabelAlign = {
-					type = "select",
-					name = L["Label Align"],
-					order = 17,
-					width = "full",
-					values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
-				},
-				barGrowUp = {
-					type = "toggle",
-					name = L["Grow up"],
-					order = 18,
-					width = "full",
-				},
-				show = {
+				settings = {
 					type = "group",
-					name = L["Show"],
-					order = 19,
+					name = L["Bar Settings"],
+					order = 20,
 					width = "full",
 					inline = true,
 					args = {
-						barShowIcon = {
+						barClassColor = {
 							type = "toggle",
-							name = L["Icon"],
+							name = L["Use class color"],
+							order = 13,
 						},
-						barShowDuration = {
-							type = "toggle",
-							name = L["Duration"],
+						barColor = {
+							type = "color",
+							name = L["Custom color"],
+							get = function() return unpack(db.barColor) end,
+							set = function(info, r, g, b)
+								db.barColor = {r, g, b, 1}
+								restyleBars()
+							end,
+							order = 14,
+							disabled = function() return db.barClassColor end,
 						},
-						barShowUnit = {
-							type = "toggle",
-							name = L["Unit name"],
+						barHeight = {
+							type = "range",
+							name = L["Height"],
+							order = 15,
+							min = 8,
+							max = 32,
+							step = 1,
 						},
-						barShowSpell = {
-							type = "toggle",
-							name = L["Spell name"],
+						barScale = {
+							type = "range",
+							name = L["Scale"],
+							order = 15,
+							min = 0.1,
+							max = 5.0,
+							step = 0.1,
 						},
-						barShorthand = {
+						barTexture = {
+							type = "select",
+							name = L["Texture"],
+							order = 17,
+							values = textures,
+							get = function()
+								for i, v in next, textures do
+									if v == db.barTexture then
+										return i
+									end
+								end
+							end,
+							set = function(_, v)
+								db.barTexture = textures[v]
+								restyleBars()
+							end,
+						},
+						barLabelAlign = {
+							type = "select",
+							name = L["Label Align"],
+							order = 18,
+							values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
+						},
+						barGrowUp = {
 							type = "toggle",
-							name = L["Short Spell name"],
+							name = L["Grow up"],
+							order = 19,
+							width = "full",
+						},
+						show = {
+							type = "group",
+							name = L["Show"],
+							order = 20,
+							width = "full",
+							inline = true,
+							args = {
+								barShowIcon = {
+									type = "toggle",
+									name = L["Icon"],
+								},
+								barShowDuration = {
+									type = "toggle",
+									name = L["Duration"],
+								},
+								barShowUnit = {
+									type = "toggle",
+									name = L["Unit name"],
+								},
+								barShowSpell = {
+									type = "toggle",
+									name = L["Spell name"],
+								},
+								barShorthand = {
+									type = "toggle",
+									name = L["Short Spell name"],
+								},
+							},
 						},
 					},
 				},
