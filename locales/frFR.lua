@@ -8,25 +8,42 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = "Options"
 L["<oRA3> Disbanding group."] = "<oRA3> Dissolution du groupe de raid."
 L["Are you sure you want to disband your group?"] = "Êtes-vous sûr de vouloir dissoudre votre groupe ?"
-L["Click to open/close oRA3"] = "Cliquez pour ouvrir/fermer oRA3."
 L["Unknown"] = "Inconnu"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "Vous pouvez configurer quelques options ici. Tout le reste se trouve dans le panneau de l'onglet raid."
-L.uiHidden = "Vous êtes en combat.\nL'interface de oRA3 a été temporairement désactivée.\n\nTout reviendra à la normal\nune fois sorti de combat."
+
+L["Open with raid pane"] = "Ouvrir avec le panneau de raid"
+L.toggleWithRaidDesc = "Ouvre et ferme le panneau de oRA3 automatiquement en même temps que le panneau de raid de Blizzard. Si vous désactivez cette option, vous pouvez toujours ouvrir le panneau de oRA3 en utilisant son raccourci clavier ou une commande slash, telle que |cff44ff44/radur|r."
+L["Show interface help"] = "Afficher l'aide de l'interface"
+L.showHelpTextsDesc = "L'interface de oRA3 est remplie de textes d'aide permettant de mieux comprendre les différents éléments de l'interface. Désactiver cette option enlèvera ces textes, limitant l'encombrement sur chaque panneau. |cffff4411Nécessite parfois un rechargement de l'interface.|r"
+
+L.slashCommands = [[
+oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
+
+|cff44ff44/radur|r - ouvre la liste des durabilités.
+|cff44ff44/razone|r - ouvre la liste des zones.
+|cff44ff44/rares|r - ouvre la liste des résistances.
+|cff44ff44/radisband|r - dissout instantanément le raid sans vérification.
+|cff44ff44/raready|r - fait l'appel.
+|cff44ff44/rainv|r - invite l'entièreté de la guilde dans votre groupe de raid.
+|cff44ff44/razinv|r - invite les membres de la guilde situés dans votre zone.
+|cff44ff44/rarinv <nom du rang>|r - invite les membres de la guilde du rang donné.
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Les joueurs suivants ne sont pas prêts : %s"
-L["Ready check (%d seconds)"] = "Appel (%d |4seconde:secondes;)."
+L["Ready Check (%d seconds)"] = "Appel (%d |4seconde:secondes;)."
 L["Ready"] = "Prêt"
 L["Not Ready"] = "Pas prêt"
 L["No Response"] = "Pas de réponse"
 L["Offline"] = "Hors ligne"
 L["Play a sound when a ready check is performed."] = "Joue un son quand un appel est lancé."
-L["GUI"] = "GUI"
-L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "Affiche le GUI d'appel de oRA3 quand un appel est lancé."
-L["Auto Hide"] = "Cacher auto."
-L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "Cache automatiquement le GUI d'appel de oRA3 quand un appel est terminé."
+L["Show window"] = "Afficher la fenêtre"
+L["Show the window when a ready check is performed."] = "Affiche la fenêtre quand un appel est lancé."
+L["Hide window when done"] = "Cacher la fenêtre une fois fini"
+L["Automatically hide the window when the ready check is finished."] = "Cache automatiquement la fenêtre quand l'appel est terminé."
+L["Hide players who are ready"] = "Cacher les joueurs qui sont prêts"
+L["Hide players that are marked as ready from the window."] = "Enlève les joueurs qui sont prêt de la fenêtre."
 
 -- Durability module
 L["Durability"] = "Durabilité"
@@ -42,11 +59,8 @@ L["Shadow"] = "Ombre"
 L["Nature"] = "Nature"
 L["Arcane"] = "Arcanes"
 
--- Resurrection module
-L["%s is ressing %s."] = "%s ressucite %s."
-
 -- Invite module
-L["Invite"] = "Invitation"
+L["Invite"] = "Invit."
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de niveau maximal seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes."
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages se trouvant à %s seront invités dans le raid rans 10 sec. Veuillez quitter vos groupes."
 L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "Tous les personnages de rang %s ou supérieur seront invités dans le raid dans 10 sec. Veuillez quitter vos groupes." 
@@ -80,6 +94,7 @@ L["Add"] = "Ajouter"
 L["Remove"] = "Enlever"
 
 -- Cooldowns module
+L["Open monitor"] = "Ouvrir le moniteur"
 L["Cooldowns"] = "Recharges"
 L["Monitor settings"] = "Paramètres du moniteur"
 L["Show monitor"] = "Afficher le moniteur"
@@ -97,9 +112,10 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 -- monitor
 L["Cooldowns"] = "Recharge"
 L["Right-Click me for options!"] = "Clic droit pour les options !"
-L["Bar Settings"] = "Param. des barres"
+L["Bar Settings"] = "Paramètres des barres"
 L["Spawn test bar"] = "Afficher une barre de test"
 L["Use class color"] = "Couleur de classe"
+L["Custom color"] = "Couleur personnalisée"
 L["Height"] = "Hauteur"
 L["Scale"] = "Échelle"
 L["Texture"] = "Texture"
@@ -120,11 +136,12 @@ L["Zone"] = "Zone"
 
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "Laissez vide pour faire de vous le maître du butin."
+L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "Laisse oRA3 définir automatiquement la méthode de fouille selon ce que vous avez spécifié ci-dessous quand vous entrez dans un groupe (de raid)."
+L["Set the loot mode automatically when joining a group"] = "Définir auto. le mode du butin en rejoignant un groupe"
 
 -- Tanks module
 L["Tanks"] = "Tanks"
-L.tankTabTopText = "Cliquez sur les joueurs de la liste du bas pour les nommer tank personnel. Si vous souhaitez obtenir de l'aide concernant les options présentes ici, survolez le '?' avec votre souris."
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "Haut : tanks triés. Bas : tanks potentiels."
+L.tankTabTopText = "Cliquez sur les joueurs de la liste du bas pour les nommer tank personnel. Si vous souhaitez obtenir de l'aide, survolez le '?' avec votre souris."
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "Enlève ce joueur de la liste des tanks."
 L["Blizzard Main Tank"] = "Tank principal Blizzard"
