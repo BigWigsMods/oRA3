@@ -138,7 +138,9 @@ L["Grow up"] = true
 L["Zone"] = true
 
 -- Loot module
- L["Leave empty to make yourself Master Looter."] = true
+L["Leave empty to make yourself Master Looter."] = true
+L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = true
+L["Set the loot mode automatically when joining a group"] = true
  
 -- Tanks module
 L["Tanks"] = true

@@ -3,7 +3,6 @@
 --
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local util = oRA.util
 local module = oRA:NewModule("Cooldowns", "AceEvent-3.0", "AceHook-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -409,6 +408,8 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
+		--print("layout paused")
+		frame:PauseLayout()
 		frame:SetLayout("List")
 
 		local moduleDescription = AceGUI:Create("Label")
@@ -429,6 +430,8 @@ do
 		else
 			frame:AddChild(group)
 		end
+		--print("layout unpaused")
+		frame:ResumeLayout()
 	end
 
 	function showPane()

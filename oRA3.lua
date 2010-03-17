@@ -917,6 +917,7 @@ local function setScrollHeaderWidth(nr, width)
 end
 
 local listHeader = ("%s - %%s"):format(L["Checks"])
+local retainSortOrder = nil
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
@@ -924,6 +925,7 @@ function showLists()
 	end
 
 	if not openedList then openedList = db.lastSelectedList or 1 end
+	retainSortOrder = db.lastSelectedList == openedList
 	db.lastSelectedList = openedList
 
 	local list = lists[openedList]

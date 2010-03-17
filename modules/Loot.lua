@@ -27,8 +27,8 @@ local function getOptions()
 			args = {
 				enable = {
 					type = "toggle",
-					name = "Set the loot mode automatically when joining a group",
-					desc = "If you want oRA3 to automatically set the loot mode to what you specify below when entering a party or raid, enable this option.",
+					name = L["Set the loot mode automatically when joining a group"],
+					desc = L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."],
 					get = function() return db.enable end,
 					set = function(k, v) db.enable = v end,
 					order = 1,
