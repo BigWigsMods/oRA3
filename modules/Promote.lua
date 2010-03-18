@@ -101,11 +101,10 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
-		frame:SetLayout("Flow")
+		frame:SetLayout("FullWidthList")
 
 		local spacer = AceGUI:Create("Label")
 		spacer:SetText(" ")
-		spacer:SetFullWidth(true)
 
 		demoteButton = AceGUI:Create("Button")
 		demoteButton:SetText(L["Demote everyone"])
@@ -113,12 +112,10 @@ do
 		demoteButton:SetCallback("OnEnter", onControlEnter)
 		demoteButton:SetCallback("OnLeave", onControlLeave)
 		demoteButton:SetCallback("OnClick", demoteRaid)
-		demoteButton:SetFullWidth(true)
 		updateDemoteButton()
 
 		local massHeader = AceGUI:Create("Heading")
 		massHeader:SetText(L["Mass promotion"])
-		massHeader:SetFullWidth(true)
 
 		everyone = AceGUI:Create("CheckBox")
 		everyone:SetValue(factionDb.promoteAll)
@@ -127,7 +124,6 @@ do
 		everyone:SetCallback("OnLeave", onControlLeave)
 		everyone:SetCallback("OnValueChanged", everyoneCallback)
 		everyone:SetUserData("tooltip", L["Promote everyone automatically."])
-		everyone:SetFullWidth(true)
 
 		if guildRankDb then
 			guild = AceGUI:Create("CheckBox")
@@ -138,7 +134,6 @@ do
 			guild:SetCallback("OnValueChanged", guildCallback)
 			guild:SetUserData("tooltip", L["Promote all guild members automatically."])
 			guild:SetDisabled(factionDb.promoteAll)
-			guild:SetFullWidth(true)
 
 			ranks = AceGUI:Create("Dropdown")
 			ranks:SetMultiselect(true)
@@ -146,7 +141,6 @@ do
 			ranks:SetList(oRA:GetGuildRanks())
 			ranks:SetCallback("OnValueChanged", ranksCallback)
 			ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
-			ranks:SetFullWidth(true)
 
 			local guildRanks = oRA:GetGuildRanks()
 			ranks:SetList(guildRanks)
@@ -157,11 +151,9 @@ do
 
 		local individualHeader = AceGUI:Create("Heading")
 		individualHeader:SetText(L["Individual promotions"])
-		individualHeader:SetFullWidth(true)
 
 		local description = AceGUI:Create("Label")
 		description:SetText(L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."])
-		description:SetFullWidth(true)
 		description:SetFontObject(GameFontHighlight)
 
 		add = AceGUI:Create("EditBox")
@@ -169,7 +161,6 @@ do
 		add:SetText()
 		add:SetCallback("OnEnterPressed", addCallback)
 		add:SetDisabled(factionDb.promoteAll)
-		add:SetRelativeWidth(0.5)
 
 		delete = AceGUI:Create("Dropdown")
 		delete:SetValue("")
@@ -177,7 +168,6 @@ do
 		delete:SetList(factionDb.promotes)
 		delete:SetCallback("OnValueChanged", deleteCallback)
 		delete:SetDisabled(factionDb.promoteAll or #factionDb.promotes < 1)
-		delete:SetRelativeWidth(0.5)
 
 		if guildRankDb then
 			if oRA.db.profile.showHelpTexts then

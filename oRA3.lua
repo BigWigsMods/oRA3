@@ -8,6 +8,32 @@ BINDING_NAME_TOGGLEORA3 = "Toggle oRA3 Pane"
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+local AceGUI = LibStub("AceGUI-3.0")
+AceGUI:RegisterLayout("FullWidthList", function(content, children)
+	local height = 0
+	local width = content.width or content:GetWidth() or 0
+	for i, child in next, children do
+		local frame = child.frame
+		if i == 1 then
+			frame:SetPoint("TOPLEFT", content)
+			frame:SetPoint("TOPRIGHT", content)
+		else
+			frame:SetPoint("TOPLEFT", children[i - 1].frame, "BOTTOMLEFT")
+			frame:SetPoint("TOPRIGHT", children[i - 1].frame, "BOTTOMRIGHT")
+		end
+
+		child:SetWidth(width)
+		if child.DoLayout then
+			child:DoLayout()
+		end
+
+		height = height + (frame.height or frame:GetHeight() or 0)
+	end
+	if content.obj and content.obj.LayoutFinished then
+		content.obj:LayoutFinished(nil, height)
+	end
+end)
+AceGUI = nil
 
 local hexColors = {}
 for k, v in pairs(RAID_CLASS_COLORS) do
