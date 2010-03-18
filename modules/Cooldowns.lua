@@ -408,8 +408,6 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
-		--print("layout paused")
-		frame:PauseLayout()
 		frame:SetLayout("List")
 
 		local moduleDescription = AceGUI:Create("Label")
@@ -430,8 +428,6 @@ do
 		else
 			frame:AddChild(group)
 		end
-		--print("layout unpaused")
-		frame:ResumeLayout()
 	end
 
 	function showPane()
