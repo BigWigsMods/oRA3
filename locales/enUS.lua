@@ -17,6 +17,7 @@ L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with 
 L["Show interface help"] = true
 L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
 
+L["Slash commands"] = true
 L.slashCommands = [[
 oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 

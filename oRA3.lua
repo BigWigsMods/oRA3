@@ -158,7 +158,7 @@ local function giveOptions()
 				},
 				slashCommands = {
 					type = "group",
-					name = "Slash commands",
+					name = L["Slash commands"],
 					width = "full",
 					inline = true,
 					order = 3,
@@ -229,6 +229,20 @@ function addon:OnEnable()
 	end)
 	self:SecureHookScript(RaidFrame, "OnShow", show)
 	self:SecureHookScript(RaidFrame, "OnHide", hide)
+
+	local toggle = nil
+	self:SecureHookScript(RaidInfoFrame, "OnShow", function()
+		if oRA3Frame:IsShown() then
+			toggle = true
+			HideUIPanel(oRA3Frame)
+		end
+	end)
+	self:SecureHookScript(RaidInfoFrame, "OnHide", function()
+		if toggle then
+			addon:ToggleFrame(true)
+			toggle = nil
+		end
+	end)
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
@@ -635,9 +649,13 @@ function addon:ToggleFrame(force)
 		setupGUI = nil
 	end
 	if force then
+		RaidInfoFrame:Hide()
 		ShowUIPanel(oRA3Frame, true)
 	else
 		ToggleFrame(oRA3Frame)
+		if oRA3Frame:IsShown() then
+			RaidInfoFrame:Hide()
+		end
 	end
 end
 
