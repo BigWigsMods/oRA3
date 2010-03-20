@@ -9,19 +9,20 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = "Настройки"
 L["<oRA3> Disbanding group."] = "<oRA3> группа распущена."
 L["Are you sure you want to disband your group?"] = "Вы действительно хотите распустить вашу группу?"
-L["Click to open/close oRA3"] = "Кликните чтобы открыть/закрыть oRA3"
 L["Unknown"] = "Неизвестно"
 
 -- Core
+
 L["Open with raid pane"] = "Открыть с панелью рейда"
 L.toggleWithRaidDesc = "Автоматически открывает и закрывает панель вместе с панелью рейда. Если вы отключите данную опцию, вы сможете открыть панель oRA3 используя назначения клавиш или слэш командой, такой как |cff44ff44/radur|r."
 L["Show interface help"] = "Показать справку по интерфейсу"
 L.showHelpTextsDesc = "Интерфейс оRA3 полон полезных текстов, справки, предназначенной для более точного описания того, что происходит и что из себя представляют различные элементы интерфейса. Отключив данную опцию, они будут убраны, тем самым ограничивая беспорядок на каждой панели. |cffff4411Для некоторых панелей, требуется перезагрузка интерфейса.|r"
 
+L["Slash commands"] = "Слаш команды"
 L.slashCommands = [[
-oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
+oRA3 имеет ряд слаш команд, которые помогут вам с рейдами. В случае, если вы не были знакомы со старым CTRA, здесь есть немного информации. Все команды имеют различные сокращения. Для удобства, в некоторых случаях есть альтернотивное описание.
 
-|cff44ff44/radur|r - Открывает список Прочность.
+|cff44ff44/radur|r - Открывает список Прочности.
 |cff44ff44/razone|r - Открывает список Pон.
 |cff44ff44/rares|r - Открывает список Сопротивления.
 |cff44ff44/radisband|r - Мгновенно распускает рейде без всяческой проверки.
