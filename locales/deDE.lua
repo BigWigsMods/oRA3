@@ -18,6 +18,7 @@ L.toggleWithRaidDesc = "Öffnet und schließt das oRA3 Fenster zusammen mit Bliz
 L["Show interface help"] = "Interface Hilfe anzeigen"
 L.showHelpTextsDesc = "Das oRA3 Interface ist voll von hilfreichen Tips, die eine bessere Beschreibung der einzelnen Elemente liefern und deren Funktion erklären. Falls du diese Option deaktivierst, begrenzt du das Durcheinander in allen Fenstern. |cffff4411Manche Fenster benötigen ein Neuladen des Interfaces.|r"
 
+L["Slash commands"] = "Befehle"
 L.slashCommands = [[
 oRA3 verfügt über eine Reihe von Befehlen, die in hektischer Raidumgebung hilfreich sein können. Für den Fall, dass du in den alten CTRA-Tagen nicht dabei warst: Eine kleine Referenz. Alle Befehle haben diverse Abkürzungen, aber manchmal auch längere, aussagekräftigere Alternativen.
 
