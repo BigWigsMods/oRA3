@@ -17,8 +17,9 @@ L.toggleWithRaidDesc = "Ouvre et ferme le panneau de oRA3 automatiquement en mê
 L["Show interface help"] = "Afficher l'aide de l'interface"
 L.showHelpTextsDesc = "L'interface de oRA3 est remplie de textes d'aide permettant de mieux comprendre les différents éléments de l'interface. Désactiver cette option enlèvera ces textes, limitant l'encombrement sur chaque panneau. |cffff4411Nécessite parfois un rechargement de l'interface.|r"
 
+L["Slash commands"] = "Commandes « / »"
 L.slashCommands = [[
-oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
+oRA3 supporte toute une série de commandes « / » (ou slash) pour vous aider rapidement en raid.
 
 |cff44ff44/radur|r - ouvre la liste des durabilités.
 |cff44ff44/razone|r - ouvre la liste des zones.
@@ -32,7 +33,7 @@ oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case 
 
 -- Ready check module
 L["The following players are not ready: %s"] = "Les joueurs suivants ne sont pas prêts : %s"
-L["Ready Check (%d seconds)"] = "Appel (%d |4seconde:secondes;)."
+L["Ready Check (%d seconds)"] = "Appel (%d |4seconde:secondes;)"
 L["Ready"] = "Prêt"
 L["Not Ready"] = "Pas prêt"
 L["No Response"] = "Pas de réponse"
