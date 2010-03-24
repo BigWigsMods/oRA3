@@ -2,9 +2,6 @@ local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceHook-3.0", "AceEvent-
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon
 
-BINDING_HEADER_oRA3 = "oRA3"
-BINDING_NAME_TOGGLEORA3 = "Toggle oRA3 Pane"
-
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
@@ -34,6 +31,9 @@ AceGUI:RegisterLayout("FullWidthList", function(content, children)
 	end
 end)
 AceGUI = nil
+
+BINDING_HEADER_oRA3 = "oRA3"
+BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
 
 local hexColors = {}
 for k, v in pairs(RAID_CLASS_COLORS) do
@@ -397,15 +397,14 @@ function addon:InParty()
 end
 
 function addon:IsPromoted(name)
+	if groupStatus == UNGROUPED then return end
+
 	if not name then name = playerName end
-	if groupStatus == UNGROUPED then
-		return false
-	elseif groupStatus == INRAID then
+	if groupStatus == INRAID then
 		return UnitIsRaidOfficer(name)
 	elseif groupStatus == INPARTY then
 		return UnitIsPartyLeader(name)
 	end
-	return false
 end
 
 -----------------------------------------------------------------------
@@ -510,7 +509,7 @@ local function setupGUI()
 			StaticPopup_Show("oRA3DisbandGroup")
 		end
 	end)
-	if UnitIsRaidOfficer(playerName) then
+	if addon:IsPromoted() then
 		disband:Enable()
 	else
 		disband:Disable()

@@ -12,6 +12,7 @@ L["Unknown"] = true
 
 -- Core
 
+L["Toggle oRA3 Pane"] = true
 L["Open with raid pane"] = true
 L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
 L["Show interface help"] = true
