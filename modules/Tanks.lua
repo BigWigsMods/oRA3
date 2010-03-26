@@ -76,6 +76,9 @@ function module:OnPromoted(event, status)
 	if not frame then return end
 	for k, v in next, top do
 		v.tank:Enable()
+		if v.stank and not InCombatLockdown() then
+			v.stank:Enable()
+		end
 	end
 end
 
@@ -83,6 +86,9 @@ function module:OnDemoted(event, status)
 	if not frame then return end
 	for k, v in next, top do
 		v.tank:Disable()
+		if v.stank and not InCombatLockdown() then
+			v.stank:Disable()
+		end
 	end
 end
 
@@ -485,11 +491,6 @@ function module:PLAYER_REGEN_ENABLED()
 			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
 			stank:SetAttribute("type", "maintank")
 			stank:SetAttribute("action", "toggle")
-			if oRA:IsPromoted() then
-				stank:Enable()
-			else
-				stank:Disable()
-			end
 			stank.tooltipTitle = L["Blizzard Main Tank"]
 			stank.tooltipText = L.tankButtonHelp
 			top[i].stank = stank
@@ -498,6 +499,11 @@ function module:PLAYER_REGEN_ENABLED()
 		top[i].stank:SetParent(top[i])
 		top[i].stank:SetPoint("TOPRIGHT", top[i].delete, "TOPLEFT", -2, 0)
 		top[i].stank:Show()
+		if oRA:IsPromoted() then
+			top[i].stank:Enable()
+		else
+			top[i].stank:Disable()
+		end
 	end
 	if frame:IsShown() then self:UpdateTopScroll() end
 end
