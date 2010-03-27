@@ -13,9 +13,10 @@ L["Unknown"] = "알수 없음"
 
 -- Core
 
-L["Open with raid pane"] = true
-L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
-L["Show interface help"] = true
+L["Toggle oRA3 Pane"] = "oRA3 패널 전환"
+L["Open with raid pane"] = "공격대 패널과 함께 열기"
+L.toggleWithRaidDesc = "공격대 패널을 열거나 닫을때 oRA3 패널도 같이 열거나 닫히도록 합니다. 따로 커맨드 명령어나 단축키 지정으로도 열수 있습니다."
+L["Show interface help"] = "인터페이스 도움말 보기"
 L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
 
 L["Slash commands"] = "슬러쉬 명령어"
