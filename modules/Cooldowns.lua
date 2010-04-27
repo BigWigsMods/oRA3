@@ -64,6 +64,7 @@ local spells = {
 		[19752] = 600,  -- Divine Intervention
 		[642] = 300,    -- Divine Shield
 		[64205] = 120,  -- Divine Sacrifice
+		[54428] = 60,   -- Divine Plea
 		[498] = 180,    -- Divine Protection
 		[1044] = 25,    -- Hand of Freedom
 		[10278] = 300,  -- Hand of Protection
