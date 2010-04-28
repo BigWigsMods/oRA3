@@ -397,6 +397,7 @@ do
 				checkbox:SetValue(db.spells[v] and true or false)
 				checkbox:SetUserData("id", v)
 				checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
+				checkbox:SetFullWidth(true)
 				widget:AddChild(checkbox)
 			end
 		end
@@ -408,18 +409,20 @@ do
 	local function createFrame()
 		if frame then return end
 		frame = AceGUI:Create("ScrollFrame")
-		frame:SetLayout("FullWidthList")
+		frame:SetLayout("List")
 
 		local moduleDescription = AceGUI:Create("Label")
 		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
 		moduleDescription:SetFontObject(GameFontHighlight)
+		moduleDescription:SetFullWidth(true)
 
 		group = AceGUI:Create("DropdownGroup")
-		group:SetLayout("FullWidthList")
+		group:SetLayout("List")
 		group:SetTitle(L["Select class"])
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
 		group:SetGroup(playerClass)
+		group:SetFullWidth(true)
 
 		if oRA.db.profile.showHelpTexts then
 			frame:AddChildren(moduleDescription, group)
