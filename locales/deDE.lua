@@ -13,6 +13,7 @@ L["Are you sure you want to disband your group?"] = "Bist du sicher, dass du die
 L["Unknown"] = "Unbekannt"
 
 -- Core
+L["Toggle oRA3 Pane"] = "oRA3 Fenster öffnen/schließen"
 L["Open with raid pane"] = "Mit Schlachtzugsfenster öffnen"
 L.toggleWithRaidDesc = "Öffnet und schließt das oRA3 Fenster zusammen mit Blizzards Schlachtzugsfenster. Falls du diese Option deaktivierst, kannst du das oRA3 Fenster nach wie vor via Tastenbelegung oder einem Befehl öffnen, z.B. |cff44ff44/radur|r."
 L["Show interface help"] = "Interface Hilfe anzeigen"
