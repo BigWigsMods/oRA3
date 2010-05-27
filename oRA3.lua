@@ -293,6 +293,13 @@ do
 	function addon:GetGuildMembers() return guildMemberList end
 	function addon:IsGuildMember(name) return guildMemberList[name] end
 	function addon:GetGroupMembers() return groupMembers end
+	function addon:GetClassMembers(class)
+		local tmp = {}
+		for i, unit in next, groupMembers do
+			if UnitClass(unit) == class then tmp[unit] = true end
+		end
+		return tmp
+	end
 	function addon:GetBlizzardTanks() return tanks end
 	
 	local tmpGroup = {}

@@ -19,6 +19,7 @@ local mType = media and media.MediaType and media.MediaType.STATUSBAR or "status
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
+local runningCooldowns = {}
 
 local glyphCooldowns = {
 	[55455] = {2894, 300},   -- Fire Elemental Totem, 5min
@@ -49,6 +50,7 @@ local spells = {
 		[62757] = 300,  -- Call Stabled Pet
 		[781] = 25,     -- Disengage
 		[34490] = 20,   -- Silencing Shot
+		[13809] = 30,   -- Frost Trap
 	},
 	MAGE = {
 		[45438] = 300,  -- Iceblock
@@ -459,6 +461,10 @@ do
 	local shown = nil
 	function isDisplayLocked() return locked end
 	function isDisplayShown() return shown end
+	
+	function module:GetBars()
+		return visibleBars
+	end
 
 	local function utf8trunc(text, num)
 		local len = 0
