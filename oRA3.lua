@@ -187,7 +187,7 @@ function addon:OnEnable()
 	end
 	local function hide()
 		if not db.toggleWithRaid then return end
-		HideUIPanel(oRA3Frame)
+		if oRA3Frame then HideUIPanel(oRA3Frame) end
 	end
 	self:SecureHook(RaidFrame, "SetScript", function(frame, script, handler)
 		if script == "OnHide" then
@@ -206,7 +206,7 @@ function addon:OnEnable()
 
 	local toggle = nil
 	self:SecureHookScript(RaidInfoFrame, "OnShow", function()
-		if oRA3Frame:IsShown() then
+		if oRA3Frame and oRA3Frame:IsShown() then
 			toggle = true
 			HideUIPanel(oRA3Frame)
 		end
