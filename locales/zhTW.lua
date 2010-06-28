@@ -9,12 +9,28 @@ L["Disbands your current party or raid, kicking everyone from your group, one by
 L["Options"] = "選項"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散團隊"
 L["Are you sure you want to disband your group?"] = "你確定要解散團隊?"
-L["Click to open/close oRA3"] = "打開/關閉 oRA3"
 L["Unknown"] = "未知"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在這做一些設定。所有的實際動作從團隊框架面板中完成。"
-L.uiHidden = "你正在戰斗中.\noRA3 面板暫時被關閉.\n\n脫離戰斗后恢復."
+L["Toggle oRA3 Pane"] = "切換oRA3面板"
+L["Open with raid pane"] = "跟著團隊面板開啟"
+L.toggleWithRaidDesc = "一起跟著內建團隊面板自動開啟和關閉。如果你禁用這選項，你扔然可以用按鍵綁定或是/命令來開啟oRA3面板,列如|cff44ff44/radur|r。"
+L["Show interface help"] = "顯示介面幫助"
+L.showHelpTextsDesc = "oRA3介面充滿幫助性的文字來引導將要做什麼做更好的描述以及不同的介面組成事實上在做什麼。禁用這選項將會移除，限制在各面板雜亂的訊息，|cffff4411在某些面板需要重新載入介面。|r"
+
+L["Slash commands"] = "/指令"
+L.slashCommands = [[
+oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘迴在舊的CTRA日子，這裡有一些參考。所有/指令有各種速記也有長的，為了方便，更多描述在某些情況會被取代。
+
+|cff44ff44/radur|r - 開啟耐久度列表。
+|cff44ff44/razone|r - 開啟區域列表。
+|cff44ff44/rares|r - 開啟抗性列表。
+|cff44ff44/radisband|r - 立刻解散團隊，不經過確認。
+|cff44ff44/raready|r - 執行準備確認。
+|cff44ff44/rainv|r - 邀請所有公會成員。
+|cff44ff44/razinv|r - 邀請在相同區域的公會成員。
+|cff44ff44/rarinv <階級名稱>|r - 邀請你輸入的公會階級成員。
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列隊員未準備好:%s"
@@ -24,10 +40,12 @@ L["Not Ready"] = "未準備好"
 L["No Response"] = "未確認"
 L["Offline"] = "離線"
 L["Play a sound when a ready check is performed."] = "準備確認時播放音效。"
-L["GUI"] = "面板"
-L["Show the oRA3 Ready Check GUI when a ready check is performed."] = "準備確認時顯示oRA3準備確認面板。"
-L["Auto Hide"] = "自動隱藏"
-L["Automatically hide the oRA3 Ready Check GUI when a ready check is finished."] = "準備確認完成時自動隱藏oRA3準備確認面板。"
+L["Show window"] = "顯示視窗"
+L["Show the window when a ready check is performed."] = "當準備確認執行顯示視窗。"
+L["Hide window when done"] = "完成時隱藏"
+L["Automatically hide the window when the ready check is finished."] = "當準備確認完成時自動隱藏。"
+L["Hide players who are ready"] = "隱藏已經確認的玩家"
+L["Hide players that are marked as ready from the window."] = "從視窗隱藏已經被標記準備好的玩家。"
 
 -- Durability module
 L["Durability"] = "耐久度"
@@ -42,9 +60,6 @@ L["Fire"] = "火焰"
 L["Shadow"] = "暗影"
 L["Nature"] = "自然"
 L["Arcane"] = "秘法"
-
--- Resurrection module
-L["%s is ressing %s."] = "%s正在復活%s"
 
 -- Invite module
 L["Invite"] = "邀請"
@@ -81,6 +96,7 @@ L["Add"] = "增加"
 L["Remove"] = "刪除"
 
 -- Cooldowns module
+L["Open monitor"] = "開啟監視器"
 L["Cooldowns"] = "冷卻監視"
 L["Monitor settings"] = "監視器設定"
 L["Show monitor"] = "顯示監視器"
@@ -101,6 +117,7 @@ L["Right-Click me for options!"] = "右鍵點擊設定"
 L["Bar Settings"] = "計時條設定"
 L["Spawn test bar"] = "顯示測試計時條"
 L["Use class color"] = "使用職業顏色"
+L["Custom color"] = "自訂顏色"
 L["Height"] = "高"
 L["Scale"] = "縮放"
 L["Texture"] = "材質"
@@ -121,12 +138,13 @@ L["Zone"] = "區域"
 
 -- Loot module
 L["Leave empty to make yourself Master Looter."] = "留空讓自己分配戰利品。"
+L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "讓oRA3自動設定捨取模式，當你進入隊伍或團隊做具體說明。"
+L["Set the loot mode automatically when joining a group"] = "當加入一個群組自動設定捨取模式"
 
 -- Tanks module
 L["Tanks"] = "坦克"
 L.tankTabTopText = "點擊下方列表將其設為坦克. 將鼠標移動到按鈕上可看到操作提示."
 
-L["Top List: Sorted Tanks. Bottom List: Potential Tanks."] = "置頂名單:排序坦克。置底名單:潛在坦克。"
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "從坦克名單移除。"
 L["Blizzard Main Tank"] = "內建主坦克"
