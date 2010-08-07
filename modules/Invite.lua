@@ -187,11 +187,7 @@ function module:OnRegister()
 	self:RegisterChatCommand("rarinvite", inviteRankCommand)
 end
 
-function module:OnEnable()
-	self:RegisterEvent("CHAT_MSG_WHISPER")
-end
-
-function module:CHAT_MSG_WHISPER(event, msg, author)
+local function handleWhisper(event, msg, author)
 	if (db.keyword and msg == db.keyword) or (db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
@@ -205,6 +201,21 @@ function module:CHAT_MSG_WHISPER(event, msg, author)
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		else
 			InviteUnit(author)
+		end
+	end
+end
+
+function module:OnEnable()
+	self:RegisterEvent("CHAT_MSG_BN_WHISPER")
+	self:RegisterEvent("CHAT_MSG_WHISPER", handleWhisper)
+end
+
+function module:CHAT_MSG_BN_WHISPER(event, msg, author)
+	for i = 1, BNGetNumFriends() do
+		local _, firstName, lastName, toonName, _, client = BNGetFriendInfo(i)
+		if client == BNET_CLIENT_WOW and firstName.." "..lastName == author then
+			handleWhisper(event, msg, author)
+			break
 		end
 	end
 end
