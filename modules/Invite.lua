@@ -214,7 +214,7 @@ function module:CHAT_MSG_BN_WHISPER(event, msg, author)
 	for i = 1, BNGetNumFriends() do
 		local _, firstName, lastName, toonName, _, client = BNGetFriendInfo(i)
 		if client == BNET_CLIENT_WOW and firstName.." "..lastName == author then
-			handleWhisper(event, msg, author)
+			handleWhisper(event, msg, toonName)
 			break
 		end
 	end
