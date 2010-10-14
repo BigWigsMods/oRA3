@@ -28,12 +28,14 @@ local glyphCooldowns = {
 	[56844] = {781, 5},		-- Disengage, -5sec
 	[56848] = {19386, 6},	-- Wyvern Sting, -6sec
 	[57955] = {633, 120},	-- Lay on Hands, -2min
-	[55676] = {8122, -3},	-- Psychic Scream, +3sec
+	[55676] = {8122, -3},	-- Psychic Scream, +3sec (adds 3sec now)
 	[55678] = {6346, 60},   -- Fear Ward, -60sec
 	[63231] = {47788, 30},	-- Guardian Spirit, -30sec
 	[63229] = {47585, 45},  -- Dispersion, -45sec
-	[63329] = {871, -120},  -- Shield Wall, +2min (this adds 2 min now, not takes away)
 	[55455] = {2894, 300},  -- Fire Elemental Totem, -5min
+	[63291] = {51514, 15},	-- Hex, -15sec
+	[63329] = {871, -120},  -- Shield Wall, +2min (adds 2min now)
+	
 }
 
 local spells = {
@@ -104,32 +106,24 @@ local spells = {
 		--[73325] = 90,		-- Leap of Faith, Cata only
 	},
 	ROGUE = {
-		[31224] = 90,   -- Cloak of Shadows
-		[38768] = 10,   -- Kick
+		[5277] = 180,	-- Evasion
+		[1766] = 10,	-- Kick
+		[1856] = 180,	-- Vanish
 		[1725] = 30,    -- Distract
-		[13750] = 180,  -- Adrenaline Rush
-		[13877] = 120,  -- Blade Flurry
-		[14177] = 180,  -- Cold Blood
-		[11305] = 180,  -- Sprint
-		[26889] = 180,  -- Vanish
-		[57934] = 30,   -- Tricks of the Trade
 		[2094] = 180,   -- Blind
-		[26669] = 180,  -- Evasion
-		[14185] = 480,  -- Preparation
-		[36554] = 30,   -- Shadowstep
-		[14177] = 180,  -- Cold Blood
-		[51690] = 120,  -- Killing Spree
-		[51713] = 60,   -- Shadow Dance
-		[14183] = 20,   -- Premeditation
+		[31224] = 90,   -- Cloak of Shadows
+		[57934] = 30,   -- Tricks of the Trade
+		[14185] = 300,  -- Preparation
 	},
 	SHAMAN = {
-		[bloodlustId] = 300, -- Bloodlust/Heroism
-		[20608] = 1800, -- Reincarnation
-		[16190] = 300,  -- Mana Tide Totem
-		[2894] = 600,   -- Fire Elemental Totem
-		[2062] = 600,   -- Earth Elemental Totem
-		[16188] = 180,  -- Nature's Swiftness
 		[57994] = 6,    -- Wind Shear
+		[20608] = 1800, -- Reincarnation
+		[2062] = 600,   -- Earth Elemental Totem
+		[2894] = 600,   -- Fire Elemental Totem
+		[bloodlustId] = 300, -- Bloodlust/Heroism
+		[51514] = 45,	-- Hex
+		[16188] = 120,  -- Nature's Swiftness
+		[16190] = 180,  -- Mana Tide Totem
 	},
 	WARLOCK = {
 		-- [47883] = 900, -- Soulstone Resurrection, removed this spellcast_success is hit with 6203 for all ranks
