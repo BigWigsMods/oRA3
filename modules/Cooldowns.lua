@@ -32,12 +32,8 @@ local glyphCooldowns = {
 	[55678] = {6346, 60},   -- Fear Ward, -60sec
 	[63231] = {47788, 30},	-- Guardian Spirit, -30sec
 	[63229] = {47585, 45},  -- Dispersion, -45sec
-	-- XXX Remaining glyphs to check:
-	--[55455] = {2894, 300},   -- Fire Elemental Totem, -5min
-	--[58618] = {47476, 20},   -- Strangulate, -20sec
-	--[63329] = {871, 120},    -- Shield Wall, -2min
-	--[58376] = {12975, 60},   -- Last Stand, -1min
-	--[63252] = {51690, 45},   -- Killing Spree, -45sec
+	[63329] = {871, -120},  -- Shield Wall, +2min (this adds 2 min now, not takes away)
+	[55455] = {2894, 300},  -- Fire Elemental Totem, -5min
 }
 
 local spells = {
