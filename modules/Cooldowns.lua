@@ -42,7 +42,7 @@ local glyphCooldowns = {
 
 local spells = {
 	DRUID = {
-		[20484] = 1800,  -- Rebirth
+		[20484] = 1800, -- Rebirth
 		[29166] = 180,  -- Innervate
 		[17116] = 180,  -- Nature's Swiftness
 		[5209] = 180,   -- Challenging Roar
@@ -165,7 +165,7 @@ local spells = {
 		[47476] = 120,  -- Strangulate
 		[49576] = 35,   -- Death Grip
 		[51271] = 120,  -- Unbreakable Armor
-		[55233] = 60,  -- Vampiric Blood
+		[55233] = 60,   -- Vampiric Blood
 		[49222] = 120,  -- Bone Shield
 		[47528] = 10,   -- Mind Freeze
 		[48707] = 45,   -- Anti-Magic Shell
@@ -387,7 +387,9 @@ local function getOptions()
 	end
 	return options
 end
-
+--[[
+/script bar=oRA3:GetModule"Cooldowns":GetBars();x=oRA3:GetClassMembers("Druid");for b in pairs(bar)do if b:Get"ora3cd:spell"=="Innervate" then x[b:Get"ora3cd:unit"]=nil end end;SendChatMessage("Innervate!","WHISPER",nil,next(x))
+]]
 --------------------------------------------------------------------------------
 -- GUI
 --

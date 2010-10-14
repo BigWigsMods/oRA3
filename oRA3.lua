@@ -417,7 +417,7 @@ end
 
 local function setupGUI()
 	local frame = CreateFrame("Frame", "oRA3Frame", UIParent)
-	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 0, xoffset = 10 }
+	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 12, xoffset = -16 }
 	HideUIPanel(oRA3Frame)
 
 	frame:SetWidth(384)
