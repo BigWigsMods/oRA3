@@ -177,6 +177,7 @@ function addon:OnEnable()
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
+	self:RegisterEvent("PLAYER_ROLES_ASSIGNED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -322,9 +323,10 @@ do
 		if groupStatus == INRAID then
 			for i = 1, GetNumRaidMembers() do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
+				local prole = UnitGroupRolesAssigned("raid"..i);
 				if n then
 					tmpGroup[#tmpGroup + 1] = n
-					if role == "MAINTANK" then
+					if role == "MAINTANK" or prole == "TANK" then
 						tmpTanks[#tmpTanks + 1] = n
 					end
 				end
