@@ -305,7 +305,10 @@ do
 	
 	local tmpGroup = {}
 	local tmpTanks = {}
-	function addon:RAID_ROSTER_UPDATE()
+	local lastTankCount = 0
+	local currTankCount = 0
+	
+	function addon:RAID_ROSTER_UPDATE(event)
 		local oldStatus = groupStatus
 		if GetNumRaidMembers() > 0 then
 			groupStatus = INRAID
@@ -327,6 +330,12 @@ do
 				if n then
 					tmpGroup[#tmpGroup + 1] = n
 					if role == "MAINTANK" or prole == "TANK" then
+						if role == "MAINTANK" then
+							currTankCount = currTankCount + 1
+						end
+						if prole == "TANK" then
+							currTankCount = currTankCount + 1
+						end
 						tmpTanks[#tmpTanks + 1] = n
 					end
 				end
@@ -342,9 +351,12 @@ do
 			copyToTable(tmpGroup, groupMembers)
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
-		if not isIndexedEqual(tmpTanks, tanks) then
+		if not isIndexedEqual(tmpTanks, tanks) or currTankCount ~= lastTankCount then
+			-- Added this check in case we demote a MT but he still has tank role set as the tanks module
+			-- may need to adjust based on preferences.
 			copyToTable(tmpTanks, tanks)
 			self.callbacks:Fire("OnTanksChanged", tanks)
+			lastTankCount = currTankCount
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
 			self.callbacks:Fire("OnShutdown", groupStatus)

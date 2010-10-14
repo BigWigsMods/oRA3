@@ -145,7 +145,7 @@ L["Set the loot mode automatically when joining a group"] = true
 L["Tanks"] = true
 L.tankTabTopText = "Click on players in the bottom list to make them a personal tank. If you want help with all the options here then move your mouse over the question mark."
 -- L["Remove"] is defined above
-L.deleteButtonHelp = "Remove from the tank list."
+L.deleteButtonHelp = "Remove from the tank list. Please note once removed they will not be re-added for the remainder of this session unless you manually re-add the tank."
 L["Blizzard Main Tank"] = true
 L.tankButtonHelp = "Toggle whether this tank should be a Blizzard Main Tank."
 L["Save"] = true
