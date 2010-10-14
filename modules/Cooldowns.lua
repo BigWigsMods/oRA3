@@ -19,20 +19,25 @@ local mType = media and media.MediaType and media.MediaType.STATUSBAR or "status
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
+local skullbashId = 80965 or 80964
 local runningCooldowns = {}
 
 local glyphCooldowns = {
-	[55455] = {2894, 300},   -- Fire Elemental Totem, 5min
-	[58618] = {47476, 20},   -- Strangulate, 20sec
-	[56373] = {31687, 30},   -- Summon Water Elemental, 30sec
-	[63229] = {47585, 45},   -- Dispersion, 45sec
-	[63329] = {871, 120},    -- Shield Wall, 2min
-	[57903] = {5384, 5},     -- Feign Death, 5sec
-	[57858] = {5209, 30},    -- Challenging Roar, 30sec
-	[55678] = {6346, 60},    -- Fear Ward, 60sec
-	[58376] = {12975, 60},   -- Last Stand, 1min
-	[57955] = {48788, 300},  -- Lay on Hands, 5min
-	[63252] = {51690, 45},   -- Killing Spree, 45sec
+	[57858] = {5209, 30},	-- Challenging Roar, -30sec
+	[57903] = {5384, 5},	-- Feign Death, -5sec
+	[56844] = {781, 5},		-- Disengage, -5sec
+	[56848] = {19386, 6},	-- Wyvern Sting, -6sec
+	[57955] = {633, 120},	-- Lay on Hands, -2min
+	[55676] = {8122, -3},	-- Psychic Scream, +3sec
+	[55678] = {6346, 60},   -- Fear Ward, -60sec
+	[63231] = {47788, 30},	-- Guardian Spirit, -30sec
+	[63229] = {47585, 45},  -- Dispersion, -45sec
+	-- XXX Remaining glyphs to check:
+	--[55455] = {2894, 300},   -- Fire Elemental Totem, -5min
+	--[58618] = {47476, 20},   -- Strangulate, -20sec
+	--[63329] = {871, 120},    -- Shield Wall, -2min
+	--[58376] = {12975, 60},   -- Last Stand, -1min
+	--[63252] = {51690, 45},   -- Killing Spree, -45sec
 }
 
 local spells = {
@@ -41,49 +46,66 @@ local spells = {
 		[29166] = 180,  -- Innervate
 		[17116] = 180,  -- Nature's Swiftness
 		[5209] = 180,   -- Challenging Roar
-		[61336] = 180,  -- Survival Instincts
+		[61336] = 300,  -- Survival Instincts
+		[22842] = 180,	-- Frenzied Regeneration
 		[22812] = 60,   -- Barkskin
+		[skullbashId] = 60,	-- Skull Bash
+		[78675] = 60,	-- Solar Beam
+		--[77761] = 120,	-- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
-		[34477] = 30,   -- Misdirect
+		[34477] = 30,   -- Misdirection
 		[5384] = 30,    -- Feign Death
-		[62757] = 300,  -- Call Stabled Pet
 		[781] = 25,     -- Disengage
 		[34490] = 20,   -- Silencing Shot
-		[13809] = 30,   -- Frost Trap
+		[19386] = 60,	-- Wyvern Sting
+		[23989] = 180,	-- Readiness
+		[13809] = 30,   -- Ice Trap
+		[1499] = 30,	-- Freezing Trap
+		--[51753] = 60,		-- Camouflage, Cataclysm only
+		-- XXX Pets missing
 	},
 	MAGE = {
-		[45438] = 300,  -- Iceblock
+		[45438] = 300,  -- Ice Block
 		[2139] = 24,    -- Counterspell
-		[31687] = 180,  -- Summon Water Elemental
-		[12051] = 240,  -- Evocation
 		[66] = 180,     -- Invisibility
+		[12051] = 240,  -- Evocation
+		[31687] = 180,  -- Summon Water Elemental
+		[11958] = 480,	-- Cold Snap
+		--[82676] = 180,	-- Ring of Frost, Cata only
+		--[80353] = 300,	-- Time Warp, Cata only
 	},
 	PALADIN = {
-		[31821] = 120,  -- Aura Mastery
-		[20216] = 120,  -- Divine Favor
-		[31842] = 180,  -- Divine Illumination
-		[19752] = 600,  -- Divine Intervention
+		[633] = 600,	-- Lay on Hands
+		[1022] = 300,	-- Hand of Protection
+		[498] = 60,    	-- Divine Protection
 		[642] = 300,    -- Divine Shield
 		[64205] = 120,  -- Divine Sacrifice
-		[54428] = 60,   -- Divine Plea
-		[498] = 180,    -- Divine Protection
 		[1044] = 25,    -- Hand of Freedom
-		[10278] = 300,  -- Hand of Protection
-		[6940] = 120,   -- Hand of Sacrifice
 		[1038] = 120,   -- Hand of Salvation
-		[48788] = 1200, -- Lay on Hands
-		[66233] = 120,  -- Ardent Defender
+		[6940] = 120,   -- Hand of Sacrifice
+		[31821] = 120,  -- Aura Mastery
+		[70940] = 120,	-- Divine Guardian
+		[31850] = 180,  -- Ardent Defender
+		[85285] = 10,	-- Rebuke
+		[20066] = 60,	-- Repentance
+		--[82327] = 60,		-- Holy Radiance, Cata only
+		--[86150] = 300,	-- Guardian of Ancient Kings, Cata only
 	},
 	PRIEST = {
-		[33206] = 180,  -- Pain Suppression
-		[47788] = 180,  -- Guardian Spirit
+		[8122] = 30,	-- Psychic Scream
 		[6346] = 180,   -- Fear Ward
-		[64843] = 480,  -- Divine Hymn
 		[64901] = 360,  -- Hymn of Hope
 		[34433] = 300,  -- Shadowfiend
+		[64843] = 480,  -- Divine Hymn
 		[10060] = 120,  -- Power Infusion
-		[47585] = 180,  -- Dispersion
+		[33206] = 180,  -- Pain Suppression
+		[62618] = 180,	-- Power Word: Barrier
+		[724] = 180,	-- Lightwell
+		[47788] = 180,  -- Guardian Spirit
+		[15487] = 45,	-- Silence
+		[47585] = 120,  -- Dispersion
+		--[73325] = 90,		-- Leap of Faith, Cata only
 	},
 	ROGUE = {
 		[31224] = 90,   -- Cloak of Shadows
@@ -152,7 +174,7 @@ local spells = {
 
 -- Special handling of some spells that are only triggered by SPELL_AURA_APPLIED.
 local spellAuraApplied = {
-	[66233] = true,  -- Ardent Defender
+	--[66233] = true,  -- Old Ardent Defender, pre 4.x
 }
 local allSpells = {}
 local classLookup = {}
@@ -910,7 +932,7 @@ local function getRank(tab, talent)
 	return rank or 0
 end
 
-local talentScanners = {
+local talentScanners = { --XXX needs work
 	PALADIN = function()
 		addMod(10278, getRank(2, 4) * 60)
 		addMod(48788, getRank(1, 8) * 120)
