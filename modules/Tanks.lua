@@ -128,7 +128,7 @@ function module:OnTanksChanged(event, tanks, updateSort)
 	end
 	for k, tank in next, tanks do
 		if not namedTanks[tank] then
-			if deletedTanks[tank] and GetPartyAssignment("MAINTANK", tank) then
+			if deletedTanks[tank] and oRA:InRaid() and GetPartyAssignment("MAINTANK", tank) then
 				deletedTanks[tank] = nil				
 			end
 			if not deletedTanks[tank] then
@@ -137,7 +137,7 @@ function module:OnTanksChanged(event, tanks, updateSort)
 			updateSort = true
 			namedTanks[tank] = true
 		else
-			if deletedTanks[tank] and GetPartyAssignment("MAINTANK", tank) then
+			if deletedTanks[tank] and oRA:InRaid() and GetPartyAssignment("MAINTANK", tank) then
 				deletedTanks[tank] = nil
 				allIndexedTanks[#allIndexedTanks + 1] = tank
 			end
@@ -198,7 +198,7 @@ end
 local function topScrollDeleteClick(self)
 	local value = self:GetParent().unitName
 	local btanks = oRA:GetBlizzardTanks()
-	if util:inTable(btanks, value) and GetPartyAssignment("MAINTANK", value) then return end
+	if util:inTable(btanks, value) and oRA:InRaid() and GetPartyAssignment("MAINTANK", value) then return end
 	-- remove from persistent if in there
 	for k, v in next, module.db.persistentTanks do
 		if v == value then
@@ -277,7 +277,7 @@ end
 
 local function bottomScrollClick(self)
 	local value = self.unitName
-	if util:inTable(allIndexedTanks, value)  and GetPartyAssignment("MAINTANK", value) then return true end
+	if util:inTable(allIndexedTanks, value)  and oRA:InRaid() and GetPartyAssignment("MAINTANK", value) then return true end
 	sessionTanks[value] = true
 	namedTanks[value] = true
 	if deletedTanks[value] then
@@ -480,7 +480,7 @@ function module:UpdateTopScroll()
 				if v.stank then v.stank:SetAlpha(1) end
 				v.delete:SetAlpha(.3)
 				v.delete:Disable()
-				if not GetPartyAssignment("MAINTANK", name) then
+				if oRA:InRaid() and not GetPartyAssignment("MAINTANK", name) then
 					v.delete:SetAlpha(1)
 					v.delete:Enable()
 				end
@@ -532,7 +532,7 @@ function module:PLAYER_REGEN_ENABLED()
 		else
 			top[i].stank:Disable()
 		end
-		if top[i].unitName and not GetPartyAssignment("MAINTANK", top[i].unitName) and 
+		if top[i].unitName and oRA:InRaid() and not GetPartyAssignment("MAINTANK", top[i].unitName) and 
 			UnitGroupRolesAssigned(top[i].unitName) == "TANK" then
 			v.delete:SetAlpha(1)
 			v.delete:Enable()
