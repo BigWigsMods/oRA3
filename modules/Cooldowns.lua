@@ -35,7 +35,6 @@ local glyphCooldowns = {
 	[55455] = {2894, 300},  -- Fire Elemental Totem, -5min
 	[63291] = {51514, 15},	-- Hex, -15sec
 	[63329] = {871, -120},  -- Shield Wall, +2min (adds 2min now)
-	
 }
 
 local spells = {
@@ -126,39 +125,39 @@ local spells = {
 		[16190] = 180,  -- Mana Tide Totem
 	},
 	WARLOCK = {
-		-- [47883] = 900, -- Soulstone Resurrection, removed this spellcast_success is hit with 6203 for all ranks
-		[6203] = 900,   -- Soulstone
-		[29858] = 180,  -- Soulshatter
-		[47241] = 180,  -- Metamorphosis
-		[18708] = 900,  -- Fel Domination
+		--[20707] = 1800, -- Soulstone Resurrection
+		[6203] = 1800,   -- Soulstone, XXX needs testing
 		[698] = 120,    -- Ritual of Summoning
-		[58887] = 300,  -- Ritual of Souls
+		[1122] = 600,	-- Summon Infernal
+		[18540] = 600,	-- Summon Doomguard
+		[29858] = 120,  -- Soulshatter
+		[29893] = 300,  -- Ritual of Souls
+		[59672] = 180,  -- Metamorphosis
 	},
 	WARRIOR = {
-		[871] = 300,    -- Shield Wall
-		[1719] = 300,   -- Recklessness
-		[20230] = 300,  -- Retaliation
-		[12975] = 180,  -- Last Stand
-		[6554] = 10,    -- Pummel
+		[2565] = 60,	-- Shield Block
+		[6552] = 10,    -- Pummel
+		[5246] = 120,   -- Intimidating Shout
 		[1161] = 180,   -- Challenging Shout
-		[5246] = 180,   -- Intimidating Shout
-		[64380] = 300,  -- Shattering Throw (could be 64382)
+		[871] = 300,    -- Shield Wall
+		[64382] = 300,  -- Shattering Throw
 		[55694] = 180,  -- Enraged Regeneration
-		[72] = 12,      -- Shield Bash
+		[12809] = 30,	-- Concussion Blow
+		[12975] = 180,  -- Last Stand
+		--[6544] = 60,	-- Heroic Leap, Cata only
 	},
 	DEATHKNIGHT = {
-		[48792] = 120,  -- Icebound Fortitude
-		[42650] = 600,  -- Army of the Dead
-		[61999] = 600,  -- Raise Ally
-		[49028] = 90,   -- Dancing Rune Weapon
-		[49206] = 180,  -- Summon Gargoyle
-		[47476] = 120,  -- Strangulate
 		[49576] = 35,   -- Death Grip
-		[51271] = 120,  -- Unbreakable Armor
-		[55233] = 60,   -- Vampiric Blood
-		[49222] = 120,  -- Bone Shield
 		[47528] = 10,   -- Mind Freeze
+		[47476] = 120,  -- Strangulate
+		[48792] = 120,  -- Icebound Fortitude
 		[48707] = 45,   -- Anti-Magic Shell
+		[61999] = 600,  -- Raise Ally
+		[42650] = 600,  -- Army of the Dead
+		[49222] = 60,	-- Bone Shield
+		[55233] = 60,   -- Vampiric Blood
+		[49028] = 90,   -- Dancing Rune Weapon
+		[49039] = 120,	-- Lichborne
 	},
 }
 

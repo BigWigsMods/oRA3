@@ -146,7 +146,7 @@ L["Set the loot mode automatically when joining a group"] = "Die Plündermethode
 L["Tanks"] = "Tanks"
 L.tankTabTopText = "Klicke auf Spieler in der unteren Liste, um sie zu persönlichen Tanks zu machen. Falls du Hilfe bei den verschiedenen Optionen brauchst, solltest du deine Maus über das Fragezeichen bewegen."
 -- L["Remove"] is defined above
-L.deleteButtonHelp = "Entfernt den Spieler aus der Tankliste."
+L.deleteButtonHelp = "Entfernt den Spieler aus der Tankliste. Sobald ein Spieler einmal entfernt wurde, wird er für die Dauer des Schlachtzugs nicht mehr automatisch hinzugefügt. Du kannst ihn aber wieder manuell zur Tankliste hinzufügen."
 L["Blizzard Main Tank"] = "Blizzard Main Tank"
 L.tankButtonHelp = "Setzt oder entfernt den Blizzard MT-Status."
 L["Save"] = "Speichern"
