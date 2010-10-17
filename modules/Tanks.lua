@@ -534,8 +534,8 @@ function module:PLAYER_REGEN_ENABLED()
 		end
 		if top[i].unitName and oRA:InRaid() and not GetPartyAssignment("MAINTANK", top[i].unitName) and 
 			UnitGroupRolesAssigned(top[i].unitName) == "TANK" then
-			v.delete:SetAlpha(1)
-			v.delete:Enable()
+			top[i].delete:SetAlpha(1)
+			top[i].delete:Enable()
 		end
 	end
 	if frame:IsShown() then self:UpdateTopScroll() end
