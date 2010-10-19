@@ -15,6 +15,7 @@ local allIndexedTanks = {} -- table containing the top scroll sorted list of ind
 local sessionTanks = {} -- Tanks you pushed to the top for this session
 local namedHidden = {} -- Named hidden tanks for this session
 local deletedTanks = {}
+local dTankTmp = {}
 
 -- Lists containing the scrolling rows of tanks in the GUI
 local top = {}
@@ -96,8 +97,12 @@ end
 function module:OnGroupChanged(event, status, members, updateSort)
 	if oRA:InRaid() then
 		wipe(tmpTanks)
+		wipe(dTankTmp)
 		for tank, v in pairs(namedTanks) do
 			tmpTanks[tank] = v
+		end
+		for tank, v in pairs(deletedTanks) do
+			dTankTmp[tank] = v
 		end
 		for k, tank in next, members do
 			-- mix in the persistentTanks
@@ -106,11 +111,17 @@ function module:OnGroupChanged(event, status, members, updateSort)
 				namedTanks[tank] = true
 			end
 			tmpTanks[tank] = nil
+			dTankTmp[tank] = nil
 		end
 		-- remove obsolete tanks
 		for tank, v in pairs(tmpTanks) do -- remove members nolonger in the group
 			updateSort = true
 			namedTanks[tank] = nil
+		end
+		-- remove deleted tanks that dont exist anymore
+		for tank,v in pairs(dTankTmp) do
+			updateSort = true
+			deletedTanks[tank] = nil
 		end
 		if updateSort then
 			sortTanks()
