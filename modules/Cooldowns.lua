@@ -48,6 +48,7 @@ local glyphCooldowns = {
 	[56217] = {5484, 8},    -- Howl of Terror, -8sec
 	[63304] = {50796, 2},   -- Chaos Bolt, -2sec
 	[63309] = {48020, 4},   -- Demonic Circle: Teleport, -4sec
+	[58058] = {556, 450},   -- Astral Recall, -450sec
 }
 
 local spells = {
@@ -75,6 +76,7 @@ local spells = {
 		[5217] = 30,    -- Tiger's Fury
 		[33891] = 180,  -- Tree of Life
 		[5229] = 60,    -- Enrage
+		[16689] = 60,   -- Nature's Grasp
 		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
@@ -198,6 +200,21 @@ local spells = {
 		[51514] = 45,   -- Hex
 		[16188] = 120,  -- Nature's Swiftness
 		[16190] = 180,  -- Mana Tide Totem
+		[8177] = 15,    -- Grounding Totem
+		[5730] = 20,    -- Stoneclaw Totem
+		[2484] = 15,    -- Earthbind Totem
+		[1535] = 10,    -- Fire Nova
+		[556] = 900,    -- Astral Recall
+		[73680] = 15,   -- Unleash Elements
+		[51505] = 8,    -- Lava Burst
+		[51490] = 40,   -- Thunderstorm
+		[16166] = 180,  -- Elemental Mastery
+		[79206] = 120,  -- Spiritwalker's Grace
+		[51533] = 120,  -- Feral Spirit
+		[30823] = 60,   -- Shamanistic Rage
+		[73920] = 10,   -- Healing Rain
+		[73899] = 8,    -- Primal Strike
+		[17364] = 8,    -- Stormstrike
 	},
 	WARLOCK = {
 		--[20707] = 1800, -- Soulstone Resurrection
@@ -268,6 +285,9 @@ local spells = {
 		[49206] = 180,  -- Summon Gargoyle
 		[46584] = 180,  -- Raise Dead
 		[51052] = 120,  -- Anti-Magic Zone
+		[57330] = 20,   -- Horn of Winter
+		[47568] = 300,  -- Empower Rune Weapon
+		[48743] = 120,  -- Death Pact
 	},
 }
 
