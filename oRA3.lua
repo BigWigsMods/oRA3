@@ -177,7 +177,6 @@ function addon:OnEnable()
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
-	self:RegisterEvent("PLAYER_ROLES_ASSIGNED", "RAID_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -305,8 +304,6 @@ do
 	
 	local tmpGroup = {}
 	local tmpTanks = {}
-	local lastTankCount = 0
-	local currTankCount = 0
 	
 	function addon:RAID_ROSTER_UPDATE(event)
 		local oldStatus = groupStatus
@@ -326,16 +323,9 @@ do
 		if groupStatus == INRAID then
 			for i = 1, GetNumRaidMembers() do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
-				local prole = UnitGroupRolesAssigned("raid"..i);
 				if n then
 					tmpGroup[#tmpGroup + 1] = n
-					if role == "MAINTANK" or prole == "TANK" then
-						if role == "MAINTANK" then
-							currTankCount = currTankCount + 1
-						end
-						if prole == "TANK" then
-							currTankCount = currTankCount + 1
-						end
+					if role == "MAINTANK" then
 						tmpTanks[#tmpTanks + 1] = n
 					end
 				end
@@ -351,7 +341,7 @@ do
 			copyToTable(tmpGroup, groupMembers)
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
-		if not isIndexedEqual(tmpTanks, tanks) or currTankCount ~= lastTankCount then
+		if not isIndexedEqual(tmpTanks, tanks) then
 			-- Added this check in case we demote a MT but he still has tank role set as the tanks module
 			-- may need to adjust based on preferences.
 			copyToTable(tmpTanks, tanks)
