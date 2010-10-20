@@ -38,7 +38,11 @@ local glyphCooldowns = {
 	[56830] = {19574, 20},  -- Bestial Wrath, -20sec
 	[56850] = {19263, 10},  -- Deterrene, -10sec
 	[56373] = {31661, 3},   -- Dragon's Breath, -3sec
-	[55688] = {64044, 60}   -- Psychic Horror, -60sec
+	[55688] = {64044, 60},  -- Psychic Horror, -60sec
+	[54828] = {48505, 30},  -- Starfall, -30sec
+	[94388] = {16979, 1},   -- Feral Charge (Bear), -1sec
+	[94388] = {49376, 2},   -- Feral Charge (Cat), -2sec
+	[94390] = {5217, 3},    -- Tiger's Fury, -3sec
 }
 
 local spells = {
@@ -53,6 +57,18 @@ local spells = {
 		[80964] = 60,   -- Skull Bash (Bear)
 		[80965] = 60,   -- Skull Bash (Cat)
 		[78675] = 60,   -- Solar Beam
+		[78674] = 15,   -- Starsurge
+		[18562] = 15,   -- Swiftmend
+		[50516] = 20,   -- Typhoon
+		[78675] = 60,   -- Solar Beam
+		[33831] = 180,  -- Force of Nature
+		[48505] = 90,   -- Starfall
+		[16979] = 15,   -- Feral Charge (Bear)
+		[49376] = 30,   -- Feral Charge (Cat)
+		[5211]  = 60,   -- Bash
+		[50334] = 180,  -- Berserk
+		[5217] = 30,    -- Tiger's Fury
+		[33891] = 180,  -- Tree of Life
 		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
@@ -470,6 +486,16 @@ do
 		db.spells[id] = value and true or false
 	end
 
+	local function showCheckboxTooltip(widget, event)
+		GameTooltip:SetOwner(widget.frame, "ANCHOR_LEFT")
+		GameTooltip:SetHyperlink("spell:"..widget:GetUserData("id"))
+		GameTooltip:Show()
+	end
+	
+	local function hideCheckboxTooltip(widget, event)
+		GameTooltip:Hide()
+	end
+
 	local function dropdownGroupCallback(widget, event, key)
 		widget:PauseLayout()
 		widget:ReleaseChildren()
@@ -481,7 +507,7 @@ do
 			end
 			table.sort(tmp) -- ZZZ Sorted by spell ID, oh well!
 			for i, v in next, tmp do
-				local name = GetSpellInfo(v)
+				local name, _, icon = GetSpellInfo(v)
 				if not name then break end
 				local checkbox = AceGUI:Create("CheckBox")
 				checkbox:SetLabel(name)
@@ -489,6 +515,9 @@ do
 				checkbox:SetUserData("id", v)
 				checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
 				checkbox:SetFullWidth(true)
+				checkbox:SetImage(icon)
+				checkbox:SetCallback("OnEnter", showCheckboxTooltip)
+				checkbox:SetCallback("OnLeave", hideCheckboxTooltip)
 				widget:AddChild(checkbox)
 			end
 		end
@@ -1149,6 +1178,14 @@ local talentScanners = { --XXX needs work
 			addMod(1856, rank * 30)
 			addMod(2094, rank * 30)
 			addMod(31224, rank * 15)
+		end
+	end,
+	DRUID = function()
+		local rank = getRank(2, 13)
+		if rank > 0 then
+			addMod(5211, rank * 5)
+			addMod(80964, rank * 25)
+			addMod(80965, rank * 25)
 		end
 	end,
 }
