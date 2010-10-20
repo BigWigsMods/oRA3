@@ -1156,7 +1156,7 @@ local talentScanners = { --XXX needs work
 function module:UpdateCooldownModifiers()
 	wipe(cdModifiers)
 	for i = 1, GetNumGlyphSockets() do
-		local enabled, _, spellId = GetGlyphSocketInfo(i)
+		local enabled, _, _, spellId = GetGlyphSocketInfo(i)
 		if enabled and spellId and glyphCooldowns[spellId] then
 			local info = glyphCooldowns[spellId]
 			addMod(info[1], info[2])
