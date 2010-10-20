@@ -1026,12 +1026,12 @@ local talentScanners = { --XXX needs work
 		end
 
 		rank = getRank(3, 14)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(31884, rank * 20)
 		end
 
 		rank = getRank(3, 19) * 10
-		if rank > 0 then
+		if rank > 0 then
 			addMod(1044, (25 * rank) / 100)
 			addMod(1038, (120 * rank) / 100)
 			addMod(6940, (120 * rank) / 100)
@@ -1042,7 +1042,7 @@ local talentScanners = { --XXX needs work
 	end,]]
 	WARRIOR = function()
 		local rank = getRank(2, 5)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(6673, rank * 15)
 			addMod(469, rank * 15)
 		end
@@ -1059,31 +1059,31 @@ local talentScanners = { --XXX needs work
 		end
 		rank = getRank(3, 7)
 		if rank > 0 then
-			addMod(57755, rank * 15
+			addMod(57755, rank * 15)
 		end
 	end,
 	DEATHKNIGHT = function()
 		local rank = getRank(1, 4)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(45529, rank * 15)
 		end
 		rank = getRank(1, 7)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(47476, rank * 30)
 		end
 		rank = getRank(3, 1)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(49576, rank * 5)
 		end
 	end,
 	HUNTER = function()
 		local rank = getRank(1, 11) * 10
-		if rank > 0 then
+		if rank > 0 then
 			addMod(19577, (60 * rank) / 100)
 			addMod(19574, (100 * rank) / 100) -- We assume the hunter has Bestial Wrath glyphed
 		end
 		rank = getRank(2, 17)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(3045, rank * 60)
 		end
 		rank = getRank(3, 4)
@@ -1091,7 +1091,7 @@ local talentScanners = { --XXX needs work
 			addMod(781, rank * 2)
 		end
 		rank = getRank(3, 11) * 2
-		if rank > 0 then
+		if rank > 0 then
 			addMod(3674, rank)
 			addMod(1499, rank)
 			addMod(13809, rank)
@@ -1107,7 +1107,7 @@ local talentScanners = { --XXX needs work
 	end,
 	MAGE = function()
 		local rank = getRank(1, 8)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(12051, rank * 60)
 			local percent = rank * 12.5
 			addMod(12043, (120 * percent) / 100)
@@ -1127,7 +1127,7 @@ local talentScanners = { --XXX needs work
 	end,
 	PRIEST = function()
 		local rank = getRank(2, 12) * 15
-		if rank > 0 then
+		if rank > 0 then
 			addMod(88625, (25 * rank) / 100)
 			addMod(88682, (15 * rank) / 100)
 			addMod(88684, (20 * rank) / 100)
@@ -1139,13 +1139,13 @@ local talentScanners = { --XXX needs work
 			addMod(34433, rank * 30)
 		end
 		rank = getRank(3, 4)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(8122, rank * 2)
 		end
 	end,
 	ROGUE = function()
 		local rank = getRank(3, 4)
-		if rank > 0 then
+		if rank > 0 then
 			addMod(1856, rank * 30)
 			addMod(2094, rank * 30)
 			addMod(31224, rank * 15)
