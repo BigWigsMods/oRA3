@@ -438,20 +438,24 @@ function module:READY_CHECK_FINISHED(event, someBoolean)
 	end
 
 	-- mimic true readycheck results for assistants/leader that did not start the readycheck
-	if readyAuthor ~= playerName then
+	--if readyAuthor ~= playerName then
 		sysPrint(READY_CHECK_FINISHED)
 
 		if #noReply > 0 then
-			sysPrint(RAID_MEMBERS_AFK:format(table.concat(noReply, ", ")))
+			local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
+			sysPrint(afk)
+			SendChatMessage(afk, "RAID")
 		elseif #notReady == 0 and #noReply == 0 then
 			sysPrint(READY_CHECK_ALL_READY)
 		elseif #noReply == 0 then
 			sysPrint(READY_CHECK_NO_AFK)
 		end
-	end
+	--end
 
 	if #notReady > 0 then
-		sysPrint(RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", ")))
+		local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
+		sysPrint(no)
+		SendChatMessage(no, "RAID")
 	end
 end
 

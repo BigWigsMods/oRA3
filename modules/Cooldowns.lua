@@ -43,6 +43,11 @@ local glyphCooldowns = {
 	[94388] = {16979, 1},   -- Feral Charge (Bear), -1sec
 	[94388] = {49376, 2},   -- Feral Charge (Cat), -2sec
 	[94390] = {5217, 3},    -- Tiger's Fury, -3sec
+	[63235] = {47540, 2},   -- Penance, -2sec
+	[56235] = {17962, 2},   -- Conflagrate, -2sec
+	[56217] = {5484, 8},    -- Howl of Terror, -8sec
+	[63304] = {50796, 2},   -- Chaos Bolt, -2sec
+	[63309] = {48020, 4},   -- Demonic Circle: Teleport, -4sec
 }
 
 local spells = {
@@ -69,6 +74,7 @@ local spells = {
 		[50334] = 180,  -- Berserk
 		[5217] = 30,    -- Tiger's Fury
 		[33891] = 180,  -- Tree of Life
+		[5229] = 60,    -- Enrage
 		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
@@ -164,6 +170,7 @@ local spells = {
 		[586]   = 30,   -- Fade
 		[15487] = 45,   -- Silence
 		[64044] = 120,  -- Psychic Horror
+		[33076] = 10,   -- Prayer of Mending
 		--[73325] = 90,   -- Leap of Faith, Cata only
 	},
 	ROGUE = {
@@ -201,6 +208,15 @@ local spells = {
 		[29858] = 120,  -- Soulshatter
 		[29893] = 300,  -- Ritual of Souls
 		[59672] = 180,  -- Metamorphosis
+		[17962] = 10,   -- Conflagrate
+		[5484] = 40,    -- Howl of Terror
+		[48181] = 8,    -- Haunt
+		[47193] = 60,   -- Demonic Empowerment
+		[71521] = 12,   -- Hand of Gul'dan
+		[17877] = 15,   -- Shadowburn
+		[30283] = 20,   -- Shadowfury
+		[50796] = 12,   -- Chaos Bolt
+		[48020] = 30,   -- Demonic Circle: Teleport
 	},
 	WARRIOR = {
 		[100]   = 15,  -- Charge
@@ -250,6 +266,8 @@ local spells = {
 		[49203] = 60,   -- Hungering Cold
 		[49016] = 180,  -- Unholy Frenzy
 		[49206] = 180,  -- Summon Gargoyle
+		[46584] = 180,  -- Raise Dead
+		[51052] = 120,  -- Anti-Magic Zone
 	},
 }
 
