@@ -14,6 +14,7 @@ local namedPersistent = {} -- table containing named persistent list filled from
 local allIndexedTanks = {} -- table containing the top scroll sorted list of indexed tanks
 local sessionTanks = {} -- Tanks you pushed to the top for this session
 local namedHidden = {} -- Named hidden tanks for this session
+local deletedTanks = {}
 
 -- Lists containing the scrolling rows of tanks in the GUI
 local top = {}
@@ -58,6 +59,7 @@ end
 function module:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_ROLES_ASSIGNED","CheckRoleAssignments")
 end
 
 local function sortTanks()
@@ -154,6 +156,42 @@ function module:OnTanksChanged(event, tanks, updateSort)
 	end
 end
 
+function module:CheckRoleAssignments()
+	if oRA:InRaid() then
+		local updateSort = false
+		local members = oRA:GetGroupMembers()
+		for k,member in next, members do
+			local role = UnitGroupRolesAssigned(member)
+			--[[ IF requested at a later to auto-remove non tank role from tank list this can accomplish that.
+			if role ~= "TANK" and util:inTable(allIndexedTanks, member) then
+				for k, v in next, allIndexedTanks do
+					if v == member and not namedPersistent[member] then
+						table.remove(allIndexedTanks, k)
+					end
+				end
+				if not namedPersistent[member] then
+					sessionTanks[member] = nil
+					namedTanks[member] = nil
+					updateSort = true
+				end
+			end
+			--]]
+			if role == "TANK" and not deletedTanks[member] and not util:inTable(allIndexedTanks, member) then
+				allIndexedTanks[#allIndexedTanks + 1] = member
+				sessionTanks[member] = true
+				namedTanks[member] = true
+				updateSort = true
+			end
+		end
+		if updateSort then
+			module:OnGroupChanged("OnGroupChanged", nil, oRA:GetGroupMembers())
+			module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
+			module:UpdateScrolls()
+		end
+	end
+end
+
+
 local function OnEnter(self)
 	if not oRA.db.profile.showHelpTexts then return end
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
@@ -198,6 +236,7 @@ local function topScrollDeleteClick(self)
 		end
 	end
 	sessionTanks[value] = nil
+	deletedTanks[value] = true
 	PlaySound("igMainMenuOptionCheckBoxOff")
 	-- update
 	module:OnGroupChanged("OnGroupChanged", nil, oRA:GetGroupMembers())
@@ -263,6 +302,7 @@ local function bottomScrollClick(self)
 	allIndexedTanks[#allIndexedTanks + 1] = value
 	sessionTanks[value] = true
 	namedTanks[value] = true
+	deletedTanks[value]= nil
 	PlaySound("igMainMenuOptionCheckBoxOn")
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 	module:UpdateScrolls()
