@@ -36,7 +36,7 @@ local glyphCooldowns = {
 	[63329] = {871, -120},  -- Shield Wall, +2min (adds 2min now)
 	[63325] = {46968, 3},   -- Shockwave, -3sec
 	[56830] = {19574, 20},  -- Bestial Wrath, -20sec
-	[56850] = {19263, 10},  -- Deterrene, -10sec
+	[56850] = {19263, 10},  -- Deterrence, -10sec
 	[56373] = {31661, 3},   -- Dragon's Breath, -3sec
 	[55688] = {64044, 60},  -- Psychic Horror, -60sec
 	[54828] = {48505, 30},  -- Starfall, -30sec
@@ -49,6 +49,16 @@ local glyphCooldowns = {
 	[63304] = {50796, 2},   -- Chaos Bolt, -2sec
 	[63309] = {48020, 4},   -- Demonic Circle: Teleport, -4sec
 	[58058] = {556, 450},   -- Astral Recall, -450sec
+	[57858] = {5209, 30},   -- Challenging Roar. -30sec
+	[54940] = {85222, 10},  -- Light of Dawn, -10sec
+	[55684] = {586, 9},     -- Fade, -9sec
+	[55441] = {8177, -45},  -- Grounding Totem, +45sec
+	[63270] = {51490, 10},  -- Thunderstorm, -10sec
+	[63324] = {46924, 15},  -- Bladestorm, -15sec
+	[63328] = {23920, 1},   -- Spell Reflection, -1sec
+	[54928] = {26573, "20"},-- Consecration, -20%
+	[59219] = {1850, "20"}, -- Dash, -20%
+	[58355] = {100, "7"},  -- Charge, -7%
 }
 
 local spells = {
@@ -77,6 +87,7 @@ local spells = {
 		[33891] = 180,  -- Tree of Life
 		[5229] = 60,    -- Enrage
 		[16689] = 60,   -- Nature's Grasp
+		[1850] = 180,   -- Dash
 		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
@@ -144,6 +155,8 @@ local spells = {
 		[31884] = 180,  -- Avenging Wrath
 		[853] = 60,	    -- Hammer of Justice
 		[31935] = 24,   -- Avenger's Shield
+		[26573] = 30,   -- Consecration
+		[85222] = 30,   -- Light of Dawn
 		--[82327] = 60,   -- Holy Radiance, Cata only
 		--[86150] = 300,  -- Guardian of Ancient Kings, Cata only
 	},
@@ -1233,8 +1246,13 @@ function module:UpdateCooldownModifiers()
 	for i = 1, GetNumGlyphSockets() do
 		local enabled, _, _, spellId = GetGlyphSocketInfo(i)
 		if enabled and spellId and glyphCooldowns[spellId] then
-			local info = glyphCooldowns[spellId]
-			addMod(info[1], info[2])
+			local spell, modifier = unpack(glyphCooldowns[spellId])
+			if type(modifier) == "string" then -- Percent
+				local unmodified = getCooldown(spell)
+				addMod(spell, (unmodified * tonumber(modifier)) / 100)
+			else
+				addMod(spell, modifier)
+			end
 		end
 	end
 	if talentScanners[playerClass] then
