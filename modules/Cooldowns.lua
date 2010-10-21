@@ -49,7 +49,6 @@ local glyphCooldowns = {
 	[63304] = {50796, 2},   -- Chaos Bolt, -2sec
 	[63309] = {48020, 4},   -- Demonic Circle: Teleport, -4sec
 	[58058] = {556, 450},   -- Astral Recall, -450sec
-	[57858] = {5209, 30},   -- Challenging Roar. -30sec
 	[54940] = {85222, 10},  -- Light of Dawn, -10sec
 	[55684] = {586, 9},     -- Fade, -9sec
 	[55441] = {8177, -45},  -- Grounding Totem, +45sec
@@ -1079,7 +1078,7 @@ local function getRank(tab, talent)
 	return rank or 0
 end
 
-local talentScanners = { --XXX needs work
+local talentScanners = {
 	PALADIN = function()
 		local rank = getRank(1, 17)
 		if rank > 0 then
@@ -1117,9 +1116,12 @@ local talentScanners = { --XXX needs work
 			addMod(6940, (120 * rank) / 100)
 		end
 	end,
-	--[[SHAMAN = function()
-		--addMod(20608, getRank(3, 3) * 600)
-	end,]]
+	SHAMAN = function()
+		local rank = getRank(2, 12)
+		if rank > 0 then
+			addMod(1535, rank * 2)
+		end
+	end,
 	WARRIOR = function()
 		local rank = getRank(2, 5)
 		if rank > 0 then
@@ -1238,6 +1240,8 @@ local talentScanners = { --XXX needs work
 			addMod(80964, rank * 25)
 			addMod(80965, rank * 25)
 		end
+	end,
+	WARLOCK = function()
 	end,
 }
 
