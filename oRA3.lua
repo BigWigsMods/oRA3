@@ -486,6 +486,7 @@ local function setupGUI()
 				hideOnEscape = 1,
 				timeout = 0,
 				OnAccept = actuallyDisband,
+				preferredIndex = STATICPOPUP_NUMDIALOGS,
 			}
 		end
 		if IsControlKeyDown() then
