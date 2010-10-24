@@ -87,6 +87,7 @@ local spells = {
 		[5229] = 60,    -- Enrage
 		[16689] = 60,   -- Nature's Grasp
 		[1850] = 180,   -- Dash
+		[740] = 480,    -- Tranquility
 		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
