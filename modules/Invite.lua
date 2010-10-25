@@ -188,7 +188,8 @@ function module:OnRegister()
 end
 
 local function handleWhisper(event, msg, author)
-	if (db.keyword and msg == db.keyword) or (db.guildkeyword and msg == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
+	local low = msg:lower()
+	if (db.keyword and low == db.keyword) or (db.guildkeyword and low == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumPartyMembers()
 		local raid = GetNumRaidMembers()
@@ -269,6 +270,7 @@ end
 local function saveKeyword(widget, event, value)
 	if type(value) == "string" and value:trim():len() < 2 then value = nil end
 	local key = widget:GetUserData("key")
+	value = value:lower()
 	db[key] = value
 	widget:SetText(value)
 end
