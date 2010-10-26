@@ -613,7 +613,8 @@ local function setupGUI()
 		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate2")
 		f:SetWidth(20)
 		f:SetHeight(21)
-		f:SetNormalFontObject(i == 1 and GameFontHighlightSmall or GameFontNormalSmall)
+		local selected = not db.lastSelectedList and i == 1 or db.lastSelectedList == i
+		f:SetNormalFontObject(selected and GameFontHighlightSmall or GameFontNormalSmall)
 		f:SetHighlightFontObject(GameFontHighlightSmall)
 		f:SetDisabledFontObject(GameFontDisableSmall)
 		f:SetText(list.name)
@@ -912,6 +913,13 @@ local function createScrollHeader()
 	local f = CreateFrame("Button", "oRA3ScrollHeader"..nr, contentFrame, "WhoFrameColumnHeaderTemplate")
 	f.headerIndex = nr
 	f:SetScript("OnClick", toggleColumn)
+
+	local text = f:CreateFontString(nil, nil, "GameFontHighlightSmall")
+	text:SetJustifyH("CENTER")
+	text:SetJustifyV("MIDDLE")
+	text:SetAllPoints(f)
+	f:SetFontString(text)
+
 	scrollheaders[#scrollheaders + 1] = f
 
 	if #scrollheaders == 1 then
