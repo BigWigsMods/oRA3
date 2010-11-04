@@ -9,6 +9,7 @@ L["Options"] = true
 L["<oRA3> Disbanding group."] = true
 L["Are you sure you want to disband your group?"] = true
 L["Unknown"] = true
+L["Profile"] = true
 
 -- Core
 

@@ -154,14 +154,26 @@ end
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 	db = self.db.profile
-
+	
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
+	
+	local function profileUpdate()
+		self.callbacks.fire("OnProfileUpdate")
+	end
+	
+	db.RegisterCallback(self, "OnProfileChanged", profileUpdate)
+	db.RegisterCallback(self, "OnProfileCopied", profileUpdate)
+	db.RegisterCallback(self, "OnProfileReset", profileUpdate)
 
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
+	
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", LibStub("AceDBOptions-3.0"):GetOptionsTable(db))
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
+
 end
 
 function addon:RegisterModuleOptions(name, optionTbl, displayName)
