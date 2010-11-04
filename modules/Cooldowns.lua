@@ -968,6 +968,17 @@ function module:OnRegister()
 	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
 end
 
+function module:IsOnCD(unit, spellName)
+	for b, v in pairs(self:GetBars()) do
+		local u = b:Get("ora3cd:unit")
+		local s = b:Get("ora3cd:spell")
+		if UnitIsUnit(u, unit) and spellName == s then
+			return true
+		end
+	end
+	return false
+end
+
 do
 	local spellList, reverseClass = nil, nil
 	function module:SpawnTestBar()
