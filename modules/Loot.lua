@@ -148,7 +148,7 @@ function module:SetLoot()
 			threshold = db.party.threshold
 			master = db.party.master
 		end
-		if not master then master = UnitName("player") end
+		if not master or master == "" then master = UnitName("player") end
 		local current = GetLootMethod()
 		if current and current == method then return end
 		SetLootMethod(method, master, threshold)
