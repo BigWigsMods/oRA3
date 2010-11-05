@@ -154,17 +154,17 @@ end
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 	db = self.db.profile
-	
+
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
-	
+
 	local function profileUpdate()
 		self.callbacks.fire("OnProfileUpdate")
 	end
-	
-	db.RegisterCallback(self, "OnProfileChanged", profileUpdate)
-	db.RegisterCallback(self, "OnProfileCopied", profileUpdate)
-	db.RegisterCallback(self, "OnProfileReset", profileUpdate)
+
+	self.db.RegisterCallback(self, "OnProfileChanged", profileUpdate)
+	self.db.RegisterCallback(self, "OnProfileCopied", profileUpdate)
+	self.db.RegisterCallback(self, "OnProfileReset", profileUpdate)
 
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
 
