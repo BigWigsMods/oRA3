@@ -326,7 +326,6 @@ do
 	for class in pairs(spells) do
 		classes[class] = hexColors[class] .. LOCALIZED_CLASS_NAMES_MALE[class] .. "|r"
 	end
-	wipe(hexColors)
 	hexColors = nil
 end
 
@@ -565,7 +564,7 @@ do
 				checkbox:SetValue(db.spells[v] and true or false)
 				checkbox:SetUserData("id", v)
 				checkbox:SetCallback("OnValueChanged", spellCheckboxCallback)
-				checkbox:SetFullWidth(true)
+				checkbox:SetRelativeWidth(0.5)
 				checkbox:SetImage(icon)
 				checkbox:SetCallback("OnEnter", showCheckboxTooltip)
 				checkbox:SetCallback("OnLeave", hideCheckboxTooltip)
@@ -588,7 +587,7 @@ do
 		moduleDescription:SetFullWidth(true)
 
 		group = AceGUI:Create("DropdownGroup")
-		group:SetLayout("List")
+		group:SetLayout("Flow")
 		group:SetTitle(L["Select class"])
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
