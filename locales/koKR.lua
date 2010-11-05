@@ -10,6 +10,7 @@ L["Options"] = "옵션"
 L["<oRA3> Disbanding group."] = "<oRA3> 파티를 해산합니다."
 L["Are you sure you want to disband your group?"] = "정말로 당신의 파티/공격대를 해산하겠습니까?"
 L["Unknown"] = "알수 없음"
+L["Profile"] = "프로필"
 
 -- Core
 
@@ -95,7 +96,7 @@ L["Guild"] = "길드"
 L["Promote all guild members automatically."] = "자동적으로 모든 길드원을 승급합니다."
 L["By guild rank"] = "길드 등급별"
 L["Individual promotions"] = "개별적 승급"
-L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."] = "이름은 대소문자를 구분합니다. 선수를 추가하려면, 아래의 상자에 선수 이름을 입력하고 엔터키를 눌리거나 팝업 버튼을 클릭하세요. 플레이어를 자동으로 제거하려면 승급이 되어야하며 아래의 드롭 다운에서 그의 이름을 클릭하면 됩니다."
+L["Note that names are case sensitive. To add a player, enter a player name in the box below and hit Enter or click the button that pops up. To remove a player from being promoted automatically, just click his name in the dropdown below."] = "이름은 대소문자를 구분합니다. 플레이어를 추가하려면, 아래의 상자에 플레이어 이름을 입력하고 엔터키를 눌리거나 팝업 버튼을 클릭하세요. 플레이어를 자동으로 제거하려면 승급이 되어야하며 아래의 드롭 다운에서 그의 이름을 클릭하면 됩니다."
 L["Add"] = "추가"
 L["Remove"] = "삭제"
 
