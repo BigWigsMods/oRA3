@@ -10,6 +10,7 @@ L["Options"] = "Настройки"
 L["<oRA3> Disbanding group."] = "<oRA3> группа распущена."
 L["Are you sure you want to disband your group?"] = "Вы действительно хотите распустить вашу группу?"
 L["Unknown"] = "Неизвестно"
+L["Profile"] = "Профили"
 
 -- Core
 
