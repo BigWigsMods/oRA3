@@ -270,7 +270,7 @@ end
 local function saveKeyword(widget, event, value)
 	if type(value) == "string" and value:trim():len() < 2 then value = nil end
 	local key = widget:GetUserData("key")
-	value = value:lower()
+	if value then value = value:lower() end
 	db[key] = value
 	widget:SetText(value)
 end
