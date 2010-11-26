@@ -11,6 +11,7 @@ L["Options"] = "Optionen"
 L["<oRA3> Disbanding group."] = "<oRA3> Gruppe aufgelöst."
 L["Are you sure you want to disband your group?"] = "Bist du sicher, dass du die Gruppe auflösen willst?"
 L["Unknown"] = "Unbekannt"
+L["Profile"] = "Profile"
 
 -- Core
 L["Toggle oRA3 Pane"] = "oRA3 Fenster öffnen/schließen"

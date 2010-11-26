@@ -62,11 +62,11 @@ local glyphCooldowns = {
 
 local spells = {
 	DRUID = {
-		[20484] = 1800, -- Rebirth
+		[20484] = 600, -- Rebirth
 		[29166] = 180,  -- Innervate
 		[17116] = 180,  -- Nature's Swiftness
 		[5209] = 180,   -- Challenging Roar
-		[61336] = 300,  -- Survival Instincts
+		[61336] = 180,  -- Survival Instincts
 		[22842] = 180,  -- Frenzied Regeneration
 		[22812] = 60,   -- Barkskin
 		[80964] = 60,   -- Skull Bash (Bear)
@@ -282,7 +282,7 @@ local spells = {
 		[49576] = 35,   -- Death Grip
 		[47528] = 10,   -- Mind Freeze
 		[47476] = 120,  -- Strangulate
-		[48792] = 120,  -- Icebound Fortitude
+		[48792] = 180,  -- Icebound Fortitude
 		[48707] = 45,   -- Anti-Magic Shell
 		[61999] = 600,  -- Raise Ally
 		[42650] = 600,  -- Army of the Dead
@@ -1105,8 +1105,7 @@ local talentScanners = {
 
 		rank = getRank(2, 19)
 		if rank > 0 then
-			addMod(31935, rank * 3)
-			--addMod(86150, rank * 60) -- Cata only
+			--addMod(86150, rank * 40) -- Cata only
 			addMod(31884, rank * 20)
 		end
 
