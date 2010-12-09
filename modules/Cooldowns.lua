@@ -88,7 +88,7 @@ local spells = {
 		[16689] = 60,   -- Nature's Grasp
 		[1850] = 180,   -- Dash
 		[740] = 480,    -- Tranquility
-		--[77761] = 120,  -- Stampeding Roar, Cataclysm only
+		[77761] = 120,  -- Stampeding Roar, Cataclysm only
 	},
 	HUNTER = {
 		[34477] = 30,  -- Misdirection
@@ -114,7 +114,7 @@ local spells = {
 		[82939] = 30,  -- Explosive Trap + Launcher
 		[13795] = 30,  -- Immolation Trap
 		[82945] = 30,  -- Immolation Trap + Launcher
-		--[51753] = 60,   -- Camouflage, Cataclysm only
+		[51753] = 60,   -- Camouflage, Cataclysm only
 		-- XXX Pets missing
 	},
 	MAGE = {
@@ -135,8 +135,8 @@ local spells = {
 		[11129] = 120,  -- Combustion
 		[31661] = 20,   -- Dragon's Breath
 		[44572] = 30,   -- Deep Freeze
-		--[82676] = 180,  -- Ring of Frost, Cata only
-		--[80353] = 300,  -- Time Warp, Cata only
+		[82676] = 180,  -- Ring of Frost, Cata only
+		[80353] = 300,  -- Time Warp, Cata only
 	},
 	PALADIN = {
 		[633] = 600,    -- Lay on Hands
@@ -157,8 +157,8 @@ local spells = {
 		[31935] = 24,   -- Avenger's Shield
 		[26573] = 30,   -- Consecration
 		[85222] = 30,   -- Light of Dawn
-		--[82327] = 60,   -- Holy Radiance, Cata only
-		--[86150] = 300,  -- Guardian of Ancient Kings, Cata only
+		[82327] = 60,   -- Holy Radiance, Cata only
+		[86150] = 300,  -- Guardian of Ancient Kings, Cata only
 	},
 	PRIEST = {
 		[8122] = 30,    -- Psychic Scream
@@ -186,7 +186,7 @@ local spells = {
 		[15487] = 45,   -- Silence
 		[64044] = 120,  -- Psychic Horror
 		[33076] = 10,   -- Prayer of Mending
-		--[73325] = 90,   -- Leap of Faith, Cata only
+		[73325] = 90,   -- Leap of Faith, Cata only
 	},
 	ROGUE = {
 		[5277] = 180,   -- Evasion
@@ -275,8 +275,8 @@ local spells = {
 		[60970] = 30,  -- Heroic Fury
 		[676]   = 60,  -- Disarm
 		[46968] = 20,  -- Shockwave
-		--[86346] = 20,  -- Colossus Smash
-		--[6544] = 60,   -- Heroic Leap, Cata only
+		[86346] = 20,  -- Colossus Smash
+		[6544] = 60,   -- Heroic Leap, Cata only
 	},
 	DEATHKNIGHT = {
 		[49576] = 35,   -- Death Grip
