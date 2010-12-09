@@ -1105,7 +1105,7 @@ local talentScanners = {
 
 		rank = getRank(2, 19)
 		if rank > 0 then
-			--addMod(86150, rank * 40) -- Cata only
+			addMod(86150, rank * 40) -- Cata only
 			addMod(31884, rank * 20)
 		end
 
