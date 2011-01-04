@@ -575,7 +575,7 @@ do
 	local function sort(a, b)
 		local _, aC = UnitClass(a)
 		local _, bC = UnitClass(b)
-		return order[bC] > order[aC]
+		return (order[bC] or 0) > (order[aC] or 0)
 	end
 
 	local ngroup = {}
@@ -608,3 +608,4 @@ end
 function oRA:GetSortedTanks()
 	return indexedTanks
 end
+
