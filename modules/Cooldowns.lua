@@ -32,7 +32,7 @@ local glyphCooldowns = {
 	[63231] = {47788, 30},  -- Guardian Spirit, -30sec
 	[63229] = {47585, 45},  -- Dispersion, -45sec
 	[55455] = {2894, 300},  -- Fire Elemental Totem, -5min
-	[63291] = {51514, 15},  -- Hex, -15sec
+	[63291] = {51514, 10},  -- Hex, -10sec
 	[63329] = {871, -120},  -- Shield Wall, +2min
 	[63325] = {46968, 3},   -- Shockwave, -3sec
 	[56830] = {19574, 20},  -- Bestial Wrath, -20sec
@@ -57,7 +57,7 @@ local glyphCooldowns = {
 	[63328] = {23920, 1},   -- Spell Reflection, -1sec
 	[54928] = {26573, "20"},-- Consecration, -20%
 	[59219] = {1850, "20"}, -- Dash, -20%
-	[58355] = {100, "7"},	-- Charge, -7%
+	[58355] = {100, 1},     -- Charge, -1sec
 }
 
 local spells = {
@@ -150,7 +150,7 @@ local spells = {
 		[31821] = 120,  -- Aura Mastery
 		[70940] = 120,  -- Divine Guardian
 		[31850] = 180,  -- Ardent Defender
-		[85285] = 10,   -- Rebuke
+		[96231] = 10,   -- Rebuke
 		[20066] = 60,   -- Repentance
 		[31884] = 180,  -- Avenging Wrath
 		[853] = 60,	    -- Hammer of Justice
@@ -174,7 +174,7 @@ local spells = {
 		[15487] = 45,   -- Silence
 		[47585] = 120,  -- Dispersion
 		[47540] = 12,   -- Penance
-		[88625] = 25,   -- Holy Word: Chastise
+		[88625] = 30,   -- Holy Word: Chastise
 		[88682] = 15,   -- Holy Word: Aspire
 		[88684] = 20,   -- Holy Word: Serenity
 		[88685] = 40,   -- Holy Word: Sanctuary
@@ -203,7 +203,9 @@ local spells = {
 		[51690] = 120,  -- Killing Spree
 		[14183] = 20,   -- Premeditation
 		[51713] = 60,   -- Shadow Dance
-		[76577] = 180,	-- Smoke Bomb
+		[76577] = 180,  -- Smoke Bomb
+		[73981] = 60,   -- Redirect
+		[36554] = 24,   -- Shadowstep
 	},
 	SHAMAN = {
 		[57994] = 6,    -- Wind Shear
@@ -229,6 +231,7 @@ local spells = {
 		[73920] = 10,   -- Healing Rain
 		[73899] = 8,    -- Primal Strike
 		[17364] = 8,    -- Stormstrike
+		[8143]  = 60,   -- Tremor Totem
 	},
 	WARLOCK = {
 		--[20707] = 1800, -- Soulstone Resurrection
@@ -278,6 +281,7 @@ local spells = {
 		[46968] = 20,  -- Shockwave
 		[86346] = 20,  -- Colossus Smash
 		[6544] = 60,   -- Heroic Leap, Cata only
+		[1134] = 60,   -- Inner Rage
 	},
 	DEATHKNIGHT = {
 		[49576] = 35,   -- Death Grip
@@ -1241,7 +1245,7 @@ local talentScanners = {
 		if rank > 0 then
 			addMod(1856, rank * 30)
 			addMod(2094, rank * 30)
-			addMod(31224, rank * 15)
+			addMod(31224, rank * 10)
 		end
 	end,
 	DRUID = function()
