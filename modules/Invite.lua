@@ -211,10 +211,10 @@ function module:OnEnable()
 	self:RegisterEvent("CHAT_MSG_WHISPER", handleWhisper)
 end
 
-function module:CHAT_MSG_BN_WHISPER(event, msg, author)
+function module:CHAT_MSG_BN_WHISPER(event, msg, author, _, _, _, _, _, _, _, _, _, _, presenceId)
 	for i = 1, BNGetNumFriends() do
-		local _, firstName, lastName, toonName, _, client = BNGetFriendInfo(i)
-		if client == BNET_CLIENT_WOW and firstName.." "..lastName == author then
+		local friendPresenceId, _, _, toonName, _, client = BNGetFriendInfo(i)
+		if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
 			handleWhisper(event, msg, toonName)
 			break
 		end
