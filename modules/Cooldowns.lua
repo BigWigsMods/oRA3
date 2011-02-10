@@ -684,13 +684,14 @@ do
 		bar:SetScale(db.barScale)
 		bar:SetTexture(media:Fetch(mType, db.barTexture))
 		local spell = bar:Get("ora3cd:spell")
+		local unit = string.gsub(bar:Get('ora3cd:unit'), "(%a)-.*", "%1")
 		if db.barShorthand then spell = shorts[spell] end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
-			bar:SetLabel(("%s: %s"):format(bar:Get("ora3cd:unit"), spell))
+			bar:SetLabel(("%s: %s"):format(unit, spell))
 		elseif db.barShowSpell then
 			bar:SetLabel(spell)
 		elseif db.barShowUnit and not db.onlyShowMine then
-			bar:SetLabel(bar:Get("ora3cd:unit"))
+			bar:SetLabel(unit)
 		else
 			bar:SetLabel()
 		end
