@@ -282,7 +282,7 @@ local spells = {
 		[46968] = 20,   -- Shockwave
 		[86346] = 20,   -- Colossus Smash
 		[6544]  = 60,   -- Heroic Leap
-		[1134]  = 60,   -- Inner Rage
+		[1134]  = 30,   -- Inner Rage
 	},
 	DEATHKNIGHT = {
 		[49576] = 35,   -- Death Grip
