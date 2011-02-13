@@ -364,7 +364,7 @@ function module:OnEnable()
 end
 
 function module:READY_CHECK(event, name, duration)
-	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav") end
+	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
