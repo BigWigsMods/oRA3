@@ -164,9 +164,9 @@ local function updateWindow()
 	if oRA:InRaid() then
 		local diff = GetInstanceDifficulty()
 		local highgroup = 8 -- 40 man it
-		if diff and diff == 1 then -- normal
+		if diff and diff == 1 or diff == 3 then -- 10 man
 			highgroup = 2
-		elseif diff and diff == 2 then -- heroic
+		elseif diff and diff == 2 or diff == 4 then -- 25 man
 			highgroup = 5
 		end
 
