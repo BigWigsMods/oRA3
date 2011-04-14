@@ -36,4 +36,5 @@ modules\Promote.lua
 modules\Cooldowns.lua
 modules\Tanks.lua
 modules\Loot.lua
+modules\Inventory.lua
 
