@@ -51,10 +51,10 @@ local glyphCooldowns = {
 	[58058] = {556, 450},   -- Astral Recall, -450sec
 	[54940] = {85222, 10},  -- Light of Dawn, -10sec
 	[55684] = {586, 9},     -- Fade, -9sec
-	[55441] = {8177, -45},  -- Grounding Totem, +45sec
+	[55441] = {8177, -35},  -- Grounding Totem, +35sec
 	[63270] = {51490, 10},  -- Thunderstorm, -10sec
 	[63324] = {46924, 15},  -- Bladestorm, -15sec
-	[63328] = {23920, 1},   -- Spell Reflection, -1sec
+	[63328] = {23920, 5},   -- Spell Reflection, -5sec
 	[54928] = {26573, "20"},-- Consecration, -20%
 	[59219] = {1850, "20"}, -- Dash, -20%
 	[58355] = {100, 1},     -- Charge, -1sec
@@ -169,7 +169,7 @@ local spells = {
 		[64843] = 480,  -- Divine Hymn
 		[10060] = 120,  -- Power Infusion
 		[33206] = 180,  -- Pain Suppression
-		[62618] = 120,  -- Power Word: Barrier
+		[62618] = 180,  -- Power Word: Barrier
 		[724]   = 180,  -- Lightwell
 		[47788] = 180,  -- Guardian Spirit
 		[15487] = 45,   -- Silence
@@ -181,7 +181,7 @@ local spells = {
 		[88685] = 40,   -- Holy Word: Sanctuary
 		[89485] = 45,   -- Inner Focus
 		[19236] = 120,  -- Desperate Prayer
-		[14751] = 60,   -- Chakra
+		--[14751] = 60,   -- Chakra, XXX now lasts until canceled, is this right?
 		[34861] = 10,   -- Circle of Healing
 		[586]   = 30,   -- Fade
 		[15487] = 45,   -- Silence
@@ -217,7 +217,7 @@ local spells = {
 		[51514] = 45,   -- Hex
 		[16188] = 120,  -- Nature's Swiftness
 		[16190] = 180,  -- Mana Tide Totem
-		[8177]  = 15,   -- Grounding Totem
+		[8177]  = 25,   -- Grounding Totem
 		[5730]  = 20,   -- Stoneclaw Totem
 		[2484]  = 15,   -- Earthbind Totem
 		[1535]  = 10,   -- Fire Nova
@@ -233,6 +233,7 @@ local spells = {
 		[73899] = 8,    -- Primal Strike
 		[17364] = 8,    -- Stormstrike
 		[8143]  = 60,   -- Tremor Totem
+		[98008] = 180,  -- Spirit Link Totem
 	},
 	WARLOCK = {
 		--[20707] = 1800, -- Soulstone Resurrection
@@ -256,7 +257,7 @@ local spells = {
 	WARRIOR = {
 		[100]   = 15,   -- Charge
 		[20252] = 30,   -- Intercept
-		[23920] = 10,   -- Spell Reflection
+		[23920] = 25,   -- Spell Reflection
 		[3411]  = 30,   -- Intervene
 		[57755] = 60,   -- Heroic Throw
 		[1719]  = 300,  -- Recklessness
@@ -283,6 +284,7 @@ local spells = {
 		[86346] = 20,   -- Colossus Smash
 		[6544]  = 60,   -- Heroic Leap
 		[1134]  = 30,   -- Inner Rage
+		[97462] = 180,  -- Rallying Cry
 	},
 	DEATHKNIGHT = {
 		[49576] = 35,   -- Death Grip
@@ -1152,12 +1154,15 @@ local talentScanners = {
 		rank = getRank(3, 5)
 		if rank > 0 then
 			addMod(2565, rank * 10)
-			addMod(23920, rank)
 			addMod(871, rank * 60)
 		end
 		rank = getRank(3, 7)
 		if rank > 0 then
 			addMod(57755, rank * 15)
+		end
+		rank = getRank(1, 16)
+		if rank > 0 then
+			addMod(100, rank * 2)
 		end
 	end,
 	DEATHKNIGHT = function()
@@ -1260,6 +1265,10 @@ local talentScanners = {
 			addMod(80964, rank * 25)
 			addMod(80965, rank * 25)
 		end
+		rank = getRank(3, 14)
+		if rank > 0 then
+			addMod(740, rank * 150)
+		end
 	end,
 	WARLOCK = function()
 	end,
@@ -1292,7 +1301,7 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	end
 end
 
-function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, source, srcFlags, _, _, _, spellId, spellName)
+function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, _, source, srcFlags, _, _, _, spellId, spellName)
 	-- These spells are not caught by the UNIT_SPELLCAST_SUCCEEDED event
 	if clueevent == "SPELL_AURA_APPLIED" and spellAuraApplied[spellId] then
 		if source == playerName then
