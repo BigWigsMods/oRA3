@@ -119,8 +119,9 @@ end
 local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
-	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(MAX_PLAYER_LEVEL), "GUILD")
-	inviteFrame.level = MAX_PLAYER_LEVEL
+	local max = GetMaxPlayerLevel()
+	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
+	inviteFrame.level = max
 	inviteFrame.zone = nil
 	inviteFrame.rank = nil
 	inviteFrame:SetScript("OnUpdate", onUpdate)
