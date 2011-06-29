@@ -237,8 +237,8 @@ local spells = {
 		[98008] = 180,  -- Spirit Link Totem
 	},
 	WARLOCK = {
-		--[20707] = 1800, -- Soulstone Resurrection
-		[6203]  = 1800, -- Soulstone, XXX needs testing
+		[95750] = 900,  -- Soulstone Resurrection (battle res style, shares CD with other type below)
+		[20707] = 900,  -- Soulstone Resurrection (buff style, shares CD with type above)
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
