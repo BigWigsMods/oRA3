@@ -159,6 +159,7 @@ local spells = {
 		[26573] = 30,   -- Consecration
 		[85222] = 30,   -- Light of Dawn
 		[82327] = 60,   -- Holy Radiance
+		[20925] = 30,   -- Holy Shield
 		[86150] = 300,  -- Guardian of Ancient Kings
 	},
 	PRIEST = {
@@ -195,7 +196,7 @@ local spells = {
 		[1856]  = 180,  -- Vanish
 		[1725]  = 30,   -- Distract
 		[2094]  = 180,  -- Blind
-		[31224] = 90,   -- Cloak of Shadows
+		[31224] = 120,  -- Cloak of Shadows
 		[57934] = 30,   -- Tricks of the Trade
 		[14185] = 300,  -- Preparation
 		[14177] = 120,  -- Cold Blood
@@ -1255,7 +1256,7 @@ local talentScanners = {
 		if rank > 0 then
 			addMod(1856, rank * 30)
 			addMod(2094, rank * 30)
-			addMod(31224, rank * 10)
+			addMod(31224, rank * 15)
 		end
 	end,
 	DRUID = function()
@@ -1301,7 +1302,7 @@ function module:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell)
 	end
 end
 
-function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, _, source, srcFlags, _, _, _, spellId, spellName)
+function module:COMBAT_LOG_EVENT_UNFILTERED(event, _, clueevent, _, _, source, srcFlags, _, _, _, _, _, spellId, spellName)
 	-- These spells are not caught by the UNIT_SPELLCAST_SUCCEEDED event
 	if clueevent == "SPELL_AURA_APPLIED" and spellAuraApplied[spellId] then
 		if source == playerName then
