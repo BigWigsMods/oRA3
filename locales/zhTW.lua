@@ -10,8 +10,10 @@ L["Options"] = "選項"
 L["<oRA3> Disbanding group."] = "<oRA3>正在解散團隊"
 L["Are you sure you want to disband your group?"] = "你確定要解散團隊?"
 L["Unknown"] = "未知"
+L["Profile"] = "設定檔"
 
 -- Core
+
 L["Toggle oRA3 Pane"] = "切換oRA3面板"
 L["Open with raid pane"] = "跟著團隊面板開啟"
 L.toggleWithRaidDesc = "一起跟著內建團隊面板自動開啟和關閉。如果你禁用這選項，你扔然可以用按鍵綁定或是/命令來開啟oRA3面板,列如|cff44ff44/radur|r。"
@@ -144,7 +146,6 @@ L["Set the loot mode automatically when joining a group"] = "當加入一個群�
 -- Tanks module
 L["Tanks"] = "坦克"
 L.tankTabTopText = "點擊下方列表將其設為坦克. 將鼠標移動到按鈕上可看到操作提示."
-
 -- L["Remove"] is defined above
 L.deleteButtonHelp = "從坦克名單移除。"
 L["Blizzard Main Tank"] = "內建主坦克"
