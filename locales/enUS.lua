@@ -18,6 +18,9 @@ L["Open with raid pane"] = true
 L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
 L["Show interface help"] = true
 L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
+L["Ensure guild repairs are enabled for all ranks present in raid"] = true
+L.ensureRepairDesc = "If you are the Guild Master, whenever you join a raid group and is the leader or promoted, you will ensure that it is enabled for the duration of the raid (up to 300g). Once you leave the group, the flags will be restored to their original state |cffff4411provided you have not crashed during the raid.|r"
+
 
 L["Slash commands"] = true
 L.slashCommands = [[
@@ -66,7 +69,7 @@ L["Arcane"] = true
 L["Invite"] = true
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = true
-L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true 
+L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = true
 L["<oRA3> Sorry, the group is full."] = true
 L["Invite all guild members of rank %s or higher."] = true
 L["Keyword"] = true
@@ -141,7 +144,7 @@ L["Zone"] = true
 L["Leave empty to make yourself Master Looter."] = true
 L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = true
 L["Set the loot mode automatically when joining a group"] = true
- 
+
 -- Tanks module
 L["Tanks"] = true
 L.tankTabTopText = "Click on players in the bottom list to make them a personal tank. If you want help with all the options here then move your mouse over the question mark."

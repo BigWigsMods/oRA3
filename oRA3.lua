@@ -127,8 +127,8 @@ local function giveOptions()
 				},
 				ensureRepair = {
 					type = "toggle",
-					name = colorize("Ensure guild repairs are enabled for all ranks present in raid"),
-					desc = "If you are the Guild Master, whenever you join a raid group and is the leader or promoted, you will ensure that it is enabled for the duration of the raid (up to 300g). Once you leave the group, the flags will be restored to their original state provided you did not crash.",
+					name = colorize(L["Ensure guild repairs are enabled for all ranks present in raid"]),
+					desc = L.ensureRepairDesc,
 					descStyle = "inline",
 					order = 2,
 					width = "full",
