@@ -20,7 +20,7 @@ L["Show interface help"] = true
 L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
 L["Ensure guild repairs are enabled for all ranks present in raid"] = true
 L.ensureRepairDesc = "If you are the Guild Master, whenever you join a raid group and is the leader or promoted, you will ensure that it is enabled for the duration of the raid (up to 300g). Once you leave the group, the flags will be restored to their original state |cffff4411provided you have not crashed during the raid.|r"
-
+L.repairEnabled = "Enabled guild repairs for %s for the duration of this raid."
 
 L["Slash commands"] = true
 L.slashCommands = [[

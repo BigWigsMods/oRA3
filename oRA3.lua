@@ -168,9 +168,13 @@ end
 
 local onGroupChanged, onShutdown = nil, nil
 do
+	local function sysprint(msg) print("|cffffff00" .. msg .. "|r") end
+
 	local processedRanks = {}
+	local ilvl = nil
 	function onGroupChanged(event, status, members)
 		if not db.ensureRepair or not addon:InRaid() or not addon:IsPromoted() or not IsGuildLeader() then return end
+		if not ilvl then ilvl = GetAverageItemLevel() end -- I am so smrt.. ?!
 		for i, v in next, members do
 			local rankIndex = guildMemberList[v]
 			if rankIndex and not processedRanks[rankIndex] then
@@ -179,12 +183,13 @@ do
 				local repair = select(15, GuildControlGetRankFlags())
 				db.repairFlagStorage[rankIndex] = repair
 				if not repair then
+					sysprint(L.repairEnabled:format(guildRanks[rankIndex]))
 					GuildControlSetRankFlag(15, true)
 				end
 				local maxAmount = GetGuildBankWithdrawGoldLimit()
 				db.repairAmountStorage[rankIndex] = maxAmount
 				if not maxAmount or maxAmount == 0 then
-					SetGuildBankWithdrawGoldLimit(300) -- XXX Needs config.
+					SetGuildBankWithdrawGoldLimit(ilvl or 300)
 				end
 			end
 		end
