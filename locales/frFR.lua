@@ -50,6 +50,10 @@ L["Hide window when done"] = "Cacher la fenêtre une fois fini"
 L["Automatically hide the window when the ready check is finished."] = "Cache automatiquement la fenêtre quand l'appel est terminé."
 L["Hide players who are ready"] = "Cacher les joueurs qui sont prêts"
 L["Hide players that are marked as ready from the window."] = "Enlève les joueurs qui sont prêt de la fenêtre."
+L["Automatically hide the ready check window when you get in combat."] = "Cache automatiquement la fenêtre d'appel quand vous entrez en combat."
+L["Hide in combat"] = "Cacher en combat"
+L["Relay ready check results to raid chat"] = "Transmettre le résultat des appels au canal Raid"
+L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."] = "Si vous êtes au moins assistant, transmet le résultat des appels au canal Raid afin que tous les membres du raid puissent voir la raison du retard. Assurez-vous d'être la seule personne à avoir activé ceci."
 
 -- Durability module
 L["Durability"] = "Durabilité"
