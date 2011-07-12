@@ -50,6 +50,10 @@ L["Hide window when done"] = true
 L["Automatically hide the window when the ready check is finished."] = true
 L["Hide players who are ready"] = true
 L["Hide players that are marked as ready from the window."] = true
+L["Automatically hide the ready check window when you get in combat."] = true
+L["Hide in combat"] = true
+L["Relay ready check results to raid chat"] = true
+L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."] = true
 
 -- Durability module
 L["Durability"] = true

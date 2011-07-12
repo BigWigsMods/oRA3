@@ -25,9 +25,11 @@ local defaults = {
 		gui = true,
 		autohide = true,
 		hideReady = false,
+		hideOnCombat = true,
+		relayReady = false
 	}
 }
-
+local function colorize(input) return "|cfffed000" .. input .. "|r" end
 local options
 local function getOptions()
 	if not options then
@@ -39,31 +41,51 @@ local function getOptions()
 			args = {
 				sound = {
 					type = "toggle",
-					name = SOUND_LABEL,
+					name = colorize(SOUND_LABEL),
 					desc = L["Play a sound when a ready check is performed."],
 					width = "full",
+					descStyle = "inline",
 					order = 1,
 				},
 				gui = {
 					type = "toggle",
-					name = L["Show window"],
+					name = colorize(L["Show window"]),
 					desc = L["Show the window when a ready check is performed."],
 					width = "full",
+					descStyle = "inline",
 					order = 2,
 				},
 				autohide = {
 					type = "toggle",
-					name = L["Hide window when done"],
+					name = colorize(L["Hide window when done"]),
 					desc = L["Automatically hide the window when the ready check is finished."],
 					width = "full",
+					descStyle = "inline",
 					order = 3,
+				},
+				hideOnCombat = {
+					type = "toggle",
+					name = colorize(L["Hide in combat"]),
+					desc = L["Automatically hide the ready check window when you get in combat."],
+					width = "full",
+					descStyle = "inline",
+					order = 4,
 				},
 				hideReady = {
 					type = "toggle",
-					name = L["Hide players who are ready"],
+					name = colorize(L["Hide players who are ready"]),
 					desc = L["Hide players that are marked as ready from the window."],
 					width = "full",
-					order = 4,
+					descStyle = "inline",
+					order = 5,
+				},
+				relayReady = {
+					type = "toggle",
+					name = colorize(L["Relay ready check results to raid chat"]),
+					desc = L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."],
+					order = 6,
+					descStyle = "inline",
+					width = "full",
 				},
 			}
 		}
@@ -228,80 +250,80 @@ local function createWindow()
 	titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
 	titlebg:SetPoint("TOPLEFT", 9, -6)
 	titlebg:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -28, -24)
-	
+
 	local dialogbg = f:CreateTexture(nil, "BACKGROUND")
 	dialogbg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
 	dialogbg:SetPoint("TOPLEFT", 8, -24)
 	dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
 	dialogbg:SetVertexColor(0, 0, 0, .75)
-	
+
 	local topleft = f:CreateTexture(nil, "BORDER")
 	topleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	topleft:SetWidth(64)
 	topleft:SetHeight(64)
 	topleft:SetPoint("TOPLEFT")
 	topleft:SetTexCoord(0.501953125, 0.625, 0, 1)
-	
+
 	local topright = f:CreateTexture(nil, "BORDER")
 	topright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	topright:SetWidth(64)
 	topright:SetHeight(64)
 	topright:SetPoint("TOPRIGHT")
 	topright:SetTexCoord(0.625, 0.75, 0, 1)
-	
+
 	local top = f:CreateTexture(nil, "BORDER")
 	top:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	top:SetHeight(64)
 	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
 	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 	top:SetTexCoord(0.25, 0.369140625, 0, 1)
-	
+
 	local bottomleft = f:CreateTexture(nil, "BORDER")
 	bottomleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	bottomleft:SetWidth(64)
 	bottomleft:SetHeight(64)
 	bottomleft:SetPoint("BOTTOMLEFT")
 	bottomleft:SetTexCoord(0.751953125, 0.875, 0, 1)
-	
+
 	local bottomright = f:CreateTexture(nil, "BORDER")
 	bottomright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	bottomright:SetWidth(64)
 	bottomright:SetHeight(64)
 	bottomright:SetPoint("BOTTOMRIGHT")
 	bottomright:SetTexCoord(0.875, 1, 0, 1)
-	
+
 	local bottom = f:CreateTexture(nil, "BORDER")
 	bottom:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	bottom:SetHeight(64)
 	bottom:SetPoint("BOTTOMLEFT", bottomleft, "BOTTOMRIGHT")
 	bottom:SetPoint("BOTTOMRIGHT", bottomright, "BOTTOMLEFT")
 	bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
-	
+
 	local left = f:CreateTexture(nil, "BORDER")
 	left:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	left:SetWidth(64)
 	left:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
 	left:SetPoint("BOTTOMLEFT", bottomleft, "TOPLEFT")
 	left:SetTexCoord(0.001953125, 0.125, 0, 1)
-	
+
 	local right = f:CreateTexture(nil, "BORDER")
 	right:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
 	right:SetWidth(64)
 	right:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
 	right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
 	right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
-	
+
 	local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 2, 1)
 	close:SetScript("OnClick", function(self, button) f:Hide() end)
-	
+
 	local title = f:CreateFontString(nil, "ARTWORK")
 	title:SetFontObject(GameFontNormal)
 	title:SetPoint("TOPLEFT", 12, -8)
 	title:SetPoint("TOPRIGHT", -32, -8)
 	title:SetText(READY_CHECK)
 	f.title = title
-	
+
 	local titlebutton = CreateFrame("Button", nil, f)
 	titlebutton:SetPoint("TOPLEFT", titlebg)
 	titlebutton:SetPoint("BOTTOMRIGHT", titlebg)
@@ -358,9 +380,15 @@ function module:OnEnable()
 	self:RegisterEvent("READY_CHECK")
 	self:RegisterEvent("READY_CHECK_CONFIRM")
 	self:RegisterEvent("READY_CHECK_FINISHED")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 	self:RegisterChatCommand("rar", DoReadyCheck)
 	self:RegisterChatCommand("raready", DoReadyCheck)
+end
+
+function module:PLAYER_REGEN_DISABLED()
+	if not self.db.profile.hideOnCombat or not frame then return end
+	frame:Hide()
 end
 
 function module:READY_CHECK(event, name, duration)
@@ -368,7 +396,7 @@ function module:READY_CHECK(event, name, duration)
 	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
-	-- fill with default 'no response' 
+	-- fill with default 'no response'
 	if oRA:InRaid() then
 		for i = 1, GetNumRaidMembers() do
 			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
@@ -416,44 +444,52 @@ local function sysPrint(msg)
 	DEFAULT_CHAT_FRAME:AddMessage(msg, c.r, c.g, c.b, c.id)
 end
 
-function module:READY_CHECK_FINISHED(event, someBoolean)
-	-- This seems to be true in 5mans and false in raids, no matter what people actually click.
-	if someBoolean then return end
-	if not oRA:IsPromoted() then return end
-
-	if frame then
-		if self.db.profile.autohide then frame.fadeTimer = 1 end
-		frame.timer = 0
-		frame.title:SetText(READY_CHECK_FINISHED)
-	end
-
+do
 	local noReply = {}
 	local notReady = {}
-	for name, ready in pairs(readycheck) do
-		if ready == RD_NORESPONSE then
-			noReply[#noReply + 1] = name
-		elseif ready == RD_NOTREADY then
-			notReady[#notReady + 1] = name
-		end
-	end
+	function module:READY_CHECK_FINISHED(event, someBoolean)
+		-- This seems to be true in 5mans and false in raids, no matter what people actually click.
+		if someBoolean then return end
+		if not oRA:IsPromoted() then return end
 
-	-- mimic true readycheck results for assistants/leader that did not start the readycheck
-	--if readyAuthor ~= playerName then
-		sysPrint(READY_CHECK_FINISHED)
+		if frame then
+			if self.db.profile.autohide then frame.fadeTimer = 1 end
+			frame.timer = 0
+			frame.title:SetText(READY_CHECK_FINISHED)
+		end
+
+		wipe(noReply); wipe(notReady)
+		for name, ready in pairs(readycheck) do
+			if ready == RD_NORESPONSE then
+				noReply[#noReply + 1] = name
+			elseif ready == RD_NOTREADY then
+				notReady[#notReady + 1] = name
+			end
+		end
+
+		if #noReply == 0 and #notReady == 0 then
+			sysPrint(READY_CHECK_ALL_READY)
+			if self.db.profile.relayReady then
+				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
+			end
+			return
+		end
 
 		if #noReply > 0 then
 			local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 			sysPrint(afk)
-		elseif #notReady == 0 and #noReply == 0 then
-			sysPrint(READY_CHECK_ALL_READY)
-		elseif #noReply == 0 then
-			sysPrint(READY_CHECK_NO_AFK)
+			if self.db.profile.relayReady then
+				SendChatMessage(afk, "RAID")
+			end
 		end
-	--end
 
-	if #notReady > 0 then
-		local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
-		sysPrint(no)
+		if #notReady > 0 then
+			local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
+			sysPrint(no)
+			if self.db.profile.relayReady then
+				SendChatMessage(no, "RAID")
+			end
+		end
 	end
 end
 
