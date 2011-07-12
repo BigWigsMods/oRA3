@@ -51,6 +51,10 @@ L["Hide window when done"] = "완료시 창 닫기"
 L["Automatically hide the window when the ready check is finished."] = "전투 준비 확인이 완료시 자동적으로 창을 닫습니다."
 L["Hide players who are ready"] = "준비된 플레이어 숨김"
 L["Hide players that are marked as ready from the window."] = "창에 준비가된 플레이어에게 표시를 하지 않습니다."
+L["Automatically hide the ready check window when you get in combat."] = "전투중일 경우, 전투 준비 확인창을 자동으로 숨깁니다."
+L["Hide in combat"] = "전투시 숨김"
+L["Relay ready check results to raid chat"] = "준비 확인 결과를 공격대 대화창으로 알림"
+L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."] = "당신이 공격대장 또는 승급자일 경우에 전투 준비 확인 결과를 공격대 대화창으로 출력하도록 합니다."
 
 -- Durability module
 L["Durability"] = "내구도"
