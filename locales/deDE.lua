@@ -50,7 +50,11 @@ L["Show the window when a ready check is performed."] = "Zeigt das Fenster, wenn
 L["Hide window when done"] = "Fenster nach Durchlauf schließen"
 L["Automatically hide the window when the ready check is finished."] = "Schließt das Fenster automatisch, sobald der Bereitschaftscheck durchgelaufen ist."
 L["Hide players who are ready"] = "Bereite Spieler ausblenden"
-L["Hide players that are marked as ready from the window."] = "Blendet Spieler, die als bereit markiert wurden, aus dem Fenster aus."
+L["Hide players that are marked as ready from the window."] = "Blendet Spieler, die als 'Bereit' markiert wurden, aus dem Fenster aus."
+L["Automatically hide the ready check window when you get in combat."] = "Blendet das Fenster automatisch aus, wenn du in einen Kampf gerätst."
+L["Hide in combat"] = "Im Kampf verstecken"
+L["Relay ready check results to raid chat"] = "Bereitschaftscheck in den Chat weiterleiten"
+L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."] = "Falls du Assistent/Leiter bist, wird das Ergebnis des Bereitschaftschecks im Schlachtzugschat angezeigt, um Mitspielern zu zeigen, wer sie aufhält. Bitte versichere Dich, dass nur eine Person diese Funktion aktiviert hat."
 
 -- Durability module
 L["Durability"] = "Haltbarkeit"
