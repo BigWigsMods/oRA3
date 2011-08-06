@@ -219,7 +219,7 @@ function addon:OnInitialize()
 	self.callbacks = CallbackHandler:New(self)
 
 	local function profileUpdate()
-		self.callbacks.fire("OnProfileUpdate")
+		self.callbacks:Fire("OnProfileUpdate")
 	end
 
 	self.db.RegisterCallback(self, "OnProfileChanged", profileUpdate)
