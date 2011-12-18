@@ -185,7 +185,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 
-	self:RegisterChatCommand("raeinv", inviteExpression)
+	--self:RegisterChatCommand("raeinv", inviteExpression)
 	self:RegisterChatCommand("rainv", inviteGuild)
 	self:RegisterChatCommand("rainvite", inviteGuild)
 	self:RegisterChatCommand("razinv", inviteZone)
