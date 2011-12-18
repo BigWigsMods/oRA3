@@ -151,6 +151,11 @@ local function inviteRank(rank, name)
 	inviteFrame:SetScript("OnUpdate", onUpdate)
 end
 
+local function inviteExpression(input)
+	local expression = loadstring(input)()
+
+end
+
 local function inviteRankCommand(input)
 	local ranks = oRA:GetGuildRanks()
 	local r, n = nil, nil
@@ -180,6 +185,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 
+	self:RegisterChatCommand("raeinv", inviteExpression)
 	self:RegisterChatCommand("rainv", inviteGuild)
 	self:RegisterChatCommand("rainvite", inviteGuild)
 	self:RegisterChatCommand("razinv", inviteZone)
@@ -297,7 +303,7 @@ function module:CreateFrame()
 	keyword:SetCallback("OnLeave", onControlLeave)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetRelativeWidth(0.5)
-	
+
 	local guildonlykeyword = AceGUI:Create("EditBox")
 	guildonlykeyword:SetLabel(L["Guild Keyword"])
 	guildonlykeyword:SetText(db.guildkeyword)
@@ -307,7 +313,7 @@ function module:CreateFrame()
 	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
-	
+
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
@@ -321,7 +327,7 @@ function module:CreateFrame()
 		-- left, middle and right, so making it higher actually stretches the texture.
 		--guild:SetHeight(24 * 2)
 		guild:SetFullWidth(true)
-	
+
 		zone = AceGUI:Create("Button")
 		zone:SetText(L["Invite zone"])
 		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
@@ -333,7 +339,7 @@ function module:CreateFrame()
 		rankHeader = AceGUI:Create("Heading")
 		rankHeader:SetText(L["Guild rank invites"])
 		rankHeader:SetFullWidth(true)
-	
+
 		rankDescription = AceGUI:Create("Label")
 		rankDescription:SetText(L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."])
 		rankDescription:SetFullWidth(true)

@@ -185,7 +185,7 @@ do
 				frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, add, delete)
 			end
 		else
-			if oRA.db.profile.showHelpTexts then 
+			if oRA.db.profile.showHelpTexts then
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
 			else
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, add, delete)
@@ -223,7 +223,7 @@ function module:OnRegister()
 		},
 	})
 	factionDb = database.factionrealm
-	
+
 	oRA:RegisterPanel(
 		L["Promote"],
 		showPane,

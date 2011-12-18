@@ -400,7 +400,14 @@ function module:READY_CHECK(event, name, duration)
 	if oRA:InRaid() then
 		for i = 1, GetNumRaidMembers() do
 			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			readycheck[rname] = online and RD_NORESPONSE or RD_OFFLINE
+			-- GetRaidRosterInfo returns name/server like "Name-Server", however
+			-- GetUnitName returns name/server like "Name - Server", which we have
+			-- to use for party checks (see below).
+			-- Instead of stripping the spaces (which the server name might have) or
+			-- rewriting the name with a * at the end (which is useless),
+			-- we just strip it all. So we might get a false positive once in a while.
+			-- Who cares :P
+			readycheck[rname:gsub("^(%a+)%-?.*$", "%1")] = online and RD_NORESPONSE or RD_OFFLINE
 		end
 	else
 		readycheck[playerName] = -1
@@ -427,8 +434,11 @@ end
 
 function module:READY_CHECK_CONFIRM(event, id, confirm)
 	-- this event only fires when promoted, no need to check
-	--oRA:Print(event, id, confirm)
 	local name = UnitName(id)
+	--if not readycheck[name] then
+		-- Debug
+		--print(name .. " was not found in the ready check table, wtf?")
+	--end
 	if confirm then -- ready
 		readycheck[name] = RD_READY
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
