@@ -407,7 +407,7 @@ function module:READY_CHECK(event, name, duration)
 			-- rewriting the name with a * at the end (which is useless),
 			-- we just strip it all. So we might get a false positive once in a while.
 			-- Who cares :P
-			readycheck[rname:gsub("^(%a+)%-?.*$", "%1")] = online and RD_NORESPONSE or RD_OFFLINE
+			readycheck[rname:gsub("^(.*)%-.*$", "%1")] = online and RD_NORESPONSE or RD_OFFLINE
 		end
 	else
 		readycheck[playerName] = -1
