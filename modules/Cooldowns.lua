@@ -182,7 +182,6 @@ local spells = {
 		[88685] = 40,   -- Holy Word: Sanctuary
 		[89485] = 45,   -- Inner Focus
 		[19236] = 120,  -- Desperate Prayer
-		--[14751] = 60,   -- Chakra, XXX now lasts until canceled, is this right?
 		[34861] = 10,   -- Circle of Healing
 		[586]   = 30,   -- Fade
 		[15487] = 45,   -- Silence
@@ -550,7 +549,7 @@ do
 		GameTooltip:SetHyperlink("spell:"..widget:GetUserData("id"))
 		GameTooltip:Show()
 	end
-	
+
 	local function hideCheckboxTooltip(widget, event)
 		GameTooltip:Hide()
 	end
@@ -638,7 +637,7 @@ do
 	local shown = nil
 	function isDisplayLocked() return locked end
 	function isDisplayShown() return shown end
-	
+
 	function module:GetBars()
 		return visibleBars
 	end
@@ -679,7 +678,7 @@ do
 			return self[key]
 		end
 	})
-	
+
 	local function restyleBar(bar)
 		bar:SetHeight(db.barHeight)
 		bar:SetIcon(db.barShowIcon and bar:Get("ora3cd:icon") or nil)
@@ -706,13 +705,13 @@ do
 			bar:SetColor(unpack(db.barColor))
 		end
 	end
-	
+
 	function stopAll()
 		for bar in pairs(visibleBars) do
 			bar:Stop()
 		end
 	end
-	
+
 	local function barSorter(a, b)
 		return a.remaining < b.remaining and true or false
 	end
@@ -758,7 +757,7 @@ do
 		end
 		rearrangeBars()
 	end
-	
+
 	function barStopped(event, bar)
 		if visibleBars[bar] then
 			visibleBars[bar] = nil
@@ -779,7 +778,7 @@ do
 		if mouseButton ~= "RightButton" then return end
 		InterfaceOptionsFrame_OpenToCategory(L["Cooldowns"])
 	end
-	
+
 	local function onDragStart(self) self:StartMoving() end
 	local function onDragStop(self)
 		self:StopMovingOrSizing()
@@ -890,7 +889,7 @@ do
 		end
 	end
 	setupCooldownDisplay = setup
-	
+
 	local function start(unit, id, name, icon, duration)
 		setup()
 		local bar
@@ -965,11 +964,11 @@ function module:OnRegister()
 		local name = GetSpellInfo(spell)
 		if name then broadcastSpells[name] = spell end
 	end
-	
+
 	if media then
 		media:Register(mType, "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
 	end
-	
+
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
@@ -1239,7 +1238,7 @@ local talentScanners = {
 		end
 		rank = getRank(2, 19)
 		if rank > 0 then
-			addMod(14751, rank * 3)
+			addMod(64843, rank * 150)
 		end
 		rank = getRank(3, 3)
 		if rank > 0 then
