@@ -4,6 +4,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
+local nameCache = {} -- Player names without the realm suffix, cleared every ready check
 local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
 
@@ -196,12 +197,15 @@ local function updateWindow()
 		for i = 1, GetNumRaidMembers() do
 			local rname, _, subgroup, _, _, fileName = GetRaidRosterInfo(i)
 			if rname then
+				if not nameCache[rname] then
+					nameCache[rname] = rname:gsub("^(.*)%-.*$", "%1")
+				end
 				if subgroup > highgroup then
 					bottom = bottom + 1
-					setMemberStatus(bottom, true, rname, fileName)
+					setMemberStatus(bottom, true, nameCache[rname], fileName)
 				else
 					top = top + 1
-					setMemberStatus(top, false, rname, fileName)
+					setMemberStatus(top, false, nameCache[rname], fileName)
 				end
 			end
 		end
@@ -395,6 +399,7 @@ function module:READY_CHECK(event, name, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 	if not oRA:IsPromoted() then return end
 
+	wipe(nameCache)
 	wipe(readycheck)
 	-- fill with default 'no response'
 	if oRA:InRaid() then
@@ -407,7 +412,8 @@ function module:READY_CHECK(event, name, duration)
 			-- rewriting the name with a * at the end (which is useless),
 			-- we just strip it all. So we might get a false positive once in a while.
 			-- Who cares :P
-			readycheck[rname:gsub("^(.*)%-.*$", "%1")] = online and RD_NORESPONSE or RD_OFFLINE
+			nameCache[rname] = rname:gsub("^(.*)%-.*$", "%1")
+			readycheck[nameCache[rname]] = online and RD_NORESPONSE or RD_OFFLINE
 		end
 	else
 		readycheck[playerName] = -1
