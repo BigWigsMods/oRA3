@@ -1,4 +1,4 @@
-## Interface: 40200
+## Interface: 40300
 ## Name: oRA3
 ## Notes: Raid and Party Assist
 ## Author: Ammo, Rabbit
