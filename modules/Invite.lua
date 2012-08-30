@@ -121,6 +121,7 @@ local function inviteGuild()
 	GuildRoster()
 --	local max = GetMaxPlayerLevel()--Do not use this, this reports level 90, making entire invite function non functional on live until sept 25th
 --	Compatable workaround that knows proper max level based on inviters current expansion level.
+	local max
 	local currentExp = GetExpansionLevel()
 	if currentExp == 4 then
 		max = 90
