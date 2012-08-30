@@ -47,7 +47,7 @@ local function _waitForParty(self, elapsed)
 	aiTotal = aiTotal + elapsed
 	if aiTotal > 1 then
 		aiTotal = 0
-		if GetNumPartyMembers() > 0 then
+		if GetNumSubgroupMembers() > 0 then
 			ConvertToRaid()
 			self:SetScript("OnUpdate", _convertToRaid)
 		end
@@ -56,7 +56,7 @@ end
 
 function doActualInvites()
 	if not UnitInRaid("player") then
-		local pNum = GetNumPartyMembers() + 1 -- 1-5
+		local pNum = GetNumSubgroupMembers() + 1 -- 1-5
 		if pNum == 5 then
 			if #peopleToInvite > 0 then
 				ConvertToRaid()
@@ -198,8 +198,8 @@ local function handleWhisper(event, msg, author)
 	local low = msg:lower()
 	if (db.keyword and low == db.keyword) or (db.guildkeyword and low == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
-		local party = GetNumPartyMembers()
-		local raid = GetNumRaidMembers()
+		local party = GetNumSubgroupMembers()
+		local raid = GetNumGroupMembers()
 		if isIn and instanceType == "party" and party == 4 then
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		elseif party == 4 and raid == 0 then
