@@ -18,6 +18,7 @@ local guildRankDb = nil
 local factionDb = nil
 local queuePromotes = nil
 local dontPromoteThisSession = {}
+local tPlayer = UnitName("player") -- needed in 5.0
 
 --------------------------------------------------------------------------------
 -- GUI
@@ -26,7 +27,7 @@ local dontPromoteThisSession = {}
 local demoteButton = nil
 local function updateDemoteButton()
 	if not demoteButton then return end
-	if UnitIsGroupLeader("player") then
+	if UnitIsGroupLeader(tPlayer) then
 		demoteButton:SetDisabled(false)
 	else
 		demoteButton:SetDisabled(true)
@@ -89,7 +90,7 @@ do
 	end
 
 	local function demoteRaid()
-		if not UnitIsGroupLeader() then return end
+		if not UnitIsGroupLeader(tPlayer) then return end
 		for i = 1, GetNumGroupMembers() do
 			local n, rank = GetRaidRosterInfo(i)
 			if n and rank == 1 then
@@ -185,7 +186,7 @@ do
 				frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, add, delete)
 			end
 		else
-			if oRA.db.profile.showHelpTexts then
+			if oRA.db.profile.showHelpTexts then 
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
 			else
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, add, delete)
@@ -223,7 +224,7 @@ function module:OnRegister()
 		},
 	})
 	factionDb = database.factionrealm
-
+	
 	oRA:RegisterPanel(
 		L["Promote"],
 		showPane,
@@ -262,7 +263,7 @@ do
 	end)
 	function queuePromotes()
 		if f:IsShown() then f:Hide() end
-		if not UnitIsGroupLeader("player") then return end
+		if not UnitIsGroupLeader(tPlayer) then return end
 		for i = 1, GetNumGroupMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then

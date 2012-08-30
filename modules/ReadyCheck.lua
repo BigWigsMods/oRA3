@@ -194,7 +194,7 @@ local function updateWindow()
 		end
 
 		local bottom, top = 0, 0
-		for i = 1, GetNumRaidMembers() do
+		for i = 1, GetNumGroupMembers() do
 			local rname, _, subgroup, _, _, fileName = GetRaidRosterInfo(i)
 			if rname then
 				if not nameCache[rname] then
@@ -403,7 +403,7 @@ function module:READY_CHECK(event, name, duration)
 	wipe(readycheck)
 	-- fill with default 'no response'
 	if oRA:InRaid() then
-		for i = 1, GetNumRaidMembers() do
+		for i = 1, GetNumGroupMembers() do
 			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
 			-- GetRaidRosterInfo returns name/server like "Name-Server", however
 			-- GetUnitName returns name/server like "Name - Server", which we have

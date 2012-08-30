@@ -47,7 +47,7 @@ local function _waitForParty(self, elapsed)
 	aiTotal = aiTotal + elapsed
 	if aiTotal > 1 then
 		aiTotal = 0
-		if GetNumSubgroupMembers() > 0 and not IsInRaid() then
+		if GetNumSubgroupMembers() > 0 then
 			ConvertToRaid()
 			self:SetScript("OnUpdate", _convertToRaid)
 		end
@@ -119,14 +119,7 @@ end
 local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
-	local max
-	if GetExpansionLevel() == 4 then
-		max = 90
-	elseif GetExpansionLevel() == 3 then
-		max = 85
-	elseif GetExpansionLevel() == 2 then
-		max = 80
-	end
+	local max = GetMaxPlayerLevel()
 	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
 	inviteFrame.level = max
 	inviteFrame.zone = nil
@@ -158,11 +151,6 @@ local function inviteRank(rank, name)
 	inviteFrame:SetScript("OnUpdate", onUpdate)
 end
 
-local function inviteExpression(input)
-	local expression = loadstring(input)()
-
-end
-
 local function inviteRankCommand(input)
 	local ranks = oRA:GetGuildRanks()
 	local r, n = nil, nil
@@ -192,7 +180,6 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 
-	--self:RegisterChatCommand("raeinv", inviteExpression)
 	self:RegisterChatCommand("rainv", inviteGuild)
 	self:RegisterChatCommand("rainvite", inviteGuild)
 	self:RegisterChatCommand("razinv", inviteZone)
@@ -206,7 +193,7 @@ local function handleWhisper(event, msg, author)
 	if (db.keyword and low == db.keyword) or (db.guildkeyword and low == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumSubgroupMembers()
-		local raid = IsInRaid() and GetNumGroupMembers() or 0
+		local raid = GetNumGroupMembers()
 		if isIn and instanceType == "party" and party == 4 then
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		elseif party == 4 and raid == 0 then
@@ -310,7 +297,7 @@ function module:CreateFrame()
 	keyword:SetCallback("OnLeave", onControlLeave)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetRelativeWidth(0.5)
-
+	
 	local guildonlykeyword = AceGUI:Create("EditBox")
 	guildonlykeyword:SetLabel(L["Guild Keyword"])
 	guildonlykeyword:SetText(db.guildkeyword)
@@ -320,7 +307,7 @@ function module:CreateFrame()
 	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
-
+	
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
@@ -334,7 +321,7 @@ function module:CreateFrame()
 		-- left, middle and right, so making it higher actually stretches the texture.
 		--guild:SetHeight(24 * 2)
 		guild:SetFullWidth(true)
-
+	
 		zone = AceGUI:Create("Button")
 		zone:SetText(L["Invite zone"])
 		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
@@ -346,7 +333,7 @@ function module:CreateFrame()
 		rankHeader = AceGUI:Create("Heading")
 		rankHeader:SetText(L["Guild rank invites"])
 		rankHeader:SetFullWidth(true)
-
+	
 		rankDescription = AceGUI:Create("Label")
 		rankDescription:SetText(L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."])
 		rankDescription:SetFullWidth(true)
@@ -370,3 +357,4 @@ function module:CreateFrame()
 	-- updateRankButtons will ResumeLayout and DoLayout
 	updateRankButtons()
 end
+
