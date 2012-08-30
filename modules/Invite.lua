@@ -1,4 +1,4 @@
-local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+ local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("Invite", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -47,7 +47,7 @@ local function _waitForParty(self, elapsed)
 	aiTotal = aiTotal + elapsed
 	if aiTotal > 1 then
 		aiTotal = 0
-		if GetNumSubgroupMembers() > 0 then
+		if GetNumSubgroupMembers() > 0 and not IsInRaid() then--Do not remove isinraid check. GetNumSubgroupMembers() is always true in a subgroup, INCLUDING a raid, we don't want to try converting a raid to a raid
 			ConvertToRaid()
 			self:SetScript("OnUpdate", _convertToRaid)
 		end
@@ -119,7 +119,17 @@ end
 local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
-	local max = GetMaxPlayerLevel()
+--	local max = GetMaxPlayerLevel()--Do not use this, this reports level 90, making entire invite function non functional on live until sept 25th
+--	Compatable workaround that knows proper max level based on inviters current expansion level.
+	local currentExp = GetExpansionLevel()
+	if currentExp == 4 then
+		max = 90
+	elseif currentExp == 3 then
+		max = 85
+	elseif currentExp == 2 then
+		max = 80
+	end
+
 	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
 	inviteFrame.level = max
 	inviteFrame.zone = nil
@@ -193,7 +203,7 @@ local function handleWhisper(event, msg, author)
 	if (db.keyword and low == db.keyword) or (db.guildkeyword and low == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
 		local party = GetNumSubgroupMembers()
-		local raid = GetNumGroupMembers()
+		local raid = IsInRaid() and GetNumGroupMembers() or 0--Again, do not change. ORA3 expects raid count to be 0 in a party, so we ensure that it's 0 if group is NOT a raid group.
 		if isIn and instanceType == "party" and party == 4 then
 			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
 		elseif party == 4 and raid == 0 then

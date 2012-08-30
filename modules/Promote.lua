@@ -18,7 +18,6 @@ local guildRankDb = nil
 local factionDb = nil
 local queuePromotes = nil
 local dontPromoteThisSession = {}
-local tPlayer = UnitName("player") -- needed in 5.0
 
 --------------------------------------------------------------------------------
 -- GUI
@@ -27,7 +26,7 @@ local tPlayer = UnitName("player") -- needed in 5.0
 local demoteButton = nil
 local function updateDemoteButton()
 	if not demoteButton then return end
-	if UnitIsGroupLeader(tPlayer) then
+	if UnitIsGroupLeader("player") then
 		demoteButton:SetDisabled(false)
 	else
 		demoteButton:SetDisabled(true)
@@ -90,7 +89,7 @@ do
 	end
 
 	local function demoteRaid()
-		if not UnitIsGroupLeader(tPlayer) then return end
+		if not UnitIsGroupLeader("player") then return end
 		for i = 1, GetNumGroupMembers() do
 			local n, rank = GetRaidRosterInfo(i)
 			if n and rank == 1 then
@@ -263,7 +262,7 @@ do
 	end)
 	function queuePromotes()
 		if f:IsShown() then f:Hide() end
-		if not UnitIsGroupLeader(tPlayer) then return end
+		if not UnitIsGroupLeader("player") then return end
 		for i = 1, GetNumGroupMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then
