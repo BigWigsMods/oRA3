@@ -462,7 +462,7 @@ function addon:IsPromoted(name)
 
 	if not name then name = playerName end
 	if groupStatus == INRAID then
-		return UnitIsGroupAssistant(name)
+		return (UnitIsGroupAssistant(name) or UnitIsGroupLeader(name))
 	elseif groupStatus == INPARTY then
 		return UnitIsGroupLeader(name)
 	end
