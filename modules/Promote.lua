@@ -26,7 +26,7 @@ local dontPromoteThisSession = {}
 local demoteButton = nil
 local function updateDemoteButton()
 	if not demoteButton then return end
-	if UnitIsGroupLeader() then
+	if UnitIsGroupLeader("player") then
 		demoteButton:SetDisabled(false)
 	else
 		demoteButton:SetDisabled(true)
