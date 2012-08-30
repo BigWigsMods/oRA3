@@ -24,6 +24,7 @@ local _testUnits = {
 	Python = "PRIEST",
 	Purple = "HUNTER",
 	Tor = "SHAMAN",
+	Ling = "MONK",
 }
 addon._testUnits = _testUnits
 local coloredNames = setmetatable({}, {__index =
@@ -248,8 +249,7 @@ function addon:OnEnable()
 
 	-- Roster Status Events
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
-	self:RegisterEvent("RAID_ROSTER_UPDATE")
-	self:RegisterEvent("PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE")
+	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -297,7 +297,7 @@ function addon:OnEnable()
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
 	-- init groupStatus
-	self:RAID_ROSTER_UPDATE()
+	self:GROUP_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
 end
 
@@ -381,11 +381,11 @@ do
 	local tmpGroup = {}
 	local tmpTanks = {}
 
-	function addon:RAID_ROSTER_UPDATE(event)
+	function addon:GROUP_ROSTER_UPDATE(event)
 		local oldStatus = groupStatus
-		if GetNumRaidMembers() > 0 then
+		if GetNumGroupMembers() > 0 then
 			groupStatus = INRAID
-		elseif GetNumPartyMembers() > 0 then
+		elseif GetNumSubgroupMembers() > 0 then
 			groupStatus = INPARTY
 		else
 			groupStatus = UNGROUPED
@@ -397,7 +397,7 @@ do
 		wipe(tmpGroup)
 		wipe(tmpTanks)
 		if groupStatus == INRAID then
-			for i = 1, GetNumRaidMembers() do
+			for i = 1, GetNumGroupMembers() do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
 				if n then
 					tmpGroup[#tmpGroup + 1] = n
