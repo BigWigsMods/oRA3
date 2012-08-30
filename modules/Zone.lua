@@ -145,7 +145,7 @@ end
 function module:UpdateZoneList()
 	wipe(zones)
 	if oRA:InRaid() then
-		for i = 1, GetNumRaidMembers() do
+		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
 			addPlayer(name, zone)
 		end
