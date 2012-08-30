@@ -262,7 +262,7 @@ do
 	end)
 	function queuePromotes()
 		if f:IsShown() then f:Hide() end
-		if not UnitIsGroupLeader() then return end
+		if not UnitIsGroupLeader("player") then return end
 		for i = 1, GetNumGroupMembers() do
 			local n, r = GetRaidRosterInfo(i)
 			if n and r == 0 and shouldPromote(n) then

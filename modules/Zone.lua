@@ -155,7 +155,7 @@ function module:UpdateZoneList()
 		end
 		addPlayer(UnitName("player"), GetRealZoneText())
 		for i = 1, MAX_PARTY_MEMBERS do
-			if GetPartyMember(i) then
+			if UnitInParty(i) then--Maybe not best replacement for GetPartyMember()
 				local name = UnitName("party"..i)
 				local zone = GetZone("party"..i)
 				addPlayer(name, zone)
