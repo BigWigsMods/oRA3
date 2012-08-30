@@ -544,7 +544,7 @@ local function setupGUI()
 	title:SetPoint("TOP", 3, -16)
 	frame.title = title
 
-	local disband = CreateFrame("Button", "oRA3Disband", frame, "UIPanelButtonTemplate2")
+	local disband = CreateFrame("Button", "oRA3Disband", frame, "UIPanelButtonTemplate")
 	disband:SetWidth(115)
 	disband:SetHeight(22)
 	disband:SetNormalFontObject(GameFontNormalSmall)
@@ -579,7 +579,7 @@ local function setupGUI()
 	disband.tooltipText = L["Disband Group"]
 	disband.newbieText = L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."]
 
-	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate2")
+	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate")
 	options:SetWidth(115)
 	options:SetHeight(22)
 	options:SetNormalFontObject(GameFontNormalSmall)
@@ -686,7 +686,7 @@ local function setupGUI()
 		addon:SelectList(self.listIndex)
 	end
 	for i, list in next, lists do
-		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate2")
+		local f = CreateFrame("Button", "oRA3ListButton"..i, listFrame, "UIPanelButtonTemplate")
 		f:SetWidth(20)
 		f:SetHeight(21)
 		local selected = not db.lastSelectedList and i == 1 or db.lastSelectedList == i
