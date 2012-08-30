@@ -383,7 +383,7 @@ do
 
 	function addon:GROUP_ROSTER_UPDATE(event)
 		local oldStatus = groupStatus
-		if GetNumGroupMembers() > 0 then
+		if GetNumGroupMembers() > 0 and IsInRaid() then
 			groupStatus = INRAID
 		elseif GetNumSubgroupMembers() > 0 then
 			groupStatus = INPARTY
