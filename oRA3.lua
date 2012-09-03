@@ -422,7 +422,7 @@ do
 			-- may need to adjust based on preferences.
 			copyToTable(tmpTanks, tanks)
 			self.callbacks:Fire("OnTanksChanged", tanks)
-			lastTankCount = currTankCount
+			--lastTankCount = currTankCount
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
 			self.callbacks:Fire("OnShutdown", groupStatus)
