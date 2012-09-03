@@ -296,7 +296,7 @@ end
 function module:GUILD_ROSTER_UPDATE()
 	if IsInGuild() then
 		local guildName = GetGuildInfo("player")
-		guildRankDb = factionDb.promoteRank[guildName]
+		guildRankDb = factionDb.promoteRank and factionDb.promoteRank[guildName]
 	end
 end
 
