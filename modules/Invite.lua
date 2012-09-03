@@ -86,7 +86,7 @@ end
 local function doGuildInvites(level, zone, rank)
 	for i = 1, GetNumGuildMembers() do
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
-		if name and online and not UnitInParty(name) and not UnitInRaid(name) then
+		if name and online and not UnitInParty(name) and not UnitInRaid(name) and not (name == UnitName("player")) then
 			if level and level <= unitLevel then
 				peopleToInvite[#peopleToInvite + 1] = name
 			elseif zone and zone == unitZone then
