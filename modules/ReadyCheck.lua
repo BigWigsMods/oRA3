@@ -187,9 +187,9 @@ local function updateWindow()
 	if oRA:InRaid() then
 		local diff = GetInstanceDifficulty()
 		local highgroup = 8 -- 40 man it
-		if diff and diff == 4 or diff == 6 then -- 10 man
+		if diff and diff == 3 or diff == 5 then -- 10 man
 			highgroup = 2
-		elseif diff and diff == 5 or diff == 7 or diff == 8 then -- 25 man
+		elseif diff and diff == 4 or diff == 6 or diff == 7 then -- 25 man
 			highgroup = 5
 		end
 
