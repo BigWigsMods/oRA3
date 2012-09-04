@@ -22,65 +22,51 @@ local bloodlustId = UnitFactionGroup("player") == "Alliance" and 32182 or 2825
 local runningCooldowns = {}
 
 local glyphCooldowns = {
-	[57858] = {5209, 30},   -- Challenging Roar, -30sec
-	[57903] = {5384, 5},    -- Feign Death, -5sec
-	[56844] = {781, 5},     -- Disengage, -5sec
-	[56848] = {19386, 6},   -- Wyvern Sting, -6sec
-	[57955] = {633, 180},   -- Lay on Hands, -3min
-	[55676] = {8122, -3},   -- Psychic Scream, +3sec
-	[55678] = {6346, 60},   -- Fear Ward, -60sec
-	[63231] = {47788, 30},  -- Guardian Spirit, -30sec
-	[63229] = {47585, 45},  -- Dispersion, -45sec
-	[55455] = {2894, 300},  -- Fire Elemental Totem, -5min
-	[63291] = {51514, 10},  -- Hex, -10sec
-	[63329] = {871, -120},  -- Shield Wall, +2min
-	[63325] = {46968, 3},   -- Shockwave, -3sec
-	[56830] = {19574, 20},  -- Bestial Wrath, -20sec
-	[56850] = {19263, 10},  -- Deterrence, -10sec
-	[56373] = {31661, 3},   -- Dragon's Breath, -3sec
-	[55688] = {64044, 30},  -- Psychic Horror, -30sec
-	[54828] = {48505, 30},  -- Starfall, -30sec
-	[94388] = {16979, 1},   -- Feral Charge (Bear), -1sec
-	[94388] = {49376, 2},   -- Feral Charge (Cat), -2sec
-	[94390] = {5217, 3},    -- Tiger's Fury, -3sec
-	[63235] = {47540, 2},   -- Penance, -2sec
-	[56235] = {17962, 2},   -- Conflagrate, -2sec
-	[56217] = {5484, 8},    -- Howl of Terror, -8sec
-	[63304] = {50796, 2},   -- Chaos Bolt, -2sec
-	[63309] = {48020, 4},   -- Demonic Circle: Teleport, -4sec
-	[58058] = {556, 450},   -- Astral Recall, -450sec
-	[54940] = {85222, 10},  -- Light of Dawn, -10sec
-	[55684] = {586, 9},     -- Fade, -9sec
-	[55441] = {8177, -35},  -- Grounding Totem, +35sec
-	[63270] = {51490, 10},  -- Thunderstorm, -10sec
-	[63324] = {46924, 15},  -- Bladestorm, -15sec
-	[63328] = {23920, 5},   -- Spell Reflection, -5sec
-	[54928] = {26573, "20"},-- Consecration, -20%
-	[59219] = {1850, "20"}, -- Dash, -20%
-	[58355] = {100, 1},     -- Charge, -1sec
+	[55678] = {6346, 60},      -- Fear Ward, -60sec
+	[63229] = {47585, 15},     -- Dispersion, -15sec
+	[55455] = {2894, "40"},    -- Fire Elemental Totem, -40%
+	[63291] = {51514, 10},     -- Hex, -10sec
+	[63329] = {871, -120},     -- Shield Wall, +2min
+	[63325] = {6544, 15},      -- Heroic Leap, -15sec
+	[55688] = {64044, 10},     -- Psychic Horror, -10sec
+	[63309] = {48020, 4},      -- Demonic Circle: Teleport, -4sec
+	[58058] = {556, 300},      -- Astral Recall, -300sec
+	[55441] = {8177, -35},     -- Grounding Totem, +35sec
+	[63270] = {51490, 10},     -- Thunderstorm, -10sec
+	[63328] = {23920, 5},      -- Spell Reflection, -5sec
+	[59219] = {1850, 60},      -- Dash, -60sec
+        [58673] = {48792, "30"},   -- Icebound Fortitude, -50%
+	[56368] = {11129, "-100"}, -- Combustion, +100%
+	[58686] = {47528, 2},      -- Mind Freeze, -2sec
+	[116216] = {80964, -10, 80965}, -- Skull Bash (both versions), +10sec
+	[116203] = {16689, 30},    -- Nature's Grasp, -30sec
+	[114223] = {61336, 60},    -- Survival Instincts, -60sec
+	[56376] = {122, 5},        -- Frost Nova, -5sec
+	[62210] = {12042, "-100"}, -- Arcane Power, +100%
+	[115703] = {2139, -4},     -- Counterspell, +4sec
+	[54925] = {96231, -5},     -- Rebuke, +5sec
+	[56805] = {1766, -4},      -- Kick, +4sec
+	[55451] = {57994, -3},     -- Wind Shear, +3sec
 }
 
 local spells = {
 	DRUID = {
 		[20484] = 600,  -- Rebirth
 		[29166] = 180,  -- Innervate
-		[17116] = 180,  -- Nature's Swiftness
-		[5209]  = 180,  -- Challenging Roar
+		[132158] = 60,  -- Nature's Swiftness
 		[61336] = 180,  -- Survival Instincts
-		[22842] = 180,  -- Frenzied Regeneration
 		[22812] = 60,   -- Barkskin
-		[80964] = 60,   -- Skull Bash (Bear)
-		[80965] = 60,   -- Skull Bash (Cat)
+		[80964] = 15,   -- Skull Bash (Bear)
+		[80965] = 15,   -- Skull Bash (Cat)
 		[78675] = 60,   -- Solar Beam
 		[78674] = 15,   -- Starsurge
 		[18562] = 15,   -- Swiftmend
-		[50516] = 20,   -- Typhoon
-		[78675] = 60,   -- Solar Beam
-		[33831] = 180,  -- Force of Nature
+		[132469] = 20,  -- Typhoon
+		[33831] = 60,   -- Force of Nature
 		[48505] = 90,   -- Starfall
-		[16979] = 15,   -- Feral Charge (Bear)
-		[49376] = 30,   -- Feral Charge (Cat)
-		[5211]  = 60,   -- Bash
+		[16979] = 15,   -- Wild Charge (Bear)
+		[49376] = 15,   -- Wild Charge (Cat)
+		[5211]  = 50,   -- Bash
 		[50334] = 180,  -- Berserk
 		[5217]  = 30,   -- Tiger's Fury
 		[33891] = 180,  -- Tree of Life
@@ -98,16 +84,15 @@ local spells = {
 		[19263] = 120,  -- Deterrence
 		[34490] = 20,   -- Silencing Shot
 		[19386] = 60,   -- Wyvern Sting
-		[23989] = 180,  -- Readiness
+		[23989] = 300,  -- Readiness
 		[13809] = 30,   -- Ice Trap
 		[82941] = 30,   -- Ice Trap + Launcher
 		[1499]  = 30,   -- Freezing Trap
 		[60192] = 30,   -- Freezing Trap + Launcher
 		[19577] = 60,   -- Intimidation
-		[82726] = 120,  -- Fervor
-		[82692] = 15,   -- Focus Fire
-		[19574] = 120,  -- Bestial Wrath
-		[3045]  = 300,  -- Rapid Fire
+		[82726] = 30,   -- Fervor
+		[19574] = 60,   -- Bestial Wrath
+		[3045]  = 180,  -- Rapid Fire
 		[3674]  = 30,   -- Black Arrow
 		[34600] = 30,   -- Snake Trap
 		[82948] = 30,   -- Snake Trap + Launcher
@@ -121,22 +106,22 @@ local spells = {
 	MAGE = {
 		[45438] = 300,  -- Ice Block
 		[2139]  = 24,   -- Counterspell
-		[66]    = 180,  -- Invisibility
+		[66]    = 300,  -- Invisibility
 		[122]   = 25,   -- Frost Nova
 		[120]   = 10,   -- Cone of Cold
-		[11426] = 30,   -- Ice Barrier
+		[11426] = 25,   -- Ice Barrier
 		[12472] = 180,  -- Icy Veins
-		[12051] = 240,  -- Evocation
-		[31687] = 180,  -- Summon Water Elemental
-		[11958] = 480,  -- Cold Snap
+		[12051] = 120,  -- Evocation
+		[31687] = 60,   -- Summon Water Elemental
+		[11958] = 180,  -- Cold Snap
 		[1953]  = 15,   -- Blink
-		[12043] = 120,  -- Presence of Mind
-		[12042] = 120,  -- Arcane Power
-		[11113] = 15,   -- Blast Wave
-		[11129] = 120,  -- Combustion
+		[12043] = 90,   -- Presence of Mind
+		[12042] = 90,   -- Arcane Power
+		[2120] = 12,    -- Flamestrike
+		[11129] = 45,   -- Combustion
 		[31661] = 20,   -- Dragon's Breath
 		[44572] = 30,   -- Deep Freeze
-		[82676] = 180,  -- Ring of Frost
+		[113724] = 30,  -- Ring of Frost
 		[80353] = 300,  -- Time Warp
 	},
 	PALADIN = {
@@ -144,30 +129,28 @@ local spells = {
 		[1022]  = 300,  -- Hand of Protection
 		[498]   = 60,   -- Divine Protection
 		[642]   = 300,  -- Divine Shield
-		[64205] = 120,  -- Divine Sacrifice
 		[1044]  = 25,   -- Hand of Freedom
 		[1038]  = 120,  -- Hand of Salvation
 		[6940]  = 120,  -- Hand of Sacrifice
-		[31821] = 120,  -- Aura Mastery
-		[70940] = 180,  -- Divine Guardian
+		[31821] = 180,  -- Devotion Aura
 		[31850] = 180,  -- Ardent Defender
-		[96231] = 10,   -- Rebuke
-		[20066] = 60,   -- Repentance
+		[96231] = 15,   -- Rebuke
+		[20066] = 15,   -- Repentance
 		[31884] = 180,  -- Avenging Wrath
 		[853]   = 60,   -- Hammer of Justice
-		[31935] = 24,   -- Avenger's Shield
-		[26573] = 30,   -- Consecration
-		[85222] = 30,   -- Light of Dawn
-		[82327] = 60,   -- Holy Radiance
-		[20925] = 30,   -- Holy Shield
-		[86150] = 300,  -- Guardian of Ancient Kings
+		[31935] = 15,   -- Avenger's Shield
+		[26573] = 9,   -- Consecration
+		[20925] = 6,   -- Holy Shield
+		[86698] = 300,  -- Guardian of Ancient Kings (Ret)
+		[86669] = 300,  -- Guardian of Ancient Kings (Holy)
+		[86659] = 180,  -- Guardian of Ancient Kings (Prot)
 	},
 	PRIEST = {
 		[8122]  = 30,   -- Psychic Scream
 		[6346]  = 180,  -- Fear Ward
 		[64901] = 360,  -- Hymn of Hope
-		[34433] = 300,  -- Shadowfiend
-		[64843] = 480,  -- Divine Hymn
+		[34433] = 180,  -- Shadowfiend
+		[64843] = 180,  -- Divine Hymn
 		[10060] = 120,  -- Power Infusion
 		[33206] = 180,  -- Pain Suppression
 		[62618] = 180,  -- Power Word: Barrier
@@ -175,30 +158,27 @@ local spells = {
 		[47788] = 180,  -- Guardian Spirit
 		[15487] = 45,   -- Silence
 		[47585] = 120,  -- Dispersion
-		[47540] = 12,   -- Penance
+		[47540] = 10,   -- Penance
 		[88625] = 30,   -- Holy Word: Chastise
-		[88682] = 15,   -- Holy Word: Aspire
-		[88684] = 20,   -- Holy Word: Serenity
+		[88684] = 10,   -- Holy Word: Serenity
 		[88685] = 40,   -- Holy Word: Sanctuary
 		[89485] = 45,   -- Inner Focus
 		[19236] = 120,  -- Desperate Prayer
 		[34861] = 10,   -- Circle of Healing
 		[586]   = 30,   -- Fade
-		[15487] = 45,   -- Silence
 		[64044] = 120,  -- Psychic Horror
 		[33076] = 10,   -- Prayer of Mending
 		[73325] = 90,   -- Leap of Faith
 	},
 	ROGUE = {
 		[5277]  = 180,  -- Evasion
-		[1766]  = 10,   -- Kick
+		[1766]  = 15,   -- Kick
 		[1856]  = 180,  -- Vanish
 		[1725]  = 30,   -- Distract
 		[2094]  = 180,  -- Blind
 		[31224] = 120,  -- Cloak of Shadows
 		[57934] = 30,   -- Tricks of the Trade
 		[14185] = 300,  -- Preparation
-		[14177] = 120,  -- Cold Blood
 		[79140] = 120,  -- Vendetta
 		[13750] = 180,  -- Adrenaline Rush
 		[51690] = 120,  -- Killing Spree
@@ -209,23 +189,22 @@ local spells = {
 		[36554] = 24,   -- Shadowstep
 	},
 	SHAMAN = {
-		[57994] = 6,    -- Wind Shear
+		[57994] = 12,   -- Wind Shear
 		[20608] = 1800, -- Reincarnation
 		[2062]  = 600,  -- Earth Elemental Totem
 		[2894]  = 600,  -- Fire Elemental Totem
 		[bloodlustId] = 300, -- Bloodlust/Heroism
 		[51514] = 45,   -- Hex
-		[16188] = 120,  -- Nature's Swiftness
+		[16188] = 60,   -- Ancestral Swiftness
 		[16190] = 180,  -- Mana Tide Totem
 		[8177]  = 25,   -- Grounding Totem
-		[5730]  = 20,   -- Stoneclaw Totem
-		[2484]  = 15,   -- Earthbind Totem
-		[1535]  = 10,   -- Fire Nova
+		[2484]  = 30,   -- Earthbind Totem
+		[1535]  = 4,   -- Fire Nova
 		[556]   = 900,  -- Astral Recall
 		[73680] = 15,   -- Unleash Elements
 		[51505] = 8,    -- Lava Burst
-		[51490] = 40,   -- Thunderstorm
-		[16166] = 180,  -- Elemental Mastery
+		[51490] = 45,   -- Thunderstorm
+		[16166] = 120,  -- Elemental Mastery
 		[79206] = 120,  -- Spiritwalker's Grace
 		[51533] = 120,  -- Feral Spirit
 		[30823] = 60,   -- Shamanistic Rage
@@ -236,59 +215,45 @@ local spells = {
 		[98008] = 180,  -- Spirit Link Totem
 	},
 	WARLOCK = {
-		[95750] = 900,  -- Soulstone Resurrection (battle res style, shares CD with other type below)
-		[20707] = 900,  -- Soulstone Resurrection (buff style, shares CD with type above)
+		[95750] = 600,  -- Soulstone Resurrection (battle res style, shares CD with other type below)
+		[20707] = 600,  -- Soulstone Resurrection (buff style, shares CD with type above)
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
 		[29858] = 120,  -- Soulshatter
-		[29893] = 300,  -- Ritual of Souls
-		[59672] = 180,  -- Metamorphosis
-		[17962] = 10,   -- Conflagrate
+		[29893] = 120,  -- Create Soulwell
 		[5484]  = 40,   -- Howl of Terror
-		[48181] = 8,    -- Haunt
-		[47193] = 60,   -- Demonic Empowerment
-		[71521] = 12,   -- Hand of Gul'dan
-		[17877] = 15,   -- Shadowburn
-		[30283] = 20,   -- Shadowfury
-		[50796] = 12,   -- Chaos Bolt
+		[30283] = 30,   -- Shadowfury
 		[48020] = 30,   -- Demonic Circle: Teleport
 	},
 	WARRIOR = {
-		[100]   = 15,   -- Charge
-		[20252] = 30,   -- Intercept
+		[100]   = 20,   -- Charge
 		[23920] = 25,   -- Spell Reflection
 		[3411]  = 30,   -- Intervene
-		[57755] = 60,   -- Heroic Throw
+		[57755] = 30,   -- Heroic Throw
 		[1719]  = 300,  -- Recklessness
-		[20230] = 300,  -- Retaliation
-		[2565]  = 60,   -- Shield Block
-		[6552]  = 10,   -- Pummel
-		[5246]  = 120,  -- Intimidating Shout
-		[1161]  = 180,  -- Challenging Shout
+		[2565]  = 90,   -- Shield Block
+		[6552]  = 15,   -- Pummel
+		[5246]  = 60,   -- Intimidating Shout
 		[871]   = 300,  -- Shield Wall
 		[64382] = 300,  -- Shattering Throw
-		[55694] = 180,  -- Enraged Regeneration
-		[12809] = 30,   -- Concussion Blow
+		[55694] = 60,   -- Enraged Regeneration
 		[12975] = 180,  -- Last Stand
 		[6673]  = 60,   -- Battle Shout
 		[469]   = 60,   -- Commanding Shout
-		[12328] = 60,   -- Sweeping Strikes
-		[85730] = 120,  -- Deadly Calm
+		[12328] = 10,   -- Sweeping Strikes
+		[85730] = 60,   -- Deadly Calm
 		[46924] = 90,   -- Bladestorm
-		[85388] = 45,   -- Throwdown
-		[12292] = 180,  -- Death Wish
-		[60970] = 30,   -- Heroic Fury
+		[12292] = 60,   -- Bloodbath
 		[676]   = 60,   -- Disarm
 		[46968] = 20,   -- Shockwave
 		[86346] = 20,   -- Colossus Smash
-		[6544]  = 60,   -- Heroic Leap
-		[1134]  = 30,   -- Inner Rage
+		[6544]  = 45,   -- Heroic Leap
 		[97462] = 180,  -- Rallying Cry
 	},
 	DEATHKNIGHT = {
-		[49576] = 35,   -- Death Grip
-		[47528] = 10,   -- Mind Freeze
+		[49576] = 25,   -- Death Grip
+		[47528] = 15,   -- Mind Freeze
 		[47476] = 120,  -- Strangulate
 		[48792] = 180,  -- Icebound Fortitude
 		[48707] = 45,   -- Anti-Magic Shell
@@ -296,15 +261,13 @@ local spells = {
 		[42650] = 600,  -- Army of the Dead
 		[49222] = 60,   -- Bone Shield
 		[55233] = 60,   -- Vampiric Blood
-		[49028] = 60,   -- Dancing Rune Weapon
+		[49028] = 90,   -- Dancing Rune Weapon
 		[49039] = 120,  -- Lichborne
-		[45529] = 60,   -- Blood Tap
 		[48982] = 30,   -- Rune Tap
 		[51271] = 60,   -- Pillar of Frost
-		[49203] = 60,   -- Hungering Cold
 		[49016] = 180,  -- Unholy Frenzy
 		[49206] = 180,  -- Summon Gargoyle
-		[46584] = 180,  -- Raise Dead
+		[46584] = 120,  -- Raise Dead
 		[51052] = 120,  -- Anti-Magic Zone
 		[57330] = 20,   -- Horn of Winter
 		[47568] = 300,  -- Empower Rune Weapon
@@ -314,7 +277,7 @@ local spells = {
 
 -- Special handling of some spells that are only triggered by SPELL_AURA_APPLIED.
 local spellAuraApplied = {
-	--[66233] = true,  -- Old Ardent Defender, pre 4.x
+	[20707] = true,  -- Soulstone Resurrection (buff style)
 }
 local allSpells = {}
 local classLookup = {}
@@ -1092,183 +1055,42 @@ local function addMod(s, m)
 	end
 end
 
-local function getRank(tab, talent)
-	local _, _, _, _, rank = GetTalentInfo(tab, talent)
-	return rank or 0
+local function getRank(talent)
+	local _, _, _, _, rank = GetTalentInfo(talent)
+	return rank
 end
 
 local talentScanners = {
 	PALADIN = function()
-		local rank = getRank(1, 17)
-		if rank > 0 then
-			addMod(498, rank * 10)
-			addMod(6940, rank * 15)
-			addMod(31884, rank * 30)
-		end
-
-		rank = getRank(2, 6)
-		if rank > 0 then
-			addMod(853, rank * 10)
-		end
-
-		rank = getRank(2, 19)
-		if rank > 0 then
-			addMod(86150, rank * 40)
-			addMod(31884, rank * 20)
-		end
-
-		rank = getRank(3, 4)
-		if rank > 0 then
-			addMod(1022, rank * 60)
-		end
-
-		rank = getRank(3, 14)
-		if rank > 0 then
-			addMod(31884, rank * 20)
-		end
-
-		rank = getRank(3, 19) * 10
-		if rank > 0 then
-			addMod(1044, (25 * rank) / 100)
-			addMod(1038, (120 * rank) / 100)
-			addMod(6940, (120 * rank) / 100)
-		end
 	end,
 	SHAMAN = function()
-		local rank = getRank(2, 12)
-		if rank > 0 then
-			addMod(1535, rank * 2)
-		end
 	end,
 	WARRIOR = function()
-		local rank = getRank(2, 5)
-		if rank > 0 then
-			addMod(6673, rank * 15)
-			addMod(469, rank * 15)
-		end
-		rank = getRank(2, 17) * 10
-		if rank > 0 then
-			addMod(1719, (300 * rank) / 100)
-			addMod(12292, (180 * rank) / 100)
-		end
-		rank = getRank(3, 5)
-		if rank > 0 then
-			addMod(2565, rank * 10)
-			addMod(871, rank * 60)
-		end
-		rank = getRank(3, 7)
-		if rank > 0 then
-			addMod(57755, rank * 15)
-		end
-		rank = getRank(1, 16)
-		if rank > 0 then
-			addMod(100, rank * 2)
+		local rank = getRank(1) -- Juggernaut
+		if (rank) then
+			addMod(100, 8) -- 8 seconds off Charge
 		end
 	end,
 	DEATHKNIGHT = function()
-		local rank = getRank(1, 4)
-		if rank > 0 then
-			addMod(45529, rank * 15)
-		end
-		rank = getRank(1, 7)
-		if rank > 0 then
-			addMod(47476, rank * 30)
-		end
-		rank = getRank(3, 1)
-		if rank > 0 then
-			addMod(49576, rank * 5)
-		end
 	end,
 	HUNTER = function()
-		local rank = getRank(1, 11) * 10
-		if rank > 0 then
-			addMod(19577, (60 * rank) / 100)
-			addMod(19574, (100 * rank) / 100) -- We assume the hunter has Bestial Wrath glyphed
-		end
-		rank = getRank(2, 17)
-		if rank > 0 then
-			addMod(3045, rank * 60)
-		end
-		rank = getRank(3, 4)
-		if rank > 0 then
-			addMod(781, rank * 2)
-		end
-		rank = getRank(3, 11) * 2
-		if rank > 0 then
-			addMod(3674, rank)
-			addMod(1499, rank)
-			addMod(13809, rank)
-			addMod(82941, rank)
-			addMod(60192, rank)
-			addMod(34600, rank)
-			addMod(82948, rank)
-			addMod(13813, rank)
-			addMod(82939, rank)
-			addMod(13795, rank)
-			addMod(82945, rank)
+		local rank = getRank(3) -- Crouching Tiger, Hidden Chimera
+		if (rank) then
+			addMod(781, 10) -- 10 secs off Disengage
+			addMod(19263, 60) -- 60 secs off Deterrence
 		end
 	end,
 	MAGE = function()
-		local rank = getRank(1, 8)
-		if rank > 0 then
-			addMod(12051, rank * 60)
-			local percent = rank * 12.5
-			addMod(12043, (120 * percent) / 100)
-			addMod(12042, (120 * percent) / 100)
-			addMod(66, (180 * percent) / 100)
-		end
-		rank = getRank(3, 4)
-		if rank > 0 then
-			local p = rank == 3 and 20 or rank * 7
-			addMod(122, (25 * p) / 100)
-			addMod(120, (10 * p) / 100)
-			addMod(45438, (300 * p) / 100)
-			addMod(11958, (480 * p) / 100)
-			addMod(11426, (30 * p) / 100)
-			addMod(12472, (180 * p) / 100)
-		end
 	end,
 	PRIEST = function()
-		local rank = getRank(2, 12) * 15
-		if rank > 0 then
-			addMod(88625, (25 * rank) / 100)
-			addMod(88682, (15 * rank) / 100)
-			addMod(88684, (20 * rank) / 100)
-			addMod(88685, (40 * rank) / 100)
-		end
-		rank = getRank(2, 19)
-		if rank > 0 then
-			addMod(64843, rank * 150)
-		end
-		rank = getRank(3, 3)
-		if rank > 0 then
-			addMod(586, rank * 3)
-			addMod(34433, rank * 30)
-		end
-		rank = getRank(3, 4)
-		if rank > 0 then
-			addMod(8122, rank * 2)
-		end
 	end,
 	ROGUE = function()
-		local rank = getRank(3, 4)
-		if rank > 0 then
-			addMod(1856, rank * 30)
-			addMod(2094, rank * 30)
-			addMod(31224, rank * 15)
+		local rank = getRank(17) -- Versatility
+		if (rank) then
+			addMod(73981, 60) -- 60 seconds off Redirect (to 0)
 		end
 	end,
 	DRUID = function()
-		local rank = getRank(2, 13)
-		if rank > 0 then
-			addMod(5211, rank * 5)
-			addMod(80964, rank * 25)
-			addMod(80965, rank * 25)
-		end
-		rank = getRank(3, 14)
-		if rank > 0 then
-			addMod(740, rank * 150)
-		end
 	end,
 	WARLOCK = function()
 	end,
@@ -1279,12 +1101,19 @@ function module:UpdateCooldownModifiers()
 	for i = 1, GetNumGlyphSockets() do
 		local enabled, _, _, spellId = GetGlyphSocketInfo(i)
 		if enabled and spellId and glyphCooldowns[spellId] then
-			local spell, modifier = unpack(glyphCooldowns[spellId])
+			local spell, modifier, spell2 = unpack(glyphCooldowns[spellId])
 			if type(modifier) == "string" then -- Percent
 				local unmodified = getCooldown(spell)
 				addMod(spell, (unmodified * tonumber(modifier)) / 100)
+				if spell2 then
+					local unmodified2 = getCooldown(spell2)
+					addMod(spell2, (unmodified2 * tonumber(modifier)) / 100)
+				end
 			else
 				addMod(spell, modifier)
+				if spell2 then
+					addMod(spell2, modifier)
+				end
 			end
 		end
 	end
