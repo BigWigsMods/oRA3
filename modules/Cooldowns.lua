@@ -215,8 +215,7 @@ local spells = {
 		[98008] = 180,  -- Spirit Link Totem
 	},
 	WARLOCK = {
-		[95750] = 600,  -- Soulstone Resurrection (battle res style, shares CD with other type below)
-		[20707] = 600,  -- Soulstone Resurrection (buff style, shares CD with type above)
+		[20707] = 600,  -- Soulstone Resurrection
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
@@ -277,7 +276,6 @@ local spells = {
 
 -- Special handling of some spells that are only triggered by SPELL_AURA_APPLIED.
 local spellAuraApplied = {
-	[20707] = true,  -- Soulstone Resurrection (buff style)
 }
 local allSpells = {}
 local classLookup = {}
