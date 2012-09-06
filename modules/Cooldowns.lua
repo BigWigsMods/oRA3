@@ -213,6 +213,9 @@ local spells = {
 		[17364] = 8,    -- Stormstrike
 		[8143]  = 60,   -- Tremor Totem
 		[98008] = 180,  -- Spirit Link Totem
+		[120668] = 300, -- Stormlash Totem
+		[5394] = 30,    -- Healing Stream Totem
+                [108280] = 180, -- Healing Tide Totem
 	},
 	WARLOCK = {
 		[20707] = 600,  -- Soulstone Resurrection
@@ -249,6 +252,8 @@ local spells = {
 		[86346] = 20,   -- Colossus Smash
 		[6544]  = 45,   -- Heroic Leap
 		[97462] = 180,  -- Rallying Cry
+		[114028] = 60,  -- Mass Spell Reflection
+		[114029] = 30,  -- Safeguard
 	},
 	DEATHKNIGHT = {
 		[49576] = 25,   -- Death Grip
