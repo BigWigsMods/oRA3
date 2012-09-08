@@ -144,6 +144,7 @@ local spells = {
 		[86698] = 300,  -- Guardian of Ancient Kings (Ret)
 		[86669] = 300,  -- Guardian of Ancient Kings (Holy)
 		[86659] = 180,  -- Guardian of Ancient Kings (Prot)
+		[114039] = 30,  -- Hand of Purity
 	},
 	PRIEST = {
 		[8122]  = 30,   -- Psychic Scream
@@ -254,6 +255,7 @@ local spells = {
 		[97462] = 180,  -- Rallying Cry
 		[114028] = 60,  -- Mass Spell Reflection
 		[114029] = 30,  -- Safeguard
+		[114030] = 120, -- Vigilance
 	},
 	DEATHKNIGHT = {
 		[49576] = 25,   -- Death Grip
