@@ -145,6 +145,7 @@ local spells = {
 		[86669] = 300,  -- Guardian of Ancient Kings (Holy)
 		[86659] = 180,  -- Guardian of Ancient Kings (Prot)
 		[114039] = 30,  -- Hand of Purity
+		[105809] = 120, -- Holy Avenger
 	},
 	PRIEST = {
 		[8122]  = 30,   -- Psychic Scream
