@@ -35,7 +35,7 @@ local glyphCooldowns = {
 	[63270] = {51490, 10},     -- Thunderstorm, -10sec
 	[63328] = {23920, 5},      -- Spell Reflection, -5sec
 	[59219] = {1850, 60},      -- Dash, -60sec
-        [58673] = {48792, "30"},   -- Icebound Fortitude, -50%
+	[58673] = {48792, "30"},   -- Icebound Fortitude, -50%
 	[56368] = {11129, "-100"}, -- Combustion, +100%
 	[58686] = {47528, 2},      -- Mind Freeze, -2sec
 	[116216] = {80964, -10, 80965}, -- Skull Bash (both versions), +10sec
@@ -279,6 +279,9 @@ local spells = {
 		[57330] = 20,   -- Horn of Winter
 		[47568] = 300,  -- Empower Rune Weapon
 		[48743] = 120,  -- Death Pact
+	},
+	MONK = {
+		--nothing yet
 	},
 }
 
