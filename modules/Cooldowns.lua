@@ -257,6 +257,8 @@ local spells = {
 		[114028] = 60,  -- Mass Spell Reflection
 		[114029] = 30,  -- Safeguard
 		[114030] = 120, -- Vigilance
+		[114203] = 180, -- Demoralizing Banner
+		[114207] = 180, -- Skull Banner
 	},
 	DEATHKNIGHT = {
 		[49576] = 25,   -- Death Grip
