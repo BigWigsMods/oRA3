@@ -259,6 +259,7 @@ local spells = {
 		[114030] = 120, -- Vigilance
 		[114203] = 180, -- Demoralizing Banner
 		[114207] = 180, -- Skull Banner
+		[114192] = 180, -- Mocking Banner
 	},
 	DEATHKNIGHT = {
 		[49576] = 25,   -- Death Grip
