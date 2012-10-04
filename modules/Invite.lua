@@ -225,7 +225,7 @@ end
 
 function module:CHAT_MSG_BN_WHISPER(event, msg, author, _, _, _, _, _, _, _, _, _, _, presenceId)
 	for i = 1, BNGetNumFriends() do
-		local friendPresenceId, _, _, toonName, _, client = BNGetFriendInfo(i)
+		local friendPresenceId, _, _, _, toonName, _, client = BNGetFriendInfo(i)
 		if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
 			handleWhisper(event, msg, toonName)
 			break
