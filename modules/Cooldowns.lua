@@ -76,6 +76,7 @@ local spells = {
 		[740]   = 480,  -- Tranquility
 		[77761] = 120,  -- Stampeding Roar
 		[48438] = 8,    -- Wild Growth
+		[102342] = 120, -- Ironbark
 	},
 	HUNTER = {
 		[34477] = 30,   -- Misdirection
@@ -101,6 +102,8 @@ local spells = {
 		[13795] = 30,   -- Immolation Trap
 		[82945] = 30,   -- Immolation Trap + Launcher
 		[51753] = 60,   -- Camouflage
+		[126393] = 600, -- Eternal Guardian
+		[90355] = 360,  -- Ancient Hysteria
 		-- XXX Pets missing
 	},
 	MAGE = {
@@ -171,6 +174,8 @@ local spells = {
 		[64044] = 120,  -- Psychic Horror
 		[33076] = 10,   -- Prayer of Mending
 		[73325] = 90,   -- Leap of Faith
+		[15286]  = 180, -- Vampiric Embrace
+		[109964]  = 60, -- Spirit Shell
 	},
 	ROGUE = {
 		[5277]  = 180,  -- Evasion
@@ -217,7 +222,11 @@ local spells = {
 		[98008] = 180,  -- Spirit Link Totem
 		[120668] = 300, -- Stormlash Totem
 		[5394] = 30,    -- Healing Stream Totem
-                [108280] = 180, -- Healing Tide Totem
+        [108280] = 180, -- Healing Tide Totem
+		[108281] = 120, -- Ancestral Guidance
+		[108273] = 60,  -- Windwalk Totem
+        [108271] = 120, -- Astral Shift
+        [114049] = 180, -- Ascendance
 	},
 	WARLOCK = {
 		[20707] = 600,  -- Soulstone Resurrection
@@ -284,7 +293,15 @@ local spells = {
 		[48743] = 120,  -- Death Pact
 	},
 	MONK = {
-		--nothing yet
+		[115213] = 180, -- Avert Harm
+		[115176] = 180, -- Zen Meditation
+		[122278] = 90,  -- Dampen Harm
+		[115310] = 180, -- Revival
+		[116849] = 120, -- Life Cocoon
+		[115203] = 180, -- Fortifying Brew
+		[119381] = 45,  -- Leg Sweep
+		[122470] = 90,  -- Touch of Karma
+		[116705] = 15,  -- Spear Hand Strike
 	},
 }
 
@@ -1105,6 +1122,8 @@ local talentScanners = {
 	DRUID = function()
 	end,
 	WARLOCK = function()
+	end,
+	MONK = function()
 	end,
 }
 
