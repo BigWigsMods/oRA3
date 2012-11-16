@@ -222,11 +222,11 @@ local spells = {
 		[98008] = 180,  -- Spirit Link Totem
 		[120668] = 300, -- Stormlash Totem
 		[5394] = 30,    -- Healing Stream Totem
-        [108280] = 180, -- Healing Tide Totem
+		[108280] = 180, -- Healing Tide Totem
 		[108281] = 120, -- Ancestral Guidance
 		[108273] = 60,  -- Windwalk Totem
-        [108271] = 120, -- Astral Shift
-        [114049] = 180, -- Ascendance
+		[108271] = 120, -- Astral Shift
+		[114049] = 180, -- Ascendance
 	},
 	WARLOCK = {
 		[20707] = 600,  -- Soulstone Resurrection
@@ -291,6 +291,7 @@ local spells = {
 		[57330] = 20,   -- Horn of Winter
 		[47568] = 300,  -- Empower Rune Weapon
 		[48743] = 120,  -- Death Pact
+		[108199] = 60,  -- Gorefiend's Grasp
 	},
 	MONK = {
 		[115213] = 180, -- Avert Harm
