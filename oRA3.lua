@@ -474,8 +474,16 @@ end
 
 function addon:SendComm( ... )
 	if groupStatus == UNGROUPED or UnitInBattleground("player") then return end
-	 -- we always send to raid, blizzard will default to party if you're in a party
-	self:SendCommMessage("oRA3", self:Serialize(...), "RAID")
+	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and IsInInstance() then--In LFR or LFD and inside instance
+	 -- we check IsInInstance() because we may be in a regular raid group as well, and we want to make sure to use "RAID" or "PARTY" as a fallback below (ie Galleon spawned for example and you ported out of LFR to go get it)
+		self:SendCommMessage("oRA3", self:Serialize(...), "INSTANCE_CHAT")
+	else
+		if IsInRaid() then--Send to RAID if we are in raid, even if LE_PARTY_CATEGORY_INSTANCE is true but IsInInstance() isn't for reason explained above
+			self:SendCommMessage("oRA3", self:Serialize(...), "RAID")
+		elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then--Not in a raid or LFG/LFR but still in a group, just use good ole PARTY sync
+			self:SendCommMessage("oRA3", self:Serialize(...), "PARTY")
+		end
+	end
 end
 
 local function dispatchComm(sender, ok, commType, ...)
