@@ -166,7 +166,7 @@ local function inviteRankCommand(input)
 	local ranks = oRA:GetGuildRanks()
 	local r, n = nil, nil
 	for i, rank in next, ranks do
-		if rank:lower():find(input) then
+		if rank:lower():find(input:lower()) then
 			r = i
 			n = rank
 			break
