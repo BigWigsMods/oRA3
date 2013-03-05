@@ -187,7 +187,8 @@ local function updateWindow()
 	if oRA:InRaid() then
 		--GetInstanceInfo() and GetInstanceDifficulty() don't match, blizz screwup.
 		--It's likely one of these apis will get fixed soonª, which may break these numbers again if GetInstanceDifficulty() is one that changes, keep an eye on em
-		local _, _, diff = GetInstanceInfo() + 1
+		local _, _, diff = GetInstanceInfo()
+		diff = diff + 1
 		local highgroup = 8 -- 40 man it
 		if diff and diff == 4 or diff == 6 then -- 10 man
 			highgroup = 2
