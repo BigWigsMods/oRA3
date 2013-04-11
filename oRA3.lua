@@ -383,13 +383,7 @@ do
 
 	function addon:GROUP_ROSTER_UPDATE(event)
 		local oldStatus = groupStatus
-		if GetNumGroupMembers() > 0 and IsInRaid() then
-			groupStatus = INRAID
-		elseif GetNumSubgroupMembers() > 0 then
-			groupStatus = INPARTY
-		else
-			groupStatus = UNGROUPED
-		end
+		groupStatus = IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
