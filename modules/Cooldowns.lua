@@ -828,7 +828,9 @@ do
 		display:SetMinResize(100, 20)
 		display:SetWidth(200)
 		display:SetHeight(148)
-		oRA3:RestorePosition("oRA3CooldownFrame")
+		if oRA3:RestorePosition("oRA3CooldownFrame") then
+			onResize(display, display:GetWidth(), display:GetHeight()) -- draw the right number of bars
+		end
 		local bg = display:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints(display)
 		bg:SetBlendMode("BLEND")
