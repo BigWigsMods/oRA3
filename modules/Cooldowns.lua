@@ -1020,7 +1020,7 @@ function module:OnStartup()
 			self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
 			local start, duration = GetSpellCooldown(20608)
 			if start > 0 and duration > 0 then
-				self:SendComm("CooldownReincarnation", duration-1)
+				oRA:SendComm("CooldownReincarnation", duration-1)
 			end
 		end
 		self:SecureHook("UseSoulstone", function()
