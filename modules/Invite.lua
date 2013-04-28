@@ -224,13 +224,15 @@ function module:OnEnable()
 end
 
 function module:CHAT_MSG_BN_WHISPER(event, msg, author, _, _, _, _, _, _, _, _, _, _, presenceId)
-	for i = 1, BNGetNumFriends() do
-		local friendPresenceId, _, _, _, toonName, _, client = BNGetFriendInfo(i)
-		if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
-			handleWhisper(event, msg, toonName)
-			break
-		end
-	end
+    for i = 1, BNGetNumFriends() do
+        local friendPresenceId, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client = BNGetFriendInfo(i)
+        local _, toonName, client, realmName, realmID, faction, race, class, guild, zoneName, level, gameText = BNGetFriendToonInfo(BNGetFriendIndex(friendPresenceId), 1)
+
+        if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
+            handleWhisper(event, msg, toonName .. "-" .. realmName)
+            break
+        end
+    end
 end
 
 local function onControlEnter(widget, event, value)
