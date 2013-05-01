@@ -1,24 +1,31 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceConsole-3.0")
+local module = oRA:NewModule("ReadyCheck", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
-local nameCache = {} -- Player names without the realm suffix, cleared every ready check
 local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
 
-local readyAuthor = nil -- author of the current readycheck
 local playerName = UnitName("player")
+local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 
 -- local constants
 local RD_RAID_MEMBERS_NOTREADY = L["The following players are not ready: %s"]
 local RD_READY_CHECK_OVER_IN = L["Ready Check (%d seconds)"]
-local RD_READY = L["Ready"]
-local RD_NOTREADY = L["Not Ready"]
-local RD_NORESPONSE = L["No Response"]
-local RD_OFFLINE = L["Offline"]
+local RD_READY = READY
+local RD_NOTREADY = NOT_READY
+local RD_NORESPONSE = NO_RESPONSE
+local RD_OFFLINE = PLAYER_OFFLINE
+
+-- filter the ready check results system messages
+do
+	local MSG_AFK = RAID_MEMBERS_AFK:gsub("%%s", "(.*)")
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", function(self, event, msg)
+		if msg == READY_CHECK_ALL_READY or msg:find(MSG_AFK) then return true end
+	end)
+end
 
 local defaults = {
 	profile = {
@@ -30,7 +37,7 @@ local defaults = {
 		relayReady = false
 	}
 }
-local function colorize(input) return "|cfffed000" .. input .. "|r" end
+local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local options
 local function getOptions()
 	if not options then
@@ -154,7 +161,7 @@ local function setMemberStatus(num, bottom, name, class)
 		f = topMemberFrames[num] or createTopFrame()
 	end
 	local color = RAID_CLASS_COLORS[class]
-	f.NameText:SetText(name)
+	f.NameText:SetText(name:gsub("%-.*$", ""))
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 	f:Show()
@@ -178,63 +185,53 @@ local function setMemberStatus(num, bottom, name, class)
 end
 
 local function updateWindow()
-	for i, v in next, topMemberFrames do v:Hide() end
-	for i, v in next, bottomMemberFrames do v:Hide() end
-
+	for _, v in next, topMemberFrames do v:Hide() end
+	for _, v in next, bottomMemberFrames do v:Hide() end
 	frame.bar:Hide()
 
-	local total = 0
-	if oRA:InRaid() then
-		--GetInstanceInfo() and GetInstanceDifficulty() don't match, blizz screwup.
-		--It's likely one of these apis will get fixed soonª, which may break these numbers again if GetInstanceDifficulty() is one that changes, keep an eye on em
+	local total = GetNumGroupMembers()
+	if IsInRaid() then
 		local _, _, diff = GetInstanceInfo()
-		diff = diff + 1
-		local highgroup = 8 -- 40 man it
-		if diff and diff == 4 or diff == 6 then -- 10 man
-			highgroup = 2
-		elseif diff and diff == 5 or diff == 7 or diff == 8 then -- 25 man
-			highgroup = 5
+		local highgroup
+		if diff == 3 or diff == 5 or diff == 0 then -- 10 man
+			highgroup = 3
+		elseif diff == 4 or diff == 6 or diff == 7 then -- 25 man
+			highgroup = 6
+		else -- 40 man
+			highgroup = 9
 		end
 
 		local bottom, top = 0, 0
-		for i = 1, GetNumGroupMembers() do
-			local rname, _, subgroup, _, _, fileName = GetRaidRosterInfo(i)
-			if rname then
-				if not nameCache[rname] then
-					nameCache[rname] = rname:gsub("^(.*)%-.*$", "%1")
-				end
-				if subgroup > highgroup then
-					bottom = bottom + 1
-					setMemberStatus(bottom, true, nameCache[rname], fileName)
-				else
-					top = top + 1
-					setMemberStatus(top, false, nameCache[rname], fileName)
-				end
+		for i = 1, total do
+			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
+			if subgroup < highgroup then
+				top = top + 1
+				setMemberStatus(top, false, name, class)
+			else
+				bottom = bottom + 1
+				setMemberStatus(bottom, true, name, class)
 			end
 		end
-		total = bottom + top / 2
-
 		-- position the spacer
-		local yoff = ((math.ceil(top / 2) * 14) + 37) * -1
-		frame.bar:ClearAllPoints()
-		frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
-		frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
-
 		if bottom > 0 then
+			local yoff = 0 - (math.ceil(top / 2) * 14 + 37)
+			frame.bar:ClearAllPoints()
+			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
+			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
 			frame.bar:Show()
 		end
 	else
-		total = 1
-		setMemberStatus(total, false, playerName, select(2, UnitClass("player")))
-		for i = 1, MAX_PARTY_MEMBERS do
-			if UnitExists("party"..i) then
-				total = total + 1
-				setMemberStatus(total, false, UnitName("party"..i), select(2,UnitClass("party"..i)) )
-			end
+		setMemberStatus(1, false, playerName, playerClass)
+		for i = 1, GetNumSubgroupMembers() do
+			local unit = ("party%d"):format(i)
+			local name, server = UnitName(unit)
+			if server then name = name.."-"..server end
+			local _, class = UnitClass(unit)
+			setMemberStatus(i+1, false, name, class)
 		end
 	end
 
-	local height = math.max((total * 14) + 66, 128)
+	local height = math.max(math.ceil(total / 2) * 14 + 66, 128)
 	frame:SetHeight(height)
 end
 
@@ -398,36 +395,26 @@ function module:PLAYER_REGEN_DISABLED()
 	frame:Hide()
 end
 
-function module:READY_CHECK(event, name, duration)
+function module:READY_CHECK(event, initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 	if not oRA:IsPromoted() then return end
 
-	wipe(nameCache)
 	wipe(readycheck)
-	-- fill with default 'no response'
-	if oRA:InRaid() then
+	-- fill with default "No Response" and set the initiator "Ready"
+	if IsInRaid() then
 		for i = 1, GetNumGroupMembers() do
-			local rname, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			-- GetRaidRosterInfo returns name/server like "Name-Server", however
-			-- GetUnitName returns name/server like "Name - Server", which we have
-			-- to use for party checks (see below).
-			-- Instead of stripping the spaces (which the server name might have) or
-			-- rewriting the name with a * at the end (which is useless),
-			-- we just strip it all. So we might get a false positive once in a while.
-			-- Who cares :P
-			nameCache[rname] = rname:gsub("^(.*)%-.*$", "%1")
-			readycheck[nameCache[rname]] = online and RD_NORESPONSE or RD_OFFLINE
+			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+			readycheck[name] = GetReadyCheckStatus(name) == "ready" and RD_READY or not online and RD_OFFLINE or RD_NORESPONSE
 		end
 	else
-		readycheck[playerName] = -1
-		for i = 1, MAX_PARTY_MEMBERS do
-			if UnitExists("party"..i) then
-				readycheck[UnitName("party"..i)] = RD_NORESPONSE
-			end
+		readycheck[playerName] = GetReadyCheckStatus("player") == "ready" and RD_READY or RD_NORESPONSE
+		for i = 1, GetNumSubgroupMembers() do
+			local unit = ("party%d"):format(i)
+			local name, server = UnitName(unit)
+			if server then name = name.."-"..server end
+			readycheck[name] = GetReadyCheckStatus(unit) == "ready" and RD_READY or not UnitIsConnected(unit) and RD_OFFLINE or RD_NORESPONSE
 		end
 	end
-	readycheck[name] = RD_READY -- the sender is always ready
-	readyAuthor = name
 
 	-- show the readycheck result frame
 	if self.db.profile.gui then
@@ -441,14 +428,12 @@ function module:READY_CHECK(event, name, duration)
 	end
 end
 
-function module:READY_CHECK_CONFIRM(event, id, confirm)
-	-- this event only fires when promoted, no need to check
-	local name = UnitName(id)
-	--if not readycheck[name] then
-		-- Debug
-		--print(name .. " was not found in the ready check table, wtf?")
-	--end
-	if confirm then -- ready
+function module:READY_CHECK_CONFIRM(event, unit, ready)
+	-- this event only fires when promoted, so no need to check
+	local name, server = UnitName(unit)
+	if server then name = name.."-"..server end
+
+	if ready then
 		readycheck[name] = RD_READY
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
@@ -458,55 +443,52 @@ function module:READY_CHECK_CONFIRM(event, id, confirm)
 	end
 end
 
-local function sysPrint(msg)
-	local c = ChatTypeInfo["SYSTEM"]
-	DEFAULT_CHAT_FRAME:AddMessage(msg, c.r, c.g, c.b, c.id)
-end
-
 do
 	local noReply = {}
 	local notReady = {}
-	function module:READY_CHECK_FINISHED(event, someBoolean)
-		-- This seems to be true in 5mans and false in raids, no matter what people actually click.
-		if someBoolean then return end
+	local function delayFade() frame.fadeTimer = 1 end
+	function module:READY_CHECK_FINISHED(event, preempted)
+		if preempted then return end -- is a dungeon group ready check
 		if not oRA:IsPromoted() then return end
 
 		if frame then
-			if self.db.profile.autohide then frame.fadeTimer = 1 end
+			if self.db.profile.autohide then
+				self:ScheduleTimer(delayFade, 2) --XXX turn this into an animation
+			end
 			frame.timer = 0
 			frame.title:SetText(READY_CHECK_FINISHED)
 		end
 
-		wipe(noReply); wipe(notReady)
-		for name, ready in pairs(readycheck) do
-			if ready == RD_NORESPONSE then
-				noReply[#noReply + 1] = name
+		wipe(noReply)
+		wipe(notReady)
+		for name, ready in next, readycheck do
+			if ready == RD_NORESPONSE or ready == RD_OFFLINE then
+				noReply[#noReply + 1] = name:gsub("%-.*$", "")
 			elseif ready == RD_NOTREADY then
-				notReady[#notReady + 1] = name
+				notReady[#notReady + 1] = name:gsub("%-.*$", "")
 			end
 		end
 
+		local c = ChatTypeInfo["SYSTEM"]
 		if #noReply == 0 and #notReady == 0 then
-			sysPrint(READY_CHECK_ALL_READY)
-			if self.db.profile.relayReady then
+			DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
+			if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
-			return
-		end
-
-		if #noReply > 0 then
-			local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
-			sysPrint(afk)
-			if self.db.profile.relayReady then
-				SendChatMessage(afk, "RAID")
+		else
+			if #noReply > 0 then
+				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
+				DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
+				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
+					SendChatMessage(afk, "RAID")
+				end
 			end
-		end
-
-		if #notReady > 0 then
-			local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
-			sysPrint(no)
-			if self.db.profile.relayReady then
-				SendChatMessage(no, "RAID")
+			if #notReady > 0 then
+				local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
+				DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
+				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
+					SendChatMessage(no, "RAID")
+				end
 			end
 		end
 	end
