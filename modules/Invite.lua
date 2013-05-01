@@ -229,7 +229,11 @@ function module:CHAT_MSG_BN_WHISPER(event, msg, author, _, _, _, _, _, _, _, _, 
         local _, toonName, client, realmName, realmID, faction, race, class, guild, zoneName, level, gameText = BNGetFriendToonInfo(BNGetFriendIndex(friendPresenceId), 1)
 
         if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
-            handleWhisper(event, msg, toonName .. "-" .. realmName)
+			if realmName == GetRealmName() then
+				handleWhisper(event, msg, toonName)
+			else
+				handleWhisper(event, msg, toonName .. "-" .. realmName)
+			end
             break
         end
     end
