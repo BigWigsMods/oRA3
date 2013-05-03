@@ -245,7 +245,7 @@ local spells = {
 		[23920] = 25,   -- Spell Reflection
 		[3411]  = 30,   -- Intervene
 		[57755] = 30,   -- Heroic Throw
-		[1719]  = 300,  -- Recklessness
+		[1719]  = 180,  -- Recklessness
 		[2565]  = 9,    -- Shield Block
 		[6552]  = 15,   -- Pummel
 		[5246]  = 90,   -- Intimidating Shout
@@ -759,7 +759,7 @@ do
 	local function OnDragHandleMouseUp(self, button) self.frame:StopMovingOrSizing() end
 	local function onResize(self, width, height)
 		oRA3:SavePosition("oRA3CooldownFrame")
-		maximum = math.floor(height / db.barHeight)
+		maximum = math.floor((height or self:GetHeight()) / db.barHeight)
 		-- if we have that many bars shown, hide the ones that overflow
 		rearrangeBars()
 	end
@@ -829,7 +829,7 @@ do
 		display:SetWidth(200)
 		display:SetHeight(148)
 		if oRA3:RestorePosition("oRA3CooldownFrame") then
-			onResize(display, display:GetWidth(), display:GetHeight()) -- draw the right number of bars
+			onResize(display) -- draw the right number of bars
 		end
 		local bg = display:CreateTexture(nil, "BACKGROUND")
 		bg:SetAllPoints(display)
