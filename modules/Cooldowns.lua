@@ -315,18 +315,6 @@ for class, spells in next, spells do
 	end
 end
 
-local classes = {}
-do
-	local hexColors = {}
-	for k, v in next, RAID_CLASS_COLORS do
-		hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
-	end
-	for class in next, spells do
-		classes[class] = hexColors[class] .. LOCALIZED_CLASS_NAMES_MALE[class] .. "|r"
-	end
-	hexColors = nil
-end
-
 local db = nil
 local cdModifiers = {}
 
@@ -584,6 +572,12 @@ do
 		moduleDescription:SetFontObject(GameFontHighlight)
 		moduleDescription:SetFullWidth(true)
 
+		local classes = {}
+		for class in next, spells do
+			local color = oRA.classColors[class]
+			classes[class] = string.format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255, LOCALIZED_CLASS_NAMES_MALE[class])
+		end
+
 		group = AceGUI:Create("DropdownGroup")
 		group:SetLayout("Flow")
 		group:SetTitle(L["Select class"])
@@ -689,7 +683,7 @@ do
 		end
 		bar.candyBarLabel:SetJustifyH(db.barLabelAlign)
 		if db.barClassColor then
-			local c = RAID_CLASS_COLORS[bar:Get("ora3cd:unitclass")]
+			local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
 		else
 			bar:SetColor(unpack(db.barColor))

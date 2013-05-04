@@ -160,7 +160,7 @@ local function setMemberStatus(num, bottom, name, class)
 	else
 		f = topMemberFrames[num] or createTopFrame()
 	end
-	local color = RAID_CLASS_COLORS[class]
+	local color = oRA.classColors[class]
 	f.NameText:SetText(name:gsub("%-.*$", ""))
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)

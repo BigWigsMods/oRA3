@@ -9,10 +9,12 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 BINDING_HEADER_oRA3 = "oRA3"
 BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
 
-local hexColors = {}
+local hexColors, classColors = {}, {}
 for k, v in next, RAID_CLASS_COLORS do
 	hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+	classColors[k] = v
 end
+addon.classColors = classColors
 local _testUnits = {
 	Wally = "WARRIOR",
 	Kingkong = "DEATHKNIGHT",
@@ -304,6 +306,7 @@ function addon:OnEnable()
 		local function updateClassColors()
 			for k, v in next, CUSTOM_CLASS_COLORS do
 				hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+				classColors[k] = v
 			end
 			wipe(coloredNames)
 		end
