@@ -11,7 +11,7 @@ local peopleToInvite = {}
 local rankButtons = {}
 
 local function canInvite()
-	return (oRA:InGroup() and oRA:IsPromoted()) or not oRA:InGroup()
+	return not IsInGroup() or oRA:IsPromoted()
 end
 
 local function showConfig()
@@ -105,7 +105,7 @@ local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
 	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
-	SendChatMessage((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
+	SendChatMessage(L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."], "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
 end
 
@@ -161,29 +161,30 @@ function module:OnRegister()
 	self:RegisterChatCommand("rarinvite", inviteRankCommand)
 end
 
+local function getBattleNetToon(presenceId)
+	local friendIndex = BNGetFriendIndex(presenceId)
+	for i=1, BNGetNumFriendToons(friendIndex) do
+		local _, toonName, client, realmName, realmId, faction = BNGetFriendToonInfo(friendIndex, i)
+		if client == BNET_CLIENT_WOW and faction == UnitFactionGroup("player") and realmId > 0 then
+			if realmName ~= GetRealmName() then
+				toonName = toonName.."-"..realmName
+			end
+			return toonName
+		end
+	end
+end
+
 local function handleWhisper(event, msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
 	if presenceId > 0 then
-		local friendIndex = BNGetFriendIndex(presenceId)
-		local valid = nil
-		for i=1, BNGetNumFriendToons(friendIndex) do
-			local _, toonName, client, realmName, realmId, faction = BNGetFriendToonInfo(friendIndex, i)
-			if client == BNET_CLIENT_WOW and faction == UnitFactionGroup("player") and realmId > 0 then
-				if realmName ~= GetRealmName() then
-					toonName = toonName.."-"..realmName
-				end
-				sender = toonName
-				valid = true
-				break
-			end
-		end
-		if not valid then return end
+		sender = getBattleNetToon(presenceId)
+		if not sender then return end
 	end
 
 	msg = msg:trim():lower()
-	if (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) and canInvite() then
-		local isIn, instanceType = IsInInstance()
+	if canInvite() and (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) then
+		local _, instanceType = IsInInstance()
 		local num = GetNumGroupMembers()
-		if (isIn and instanceType == "party" and num == 5) or num == 40 then
+		if (instanceType == "party" and num == 5) or num == 40 then
 			if presenceId > 0 then
 				BNSendWhisper(L["<oRA3> Sorry, the group is full."], presenceId)
 			else

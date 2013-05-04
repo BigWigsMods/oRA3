@@ -170,7 +170,7 @@ do
 	local processedRanks = {}
 	function onGroupChanged(event, status, members)
 		if not db.ensureRepair or not IsGuildLeader() or not IsInRaid() or not addon:IsPromoted() then return end
-		local amount = math.floor(GetAverageItemLevel()) or 300 -- vharr am so smrt.. ?!
+		local amount = math.floor(GetAverageItemLevel()) or 300 -- vhaarr am so smrt.. ?!
 		for _, name in next, members do
 			local rankIndex = guildMemberList[name]
 			if rankIndex and not processedRanks[rankIndex] then
