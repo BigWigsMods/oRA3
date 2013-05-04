@@ -868,6 +868,7 @@ end
 
 function addon:UpdateList(name)
 	if not openedList or not oRA3Frame:IsVisible() then return end
+	if not lists[openedList] then print("No list at location", openedList, "exists.") return end
 	if lists[openedList].name ~= name then return end
 	showLists()
 end
