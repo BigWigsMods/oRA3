@@ -167,39 +167,41 @@ end
 
 local onGroupChanged, onShutdown = nil, nil
 do
-	local function sysprint(msg) print("|cffffff00" .. msg .. "|r") end
-
 	local processedRanks = {}
-	local ilvl = nil
 	function onGroupChanged(event, status, members)
-		if not db.ensureRepair or not addon:InRaid() or not addon:IsPromoted() or not IsGuildLeader() then return end
-		if not ilvl then ilvl = GetAverageItemLevel() end -- I am so smrt.. ?!
-		for i, v in next, members do
-			local rankIndex = guildMemberList[v]
+		if not db.ensureRepair or not IsGuildLeader() or not IsInRaid() or not addon:IsPromoted() then return end
+		local amount = math.floor(GetAverageItemLevel()) or 300 -- vharr am so smrt.. ?!
+		for _, name in next, members do
+			local rankIndex = guildMemberList[name]
 			if rankIndex and not processedRanks[rankIndex] then
 				processedRanks[rankIndex] = true
 				GuildControlSetRank(rankIndex)
 				local repair = select(15, GuildControlGetRankFlags())
-				db.repairFlagStorage[rankIndex] = repair
 				if not repair then
-					sysprint(L.repairEnabled:format(guildRanks[rankIndex]))
+					db.repairFlagStorage[rankIndex] = true
 					GuildControlSetRankFlag(15, true)
+					local c = ChatTypeInfo["SYSTEM"]
+					DEFAULT_CHAT_FRAME:AddMessage(L.repairEnabled:format(guildRanks[rankIndex]), c.r, c.g, c.b)
 				end
 				local maxAmount = GetGuildBankWithdrawGoldLimit()
-				db.repairAmountStorage[rankIndex] = maxAmount
 				if not maxAmount or maxAmount == 0 then
-					SetGuildBankWithdrawGoldLimit(ilvl or 300)
+					db.repairAmountStorage[rankIndex] = true
+					SetGuildBankWithdrawGoldLimit(amount)
 				end
 			end
 		end
 	end
 
 	function onShutdown(event, status)
-		if not db.ensureRepair or not IsGuildLeader() then return end
-		for rankIndex in pairs(processedRanks) do
+		if not IsGuildLeader() then return end
+		for rankIndex in next, processedRanks do
 			GuildControlSetRank(rankIndex)
-			GuildControlSetRankFlag(15, db.repairFlagStorage[rankIndex])
-			SetGuildBankWithdrawGoldLimit(db.repairAmountStorage[rankIndex])
+			if db.repairFlagStorage[rankIndex] then
+				GuildControlSetRankFlag(15, false)
+			end
+			if db.repairAmountStorage[rankIndex] then
+				SetGuildBankWithdrawGoldLimit(0)
+			end
 		end
 		wipe(db.repairAmountStorage)
 		wipe(db.repairFlagStorage)
