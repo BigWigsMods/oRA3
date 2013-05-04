@@ -1,5 +1,5 @@
  local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Invite", "AceEvent-3.0", "AceConsole-3.0")
+local module = oRA:NewModule("Invite", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -30,57 +30,59 @@ local function hideConfig()
 end
 
 local doActualInvites = nil
-local actualInviteFrame = CreateFrame("Frame")
-local aiTotal = 0
-local function _convertToRaid(self, elapsed)
-	aiTotal = aiTotal + elapsed
-	if aiTotal > 1 then
-		aiTotal = 0
-		if UnitInRaid("player") then
+do
+	local function waitForRaid()
+		if IsInRaid() then
 			doActualInvites()
-			self:SetScript("OnUpdate", nil)
+		else
+			module:ScheduleTimer(waitForRaid, 1)
 		end
 	end
-end
 
-local function _waitForParty(self, elapsed)
-	aiTotal = aiTotal + elapsed
-	if aiTotal > 1 then
-		aiTotal = 0
-		if GetNumSubgroupMembers() > 0 and not IsInRaid() then--Do not remove isinraid check. GetNumSubgroupMembers() is always true in a subgroup, INCLUDING a raid, we don't want to try converting a raid to a raid
-			ConvertToRaid()
-			self:SetScript("OnUpdate", _convertToRaid)
-		end
-	end
-end
-
-function doActualInvites()
-	if not UnitInRaid("player") then
-		local pNum = GetNumSubgroupMembers() + 1 -- 1-5
-		if pNum == 5 then
-			if #peopleToInvite > 0 then
+	local function waitForParty()
+		if IsInGroup() then
+			if not IsInRaid() then
 				ConvertToRaid()
-				actualInviteFrame:SetScript("OnUpdate", _convertToRaid)
+			end
+			module:ScheduleTimer(waitForRaid, 1)
+		else
+			module:ScheduleTimer(waitForParty, 1)
+		end
+	end
+
+	function doActualInvites()
+		if #peopleToInvite == 0 then return end
+
+		if not IsInRaid() then
+			local pNum = GetNumGroupMembers()
+			if pNum == 5 then
+				-- party is full, convert to raid and invite the rest
+				ConvertToRaid()
+				module:ScheduleTimer(waitForRaid, 1)
+			else
+				-- invite people until the party is full
+				for i = 1, math.min(5 - pNum, #peopleToInvite) do
+					local player = tremove(peopleToInvite)
+					InviteUnit(player)
+				end
+				-- invite the rest
+				if #peopleToInvite > 0 then
+					if not IsInGroup() then
+						-- need someone to accept an invite before we can make a raid
+						module:ScheduleTimer(waitForParty, 1)
+					else
+						ConvertToRaid()
+						module:ScheduleTimer(waitForRaid, 1)
+					end
+				end
 			end
 		else
-			local tmp = {}
-			for i = 1, (5 - pNum) do
-				local u = table.remove(peopleToInvite)
-				if u then tmp[u] = true end
+			for _, player in next, peopleToInvite do
+				InviteUnit(player)
 			end
-			if #peopleToInvite > 0 then
-				actualInviteFrame:SetScript("OnUpdate", _waitForParty)
-			end
-			for k in pairs(tmp) do
-				InviteUnit(k)
-			end
+			wipe(peopleToInvite)
 		end
-		return
 	end
-	for i, v in next, peopleToInvite do
-		InviteUnit(v)
-	end
-	wipe(peopleToInvite)
 end
 
 local function doGuildInvites(level, zone, rank)
@@ -91,8 +93,7 @@ local function doGuildInvites(level, zone, rank)
 				peopleToInvite[#peopleToInvite + 1] = name
 			elseif zone and zone == unitZone then
 				peopleToInvite[#peopleToInvite + 1] = name
-			-- See the wowwiki docs for GetGuildRosterInfo, need to add +1 to the rank index
-			elseif rank and (rankIndex + 1) <= rank then
+			elseif rank and rankIndex <= rank then
 				peopleToInvite[#peopleToInvite + 1] = name
 			end
 		end
@@ -100,53 +101,20 @@ local function doGuildInvites(level, zone, rank)
 	doActualInvites()
 end
 
-local inviteFrame = CreateFrame("Frame")
-local total = 0
-local function onUpdate(self, elapsed)
-	total = total + elapsed
-	if total > 10 then
-		doGuildInvites(self.level, self.zone, self.rank)
-		self:SetScript("OnUpdate", nil)
-		total = 0
-	end
-end
-
-local function chat(msg, channel)
-	SendChatMessage(msg, channel)
-	--print(msg .. "#" .. channel)
-end
-
 local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
---	local max = GetMaxPlayerLevel()--Do not use this, this reports level 90, making entire invite function non functional on live until sept 25th
---	Compatable workaround that knows proper max level based on inviters current expansion level.
-	local max
-	local currentExp = GetExpansionLevel()
-	if currentExp == 4 then
-		max = 90
-	elseif currentExp == 3 then
-		max = 85
-	elseif currentExp == 2 then
-		max = 80
-	end
-
-	chat((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
-	inviteFrame.level = max
-	inviteFrame.zone = nil
-	inviteFrame.rank = nil
-	inviteFrame:SetScript("OnUpdate", onUpdate)
+	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
+	SendChatMessage((L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."]):format(max), "GUILD")
+	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
 end
 
 local function inviteZone()
 	if not canInvite() then return end
 	GuildRoster()
 	local currentZone = GetRealZoneText()
-	chat((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
-	inviteFrame.level = nil
-	inviteFrame.zone = currentZone
-	inviteFrame.rank = nil
-	inviteFrame:SetScript("OnUpdate", onUpdate)
+	SendChatMessage((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
+	module:ScheduleTimer(doGuildInvites, 10, nil, currentZone, nil)
 end
 
 local function inviteRank(rank, name)
@@ -155,25 +123,19 @@ local function inviteRank(rank, name)
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
-	chat((L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."]):format(name), channel)
-	inviteFrame.level = nil
-	inviteFrame.zone = nil
-	inviteFrame.rank = rank
-	inviteFrame:SetScript("OnUpdate", onUpdate)
+	SendChatMessage((L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."]):format(name), channel)
+	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1)
 end
 
 local function inviteRankCommand(input)
-	local ranks = oRA:GetGuildRanks()
-	local r, n = nil, nil
-	for i, rank in next, ranks do
-		if rank:lower():find(input:lower()) then
-			r = i
-			n = rank
-			break
+	if not canInvite() or type(input) ~= "string" then return end
+	input = input:lower()
+	for index, rank in next, oRA:GetGuildRanks() do
+		if rank:lower():find(input, nil, true) then
+			inviteRank(index, rank)
+			return
 		end
 	end
-	if not r or not n then return end
-	inviteRank(r, n)
 end
 
 function module:OnRegister()
