@@ -299,6 +299,17 @@ function addon:OnEnable()
 	-- init groupStatus
 	self:GROUP_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
+
+	if CUSTOM_CLASS_COLORS then
+		local function updateClassColors()
+			for k, v in next, CUSTOM_CLASS_COLORS do
+				hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+			end
+			wipe(coloredNames)
+		end
+		CUSTOM_CLASS_COLORS:RegisterCallback(updateClassColors)
+		updateClassColors()
+	end
 end
 
 function addon:OnDisable()
