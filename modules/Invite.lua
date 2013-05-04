@@ -86,7 +86,7 @@ end
 local function doGuildInvites(level, zone, rank)
 	for i = 1, GetNumGuildMembers() do
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
-		if name and online and not UnitInParty(name) and not UnitInRaid(name) and not (name == UnitName("player")) then
+		if name and online and not UnitInParty(name) and not UnitInRaid(name) and not UnitIsUnit(name, "player") then
 			if level and level <= unitLevel then
 				peopleToInvite[#peopleToInvite + 1] = name
 			elseif zone and zone == unitZone then
@@ -199,46 +199,36 @@ function module:OnRegister()
 	self:RegisterChatCommand("rarinvite", inviteRankCommand)
 end
 
-local function handleWhisper(event, msg, author)
-	local low = msg:lower()
-	if (db.keyword and low == db.keyword) or (db.guildkeyword and low == db.guildkeyword and oRA:IsGuildMember(author)) and canInvite() then
+local function handleWhisper(event, msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
+	if presenceId > 0 then
+		local _, toonName, client, realmName, realmId, faction = BNGetToonInfo(presenceId)
+		if client ~= BNET_CLIENT_WOW or faction ~= UnitFactionGroup("player") or realmId == 0 then return end
+		if realmName ~= GetRealmName() then
+			toonName = toonName.."-"..realmName
+		end
+		sender = toonName
+	end
+
+	msg = msg:trim():lower()
+	if (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) and canInvite() then
 		local isIn, instanceType = IsInInstance()
-		local party = GetNumSubgroupMembers()
-		local raid = IsInRaid() and GetNumGroupMembers() or 0--Again, do not change. ORA3 expects raid count to be 0 in a party, so we ensure that it's 0 if group is NOT a raid group.
-		if isIn and instanceType == "party" and party == 4 then
-			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
-		elseif party == 4 and raid == 0 then
-			peopleToInvite[#peopleToInvite + 1] = author
-			doActualInvites()
-		elseif raid == 40 then
-			SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, author)
+		local num = GetNumGroupMembers()
+		if (isIn and instanceType == "party" and num == 5) or num == 40 then
+			if presenceId > 0 then
+				BNSendWhisper(L["<oRA3> Sorry, the group is full."], presenceId)
+			else
+				SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, sender)
+			end
 		else
-			InviteUnit(author)
+			peopleToInvite[#peopleToInvite + 1] = sender
+			doActualInvites()
 		end
 	end
 end
 
 function module:OnEnable()
-	self:RegisterEvent("CHAT_MSG_BN_WHISPER")
+	self:RegisterEvent("CHAT_MSG_BN_WHISPER", handleWhisper)
 	self:RegisterEvent("CHAT_MSG_WHISPER", handleWhisper)
-end
-
-function module:CHAT_MSG_BN_WHISPER(event, msg, author, _, _, _, _, _, _, _, _, _, _, presenceId)
-    for i = 1, BNGetNumFriends() do
-        local friendPresenceId, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client = BNGetFriendInfo(i)
-
-        if client == BNET_CLIENT_WOW and presenceId == friendPresenceId then
-        		local _, toonName, client, realmName, realmID, faction, 
-			      race, class, guild, zoneName, level, gameText = BNGetFriendToonInfo(BNGetFriendIndex(friendPresenceId), 1)
-
-			if realmName == GetRealmName() then
-				handleWhisper(event, msg, toonName)
-			else
-				handleWhisper(event, msg, toonName .. "-" .. realmName)
-			end
-            break
-        end
-    end
 end
 
 local function onControlEnter(widget, event, value)
@@ -316,7 +306,7 @@ function module:CreateFrame()
 	keyword:SetCallback("OnLeave", onControlLeave)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetRelativeWidth(0.5)
-	
+
 	local guildonlykeyword = AceGUI:Create("EditBox")
 	guildonlykeyword:SetLabel(L["Guild Keyword"])
 	guildonlykeyword:SetText(db.guildkeyword)
@@ -326,7 +316,7 @@ function module:CreateFrame()
 	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
-	
+
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
@@ -340,7 +330,7 @@ function module:CreateFrame()
 		-- left, middle and right, so making it higher actually stretches the texture.
 		--guild:SetHeight(24 * 2)
 		guild:SetFullWidth(true)
-	
+
 		zone = AceGUI:Create("Button")
 		zone:SetText(L["Invite zone"])
 		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
@@ -352,7 +342,7 @@ function module:CreateFrame()
 		rankHeader = AceGUI:Create("Heading")
 		rankHeader:SetText(L["Guild rank invites"])
 		rankHeader:SetFullWidth(true)
-	
+
 		rankDescription = AceGUI:Create("Label")
 		rankDescription:SetText(L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."])
 		rankDescription:SetFullWidth(true)
