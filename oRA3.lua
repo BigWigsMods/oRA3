@@ -10,8 +10,8 @@ BINDING_HEADER_oRA3 = "oRA3"
 BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
 
 local hexColors = {}
-for k, v in pairs(RAID_CLASS_COLORS) do
-	hexColors[k] = "|cff" .. string.format("%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
+for k, v in next, RAID_CLASS_COLORS do
+	hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
 end
 local _testUnits = {
 	Wally = "WARRIOR",
@@ -91,9 +91,7 @@ local panels = {}
 local db
 local defaults = {
 	profile = {
-		positions = {
-
-		},
+		positions = {},
 		showHelpTexts = true,
 		toggleWithRaid = true,
 		lastSelectedPanel = nil,
@@ -108,7 +106,7 @@ local defaults = {
 local selectList -- implemented down the file
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
-local function colorize(input) return "|cfffed000" .. input .. "|r" end
+local function colorize(input) return string.format("|cfffed000%s|r", input) end
 local options = nil
 local function giveOptions()
 	if not options then
@@ -308,8 +306,8 @@ end
 do
 	local unitJoinedRaid = '^' .. ERR_RAID_MEMBER_ADDED_S:gsub("%%s", "(%%S+)") .. '$'
 	function addon:CHAT_MSG_SYSTEM(event, msg)
-		if not UnitInRaid("player") then return end
-		local name = select(3, msg:find(unitJoinedRaid))
+		if not IsInRaid() then return end
+		local _, _, name = msg:find(unitJoinedRaid)
 		if not name then return end
 		if rawget(coloredNames, name) then
 			coloredNames[name] = nil
@@ -455,11 +453,7 @@ function addon:IsPromoted(name)
 	if groupStatus == UNGROUPED then return end
 
 	if not name then name = playerName end
-	if groupStatus == INRAID then
-		return (UnitIsGroupAssistant(name) or UnitIsGroupLeader(name))
-	elseif groupStatus == INPARTY then
-		return UnitIsGroupLeader(name)
-	end
+	return UnitIsGroupLeader(name) or UnitIsGroupAssistant(name)
 end
 
 -----------------------------------------------------------------------
@@ -868,7 +862,6 @@ end
 
 function addon:UpdateList(name)
 	if not openedList or not oRA3Frame:IsVisible() then return end
-	if not lists[openedList] then print("No list at location", openedList, "exists.") return end
 	if lists[openedList].name ~= name then return end
 	showLists()
 end
@@ -1040,7 +1033,7 @@ function showLists()
 		f:Hide()
 	end
 
-	if not openedList then openedList = db.lastSelectedList or 1 end
+	if not openedList then openedList = db.lastSelectedList and lists[db.lastSelectedList] and db.lastSelectedList or 1 end
 	retainSortOrder = db.lastSelectedList == openedList
 	db.lastSelectedList = openedList
 
