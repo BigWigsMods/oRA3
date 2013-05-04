@@ -1105,6 +1105,11 @@ local talentScanners = {
 			addMod(info.guid, 12051, 120) -- Evocation goes to 0
 		end
 	end,
+	DRUID = function(info)
+		if info.spec_index == 4 then -- Resto
+			addMod(info.guid, 740, 300) -- 5min off Tranquility
+		end
+	end,
 }
 
 function module:UpdateCooldownModifiers(event)
