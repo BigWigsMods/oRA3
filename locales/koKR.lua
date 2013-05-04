@@ -29,7 +29,6 @@ oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case 
 
 |cff44ff44/radur|r - Opens the durability list.
 |cff44ff44/razone|r - Opens the zone list.
-|cff44ff44/rares|r - Opens the resistance list.
 |cff44ff44/radisband|r - Instantly disbands the raid with no verification.
 |cff44ff44/raready|r - Performs a ready check.
 |cff44ff44/rainv|r - Invites the whole guild to your group.
@@ -61,14 +60,6 @@ L["Durability"] = "내구도"
 L["Average"] = "평균"
 L["Broken"] = "파손"
 L["Minimum"] = "최소"
-
--- Resistances module
-L["Resistances"] = "저항력"
-L["Frost"] = "냉기"
-L["Fire"] = "화염"
-L["Shadow"] = "암흑"
-L["Nature"] = "자연"
-L["Arcane"] = "비전"
 
 -- Resurrection module
 L["%s is ressing %s."] = "%s 가 %s 를 부활중입니다."

@@ -28,7 +28,6 @@ oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case 
 
 |cff44ff44/radur|r - Opens the durability list.
 |cff44ff44/razone|r - Opens the zone list.
-|cff44ff44/rares|r - Opens the resistance list.
 |cff44ff44/radisband|r - Instantly disbands the raid with no verification.
 |cff44ff44/raready|r - Performs a ready check.
 |cff44ff44/rainv|r - Invites the whole guild to your group.
@@ -60,14 +59,6 @@ L["Durability"] = true
 L["Average"] = true
 L["Broken"] = true
 L["Minimum"] = true
-
--- Resistances module
-L["Resistances"] = true
-L["Frost"] = true
-L["Fire"] = true
-L["Shadow"] = true
-L["Nature"] = true
-L["Arcane"] = true
 
 -- Invite module
 L["Invite"] = true

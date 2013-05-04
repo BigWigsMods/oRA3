@@ -35,14 +35,6 @@ L["Average"] = "平均"
 L["Broken"] = "损坏"
 L["Minimum"] = "最少"
 
--- Resistances module
-L["Resistances"] = "抗性"
-L["Frost"] = "冰霜"
-L["Fire"] = "火焰"
-L["Shadow"] = "暗影"
-L["Nature"] = "自然"
-L["Arcane"] = "奥术"
-
 -- Resurrection module
 L["%s is ressing %s."] = "%s正在复活%s"
 

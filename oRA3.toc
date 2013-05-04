@@ -17,6 +17,8 @@ libs.xml
 #@end-no-lib-strip@
 
 locales\enUS.lua
+locales\itIT.lua
+locales\ptBR.lua
 locales\ruRU.lua
 locales\koKR.lua
 locales\zhCN.lua
@@ -29,7 +31,6 @@ modulePrototype.lua
 
 modules\ReadyCheck.lua
 modules\Durability.lua
-modules\Resistance.lua
 modules\Zone.lua
 modules\Invite.lua
 modules\Promote.lua

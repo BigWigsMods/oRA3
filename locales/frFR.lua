@@ -28,7 +28,6 @@ oRA3 supporte toute une série de commandes « / » (ou slash) pour vous aider
 
 |cff44ff44/radur|r - ouvre la liste des durabilités.
 |cff44ff44/razone|r - ouvre la liste des zones.
-|cff44ff44/rares|r - ouvre la liste des résistances.
 |cff44ff44/radisband|r - dissout instantanément le raid sans vérification.
 |cff44ff44/raready|r - fait l'appel.
 |cff44ff44/rainv|r - invite l'entièreté de la guilde dans votre groupe de raid.
@@ -60,14 +59,6 @@ L["Durability"] = "Durabilité"
 L["Average"] = "Moyenne"
 L["Broken"] = "Cassé"
 L["Minimum"] = "Minimum"
-
--- Resistances module
-L["Resistances"] = "Résistances"
-L["Frost"] = "Givre"
-L["Fire"] = "Feu"
-L["Shadow"] = "Ombre"
-L["Nature"] = "Nature"
-L["Arcane"] = "Arcanes"
 
 -- Invite module
 L["Invite"] = "Invit."

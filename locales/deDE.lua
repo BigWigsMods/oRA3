@@ -29,7 +29,6 @@ oRA3 verfügt über eine Reihe von Befehlen, die in hektischer Raidumgebung hilf
 
 |cff44ff44/radur|r - Öffnet die Haltbarkeitsliste.
 |cff44ff44/razone|r - Öffnet die Zonenliste.
-|cff44ff44/rares|r - Öffnet die Widerstandsliste.
 |cff44ff44/radisband|r - Löst die Gruppe ohne Bestätigung auf.
 |cff44ff44/raready|r - Führt einen Bereitschaftscheck durch.
 |cff44ff44/rainv|r - Läd die gesamte Gilde in deine Gruppe ein.
@@ -61,14 +60,6 @@ L["Durability"] = "Haltbarkeit"
 L["Average"] = "Durchschnitt"
 L["Broken"] = "Kaputt"
 L["Minimum"] = "Minimum"
-
--- Resistances module
-L["Resistances"] = "Widerstände"
-L["Frost"] = "Frost"
-L["Fire"] = "Feuer"
-L["Shadow"] = "Schatten"
-L["Nature"] = "Natur"
-L["Arcane"] = "Arkan"
 
 -- Invite module
 L["Invite"] = "Einladen"

@@ -29,7 +29,6 @@ oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘
 
 |cff44ff44/radur|r - 開啟耐久度列表。
 |cff44ff44/razone|r - 開啟區域列表。
-|cff44ff44/rares|r - 開啟抗性列表。
 |cff44ff44/radisband|r - 立刻解散團隊，不經過確認。
 |cff44ff44/raready|r - 執行準備確認。
 |cff44ff44/rainv|r - 邀請所有公會成員。
@@ -61,14 +60,6 @@ L["Durability"] = "耐久度"
 L["Average"] = "平均"
 L["Broken"] = "損壞"
 L["Minimum"] = "最少"
-
--- Resistances module
-L["Resistances"] = "抗性"
-L["Frost"] = "冰霜"
-L["Fire"] = "火焰"
-L["Shadow"] = "暗影"
-L["Nature"] = "自然"
-L["Arcane"] = "秘法"
 
 -- Invite module
 L["Invite"] = "邀請"
