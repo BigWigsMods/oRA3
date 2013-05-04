@@ -163,12 +163,20 @@ end
 
 local function handleWhisper(event, msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
 	if presenceId > 0 then
-		local _, toonName, client, realmName, realmId, faction = BNGetToonInfo(presenceId)
-		if client ~= BNET_CLIENT_WOW or faction ~= UnitFactionGroup("player") or realmId == 0 then return end
-		if realmName ~= GetRealmName() then
-			toonName = toonName.."-"..realmName
+		local friendIndex = BNGetFriendIndex(presenceId)
+		local valid = nil
+		for i=1, BNGetNumFriendToons(friendIndex) do
+			local _, toonName, client, realmName, realmId, faction = BNGetFriendToonInfo(friendIndex, i)
+			if client == BNET_CLIENT_WOW and faction == UnitFactionGroup("player") and realmId > 0 then
+				if realmName ~= GetRealmName() then
+					toonName = toonName.."-"..realmName
+				end
+				sender = toonName
+				valid = true
+				break
+			end
 		end
-		sender = toonName
+		if not valid then return end
 	end
 
 	msg = msg:trim():lower()
