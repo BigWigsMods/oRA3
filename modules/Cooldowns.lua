@@ -38,7 +38,7 @@ local glyphCooldowns = {
 	[58673] = {48792, 90},     -- Icebound Fortitude, -90sec (-50%)
 	[56368] = {11129, -45},    -- Combustion, +45sec (+100%)
 	[58686] = {47528, 2},      -- Mind Freeze, -2sec
-	[116216] = {80964, -10, 80965}, -- Skull Bash (both versions), +10sec
+	[116216] = {106839, -10},  -- Skull Bash, +10sec
 	[116203] = {16689, 30},    -- Nature's Grasp, -30sec
 	[114223] = {61336, 60},    -- Survival Instincts, -60sec
 	[56376] = {122, 5},        -- Frost Nova, -5sec
@@ -47,6 +47,8 @@ local glyphCooldowns = {
 	[54925] = {96231, -5},     -- Rebuke, +5sec
 	[56805] = {1766, -4},      -- Kick, +4sec
 	[55451] = {57994, -3},     -- Wind Shear, +3sec
+	[123391] = {115080, -90},  -- Touch of Death, +90sec
+	[63331] = {77606, 30},     -- Dark Simulacrum, -30sec
 }
 
 local spells = {
@@ -56,27 +58,25 @@ local spells = {
 		[132158] = 60,  -- Nature's Swiftness
 		[61336] = 180,  -- Survival Instincts
 		[22812] = 60,   -- Barkskin
-		[80964] = 15,   -- Skull Bash (Bear)
-		[80965] = 15,   -- Skull Bash (Cat)
+		[106839] = 15,  -- Skull Bash
 		[78675] = 60,   -- Solar Beam
 		[78674] = 15,   -- Starsurge
 		[18562] = 15,   -- Swiftmend
 		[132469] = 30,  -- Typhoon
-		[33831] = 60,   -- Force of Nature
 		[48505] = 90,   -- Starfall
-		[16979] = 15,   -- Wild Charge (Bear)
-		[49376] = 15,   -- Wild Charge (Cat)
+		[102401] = 15,  -- Wild Charge
 		[5211]  = 50,   -- Bash
 		[50334] = 180,  -- Berserk
 		[5217]  = 30,   -- Tiger's Fury
-		[33891] = 180,  -- Tree of Life
 		[5229]  = 60,   -- Enrage
 		[16689] = 60,   -- Nature's Grasp
 		[1850]  = 180,  -- Dash
 		[740]   = 480,  -- Tranquility
 		[77761] = 120,  -- Stampeding Roar
-		[48438] = 8,    -- Wild Growth
 		[102342] = 120, -- Ironbark
+		[102359] = 30,  -- Mass Entanglement
+		[106731] = 180, -- Incarnation --XXX does this need the different stance versions? z.z
+		[106737] = 180, -- Force of Nature  --XXX does this need the different stance versions? z.z
 	},
 	HUNTER = {
 		[34477] = 30,   -- Misdirection
@@ -102,8 +102,12 @@ local spells = {
 		[13795] = 30,   -- Immolation Trap
 		[82945] = 30,   -- Immolation Trap + Launcher
 		[51753] = 60,   -- Camouflage
-		[126393] = 600, -- Eternal Guardian
 		[90355] = 360,  -- Ancient Hysteria
+		[126393] = 600, -- Eternal Guardian
+		[109248] = 45,  -- Binding Shot
+		[109304] = 120, -- Exhilaration
+		[121818] = 300, -- Stampede
+		[53271] = 45,   -- Master's Call
 		-- XXX Pets missing
 	},
 	MAGE = {
@@ -120,12 +124,14 @@ local spells = {
 		[1953]  = 15,   -- Blink
 		[12043] = 90,   -- Presence of Mind
 		[12042] = 90,   -- Arcane Power
-		[2120] = 12,    -- Flamestrike
 		[11129] = 45,   -- Combustion
 		[31661] = 20,   -- Dragon's Breath
 		[44572] = 30,   -- Deep Freeze
-		[113724] = 45,  -- Ring of Frost
 		[80353] = 300,  -- Time Warp
+		[113724] = 45,  -- Ring of Frost
+		[115610] = 25,  -- Temporal Shield
+		[102051] = 20,  -- Frostjaw
+		[110959] = 90,  -- Greater Invisibility
 	},
 	PALADIN = {
 		[633]   = 600,  -- Lay on Hands
@@ -142,13 +148,15 @@ local spells = {
 		[31884] = 180,  -- Avenging Wrath
 		[853]   = 60,   -- Hammer of Justice
 		[31935] = 15,   -- Avenger's Shield
-		[26573] = 9,    -- Consecration
-		[20925] = 6,    -- Holy Shield
 		[86698] = 300,  -- Guardian of Ancient Kings (Ret)
 		[86669] = 300,  -- Guardian of Ancient Kings (Holy)
 		[86659] = 180,  -- Guardian of Ancient Kings (Prot)
 		[114039] = 30,  -- Hand of Purity
 		[105809] = 120, -- Holy Avenger
+		[105593] = 30,  -- Fist of Justice
+		[114158] = 60,  -- Light's Hammer
+		[114157] = 60,  -- Execution Sentence
+		[54428] = 120,  -- Divine Plea
 	},
 	PRIEST = {
 		[8122]  = 30,   -- Psychic Scream
@@ -163,20 +171,20 @@ local spells = {
 		[47788] = 180,  -- Guardian Spirit
 		[15487] = 45,   -- Silence
 		[47585] = 120,  -- Dispersion
-		[47540] = 9,    -- Penance
 		[88625] = 30,   -- Holy Word: Chastise
-		[88684] = 10,   -- Holy Word: Serenity
 		[88685] = 40,   -- Holy Word: Sanctuary
 		[89485] = 45,   -- Inner Focus
 		[19236] = 120,  -- Desperate Prayer
-		[34861] = 10,   -- Circle of Healing
 		[586]   = 30,   -- Fade
 		[64044] = 120,  -- Psychic Horror
-		[33076] = 10,   -- Prayer of Mending
 		[73325] = 90,   -- Leap of Faith
-		[15286]  = 180, -- Vampiric Embrace
-		[109964]  = 60, -- Spirit Shell
+		[15286] = 180,  -- Vampiric Embrace
+		[81700] = 30,   -- Archangel
+		[109964] = 60,  -- Spirit Shell
 		[108968] = 360, -- Void Shift
+		[108920] = 30,  -- Void Tendrils
+		[108921] = 45,  -- Psyfiend
+		[123040] = 60,  -- Mindbender
 	},
 	ROGUE = {
 		[5277]  = 180,  -- Evasion
@@ -195,6 +203,13 @@ local spells = {
 		[76577] = 180,  -- Smoke Bomb
 		[73981] = 60,   -- Redirect
 		[36554] = 24,   -- Shadowstep
+		[1776]  = 10,   -- Gouge
+		[408]   = 20,   -- Kidney Shot
+		[51722] = 60,   -- Dismantle
+		[51690] = 120,  -- Killing Spree
+		[51713] = 60,   -- Shadow Dance
+		[74001] = 120,  -- Combat Readiness
+		[121471] = 180, -- Shadow Blades
 	},
 	SHAMAN = {
 		[57994] = 12,   -- Wind Shear
@@ -207,22 +222,14 @@ local spells = {
 		[16190] = 180,  -- Mana Tide Totem
 		[8177]  = 25,   -- Grounding Totem
 		[2484]  = 30,   -- Earthbind Totem
-		[1535]  = 4,    -- Fire Nova
-		[556]   = 900,  -- Astral Recall
-		[73680] = 15,   -- Unleash Elements
-		[51505] = 8,    -- Lava Burst
 		[51490] = 45,   -- Thunderstorm
 		[16166] = 90,   -- Elemental Mastery
 		[79206] = 120,  -- Spiritwalker's Grace
 		[51533] = 120,  -- Feral Spirit
 		[30823] = 60,   -- Shamanistic Rage
-		[73920] = 10,   -- Healing Rain
-		[73899] = 8,    -- Primal Strike
-		[17364] = 8,    -- Stormstrike
 		[8143]  = 60,   -- Tremor Totem
 		[98008] = 180,  -- Spirit Link Totem
 		[120668] = 300, -- Stormlash Totem
-		[5394] = 30,    -- Healing Stream Totem
 		[108280] = 180, -- Healing Tide Totem
 		[108281] = 120, -- Ancestral Guidance
 		[108273] = 60,  -- Windwalk Totem
@@ -239,6 +246,16 @@ local spells = {
 		[5484]  = 40,   -- Howl of Terror
 		[30283] = 30,   -- Shadowfury
 		[48020] = 30,   -- Demonic Circle: Teleport
+		[6789]  = 45,   -- Mortal Coil
+		[108359] = 120, -- Dark Regeneration
+		[110913] = 180, -- Dark Bargain
+		[111397] = 30,  -- Blood Horror
+		[108482] = 60,  -- Unbound Will
+		[108501] = 120, -- Grimoire of Service
+		[108505] = 120, -- Archimonde's Vengeance
+		[113860] = 120, -- Dark Soul: Misery
+		[113861] = 120, -- Dark Soul: Knowledge
+		[113858] = 120, -- Dark Soul: Instability
 	},
 	WARRIOR = {
 		[100]   = 20,   -- Charge
@@ -246,16 +263,12 @@ local spells = {
 		[3411]  = 30,   -- Intervene
 		[57755] = 30,   -- Heroic Throw
 		[1719]  = 180,  -- Recklessness
-		[2565]  = 9,    -- Shield Block
 		[6552]  = 15,   -- Pummel
 		[5246]  = 90,   -- Intimidating Shout
 		[871]   = 300,  -- Shield Wall
 		[64382] = 300,  -- Shattering Throw
 		[55694] = 60,   -- Enraged Regeneration
 		[12975] = 180,  -- Last Stand
-		[6673]  = 60,   -- Battle Shout
-		[469]   = 60,   -- Commanding Shout
-		[12328] = 10,   -- Sweeping Strikes
 		[46924] = 90,   -- Bladestorm
 		[12292] = 60,   -- Bloodbath
 		[676]   = 60,   -- Disarm
@@ -291,7 +304,11 @@ local spells = {
 		[57330] = 20,   -- Horn of Winter
 		[47568] = 300,  -- Empower Rune Weapon
 		[48743] = 120,  -- Death Pact
+		[77606] = 60,   -- Dark Simulacrum
 		[108199] = 60,  -- Gorefiend's Grasp
+		[108194] = 30,  -- Asphyxiate
+		[108200] = 60,  -- Remorseless Winter
+		[108201] = 120, -- Desecrated Ground
 	},
 	MONK = {
 		[115213] = 180, -- Avert Harm
@@ -303,6 +320,17 @@ local spells = {
 		[119381] = 45,  -- Leg Sweep
 		[122470] = 90,  -- Touch of Karma
 		[116705] = 15,  -- Spear Hand Strike
+		[116841] = 30,  -- Tiger's Lust
+		[116844] = 45,  -- Ring of Peace
+		[119392] = 30,  -- Charging Ox Wave
+		[122783] = 90,  -- Diffuse Magic
+		[122057] = 35,  -- Clash
+		[115080] = 90,  -- Touch of Death
+		[115078] = 15,  -- Paralysis
+		[117368] = 60,  -- Grapple Weapon
+		[116680] = 45,  -- Thunder Focus Tea
+		[101545] = 25,  -- Flying Serpent Kick
+		[137562] = 120, -- Nimble Brew
 	},
 }
 
@@ -1118,11 +1146,8 @@ function module:UpdateGroupCooldownModifiers(event, info)
 	end
 	for spellId in next, info.glyphs do
 		if glyphCooldowns[spellId] then
-			local spell, modifier, spell2 = unpack(glyphCooldowns[spellId]) -- should change it to: modifier, spell1 [,spellN...]
+			local spell, modifier = unpack(glyphCooldowns[spellId])
 			addMod(info.guid, spell, modifier)
-			if spell2 then
-				addMod(info.guid, spell2, modifier)
-			end
 		end
 	end
 	local talentMod = info.class and talentScanners[info.class]
