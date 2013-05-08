@@ -55,6 +55,7 @@ do
 
 		if not IsInRaid() then
 			local pNum = GetNumGroupMembers()
+			if pNum == 0 then pNum = 1 end -- GetNumGroupMembers() returns 0 if not grouped at all
 			if pNum == 5 then
 				-- party is full, convert to raid and invite the rest
 				ConvertToRaid()
