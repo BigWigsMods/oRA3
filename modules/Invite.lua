@@ -54,8 +54,7 @@ do
 		if #peopleToInvite == 0 then return end
 
 		if not IsInRaid() then
-			local pNum = GetNumGroupMembers()
-			if pNum == 0 then pNum = 1 end -- GetNumGroupMembers() returns 0 if not grouped at all
+			local pNum = GetNumSubgroupMembers() + 1 -- 1-5
 			if pNum == 5 then
 				-- party is full, convert to raid and invite the rest
 				ConvertToRaid()
