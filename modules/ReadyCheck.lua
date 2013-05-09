@@ -144,7 +144,7 @@ local function createBottomFrame()
 	local num = #bottomMemberFrames
 	local xoff = 7
 	local yoff = 5
-	if num % 2 == 0 then xoff = 160 end
+	if num % 2 == 0 then xoff = 153 end
 	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
 	f:SetWidth(150)
 	f:SetHeight(14)
@@ -214,7 +214,7 @@ local function updateWindow()
 		end
 		-- position the spacer
 		if bottom > 0 then
-			local yoff = 0 - (math.ceil(top / 2) * 14 + 37)
+			local yoff = 0 - (math.ceil(top / 2) * 14 + 37 - 5)
 			frame.bar:ClearAllPoints()
 			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
 			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
