@@ -193,7 +193,7 @@ local function updateWindow()
 	if IsInRaid() then
 		local _, _, diff = GetInstanceInfo()
 		local highgroup
-		if diff == 3 or diff == 5 or diff == 0 then -- 10 man
+		if diff == 3 or diff == 5 then -- 10 man
 			highgroup = 3
 		elseif diff == 4 or diff == 6 or diff == 7 then -- 25 man
 			highgroup = 6
@@ -214,7 +214,7 @@ local function updateWindow()
 		end
 		-- position the spacer
 		if bottom > 0 then
-			local yoff = 0 - (math.ceil(top / 2) * 14 + 37 - 5)
+			local yoff = 0 - ((top / 2) * 14 + 37)
 			frame.bar:ClearAllPoints()
 			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
 			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
