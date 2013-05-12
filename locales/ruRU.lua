@@ -140,7 +140,7 @@ L["Zone"] = "Зона"
 L["Leave empty to make yourself Master Looter."] = "Оставьте пустыми, чтобы сделать себя ответственным за добычу."
 L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "Позволяет oRA3 автоматически установить режим обыска, который вы укажите ниже, при присоединении к группе или рейду."
 L["Set the loot mode automatically when joining a group"] = "Установить режим обыска автоматически при присоединении к группе."
- 
+
 -- Tanks module
 L["Tanks"] = "Танки"
 L.tankTabTopText = "Кликните по игрокам из нижнего списка, чтобы пометить их как личные танки. Если вам требуется справка по параметрам, наведите курсор мыши на знак вопроса."

@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Promote", "AceEvent-3.0", "AceHook-3.0")
+local module = oRA:NewModule("Promote", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -185,7 +185,7 @@ do
 				frame:AddChildren(demoteButton, massHeader, everyone, guild, ranks, spacer, individualHeader, add, delete)
 			end
 		else
-			if oRA.db.profile.showHelpTexts then 
+			if oRA.db.profile.showHelpTexts then
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, description, add, delete)
 			else
 				frame:AddChildren(demoteButton, massHeader, everyone, spacer, individualHeader, add, delete)
@@ -223,7 +223,7 @@ function module:OnRegister()
 		},
 	})
 	factionDb = database.factionrealm
-	
+
 	oRA:RegisterPanel(
 		L["Promote"],
 		showPane,
@@ -232,6 +232,11 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 	oRA.RegisterCallback(self, "OnPromoted")
+	hooksecurefunc("DemoteAssistant", function(player)
+		if module:IsEnabled() then
+			dontPromoteThisSession[player] = true
+		end
+	end)
 end
 
 do
@@ -287,9 +292,6 @@ do
 	function module:OnEnable()
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
-		self:SecureHook("DemoteAssistant", function(player)
-			dontPromoteThisSession[player] = true
-		end)
 	end
 end
 

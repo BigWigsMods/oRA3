@@ -1,6 +1,6 @@
 
 -- Inventory information is sent on request by anyone in the raid.
--- Inventory information is only visible to addons which use the API.  No oRA3 UI has been added.
+-- Inventory information is only visible to addons which use the API. No oRA3 UI has been added.
 --
 -- Sample code request for item inventory:
 -- 	SendAddonMessage("oRA3", addon:Serialize("InventoryCount", "Healthstone"), "RAID")

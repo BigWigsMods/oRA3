@@ -137,7 +137,7 @@ function module:OnTanksChanged(event, tanks, updateSort)
 	end
 	for tank, v in pairs(tmpTanks) do
 		-- remove any leftover tanks that are not persistent or set for the session
-		if not namedPersistent[tank] and not sessionTanks[tank] then 
+		if not namedPersistent[tank] and not sessionTanks[tank] then
 			for kk, vv in next, allIndexedTanks do
 				if vv == tank then
 					table.remove(allIndexedTanks, kk)
@@ -342,7 +342,7 @@ function module:CreateFrame()
 	frame.topscroll:SetPoint("BOTTOMRIGHT", centerBar, "TOPRIGHT", -25, -2)
 
 	frame.bottomscroll = CreateFrame("ScrollFrame", "oRA3TankBottomScrollFrame", frame, "FauxScrollFrameTemplate")
-	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2) 
+	frame.bottomscroll:SetPoint("TOPLEFT", centerBar, "BOTTOMLEFT", 4, 2)
 	frame.bottomscroll:SetPoint("BOTTOMRIGHT", frame, -20, 0)
 
 	if oRA.db.profile.showHelpTexts then
@@ -351,7 +351,7 @@ function module:CreateFrame()
 		help:SetPoint("TOPLEFT")
 		help:SetPoint("BOTTOMRIGHT", topBar, "TOPRIGHT", -32, 0)
 		help:SetText(L.tankTabTopText)
-	
+
 		local helpButton = createButton(frame)
 		helpButton:SetWidth(24)
 		helpButton:SetHeight(24)
@@ -391,7 +391,7 @@ function module:CreateFrame()
 		hidden.tooltipTitle = L.Show
 		hidden.tooltipText = L.showButtonHelp
 		t.hidden = hidden
-		
+
 		local name = oRA:CreateScrollEntry(t)
 		name:SetPoint("TOPLEFT", hidden, "TOPRIGHT", 4, 0)
 		name:SetText(L["Name"])
@@ -416,7 +416,7 @@ function module:CreateFrame()
 		tank.tooltipTitle = L["Blizzard Main Tank"]
 		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
-		
+
 		if not InCombatLockdown() then
 			local stank = createButton(t, "SecureActionButtonTemplate")
 			stank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
@@ -433,7 +433,7 @@ function module:CreateFrame()
 			t.stank = stank
 			t.tank:Hide()
 		end
-		
+
 		local save = createButton(t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
 		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
@@ -465,7 +465,7 @@ function module:CreateFrame()
 		b.unitName = L["Name"]
 		bottom[i] = b
 	end
-	
+
 	local function updTopScroll() module:UpdateTopScroll() end
 	local function updBottomScroll() module:UpdateBottomScroll() end
 	frame.topscroll:SetScript("OnVerticalScroll", function(self, offset)
@@ -522,7 +522,7 @@ end
 
 function module:PLAYER_REGEN_ENABLED()
 	if not frame then return end
-	
+
 	for i = 1, 10 do
 		top[i].tank:Hide()
 		if not top[i].stank then

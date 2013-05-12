@@ -68,7 +68,7 @@ L["%s is ressing %s."] = "%s 가 %s 를 부활중입니다."
 L["Invite"] = "초대"
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = "10초 동안 최대 레벨 이상인 길드원들을 공격대에 초대합니다. 파티에서 나와 주세요."
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "10초 동안 %s 내의 모든 길드원을 공격대에 초대합니다. 파티에서 나와 주세요."
-L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "10초 동안 %s 등급 이상인 길드원들을 공격대에 초대합니다. 파티에서 나와 주세요." 
+L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "10초 동안 %s 등급 이상인 길드원들을 공격대에 초대합니다. 파티에서 나와 주세요."
 L["<oRA3> Sorry, the group is full."] = "<oRA3> 죄송합니다. 공격대의 정원이 찼습니다."
 L["Invite all guild members of rank %s or higher."] = "%s 등급 이상인 모든 길드원을 공격대에 초대합니다."
 L["Keyword"] = "키워드"
@@ -143,7 +143,7 @@ L["Zone"] = "지역"
 L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "파티나 공격대에 참여시 자동적으로 전리품 획득 방식을 oRA3을 통해 설정합니다."
 L["Set the loot mode automatically when joining a group"] = "참가한 그룹이 있을때 자동적으로 전리품 획득 방식을 설정합니다."
 L["Leave empty to make yourself Master Looter."] = "자신이 담당자 획득이면 비워 둡니다."
- 
+
 -- Tanks module
 L["Tanks"] = "탱커"
 L.tankTabTopText = "하단의 목록에서 플레이어를 클릭하여 개인적인 탱커를 지정합니다. 만약에 옵션에 대한 도움이 필요하다면 물음표 표시에 마우스를 올려놓으세요."

@@ -119,11 +119,11 @@ end
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("Loot", defaults)
 	db = self.db.profile
-	
+
 	oRA.RegisterCallback(self, "OnPromoted", "SetLoot")
 	oRA.RegisterCallback(self, "OnStartup", "SetLoot")
 	oRA.RegisterCallback(self, "OnConvertRaid", "SetLoot")
-	
+
 	oRA:RegisterModuleOptions("Loot", getOptions, LOOT_METHOD)
 end
 
@@ -159,7 +159,7 @@ function module:SetLoot()
 		end
 		-- SetLootMethod("method"[,"masterPlayer" or ,threshold])
 		-- method  "group", "freeforall", "master", "neeedbeforegreed", "roundrobin".
-		-- threshold  0 poor  1 common  2 uncommon  3 rare  4 epic  5 legendary  6 artifact    
+		-- threshold  0 poor  1 common  2 uncommon  3 rare  4 epic  5 legendary  6 artifact
 	end
 end
 

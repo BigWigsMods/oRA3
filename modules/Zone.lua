@@ -81,7 +81,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnListSelected")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	oRA.RegisterCallback(self, "OnStartup", "UpdateZoneList")
-	
+
 	self:RegisterChatCommand("razone", "OpenZoneCheck")
 	self:RegisterChatCommand("raz", "OpenZoneCheck")
 end

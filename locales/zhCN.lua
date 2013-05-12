@@ -42,7 +42,7 @@ L["%s is ressing %s."] = "%s正在复活%s"
 L["Invite"] = "邀请"
 L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有满级玩家会被在10秒内被邀请，请保持没有队伍！"
 L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有在%s的玩家会被在10秒内被邀请，请保持没有队伍！"
-L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有会阶在%s以上的玩家会被在10秒内被邀请，请保持没有队伍！" 
+L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."] = "公告：公会中所有会阶在%s以上的玩家会被在10秒内被邀请，请保持没有队伍！"
 L["<oRA3> Sorry, the group is full."] = "抱歉，队伍已满。"
 L["Invite all guild members of rank %s or higher."] = "邀请公会中所有会阶在%s以上的玩家"
 L["Keyword"] = "组队关键字"
@@ -113,7 +113,7 @@ L["Zone"] = "地区"
 
 -- Loot module
  L["Leave empty to make yourself Master Looter."] = "留空表示设置你自己为拾取者"
- 
+
 -- Tanks module
 L["Tanks"] = "坦克"
 L.tankTabTopText = "点击下方列表将其设为坦克. 将鼠标移动到按钮上可看到操作提示."

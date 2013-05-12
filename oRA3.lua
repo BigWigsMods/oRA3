@@ -1,4 +1,4 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceHook-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 _G.oRA3 = addon
 
@@ -34,7 +34,7 @@ local coloredNames = setmetatable({}, {__index =
 		if type(key) == "nil" then return nil end
 		local class = select(2, UnitClass(key)) or _testUnits[key]
 		if class then
-			self[key] = hexColors[class]  .. key .. "|r"
+			self[key] = hexColors[class] .. key .. "|r"
 		else
 			self[key] = "|cffcccccc<"..key..">|r"
 		end
@@ -237,7 +237,32 @@ function addon:OnInitialize()
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db))
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
 
+	RaidFrame:HookScript("OnShow", function()
+		if addon:IsEnabled() and db.toggleWithRaid then
+			addon:ToggleFrame(true)
+		end
+	end)
+	RaidFrame:HookScript("OnHide", function()
+		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
+			HideUIPanel(oRA3Frame)
+		end
+	end)
+	RaidInfoFrame:HookScript("OnShow", function()
+		if addon:IsEnabled() and oRA3Frame and oRA3Frame:IsShown() then
+			addon.toggle = true
+			HideUIPanel(oRA3Frame)
+		end
+	end)
+	RaidInfoFrame:HookScript("OnHide", function()
+		if addon:IsEnabled() and addon.toggle then
+			addon:ToggleFrame(true)
+			addon.toggle = nil
+		end
+	end)
+
 	db = self.db.profile
+
+	self.OnInitialize = nil
 end
 
 function addon:RegisterModuleOptions(name, optionTbl, displayName)
@@ -258,43 +283,6 @@ function addon:OnEnable()
 
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
-
-	local function show()
-		if not db.toggleWithRaid then return end
-		addon:ToggleFrame(true)
-	end
-	local function hide()
-		if not db.toggleWithRaid then return end
-		if oRA3Frame then HideUIPanel(oRA3Frame) end
-	end
-	self:SecureHook(RaidFrame, "SetScript", function(frame, script, handler)
-		if script == "OnHide" then
-			self:Unhook(frame, "OnHide")
-			self:SecureHookScript(frame, "OnHide", hide)
-		elseif script == "OnShow" then
-			-- Blizzard doesn't actively change the OnShow script for the
-			-- RaidFrame at the moment, but let's just rehook in case they
-			-- suddenly start doing it.
-			self:Unhook(frame, "OnShow")
-			self:SecureHookScript(frame, "OnShow", show)
-		end
-	end)
-	self:SecureHookScript(RaidFrame, "OnShow", show)
-	self:SecureHookScript(RaidFrame, "OnHide", hide)
-
-	local toggle = nil
-	self:SecureHookScript(RaidInfoFrame, "OnShow", function()
-		if oRA3Frame and oRA3Frame:IsShown() then
-			toggle = true
-			HideUIPanel(oRA3Frame)
-		end
-	end)
-	self:SecureHookScript(RaidInfoFrame, "OnHide", function()
-		if toggle then
-			addon:ToggleFrame(true)
-			toggle = nil
-		end
-	end)
 
 	self:RegisterChatCommand("radisband", actuallyDisband)
 
@@ -857,7 +845,7 @@ end
 -- register a list view
 -- name (string) - name of the list
 -- contents (table) - contents of the list
--- .. tuple - name, width  -- contains name of the sortable column and type of the column
+-- .. tuple - name, width -- contains name of the sortable column and type of the column
 function addon:RegisterList(name, contents, ...)
 	local newList = {
 		name = name,
@@ -1058,7 +1046,7 @@ function showLists()
 	oRA3Frame.title:SetText(listHeader:format(list.name))
 
 	contentFrame.listFrame:Show()
-	local count = max(#list.cols + 1, 4)  -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
+	local count = max(#list.cols + 1, 4) -- +1, we make the name twice as wide, minimum 4, we make 2 columns twice as wide
 	local totalwidth = contentFrame.scrollFrame:GetWidth()
 	local width = totalwidth / count
 	while #list.cols > #scrollheaders do

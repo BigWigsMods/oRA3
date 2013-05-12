@@ -9,7 +9,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
-local durability = {} 
+local durability = {}
 
 function module:OnRegister()
 	-- should register durability table with the oRA3 core GUI for sortable overviews
@@ -25,7 +25,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommDurability")
 	oRA.RegisterCallback(self, "OnCommRequestUpdate")
-	
+
 	self:RegisterChatCommand("radur", "OpenDurabilityCheck")
 	self:RegisterChatCommand("radurability", "OpenDurabilityCheck")
 end
@@ -34,7 +34,7 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_DEAD", "CheckDurability")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckDurability")
 	self:RegisterEvent("MERCHANT_CLOSED", "CheckDurability")
-	
+
 	self:CheckDurability()
 end
 
