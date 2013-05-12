@@ -8,6 +8,7 @@ function prototype:OnInitialize()
 	end
 	if type(self.OnRegister) == "function" then
 		self:OnRegister()
+		self.OnRegister = nil
 	end
 end
 

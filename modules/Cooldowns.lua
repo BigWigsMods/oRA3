@@ -3,7 +3,7 @@
 --
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Cooldowns", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
+local module = oRA:NewModule("Cooldowns", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
@@ -18,7 +18,6 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local mType = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
 local playerName = UnitName("player")
-local _, playerClass = UnitClass("player")
 local playerGUID = UnitGUID("player")
 
 local glyphCooldowns = {
@@ -238,6 +237,7 @@ local spells = {
 	},
 	WARLOCK = {
 		[20707] = 600,  -- Soulstone Resurrection
+		[95750] = 600,  -- Combat Soulstone
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
@@ -611,6 +611,7 @@ do
 		group:SetTitle(L["Select class"])
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
+		local _, playerClass = UnitClass("player")
 		group:SetGroup(playerClass)
 		group:SetFullWidth(true)
 
@@ -982,6 +983,23 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
+
+	local _, playerClass = UnitClass("player")
+	if playerClass == "SHAMAN" then
+		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay until SPELL_UPDATE_COOLDOWN
+		function module:SPELL_UPDATE_COOLDOWN()
+			self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
+			local start, duration = GetSpellCooldown(20608)
+			if start > 0 and duration > 0 then
+				oRA:SendComm("CooldownReincarnation", duration-1)
+			end
+		end
+		hooksecurefunc("UseSoulstone", function()
+			if oRA3CooldownFrame and oRA3CooldownFrame:IsShown() then
+				module:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+			end
+		end)
+	end
 end
 
 function module:IsOnCD(unit, spell)
@@ -1027,7 +1045,6 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
-	self:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
@@ -1036,52 +1053,16 @@ function module:OnStartup()
 		self:Cooldown(sender, 20608, cd)
 	end)
 
-	if playerClass == "SHAMAN" then
-		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay until SPELL_UPDATE_COOLDOWN
-		function module:SPELL_UPDATE_COOLDOWN()
-			self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
-			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 0 then
-				oRA:SendComm("CooldownReincarnation", duration-1)
-			end
-		end
-		self:SecureHook("UseSoulstone", function()
-			self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
-		end)
-	end
-
 	self:UpdateCooldownModifiers()
 end
 
 function module:OnShutdown()
 	self:UnregisterAllEvents()
-	self:UnhookAll()
 	LGIST.UnregisterAllCallbacks(self)
 
 	stopAll()
 	hideDisplay()
 	wipe(cdModifiers)
-end
-
-do
-	local inEncounter
-	local function checkWipe()
-		if not IsEncounterInProgress() then
-			module:CancelTimer(inEncounter)
-			inEncounter = nil
-			for bar in next, module:GetBars() do
-				local spell = bar:Get("ora3cd:spellid")
-				if allSpells[spell] > 299 and spell ~= 20608 then -- reset 5min+ cds (but not reincarnation)
-					bar:Stop()
-				end
-			end
-		end
-	end
-	function module:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
-		if not inEncounter then
-			inEncounter = self:ScheduleRepeatingTimer(checkWipe, 1)
-		end
-	end
 end
 
 function module:Cooldown(player, spell, cd)
@@ -1193,13 +1174,25 @@ do
 		return pet, guid
 	end
 
+	local IsEncounterInProgress, band = IsEncounterInProgress, bit.band
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	function module:COMBAT_LOG_EVENT_UNFILTERED(_, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId, spellName)
-		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and bit.band(srcFlags, group) ~= 0 then
+		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if spellId == 126393 or spellId == 90355 then -- find pet owner for Eternal Guardian and Ancient Hysteria (grumble grumble)
 				local source, srcGUID = getPetOwner(source, srcGUID)
 			end
 			self:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
+		end
+		if not inEncounter and IsEncounterInProgress() then
+			inEncounter = true
+		elseif inEncounter and not IsEncounterInProgress() then
+			inEncounter = nil
+			for bar in next, self:GetBars() do
+				local spell = bar:Get("ora3cd:spellid")
+				if allSpells[spell] > 299 and spell ~= 20608 then -- reset 5min+ cds (but not reincarnation)
+					bar:Stop()
+				end
+			end
 		end
 	end
 end
