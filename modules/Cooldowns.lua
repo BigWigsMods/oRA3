@@ -1179,10 +1179,10 @@ do
 
 	local IsEncounterInProgress, band, inEncounter = IsEncounterInProgress, bit.band, nil
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	function combatLog(_, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId, spellName)
+	function combatLog(_, _, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId)
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if spellId == 126393 or spellId == 90355 then -- find pet owner for Eternal Guardian and Ancient Hysteria (grumble grumble)
-				local source, srcGUID = getPetOwner(source, srcGUID)
+				source, srcGUID = getPetOwner(source, srcGUID)
 			end
 			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 		end
