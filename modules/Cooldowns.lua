@@ -349,6 +349,7 @@ local cdModifiers = {}
 local options, restyleBars
 local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
 local showPane, hidePane
+local combatLog
 local textures = media:List(mType)
 local function getOptions()
 	if not options then
@@ -847,6 +848,7 @@ do
 			return
 		end
 		display = CreateFrame("Frame", "oRA3CooldownFrame", UIParent)
+		display:SetScript("OnEvent", combatLog)
 		display:SetFrameStrata("BACKGROUND")
 		display:SetMinResize(100, 20)
 		display:SetWidth(200)
@@ -1041,7 +1043,7 @@ end
 
 function module:OnStartup()
 	setupCooldownDisplay()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	oRA3CooldownFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
@@ -1058,6 +1060,7 @@ end
 
 function module:OnShutdown()
 	self:UnregisterAllEvents()
+	oRA3CooldownFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	LGIST.UnregisterAllCallbacks(self)
 
 	stopAll()
@@ -1174,20 +1177,21 @@ do
 		return pet, guid
 	end
 
-	local IsEncounterInProgress, band = IsEncounterInProgress, bit.band
+	local IsEncounterInProgress, band, inEncounter = IsEncounterInProgress, bit.band, nil
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	function module:COMBAT_LOG_EVENT_UNFILTERED(_, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId, spellName)
+	function combatLog(_, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId, spellName)
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if spellId == 126393 or spellId == 90355 then -- find pet owner for Eternal Guardian and Ancient Hysteria (grumble grumble)
 				local source, srcGUID = getPetOwner(source, srcGUID)
 			end
-			self:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
+			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 		end
+
 		if not inEncounter and IsEncounterInProgress() then
 			inEncounter = true
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = nil
-			for bar in next, self:GetBars() do
+			for bar in next, module:GetBars() do
 				local spell = bar:Get("ora3cd:spellid")
 				if allSpells[spell] > 299 and spell ~= 20608 then -- reset 5min+ cds (but not reincarnation)
 					bar:Stop()
