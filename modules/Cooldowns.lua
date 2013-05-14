@@ -237,7 +237,6 @@ local spells = {
 	},
 	WARLOCK = {
 		[20707] = 600,  -- Soulstone Resurrection
-		[95750] = 600,  -- Combat Soulstone
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
@@ -335,7 +334,9 @@ local spells = {
 }
 
 local allSpells = {}
+allSpells[95750] = 600 -- Combat Soulstone
 local classLookup = {}
+classLookup[95750] = "WARLOCK"
 for class, spells in next, spells do
 	for id, cd in next, spells do
 		allSpells[id] = cd
@@ -1183,6 +1184,8 @@ do
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if spellId == 126393 or spellId == 90355 then -- find pet owner for Eternal Guardian and Ancient Hysteria (grumble grumble)
 				source, srcGUID = getPetOwner(source, srcGUID)
+			elseif spellId == 95750 then -- Combat Soulstone, funnel it via normal Soulstone
+				spellId = 20707
 			end
 			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 		end
