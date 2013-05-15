@@ -1,5 +1,5 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Loot", "AceEvent-3.0")
+local module = oRA:NewModule("Loot", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision: 180 $"):sub(12, -3))
@@ -127,16 +127,6 @@ function module:OnRegister()
 	oRA:RegisterModuleOptions("Loot", getOptions, LOOT_METHOD)
 end
 
-local frame = CreateFrame("Frame", nil, UIParent)
-frame:Hide()
-frame:SetScript("OnUpdate", function(self, elapsed)
-	self.elapsed = self.elapsed + elapsed
-	if self.elapsed >= 3 then
-		SetLootThreshold(self.threshold)
-		self:Hide()
-	end
-end)
-
 function module:SetLoot()
 	if not db.enable then return end
 	if oRA:IsPromoted() and ( UnitIsGroupLeader("player") or oRA:InParty() ) then
@@ -153,14 +143,11 @@ function module:SetLoot()
 		if current and current == method then return end
 		SetLootMethod(method, master, threshold)
 		if method == "master" or method == "group" then
-			frame.threshold = threshold
-			frame.elapsed = 0
-			frame:Show()
+			self:ScheduleTimer(SetLootThreshold, 3, self.threshold)
 		end
 		-- SetLootMethod("method"[,"masterPlayer" or ,threshold])
 		-- method  "group", "freeforall", "master", "neeedbeforegreed", "roundrobin".
 		-- threshold  0 poor  1 common  2 uncommon  3 rare  4 epic  5 legendary  6 artifact
 	end
 end
-
 
