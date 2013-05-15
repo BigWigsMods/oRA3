@@ -1,10 +1,10 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
-_G.oRA3 = addon
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
 BINDING_HEADER_oRA3 = "oRA3"
 BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
@@ -211,6 +211,52 @@ do
 	end
 end
 
+-------------------------------------------------------------------------------
+-- Event handling
+--
+
+do
+	local noEvent = "Module %q tried to register/unregister an event without specifying which event."
+	local noFunc = "Module %q tried to register an event with the function '%s' which doesn't exist in the module."
+
+	local eventMap = {}
+	oraFrame:SetScript("OnEvent", function(_, event, ...)
+		for k,v in next, eventMap[event] do
+			if type(v) == "function" then
+				v(event, ...)
+			else
+				k[v](k, event, ...)
+			end
+		end
+	end)
+
+	function addon:RegisterEvent(event, func)
+		if type(event) ~= "string" then error((noEvent):format(self.moduleName)) end
+		if (not func and not self[event]) or (type(func) == "string" and not self[func]) then error((noFunc):format(self.moduleName, func or event)) end
+		if not eventMap[event] then eventMap[event] = {} end
+		eventMap[event][self] = func or event
+		oraFrame:RegisterEvent(event)
+	end
+	function addon:UnregisterEvent(event)
+		if type(event) ~= "string" then error((noEvent):format(self.moduleName)) end
+		if not eventMap[event] then return end
+		eventMap[event][self] = nil
+		if not next(eventMap[event]) then
+			oraFrame:UnregisterEvent(event)
+			eventMap[event] = nil
+		end
+	end
+	function addon:UnregisterAllEvents()
+		for k,v in next, eventMap do
+			for j in next, v do
+				if j == self then
+					self:UnregisterEvent(k)
+				end
+			end
+		end
+	end
+end
+
 ------------------------------------------------------------------------
 -- Init
 --
@@ -304,6 +350,7 @@ function addon:OnEnable()
 end
 
 function addon:OnDisable()
+	self:UnregisterAllEvents()
 	HideUIPanel(oRA3Frame) -- nil-safe
 end
 
@@ -494,7 +541,7 @@ end
 --
 
 local function setupGUI()
-	local frame = CreateFrame("Frame", "oRA3Frame", UIParent)
+	local frame = oraFrame
 	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 12, xoffset = -16 }
 	HideUIPanel(oRA3Frame)
 
@@ -1101,4 +1148,6 @@ function addon:PLAYER_REGEN_DISABLED()
 		if contentFrame.listFrame:IsShown() then self:UpdateScroll( true ) end -- if the frame is shown force a secure update
 	end
 end
+
+oRA3 = addon -- Set global
 

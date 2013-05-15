@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Durability", "AceEvent-3.0", "AceConsole-3.0")
+local module = oRA:NewModule("Durability", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -40,9 +40,7 @@ end
 
 function module:OnShutdown()
 	wipe(durability)
-	self:UnregisterEvent("PLAYER_DEAD")
-	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
-	self:UnregisterEvent("MERCHANT_CLOSED")
+	self:UnregisterAllEvents()
 end
 
 function module:OpenDurabilityCheck()

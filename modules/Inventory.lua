@@ -20,7 +20,7 @@
 -- Added 13th April 2011 by Daniel Barron - RaidBuffStatus addon author.
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Inventory", "AceEvent-3.0")
+local module = oRA:NewModule("Inventory")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 

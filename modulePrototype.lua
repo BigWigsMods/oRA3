@@ -12,4 +12,19 @@ function prototype:OnInitialize()
 	end
 end
 
+function prototype:OnDisable()
+	if self.VERSION and self.VERSION > addon.VERSION then
+		addon.VERSION = self.VERSION
+	end
+	if type(self.OnModuleDisable) == "function" then
+		self:OnModuleDisable()
+	end
+	self:UnregisterAllEvents()
+end
+
 addon:SetDefaultModulePrototype(prototype)
+
+prototype.RegisterEvent = addon.RegisterEvent
+prototype.UnregisterEvent = addon.UnregisterEvent
+prototype.UnregisterAllEvents = addon.UnregisterAllEvents
+

@@ -1,6 +1,6 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Tanks", "AceEvent-3.0")
+local module = oRA:NewModule("Tanks")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -59,7 +59,7 @@ end
 function module:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_ROLES_ASSIGNED","CheckRoleAssignments")
+	self:RegisterEvent("PLAYER_ROLES_ASSIGNED", "CheckRoleAssignments")
 end
 
 local function sortTanks()
