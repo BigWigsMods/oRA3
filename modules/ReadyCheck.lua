@@ -143,8 +143,8 @@ local function createBottomFrame()
 	table.insert(bottomMemberFrames, f)
 	local num = #bottomMemberFrames
 	local xoff = 7
-	local yoff = 5
-	if num % 2 == 0 then xoff = 153 end
+	local yoff = 4
+	if num % 2 == 0 then xoff = 152 end
 	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
 	f:SetWidth(150)
 	f:SetHeight(14)
@@ -190,6 +190,7 @@ local function updateWindow()
 	frame.bar:Hide()
 
 	local total = GetNumGroupMembers()
+	local height = 0
 	if IsInRaid() then
 		local _, _, diff = GetInstanceInfo()
 		local highgroup
@@ -214,12 +215,15 @@ local function updateWindow()
 		end
 		-- position the spacer
 		if bottom > 0 then
-			local yoff = 0 - ((top / 2) * 14 + 37)
+			local yoff = 0 - (math.ceil(top / 2) * 14 + 34)
 			frame.bar:ClearAllPoints()
 			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
 			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
 			frame.bar:Show()
+			height = 14
 		end
+		
+		height = height + math.max((math.ceil(top / 2) + math.ceil(bottom / 2)) * 14 + 43, 128)
 	else
 		setMemberStatus(1, false, playerName, playerClass)
 		for i = 1, GetNumSubgroupMembers() do
@@ -229,9 +233,10 @@ local function updateWindow()
 			local _, class = UnitClass(unit)
 			setMemberStatus(i+1, false, name, class)
 		end
+		
+		height = math.max(math.ceil(total / 2) * 14 + 43, 128)
 	end
 
-	local height = math.max(math.ceil(total / 2) * 14 + 66, 128)
 	frame:SetHeight(height)
 end
 
