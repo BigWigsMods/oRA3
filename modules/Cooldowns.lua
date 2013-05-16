@@ -17,8 +17,7 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 --
 
 local mType = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
-local playerName = UnitName("player")
-local playerGUID = UnitGUID("player")
+local playerName, playerGUID
 
 local glyphCooldowns = {
 	[55678] = {6346, 60},      -- Fear Ward, -60sec
@@ -987,6 +986,9 @@ function module:OnRegister()
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
 
+	playerName = UnitName("player")
+	playerGUID = UnitGUID("player")
+
 	local _, playerClass = UnitClass("player")
 	if playerClass == "SHAMAN" then
 		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay until SPELL_UPDATE_COOLDOWN
@@ -1171,9 +1173,7 @@ do
 			end
 		end
 		if owner then
-			local name, server = UnitName(owner)
-			if server then name = name.."-"..server end
-			return name, UnitGUID(owner)
+			return module:UnitName(owner), UnitGUID(owner)
 		end
 		return pet, guid
 	end

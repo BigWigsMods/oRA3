@@ -28,3 +28,14 @@ prototype.RegisterEvent = addon.RegisterEvent
 prototype.UnregisterEvent = addon.UnregisterEvent
 prototype.UnregisterAllEvents = addon.UnregisterAllEvents
 
+do
+	local UnitName = UnitName
+	function prototype:UnitName(unit)
+		local name, server = UnitName(unit)
+		if server and server ~= "" then
+			name = name .."-".. server
+		end
+		return name
+	end
+end
+

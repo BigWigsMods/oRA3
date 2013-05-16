@@ -222,18 +222,17 @@ local function updateWindow()
 			frame.bar:Show()
 			height = 14
 		end
-		
+
 		height = height + math.max((math.ceil(top / 2) + math.ceil(bottom / 2)) * 14 + 43, 128)
 	else
 		setMemberStatus(1, false, playerName, playerClass)
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
-			local name, server = UnitName(unit)
-			if server and (strlen(server)>0) then name = name.."-"..server end
+			local name = module:UnitName(unit)
 			local _, class = UnitClass(unit)
 			setMemberStatus(i+1, false, name, class)
 		end
-		
+
 		height = math.max(math.ceil(total / 2) * 14 + 43, 128)
 	end
 
@@ -415,8 +414,7 @@ function module:READY_CHECK(event, initiator, duration)
 		readycheck[playerName] = GetReadyCheckStatus("player") == "ready" and RD_READY or RD_NORESPONSE
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
-			local name, server = UnitName(unit)
-			if server and (strlen(server)>0) then name = name.."-"..server end
+			local name = self:UnitName(unit)
 			readycheck[name] = GetReadyCheckStatus(unit) == "ready" and RD_READY or not UnitIsConnected(unit) and RD_OFFLINE or RD_NORESPONSE
 		end
 	end
@@ -435,8 +433,7 @@ end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
 	-- this event only fires when promoted, so no need to check
-	local name, server = UnitName(unit)
-	if server and (strlen(server)>0) then name = name.."-"..server end
+	local name = self:UnitName(unit)
 
 	if ready then
 		readycheck[name] = RD_READY
