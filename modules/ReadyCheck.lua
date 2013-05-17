@@ -10,6 +10,7 @@ local frame -- will be filled with our GUI frame
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
+local memberFrames = {}
 
 -- local constants
 local RD_RAID_MEMBERS_NOTREADY = L["The following players are not ready: %s"]
@@ -127,10 +128,8 @@ local function createTopFrame()
 	local f = CreateFrame("Frame", nil, frame)
 	table.insert(topMemberFrames, f)
 	local num = #topMemberFrames
-	local xoff = 15
-	local yoff = -17
-	if num % 2 == 0 then xoff = 160 end
-	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
+	local xoff = num % 2 == 0 and 160 or 15
+	local yoff = 0 - ((math.floor(num / 2) + (num % 2)) * 14) - 17
 	f:SetWidth(150)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
@@ -142,10 +141,8 @@ local function createBottomFrame()
 	local f = CreateFrame("Frame", nil, frame)
 	table.insert(bottomMemberFrames, f)
 	local num = #bottomMemberFrames
-	local xoff = 7
-	local yoff = 4
-	if num % 2 == 0 then xoff = 152 end
-	yoff = yoff + ((math.floor(num / 2) + (num % 2)) * -14)
+	local xoff = num % 2 == 0 and 152 or 7
+	local yoff = 0 - ((math.floor(num / 2) + (num % 2)) * 14) + 4
 	f:SetWidth(150)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff)
@@ -153,28 +150,20 @@ local function createBottomFrame()
 	return f
 end
 
-local function setMemberStatus(num, bottom, name, class)
-	local f
-	if bottom then
-		f = bottomMemberFrames[num] or createBottomFrame()
-	else
-		f = topMemberFrames[num] or createTopFrame()
-	end
-	local color = oRA.classColors[class]
-	f.NameText:SetText(name:gsub("%-.*$", ""))
-	f.NameText:SetTextColor(color.r, color.g, color.b)
-	f:SetAlpha(1)
-	f:Show()
-	if readycheck[name] == RD_READY then
+local function updateMemberStatus(name)
+	local f = memberFrames[name]
+	if not f then return end
+	local status = readycheck[name]
+	if status == RD_READY then
 		f.bg:Hide()
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
 		if module.db.profile.hideReady then
 			f:Hide()
 		end
-	elseif readycheck[name] == RD_NOTREADY then
+	elseif status == RD_NOTREADY then
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
-	elseif readycheck[name] == RD_OFFLINE then
+	elseif status == RD_OFFLINE then
 		f:SetAlpha(.5)
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
@@ -184,9 +173,26 @@ local function setMemberStatus(num, bottom, name, class)
 	end
 end
 
+local function setMemberStatus(num, bottom, name, class)
+	local f
+	if bottom then
+		f = bottomMemberFrames[num] or createBottomFrame()
+	else
+		f = topMemberFrames[num] or createTopFrame()
+	end
+	memberFrames[name] = f
+	local color = oRA.classColors[class]
+	f.NameText:SetText(name:gsub("%-.*$", ""))
+	f.NameText:SetTextColor(color.r, color.g, color.b)
+	f:SetAlpha(1)
+	updateMemberStatus(name)
+	f:Show()
+end
+
 local function updateWindow()
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
+	wipe(memberFrames)
 	frame.bar:Hide()
 
 	local total = GetNumGroupMembers()
@@ -213,17 +219,17 @@ local function updateWindow()
 				setMemberStatus(bottom, true, name, class)
 			end
 		end
+		height = math.ceil(top / 2) * 14 + 43
+
 		-- position the spacer
 		if bottom > 0 then
-			local yoff = 0 - (math.ceil(top / 2) * 14 + 34)
+			height = height + 14 + (math.ceil(bottom / 2) * 14)
+			local yoff = 0 - (math.ceil(top / 2) * 14) - 34
 			frame.bar:ClearAllPoints()
 			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
 			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
 			frame.bar:Show()
-			height = 14
 		end
-
-		height = height + math.max((math.ceil(top / 2) + math.ceil(bottom / 2)) * 14 + 43, 128)
 	else
 		setMemberStatus(1, false, playerName, playerClass)
 		for i = 1, GetNumSubgroupMembers() do
@@ -232,11 +238,9 @@ local function updateWindow()
 			local _, class = UnitClass(unit)
 			setMemberStatus(i+1, false, name, class)
 		end
-
-		height = math.max(math.ceil(total / 2) * 14 + 43, 128)
 	end
 
-	frame:SetHeight(height)
+	frame:SetHeight(math.max(height, 128))
 end
 
 local function createWindow()
@@ -428,20 +432,20 @@ function module:READY_CHECK(event, initiator, duration)
 		frame.timer = duration
 		frame.oldtimer = -1
 		updateWindow()
+		self:RegisterEvent("GROUP_ROSTER_UPDATE", updateWindow) -- pick up group changes
 	end
 end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
 	-- this event only fires when promoted, so no need to check
 	local name = self:UnitName(unit)
-
 	if ready then
 		readycheck[name] = RD_READY
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
 	end
 	if self.db.profile.gui and frame then
-		updateWindow()
+		updateMemberStatus(name)
 	end
 end
 
@@ -459,6 +463,7 @@ do
 			end
 			frame.timer = 0
 			frame.title:SetText(READY_CHECK_FINISHED)
+			self:UnregisterEvent("GROUP_ROSTER_UPDATE")
 		end
 
 		wipe(noReply)
