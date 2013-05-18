@@ -20,14 +20,6 @@ local RD_NOTREADY = NOT_READY
 local RD_NORESPONSE = NO_RESPONSE
 local RD_OFFLINE = PLAYER_OFFLINE
 
--- filter the ready check results system messages
-do
-	local MSG_AFK = RAID_MEMBERS_AFK:gsub("%%s", "(.*)")
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", function(self, event, msg)
-		if msg == READY_CHECK_ALL_READY or msg:find(MSG_AFK) then return true end
-	end)
-end
-
 local defaults = {
 	profile = {
 		sound = true,
