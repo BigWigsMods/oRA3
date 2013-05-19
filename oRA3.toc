@@ -1,16 +1,13 @@
 ## Interface: 50200
 ## Name: oRA3
 ## Notes: Raid and Party Assist
-## Author: Ammo, Rabbit
+## Author: Funkydude, Nebula169, Ammo, Rabbit
 
 ## X-Credits: Cladhaire for the sliding/detaching panel
 
 ## SavedVariables: oRA3DB
 
 ## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibGroupInSpecT-1.0
-
-## LoadManagers: AddonLoader
-## X-LoadOn-Always: true
 
 #@no-lib-strip@
 libs.xml
@@ -37,5 +34,4 @@ modules\Promote.lua
 modules\Cooldowns.lua
 modules\Tanks.lua
 modules\Loot.lua
-modules\Inventory.lua
 
