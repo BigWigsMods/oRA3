@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Durability", "AceConsole-3.0")
+local module = oRA:NewModule("Durability")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -26,8 +26,11 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnCommDurability")
 	oRA.RegisterCallback(self, "OnCommRequestUpdate")
 
-	self:RegisterChatCommand("radur", "OpenDurabilityCheck")
-	self:RegisterChatCommand("radurability", "OpenDurabilityCheck")
+	SLASH_ORADURABILITY1 = "/radur"
+	SLASH_ORADURABILITY2 = "/radurability"
+	SlashCmdList.ORADURABILITY = function()
+		oRA:OpenToList(L["Durability"])
+	end
 end
 
 function module:OnStartup()
@@ -41,10 +44,6 @@ end
 function module:OnShutdown()
 	wipe(durability)
 	self:UnregisterAllEvents()
-end
-
-function module:OpenDurabilityCheck()
-	oRA:OpenToList(L["Durability"])
 end
 
 function module:OnCommRequestUpdate()

@@ -1,4 +1,4 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceComm-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceComm-3.0", "AceSerializer-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -330,7 +330,8 @@ function addon:OnEnable()
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
 
-	self:RegisterChatCommand("radisband", actuallyDisband)
+	SLASH_ORADISBAND1 = "/radisband"
+	SlashCmdList.ORADISBAND = actuallyDisband
 
 	-- init groupStatus
 	self:GROUP_ROSTER_UPDATE()

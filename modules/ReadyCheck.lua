@@ -1,5 +1,5 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("ReadyCheck", "AceConsole-3.0", "AceTimer-3.0")
+local module = oRA:NewModule("ReadyCheck", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -386,8 +386,9 @@ function module:OnEnable()
 	self:RegisterEvent("READY_CHECK_FINISHED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
-	self:RegisterChatCommand("rar", DoReadyCheck)
-	self:RegisterChatCommand("raready", DoReadyCheck)
+	SLASH_ORAREADYCHECK1 = "/rar"
+	SLASH_ORAREADYCHECK2 = "/raready"
+	SlashCmdList.ORAREADYCHECK = SlashCmdList.READYCHECK
 end
 
 function module:PLAYER_REGEN_DISABLED()

@@ -1,6 +1,6 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Zone", "AceConsole-3.0")
+local module = oRA:NewModule("Zone")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision: 150 $"):sub(12, -3))
@@ -82,8 +82,11 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	oRA.RegisterCallback(self, "OnStartup", "UpdateZoneList")
 
-	self:RegisterChatCommand("razone", "OpenZoneCheck")
-	self:RegisterChatCommand("raz", "OpenZoneCheck")
+	SLASH_ORAZONE1 = "/razone"
+	SLASH_ORAZONE2 = "/raz"
+	SlashCmdList.ORAZONE = function()
+		oRA:OpenToList(L["Zone"])
+	end
 end
 
 function module:OnEnable()
@@ -95,10 +98,6 @@ function module:OnListSelected(event, list)
 	if list == L["Zone"] then
 		self:UpdateZoneList()
 	end
-end
-
-function module:OpenZoneCheck()
-	oRA:OpenToList(L["Zone"])
 end
 
 -- UPDATE_FACTION and getZone were taken from LibDogTag by ckknight with permission.

@@ -1,5 +1,5 @@
  local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Invite", "AceConsole-3.0", "AceTimer-3.0")
+local module = oRA:NewModule("Invite", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -153,12 +153,17 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
 
-	self:RegisterChatCommand("rainv", inviteGuild)
-	self:RegisterChatCommand("rainvite", inviteGuild)
-	self:RegisterChatCommand("razinv", inviteZone)
-	self:RegisterChatCommand("razinvite", inviteZone)
-	self:RegisterChatCommand("rarinv", inviteRankCommand)
-	self:RegisterChatCommand("rarinvite", inviteRankCommand)
+	SLASH_ORAINVITE_GUILD1 = "/rainv"
+	SLASH_ORAINVITE_GUILD2 = "/rainvite"
+	SlashCmdList.ORAINVITE_GUILD = inviteGuild
+
+	SLASH_ORAINVITE_ZONE1 = "/razinv"
+	SLASH_ORAINVITE_ZONE2 = "/razinvite"
+	SlashCmdList.ORAINVITE_ZONE = inviteZone
+
+	SLASH_ORAINVITE_RANK1 = "/rarinv"
+	SLASH_ORAINVITE_RANK2 = "/rarinvite"
+	SlashCmdList.ORAINVITE_RANK = inviteRankCommand
 end
 
 local function getBattleNetToon(presenceId)

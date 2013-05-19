@@ -4,7 +4,7 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local util = oRA.util
-local module = oRA:NewModule("Latency", "AceConsole-3.0")
+local module = oRA:NewModule("Latency")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision: $"):sub(12, -3))
@@ -23,16 +23,15 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnCommLatencyRequestUpdate")
 	oRA.RegisterCallback(self, "OnCommLatency")
 
-	self:RegisterChatCommand("ralag", "OpenLatencyCheck")
-	self:RegisterChatCommand("ralatency", "OpenLatencyCheck")
+	SLASH_ORALATENCY1 = "/ralag"
+	SLASH_ORALATENCY2 = "/ralatency"
+	SlashCmdList.ORALATENCY = function()
+		oRA:OpenToList(L["Latency"])
+	end
 end
 
 function module:OnShutdown()
 	wipe(latency)
-end
-
-function module:OpenLatencyCheck()
-	oRA:OpenToList(L["Latency"])
 end
 
 -- throttled updates when checking the list
