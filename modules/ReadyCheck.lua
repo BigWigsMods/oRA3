@@ -397,7 +397,6 @@ end
 
 function module:READY_CHECK(event, initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
-	if not oRA:IsPromoted() then return end
 
 	wipe(readycheck)
 	-- fill with default "No Response" and set the initiator "Ready"
@@ -429,12 +428,17 @@ function module:READY_CHECK(event, initiator, duration)
 end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
-	-- this event only fires when promoted, so no need to check
 	local name = self:UnitName(unit)
+	if readycheck[name] ~= RD_NORESPONSE then return end -- fires multiple times?
+
 	if ready then
 		readycheck[name] = RD_READY
 	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
 		readycheck[name] = RD_NOTREADY
+		if not oRA:IsPromoted() then
+			local c = ChatTypeInfo["SYSTEM"]
+			DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+		end
 	end
 	if self.db.profile.gui and frame then
 		updateMemberStatus(name)
@@ -447,7 +451,6 @@ do
 	local function delayFade() frame.fadeTimer = 1 end
 	function module:READY_CHECK_FINISHED(event, preempted)
 		if preempted then return end -- is a dungeon group ready check
-		if not oRA:IsPromoted() then return end
 
 		if frame then
 			if self.db.profile.autohide then
@@ -470,21 +473,27 @@ do
 
 		local c = ChatTypeInfo["SYSTEM"]
 		if #noReply == 0 and #notReady == 0 then
-			DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
+			if not oRA:IsPromoted() then
+				DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
+			end
 			if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
 		else
 			if #noReply > 0 then
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
-				DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
+				if not oRA:IsPromoted() then
+					DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
+				end
 				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 					SendChatMessage(afk, "RAID")
 				end
 			end
 			if #notReady > 0 then
 				local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
-				DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
+				if not oRA:IsPromoted() then
+					DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
+				end
 				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 					SendChatMessage(no, "RAID")
 				end
