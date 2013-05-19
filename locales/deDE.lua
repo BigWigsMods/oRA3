@@ -28,6 +28,7 @@ L.slashCommands = [[
 oRA3 verfügt über eine Reihe von Befehlen, die in hektischer Raidumgebung hilfreich sein können. Für den Fall, dass du in den alten CTRA-Tagen nicht dabei warst: Eine kleine Referenz. Alle Befehle haben diverse Abkürzungen, aber manchmal auch längere, aussagekräftigere Alternativen.
 
 |cff44ff44/radur|r - Öffnet die Haltbarkeitsliste.
+|cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - Öffnet die Zonenliste.
 |cff44ff44/radisband|r - Löst die Gruppe ohne Bestätigung auf.
 |cff44ff44/raready|r - Führt einen Bereitschaftscheck durch.
@@ -156,3 +157,7 @@ L["Sort"] = "Sortieren"
 L["Click to move this tank up."] = "Hier klicken, um den Tank nach oben zu schieben."
 L["Show"] = "Einblenden"
 L.showButtonHelp = "Blendet diesen Tank in deiner Tankanzeige ein. Diese Option hat nur einen lokalen Effekt und verändert nicht den Tankstatus des betroffenen Spielers für alle anderen Gruppenmitglieder."
+
+-- Latency Module
+L["Latency"] = true
+

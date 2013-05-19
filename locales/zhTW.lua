@@ -28,6 +28,7 @@ L.slashCommands = [[
 oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘迴在舊的CTRA日子，這裡有一些參考。所有/指令有各種速記也有長的，為了方便，更多描述在某些情況會被取代。
 
 |cff44ff44/radur|r - 開啟耐久度列表。
+|cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - 開啟區域列表。
 |cff44ff44/radisband|r - 立刻解散團隊，不經過確認。
 |cff44ff44/raready|r - 執行準備確認。
@@ -156,4 +157,7 @@ L["Sort"] = "排序"
 L["Click to move this tank up."] = "點擊往上移動坦克。"
 L["Show"] = "顯示"
 L.showButtonHelp = "在你個人的坦克排列中顯示這個坦克. 此項只對本地有效, 不會影響團隊中其他人的配置"
+
+-- Latency Module
+L["Latency"] = true
 

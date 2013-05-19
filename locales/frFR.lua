@@ -27,6 +27,7 @@ L.slashCommands = [[
 oRA3 supporte toute une série de commandes « / » (ou slash) pour vous aider rapidement en raid.
 
 |cff44ff44/radur|r - ouvre la liste des durabilités.
+|cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - ouvre la liste des zones.
 |cff44ff44/radisband|r - dissout instantanément le raid sans vérification.
 |cff44ff44/raready|r - fait l'appel.
@@ -155,3 +156,7 @@ L["Sort"] = "Trier"
 L["Click to move this tank up."] = "Cliquez pour faire monter ce tank."
 L["Show"] = "Afficher"
 L.showButtonHelp = "Affiche ce tank dans votre affichage des tanks personnels. Cette option n'a des effets que localement et ne changera pas son statut de tank pour tous les autres membres du groupe."
+
+-- Latency Module
+L["Latency"] = true
+

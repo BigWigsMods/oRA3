@@ -13,8 +13,28 @@ L["Click to open/close oRA3"] = "打开/关闭 oRA3"
 L["Unknown"] = "未知"
 
 -- Core
-L["You can configure some options here. All the actual actions are done from the panel at the RaidFrame."] = "你可以在这里调整设置, 所有实际操作都在团队面板进行"
-L.uiHidden = "你正在战斗中.\noRA3 面板暂时被关闭.\n\n脱离战斗后恢复."
+
+L["Toggle oRA3 Pane"] = true
+L["Open with raid pane"] = true
+L.toggleWithRaidDesc = "Opens and closes the oRA3 pane automatically along with the Blizzard raid pane. If you disable this option you can still open the oRA3 pane using the keybinding or with one of the slash commands, such as |cff44ff44/radur|r."
+L["Show interface help"] = true
+L.showHelpTextsDesc = "The oRA3 interface is full of helpful texts intended to better describe what is going on and what the different interface elements actually do. Disabling this option will remove them, limiting the clutter on each pane. |cffff4411Requires a interface reload on some panes.|r"
+L["Ensure guild repairs are enabled for all ranks present in raid"] = true
+L.ensureRepairDesc = "If you are the Guild Master, whenever you join a raid group and is the leader or promoted, you will ensure that it is enabled for the duration of the raid (up to 300g). Once you leave the group, the flags will be restored to their original state |cffff4411provided you have not crashed during the raid.|r"
+L.repairEnabled = "Enabled guild repairs for %s for the duration of this raid."
+
+L["Slash commands"] = true
+L.slashCommands = [[
+oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
+
+|cff44ff44/radur|r - Opens the durability list.
+|cff44ff44/razone|r - Opens the zone list.
+|cff44ff44/radisband|r - Instantly disbands the raid with no verification.
+|cff44ff44/raready|r - Performs a ready check.
+|cff44ff44/rainv|r - Invites the whole guild to your group.
+|cff44ff44/razinv|r - Invites guild members in the same zone as you.
+|cff44ff44/rarinv <rank name>|r - Invites guild members of the given rank.
+]]
 
 -- Ready check module
 L["The following players are not ready: %s"] = "下列队员未准备好:%s"
@@ -131,4 +151,7 @@ L["Sort"] = "排序"
 L["Click to move this tank up."] = "点击往上移动坦克。"
 L["Show"] = "显示"
 L.showButtonHelp = "在你个人的坦克排列中显示这个坦克. 此项只对本地有效, 不会影响团队中其他人的配置"
+
+-- Latency Module
+L["Latency"] = true
 
