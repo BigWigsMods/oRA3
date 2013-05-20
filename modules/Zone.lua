@@ -126,7 +126,6 @@ function module:UPDATE_FACTION()
 end
 
 function module:OnGroupChanged(event, status, members)
-	self:UpdateZoneList()
 	oRA:UpdateList(L["Zone"])
 end
 

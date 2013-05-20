@@ -16,7 +16,8 @@ function module:OnRegister()
 		L["Latency"],
 		latency,
 		L["Name"],
-		L["Latency"]
+		L["Home"],
+		L["World"]
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
@@ -60,18 +61,20 @@ do
 end
 
 function module:CheckLatency()
-	local _, _, _, latencyWorld = GetNetStats() -- average world latency
-	oRA:SendComm("Latency", latencyWorld)
+	local _, _, latencyHome, latencyWorld = GetNetStats() -- average world latency
+	oRA:SendComm("Latency", latencyWorld, latencyHome)
 end
 
 -- Latency answer
-function module:OnCommLatency(commType, sender, latencyWorld)
+function module:OnCommLatency(commType, sender, latencyWorld, latencyHome)
 	local k = util:inTable(latency, sender, 1)
 	if not k then
-		latency[#latency + 1] = { sender, latencyWorld }
-	else
-		latency[k][2] = latencyWorld
+		k = #latency + 1
+		latency[k] = { sender }
 	end
+	latency[k][2] = latencyHome or ""
+	latency[k][3] = latencyWorld
+
 	oRA:UpdateList(L["Latency"])
 end
 

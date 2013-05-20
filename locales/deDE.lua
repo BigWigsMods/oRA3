@@ -160,4 +160,6 @@ L.showButtonHelp = "Blendet diesen Tank in deiner Tankanzeige ein. Diese Option 
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 

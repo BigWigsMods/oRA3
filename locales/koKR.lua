@@ -163,4 +163,6 @@ L.showButtonHelp = "이 탱커를 정렬 탱커 목록에 표시를 합니다. �
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 

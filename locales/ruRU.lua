@@ -160,4 +160,6 @@ L.showButtonHelp = "Показывать этого танка в вашем л�
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 

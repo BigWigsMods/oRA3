@@ -160,4 +160,6 @@ L.showButtonHelp = "Show this tank in your personal sorted tank display. This op
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 

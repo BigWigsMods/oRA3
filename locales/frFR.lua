@@ -159,4 +159,6 @@ L.showButtonHelp = "Affiche ce tank dans votre affichage des tanks personnels. C
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 

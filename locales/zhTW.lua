@@ -160,4 +160,6 @@ L.showButtonHelp = "在你個人的坦克排列中顯示這個坦克. 此項只�
 
 -- Latency Module
 L["Latency"] = true
+L["Home"] = true
+L["World"] = true
 
