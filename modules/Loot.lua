@@ -143,7 +143,7 @@ function module:SetLoot()
 		if current and current == method then return end
 		SetLootMethod(method, master, threshold)
 		if method == "master" or method == "group" then
-			self:ScheduleTimer(SetLootThreshold, 3, self.threshold)
+			self:ScheduleTimer(SetLootThreshold, 3, threshold)
 		end
 		-- SetLootMethod("method"[,"masterPlayer" or ,threshold])
 		-- method  "group", "freeforall", "master", "neeedbeforegreed", "roundrobin".
