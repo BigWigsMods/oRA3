@@ -996,7 +996,7 @@ function module:OnRegister()
 			self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
 			local start, duration = GetSpellCooldown(20608)
 			if start > 0 and duration > 0 then
-				oRA:SendComm("CooldownReincarnation", duration-1)
+				oRA:SendComm("Reincarnation", duration-1)
 			end
 		end
 		hooksecurefunc("UseSoulstone", function()
@@ -1054,9 +1054,7 @@ function module:OnStartup()
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
 
-	oRA.RegisterCallback(self, "OnCommCooldownReincarnation", function(_, sender, cd)
-		self:Cooldown(sender, 20608, cd)
-	end)
+	oRA.RegisterCallback(self, "OnCommReceived")
 
 	self:UpdateCooldownModifiers()
 end
@@ -1069,6 +1067,12 @@ function module:OnShutdown()
 	stopAll()
 	hideDisplay()
 	wipe(cdModifiers)
+end
+
+function module:OnCommReceived(_, sender, prefix, cd)
+	if prefix == "Reincarnation" then
+		self:Cooldown(sender, 20608, cd)
+	end
 end
 
 function module:Cooldown(player, spell, cd)

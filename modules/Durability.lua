@@ -23,8 +23,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-	oRA.RegisterCallback(self, "OnCommDurability")
-	oRA.RegisterCallback(self, "OnCommRequestUpdate")
+	oRA.RegisterCallback(self, "OnCommReceived")
 
 	SLASH_ORADURABILITY1 = "/radur"
 	SLASH_ORADURABILITY2 = "/radurability"
@@ -46,10 +45,6 @@ function module:OnShutdown()
 	self:UnregisterAllEvents()
 end
 
-function module:OnCommRequestUpdate()
-	self:CheckDurability()
-end
-
 function module:CheckDurability(event)
 	local cur, max, broken, vmin = 0, 0, 0, 100
 	for i = 1, 18 do
@@ -65,17 +60,20 @@ function module:CheckDurability(event)
 	oRA:SendComm("Durability", perc, vmin, broken)
 end
 
--- Durability answer
-function module:OnCommDurability(commType, sender, perc, minimum, broken)
-	local k = util:inTable(durability, sender, 1)
-	if not k then
-		durability[#durability + 1] = { sender }
-		k = #durability
-	end
-	durability[k][2] = perc
-	durability[k][3] = minimum
-	durability[k][4] = broken
+function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
+	if prefix == "RequestUpdate" then
+		self:CheckDurability()
+	elseif prefix == "Durability" then
+		local k = util:inTable(durability, sender, 1)
+		if not k then
+			durability[#durability + 1] = { sender }
+			k = #durability
+		end
+		durability[k][2] = perc
+		durability[k][3] = minimum
+		durability[k][4] = broken
 
-	oRA:UpdateList(L["Durability"])
+		oRA:UpdateList(L["Durability"])
+	end
 end
 

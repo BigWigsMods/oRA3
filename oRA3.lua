@@ -1,4 +1,4 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3", "AceComm-3.0", "AceSerializer-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
@@ -264,6 +264,9 @@ end
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 
+	-- Comm register
+	RegisterAddonMessagePrefix("oRA")
+
 	-- callbackhandler for comm
 	self.callbacks = CallbackHandler:New(self)
 
@@ -317,15 +320,13 @@ function addon:RegisterModuleOptions(name, optionTbl, displayName)
 end
 
 function addon:OnEnable()
-	-- Comm register
-	self:RegisterComm("oRA3")
-
 	-- Roster Status Events
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("CHAT_MSG_ADDON", "OnCommReceived")
 
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
@@ -512,29 +513,15 @@ end
 -- Comm handling
 --
 
-function addon:SendComm( ... )
+function addon:SendComm(...)
 	if groupStatus == UNGROUPED or UnitInBattleground("player") then return end
-	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and IsInInstance() then--In LFR or LFD and inside instance
-	 -- we check IsInInstance() because we may be in a regular raid group as well, and we want to make sure to use "RAID" or "PARTY" as a fallback below (ie Galleon spawned for example and you ported out of LFR to go get it)
-		self:SendCommMessage("oRA3", self:Serialize(...), "INSTANCE_CHAT")
-	else
-		if IsInRaid() then--Send to RAID if we are in raid, even if LE_PARTY_CATEGORY_INSTANCE is true but IsInInstance() isn't for reason explained above
-			self:SendCommMessage("oRA3", self:Serialize(...), "RAID")
-		elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then--Not in a raid or LFG/LFR but still in a group, just use good ole PARTY sync
-			self:SendCommMessage("oRA3", self:Serialize(...), "PARTY")
-		end
-	end
+	SendAddonMessage("oRA", strjoin(" ", ...), IsPartyLFG() and "INSTANCE_CHAT" or "RAID")
 end
 
-local function dispatchComm(sender, ok, commType, ...)
-	if ok and type(commType) == "string" then
-		addon.callbacks:Fire("OnComm"..commType, sender, ...)
+function addon:OnCommReceived(_, prefix, message, distribution, sender)
+	if prefix == "oRA" and (distribution == "RAID" or distribution == "PARTY") then
+		self.callbacks:Fire("OnCommReceived", sender, strsplit(" ", message))
 	end
-end
-
-function addon:OnCommReceived(prefix, message, distribution, sender)
-	if distribution ~= "RAID" and distribution ~= "PARTY" then return end
-	dispatchComm(sender, self:Deserialize(message))
 end
 
 -----------------------------------------------------------------------

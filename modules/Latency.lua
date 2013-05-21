@@ -21,8 +21,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
-	oRA.RegisterCallback(self, "OnCommLatencyRequestUpdate")
-	oRA.RegisterCallback(self, "OnCommLatency")
+	oRA.RegisterCallback(self, "OnCommReceived")
 
 	SLASH_ORALATENCY1 = "/ralag"
 	SLASH_ORALATENCY2 = "/ralatency"
@@ -43,38 +42,37 @@ do
 			local t = GetTime()
 			if t-prev > 10 then
 				prev = t
-				oRA:SendComm("LatencyRequestUpdate")
+				oRA:SendComm("QueryLag")
 			end
-		end
-	end
-end
-
-do
-	local prev = 0
-	function module:OnCommLatencyRequestUpdate()
-		local t = GetTime()
-		if t-prev > 5 then
-			prev = t
-			self:CheckLatency()
 		end
 	end
 end
 
 function module:CheckLatency()
 	local _, _, latencyHome, latencyWorld = GetNetStats() -- average world latency
-	oRA:SendComm("Latency", latencyWorld, latencyHome)
+	oRA:SendComm("Lag", latencyHome, latencyWorld)
 end
 
--- Latency answer
-function module:OnCommLatency(commType, sender, latencyWorld, latencyHome)
-	local k = util:inTable(latency, sender, 1)
-	if not k then
-		k = #latency + 1
-		latency[k] = { sender }
-	end
-	latency[k][2] = latencyHome or ""
-	latency[k][3] = latencyWorld
+do
+	local prev = 0
+	function module:OnCommReceived(_, sender, prefix, latencyHome, latencyWorld)
+		if prefix == "QueryLag" then
+			local t = GetTime()
+			if t-prev > 5 then
+				prev = t
+				self:CheckLatency()
+			end
+		elseif prefix == "Lag" then
+			local k = util:inTable(latency, sender, 1)
+			if not k then
+				k = #latency + 1
+				latency[k] = { sender }
+			end
+			latency[k][2] = latencyHome
+			latency[k][3] = latencyWorld
 
-	oRA:UpdateList(L["Latency"])
+			oRA:UpdateList(L["Latency"])
+		end
+	end
 end
 
