@@ -519,7 +519,7 @@ function addon:SendComm(...)
 end
 
 function addon:OnCommReceived(_, prefix, message, distribution, sender)
-	if prefix == "oRA" and (distribution == "RAID" or distribution == "PARTY") then
+	if prefix == "oRA" then
 		self.callbacks:Fire("OnCommReceived", sender, strsplit(" ", message))
 	end
 end

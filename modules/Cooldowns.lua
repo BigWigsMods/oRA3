@@ -1071,7 +1071,7 @@ end
 
 function module:OnCommReceived(_, sender, prefix, cd)
 	if prefix == "Reincarnation" then
-		self:Cooldown(sender, 20608, cd)
+		self:Cooldown(sender, 20608, tonumber(cd))
 	end
 end
 
