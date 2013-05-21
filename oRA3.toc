@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Name: oRA3
 ## Notes: Raid and Party Assist
 ## Author: Funkydude, Nebula169, Ammo, Rabbit
