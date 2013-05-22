@@ -166,6 +166,7 @@ local function updateMemberStatus(name)
 end
 
 local function setMemberStatus(num, bottom, name, class)
+	if not name then return end
 	local f
 	if bottom then
 		f = bottomMemberFrames[num] or createBottomFrame()
@@ -430,6 +431,7 @@ end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
 	local name = self:UnitName(unit)
+	if not name then return end
 	if readycheck[name] ~= RD_NORESPONSE then return end -- fires multiple times?
 
 	if ready then
