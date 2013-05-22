@@ -188,7 +188,6 @@ local function updateWindow()
 	wipe(memberFrames)
 	frame.bar:Hide()
 
-	local total = GetNumGroupMembers()
 	local height = 0
 	if IsInRaid() then
 		local _, _, diff = GetInstanceInfo()
@@ -202,7 +201,7 @@ local function updateWindow()
 		end
 
 		local bottom, top = 0, 0
-		for i = 1, total do
+		for i = 1, GetNumGroupMembers() do
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
 			if subgroup < highgroup then
 				top = top + 1
