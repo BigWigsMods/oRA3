@@ -353,24 +353,40 @@ local function createWindow()
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
-	frame:SetScript("OnUpdate", function(self, elapsed)
-		if self.timer and self.timer > 0 then
-			self.timer = self.timer - elapsed
-			if self.oldtimer - self.timer >= 1 or self.oldtimer == -1 then
-				self.oldtimer = self.timer
-				title:SetText(RD_READY_CHECK_OVER_IN:format(floor(self.timer)))
+
+	local animFader = f:CreateAnimationGroup()
+	animFader:SetLooping("NONE")
+
+	local fader = animFader:CreateAnimation("Alpha")
+	fader:SetChange(-1)
+	fader:SetStartDelay(2.5)
+	fader:SetDuration(1)
+	fader:SetScript("OnFinished", function(self) f:Hide() end)
+
+	local animUpdater = f:CreateAnimationGroup()
+	animUpdater:SetLooping("REPEAT")
+	animUpdater:SetScript("OnLoop", function(self)
+		local timer = GetReadyCheckTimeLeft()
+		if timer > 0 then
+			title:SetText(RD_READY_CHECK_OVER_IN:format(timer))
+		else
+			title:SetText(READY_CHECK_FINISHED)
+			module:UnregisterEvent("GROUP_ROSTER_UPDATE")
+			self:Stop()
+			if module.db.profile.autohide then
+				animFader:Play()
 			end
 		end
-		if self.fadeTimer and self.fadeTimer > 0 then
-			self.fadeTimer = self.fadeTimer - elapsed
-			if self.fadeTimer <= 0 then
-				self:SetAlpha(1) -- reset
-				self.fadeTimer = nil -- reset
-				self:Hide()
-			else
-				self:SetAlpha(self.fadeTimer)
-			end
-		end
+	end)
+
+	local timer = animUpdater:CreateAnimation()
+	timer:SetDuration(0.3)
+
+	f:SetScript("OnShow", function(self)
+		self:SetAlpha(1)
+		animUpdater:Play()
+		updateWindow()
+		module:RegisterEvent("GROUP_ROSTER_UPDATE", updateWindow) -- pick up group changes
 	end)
 end
 
@@ -418,13 +434,8 @@ function module:READY_CHECK(event, initiator, duration)
 	-- show the readycheck result frame
 	if self.db.profile.gui then
 		createWindow()
-		frame:SetAlpha(1) -- if we happen to have a readycheck while we're hiding
-		frame.fadeTimer = nil -- if we happend to have a readycheck while we're hiding
+		frame:Hide()
 		frame:Show()
-		frame.timer = duration
-		frame.oldtimer = -1
-		updateWindow()
-		self:RegisterEvent("GROUP_ROSTER_UPDATE", updateWindow) -- pick up group changes
 	end
 end
 
@@ -450,18 +461,8 @@ end
 do
 	local noReply = {}
 	local notReady = {}
-	local function delayFade() frame.fadeTimer = 1 end
 	function module:READY_CHECK_FINISHED(event, preempted)
 		if preempted then return end -- is a dungeon group ready check
-
-		if frame then
-			if self.db.profile.autohide then
-				self:ScheduleTimer(delayFade, 2) --XXX turn this into an animation
-			end
-			frame.timer = 0
-			frame.title:SetText(READY_CHECK_FINISHED)
-			self:UnregisterEvent("GROUP_ROSTER_UPDATE")
-		end
 
 		wipe(noReply)
 		wipe(notReady)
