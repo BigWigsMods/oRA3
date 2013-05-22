@@ -12,6 +12,8 @@ local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 local memberFrames = {}
 
+local readychecking = nil
+
 -- local constants
 local RD_RAID_MEMBERS_NOTREADY = L["The following players are not ready: %s"]
 local RD_READY_CHECK_OVER_IN = L["Ready Check (%d seconds)"]
@@ -415,6 +417,9 @@ end
 function module:READY_CHECK(event, initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 
+	self:CancelTimer(readychecking)
+	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
+
 	wipe(readycheck)
 	-- fill with default "No Response" and set the initiator "Ready"
 	if IsInRaid() then
@@ -440,6 +445,7 @@ function module:READY_CHECK(event, initiator, duration)
 end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
+	if not readychecking then return end
 	if unit:find("party", nil, true) and IsInRaid() then return end -- prevent multiple prints if you're in their party
 	local name = self:UnitName(unit)
 	if not name then return end
@@ -462,7 +468,10 @@ do
 	local noReply = {}
 	local notReady = {}
 	function module:READY_CHECK_FINISHED(event, preempted)
-		if preempted then return end -- is a dungeon group ready check
+		if not readychecking or preempted then return end -- is a dungeon group ready check
+
+		self:CancelTimer(readychecking)
+		readychecking = nil
 
 		wipe(noReply)
 		wipe(notReady)
