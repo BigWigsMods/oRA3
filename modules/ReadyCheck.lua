@@ -43,7 +43,7 @@ local function getOptions()
 				sound = {
 					type = "toggle",
 					name = colorize(SOUND_LABEL),
-					desc = L["Play a sound when a ready check is performed."],
+					desc = L["Play the ready check sound using the Master sound channel when a ready check is performed. This will play the sound while \"Sound Effects\" is disabled and at a higher volume."],
 					width = "full",
 					descStyle = "inline",
 					order = 1,
@@ -429,9 +429,9 @@ function module:READY_CHECK(event, initiator, duration)
 end
 
 function module:READY_CHECK_CONFIRM(event, unit, ready)
+	if unit:find("party", nil, true) and IsInRaid() then return end -- prevent multiple prints if you're in their party
 	local name = self:UnitName(unit)
 	if not name then return end
-	if readycheck[name] ~= RD_NORESPONSE then return end -- fires multiple times?
 
 	if ready then
 		readycheck[name] = RD_READY
@@ -477,8 +477,7 @@ do
 		if #noReply == 0 and #notReady == 0 then
 			if not oRA:IsPromoted() then
 				DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
-			end
-			if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
+			elseif self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
 		else
@@ -486,8 +485,7 @@ do
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 				if not oRA:IsPromoted() then
 					DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
-				end
-				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
+				elseif self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 					SendChatMessage(afk, "RAID")
 				end
 			end
@@ -495,8 +493,7 @@ do
 				local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
 				if not oRA:IsPromoted() then
 					DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
-				end
-				if self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
+				elseif self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
 					SendChatMessage(no, "RAID")
 				end
 			end
