@@ -286,16 +286,24 @@ function addon:OnInitialize()
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db))
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
 
+	local function OnRaidHide()
+		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
+			HideUIPanel(oRA3Frame)
+		end
+	end
+	RaidFrame:HookScript("OnHide", OnRaidHide)
+
 	RaidFrame:HookScript("OnShow", function()
 		if addon:IsEnabled() and db.toggleWithRaid then
 			addon:ToggleFrame(true)
 		end
-	end)
-	RaidFrame:HookScript("OnHide", function()
-		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
-			HideUIPanel(oRA3Frame)
+		if RaidGroupFrame_OnHide and not addon.rgfhooked then 
+		        -- oscarucb: RaidGroupFrame overwrites RaidFrame:OnHide, squashing the hook registered above
+	   		addon.rgfhooked = true
+			RaidFrame:HookScript("OnHide", OnRaidHide)
 		end
 	end)
+
 	RaidInfoFrame:HookScript("OnShow", function()
 		if addon:IsEnabled() and oRA3Frame and oRA3Frame:IsShown() then
 			addon.toggle = true
