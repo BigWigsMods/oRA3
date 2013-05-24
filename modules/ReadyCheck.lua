@@ -168,7 +168,7 @@ local function updateMemberStatus(name)
 end
 
 local function setMemberStatus(num, bottom, name, class)
-	if not name then return end
+	if not name or name == UNKNOWN then return end
 	local f
 	if bottom then
 		f = bottomMemberFrames[num] or createBottomFrame()
