@@ -176,7 +176,7 @@ local function setMemberStatus(num, bottom, name, class)
 		f = topMemberFrames[num] or createTopFrame()
 	end
 	memberFrames[name] = f
-	local color = oRA.classColors[class]
+	local color = oRA.classColors[class or "UNKNOWN"]
 	f.NameText:SetText(name:gsub("%-.*$", ""))
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)

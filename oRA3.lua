@@ -9,7 +9,7 @@ local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 BINDING_HEADER_oRA3 = "oRA3"
 BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
 
-local hexColors, classColors = {}, {}
+local hexColors, classColors = {}, {UNKNOWN = {r = 0.8, g = 0.8, b = 0.8}}
 for k, v in next, RAID_CLASS_COLORS do
 	hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
 	classColors[k] = v
