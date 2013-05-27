@@ -1000,7 +1000,7 @@ function module:OnRegister()
 			end
 		end
 		hooksecurefunc("UseSoulstone", function()
-			if oRA3CooldownFrame and oRA3CooldownFrame:IsShown() then
+			if IsInGroup() then
 				module:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 			end
 		end)
