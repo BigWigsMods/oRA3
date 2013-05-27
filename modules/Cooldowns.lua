@@ -941,10 +941,11 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[6203] = true,
-				[19752] = true,
+				[20484] = true,
 				[20608] = true,
-				[27239] = true,
+				[20707] = true,
+				[61999] = true,
+				[126393] = true,
 			},
 			showDisplay = true,
 			onlyShowMine = nil,
