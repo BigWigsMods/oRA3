@@ -7,7 +7,7 @@ local util = oRA.util
 local module = oRA:NewModule("Latency")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
-module.VERSION = tonumber(("$Revision: $"):sub(12, -3))
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
 local latency = {}
 
