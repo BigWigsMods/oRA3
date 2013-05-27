@@ -57,7 +57,7 @@ function module:CheckDurability(event)
 		end
 	end
 	local perc = math.floor(cur / max * 100)
-	oRA:SendComm("Durability", perc, vmin, broken)
+	self:SendComm("Durability", perc, vmin, broken)
 end
 
 function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)

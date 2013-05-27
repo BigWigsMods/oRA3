@@ -27,6 +27,7 @@ addon:SetDefaultModulePrototype(prototype)
 prototype.RegisterEvent = addon.RegisterEvent
 prototype.UnregisterEvent = addon.UnregisterEvent
 prototype.UnregisterAllEvents = addon.UnregisterAllEvents
+prototype.SendComm = addon.SendComm
 
 do
 	local UnitName = UnitName
