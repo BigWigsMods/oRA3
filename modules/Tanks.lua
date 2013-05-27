@@ -69,7 +69,7 @@ local function sortTanks()
 			indexedTanks[#indexedTanks + 1] = tank
 		end
 	end
-	if oRA:InRaid() then
+	if IsInRaid() then
 		oRA.callbacks:Fire("OnTanksUpdated", indexedTanks)
 	end
 end
@@ -95,7 +95,7 @@ function module:OnDemoted(event, status)
 end
 
 function module:OnGroupChanged(event, status, members, updateSort)
-	if oRA:InRaid() then
+	if IsInRaid() then
 		wipe(tmpTanks)
 		for tank, v in pairs(namedTanks) do
 			tmpTanks[tank] = v
@@ -157,7 +157,7 @@ function module:OnTanksChanged(event, tanks, updateSort)
 end
 
 function module:CheckRoleAssignments()
-	if oRA:InRaid() then
+	if IsInRaid() then
 		local updateSort = false
 		local members = oRA:GetGroupMembers()
 		for k,member in next, members do

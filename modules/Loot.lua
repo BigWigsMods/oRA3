@@ -129,11 +129,13 @@ end
 
 function module:SetLoot()
 	if not db.enable then return end
-	if oRA:IsPromoted() and ( UnitIsGroupLeader("player") or oRA:InParty() ) then
-		local method = db.raid.method
-		local threshold = db.raid.threshold
-		local master = db.raid.master
-		if oRA:InParty() then
+	if UnitIsGroupLeader("player") then
+		local method, threshold, master
+		if IsInRaid() then
+			method = db.raid.method
+			threshold = db.raid.threshold
+			master = db.raid.master
+		else
 			method = db.party.method
 			threshold = db.party.threshold
 			master = db.party.master

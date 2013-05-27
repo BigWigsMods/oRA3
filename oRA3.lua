@@ -46,7 +46,7 @@ addon.coloredNames = coloredNames
 addon.util = {}
 local util = addon.util
 function util:inTable(t, value, subindex)
-	for k, v in pairs(t) do
+	for k, v in next, t do
 		if subindex then
 			if type(v) == "table" and v[subindex] == value then return k end
 		elseif v == value then return k end
@@ -76,10 +76,10 @@ local scrollhighs = {} -- scroll highlights
 local secureScrollhighs = {} -- clickable secure scroll highlights
 
 local function actuallyDisband()
-	if addon:IsPromoted() then
-		SendChatMessage(L["<oRA3> Disbanding group."], addon:InRaid() and "RAID" or "PARTY")
-		for i, unit in next, groupMembers do
-			if unit ~= playerName then
+	if UnitIsGroupLeader("player") and not IsPartyLFG() then
+		SendChatMessage(L["<oRA3> Disbanding group."], IsInRaid() and "RAID" or "PARTY")
+		for _, unit in next, groupMembers do
+			if not UnitIsUnit(unit, "player") then
 				UninviteUnit(unit)
 			end
 		end
@@ -393,17 +393,17 @@ do
 	end
 	local function isKeyedEqual(a, b)
 		local aC, bC = 0, 0
-		for k in pairs(a) do aC = aC + 1 end
-		for k in pairs(b) do bC = bC + 1 end
+		for k in next, a do aC = aC + 1 end
+		for k in next, b do bC = bC + 1 end
 		if aC ~= bC then return false end
-		for k, v in pairs(a) do
+		for k, v in next, a do
 			if not b[k] or v ~= b[k] then return false end
 		end
 		return true
 	end
 	local function copyToTable(src, dst)
 		wipe(dst)
-		for i, v in pairs(src) do dst[i] = v end
+		for i, v in next, src do dst[i] = v end
 	end
 
 	local tmpRanks = {}
@@ -463,7 +463,7 @@ do
 				end
 			end
 		elseif groupStatus == INPARTY then
-			table.insert(tmpGroup, playerName)
+			tinsert(tmpGroup, playerName)
 			for i = 1, 4 do
 				local n = UnitName("party" .. i)
 				if n then tmpGroup[#tmpGroup + 1] = n end
@@ -478,7 +478,6 @@ do
 			-- may need to adjust based on preferences.
 			copyToTable(tmpTanks, tanks)
 			self.callbacks:Fire("OnTanksChanged", tanks)
-			--lastTankCount = currTankCount
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
 			self.callbacks:Fire("OnShutdown", groupStatus)
@@ -487,6 +486,9 @@ do
 		end
 		if oldStatus == INPARTY and groupStatus == INRAID then
 			self.callbacks:Fire("OnConvertRaid", groupStatus)
+		end
+		if oldStatus == INRAID and groupStatus == INPARTY then
+			self.callbacks:Fire("OnConvertParty", groupStatus)
 		end
 		if playerPromoted ~= self:IsPromoted() then
 			playerPromoted = self:IsPromoted()
@@ -501,22 +503,10 @@ do
 	end
 end
 
-function addon:InGroup()
-	return groupStatus == INRAID or groupStatus == INPARTY
-end
-
-function addon:InRaid()
-	return groupStatus == INRAID
-end
-
-function addon:InParty()
-	return groupStatus == INPARTY
-end
-
 function addon:IsPromoted(name)
 	if groupStatus == UNGROUPED then return end
 
-	if not name then name = playerName end
+	if not name then name = "player" end
 	return UnitIsGroupLeader(name) or UnitIsGroupAssistant(name)
 end
 

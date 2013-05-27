@@ -142,12 +142,12 @@ end
 
 function module:UpdateZoneList()
 	wipe(zones)
-	if oRA:InRaid() then
+	if IsInRaid() then
 		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
 			addPlayer(name, zone)
 		end
-	elseif oRA:InParty() then
+	elseif IsInGroup() then
 		if not tip then
 			createTooltip()
 		end
