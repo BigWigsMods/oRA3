@@ -2,7 +2,7 @@ local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("Loot", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
-module.VERSION = tonumber(("$Revision: 180 $"):sub(12, -3))
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 local db
 local defaults = {
 	profile = {
