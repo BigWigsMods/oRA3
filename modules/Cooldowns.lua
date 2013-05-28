@@ -333,15 +333,15 @@ local spells = {
 }
 
 local allSpells = {}
-allSpells[95750] = 600 -- Combat Soulstone
 local classLookup = {}
-classLookup[95750] = "WARLOCK"
 for class, spells in next, spells do
 	for id, cd in next, spells do
 		allSpells[id] = cd
 		classLookup[id] = class
 	end
 end
+allSpells[95750] = 600 -- Combat Soulstone
+classLookup[95750] = "WARLOCK"
 
 local db = nil
 local cdModifiers = {}
@@ -992,27 +992,26 @@ function module:OnRegister()
 
 	local _, playerClass = UnitClass("player")
 	if playerClass == "SHAMAN" then
-		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay until SPELL_UPDATE_COOLDOWN
-		function module:SPELL_UPDATE_COOLDOWN()
-			self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
+		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
+		local function checkCooldown()
 			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 0 then
+			if start > 0 and duration > 1.5 then
 				self:SendComm("Reincarnation", duration-1)
 			end
 		end
 		hooksecurefunc("UseSoulstone", function()
 			if IsInGroup() then
-				module:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+				self:ScheduleTimer(checkCooldown, 1)
 			end
 		end)
 	end
 end
 
 function module:IsOnCD(unit, spell)
-	for b, v in next, self:GetBars() do
-		local u = b:Get("ora3cd:unit")
-		local s = type(spell) == "string" and b:Get("ora3cd:spell") or b:Get("ora3cd:spellid")
-		if UnitIsUnit(u, unit) and spellName == s then
+	local barSpellKey = type(spell) == "string" and "ora3cd:spell" or "ora3cd:spellid"
+	for bar in next, self:GetBars() do
+		local barUnit = bar:Get("ora3cd:unit")
+		if UnitIsUnit(barUnit, unit) and spell == bar:Get(barSpellKey) then
 			return true
 		end
 	end
