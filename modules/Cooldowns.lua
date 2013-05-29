@@ -3,7 +3,7 @@
 --
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-local module = oRA:NewModule("Cooldowns")
+local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
