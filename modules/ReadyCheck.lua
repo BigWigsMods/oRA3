@@ -382,6 +382,7 @@ local function createWindow()
 	end)
 
 	local timer = animUpdater:CreateAnimation()
+	timer:SetStartDelay(1)
 	timer:SetDuration(0.3)
 
 	f:SetScript("OnShow", function(self)
