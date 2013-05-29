@@ -10,17 +10,8 @@ local frame -- will be filled with our GUI frame
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
-local memberFrames = {}
 
 local readychecking = nil
-
--- local constants
-local RD_RAID_MEMBERS_NOTREADY = L["The following players are not ready: %s"]
-local RD_READY_CHECK_OVER_IN = L["Ready Check (%d seconds)"]
-local RD_READY = READY
-local RD_NOTREADY = NOT_READY
-local RD_NORESPONSE = NO_RESPONSE
-local RD_OFFLINE = PLAYER_OFFLINE
 
 local defaults = {
 	profile = {
@@ -144,20 +135,30 @@ local function createBottomFrame()
 	return f
 end
 
-local function updateMemberStatus(name)
-	local f = memberFrames[name]
-	if not f then return end
+local function setMemberStatus(num, bottom, name, class)
+	if not name or not class then return end
+	local f
+	if bottom then
+		f = bottomMemberFrames[num] or createBottomFrame()
+	else
+		f = topMemberFrames[num] or createTopFrame()
+	end
+	local color = oRA.classColors[class]
+	f.NameText:SetText(name:gsub("%-.*$", ""))
+	f.NameText:SetTextColor(color.r, color.g, color.b)
+	f:SetAlpha(1)
+
 	local status = readycheck[name]
-	if status == RD_READY then
+	if status == "ready" then
 		f.bg:Hide()
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
 		if module.db.profile.hideReady then
 			f:Hide()
 		end
-	elseif status == RD_NOTREADY then
+	elseif status == "notready" then
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
-	elseif status == RD_OFFLINE then
+	elseif status == "offline" then
 		f:SetAlpha(.5)
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
@@ -165,29 +166,12 @@ local function updateMemberStatus(name)
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
 	end
-end
-
-local function setMemberStatus(num, bottom, name, class)
-	if not name or name == UNKNOWN then return end
-	local f
-	if bottom then
-		f = bottomMemberFrames[num] or createBottomFrame()
-	else
-		f = topMemberFrames[num] or createTopFrame()
-	end
-	memberFrames[name] = f
-	local color = oRA.classColors[class or "UNKNOWN"]
-	f.NameText:SetText(name:gsub("%-.*$", ""))
-	f.NameText:SetTextColor(color.r, color.g, color.b)
-	f:SetAlpha(1)
-	updateMemberStatus(name)
 	f:Show()
 end
 
 local function updateWindow()
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
-	wipe(memberFrames)
 	frame.bar:Hide()
 
 	local height = 0
@@ -370,7 +354,7 @@ local function createWindow()
 	animUpdater:SetScript("OnLoop", function(self)
 		local timer = GetReadyCheckTimeLeft()
 		if timer > 0 then
-			title:SetText(RD_READY_CHECK_OVER_IN:format(timer))
+			title:SetText(L["Ready Check (%d seconds)"]:format(timer))
 		else
 			title:SetText(READY_CHECK_FINISHED)
 			module:UnregisterEvent("GROUP_ROSTER_UPDATE")
@@ -427,14 +411,14 @@ function module:READY_CHECK(event, initiator, duration)
 	if IsInRaid() then
 		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			readycheck[name] = GetReadyCheckStatus(name) == "ready" and RD_READY or not online and RD_OFFLINE or RD_NORESPONSE
+			readycheck[name] = not online and "offline" or GetReadyCheckStatus(name)
 		end
 	else
-		readycheck[playerName] = GetReadyCheckStatus("player") == "ready" and RD_READY or RD_NORESPONSE
+		readycheck[playerName] = GetReadyCheckStatus("player")
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = self:UnitName(unit)
-			readycheck[name] = GetReadyCheckStatus(unit) == "ready" and RD_READY or not UnitIsConnected(unit) and RD_OFFLINE or RD_NORESPONSE
+			readycheck[name] = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 		end
 	end
 
@@ -453,16 +437,16 @@ function module:READY_CHECK_CONFIRM(event, unit, ready)
 	if not name then return end
 
 	if ready then
-		readycheck[name] = RD_READY
-	elseif readycheck[name] ~= RD_OFFLINE then -- not ready, ignore offline
-		readycheck[name] = RD_NOTREADY
+		readycheck[name] = "ready"
+	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
+		readycheck[name] = "notready"
 		if not oRA:IsPromoted() then
 			local c = ChatTypeInfo["SYSTEM"]
 			DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
 		end
 	end
 	if self.db.profile.gui and frame then
-		updateMemberStatus(name)
+		updateWindow()
 	end
 end
 
@@ -478,9 +462,9 @@ do
 		wipe(noReply)
 		wipe(notReady)
 		for name, ready in next, readycheck do
-			if ready == RD_NORESPONSE or ready == RD_OFFLINE then
+			if ready == "waiting" or ready == "offline" then
 				noReply[#noReply + 1] = name:gsub("%-.*$", "")
-			elseif ready == RD_NOTREADY then
+			elseif ready == "notready" then
 				notReady[#notReady + 1] = name:gsub("%-.*$", "")
 			end
 		end
@@ -502,7 +486,7 @@ do
 				end
 			end
 			if #notReady > 0 then
-				local no = RD_RAID_MEMBERS_NOTREADY:format(table.concat(notReady, ", "))
+				local no = L["The following players are not ready: %s"]:format(table.concat(notReady, ", "))
 				if not oRA:IsPromoted() then
 					DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
 				elseif self.db.profile.relayReady and not IsPartyLFG() and not IsEveryoneAssistant() then
