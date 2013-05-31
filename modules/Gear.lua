@@ -86,6 +86,23 @@ do
 						if enchantableItems[i] and enchant == "0" then
 							missingEnchants = missingEnchants + 1
 						end
+
+						local statsTable = GetItemStats(itemLink)
+						local totalItemSockets = 0
+						if i == 6 then -- BELT/WAIST
+							totalItemSockets = 1
+						end
+						for k,v in next, statsTable do
+							if k:find("EMPTY_SOCKET_", nil, true) then
+								totalItemSockets = totalItemSockets + 1
+							end
+						end
+						local filledSockets = (gem1 ~= "0" and 1 or 0) + (gem2 ~= "0" and 1 or 0) + (gem3 ~= "0" and 1 or 0) + (gem4 ~= "0" and 1 or 0)
+						local finalCount = totalItemSockets - filledSockets
+						print(filledSockets, finalCount, totalItemSockets)
+						if finalCount > 0 then
+							emptySockets = emptySockets + finalCount
+						end
 					end
 				end
 
