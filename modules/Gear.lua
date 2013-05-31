@@ -80,7 +80,9 @@ do
 				for i = 1, 17 do
 					local itemLink = GetInventoryItemLink("player", i)
 					if itemLink then
-						local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d+):(%d+):(%d+):(%d+):(%d+)")
+						-- http://www.wowpedia.org/ItemString
+						-- item:itemId:enchantId:jewelId1:jewelId2:jewelId3:jewelId4:suffixId:uniqueId:linkLevel:reforgeId:upgradeId
+						local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d+):(%d+):(%d+):(%d+):(%d+):")
 
 						-- Handle missing enchants
 						if enchantableItems[i] and enchant == "0" then
@@ -89,7 +91,9 @@ do
 
 						-- Handle missing gems
 						local totalItemSockets = 0
-						if i == 6 then -- BELT/WAIST, add +1 as the belt buckle doesn't contribute to the EMPTY_SOCKET_GEM entries
+						if i == 6 then -- WAIST, add +1 as the belt buckle doesn't contribute to the EMPTY_SOCKET_GEM entries
+							totalItemSockets = 1
+						elseif (i == 9 or i == 10) and GetSpellInfo((GetSpellInfo(2018))) then -- Same as above for Blacksmiths with WRIST & HAND sockets
 							totalItemSockets = 1
 						end
 
