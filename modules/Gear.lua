@@ -85,6 +85,10 @@ do
 						local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d+):(%d+):(%d+):(%d+):(%d+):")
 
 						-- Handle missing enchants
+						if GetSpellInfo((GetSpellInfo(7411))) then -- Enchanting
+							enchantableItems[11] = true -- FINGER 1
+							enchantableItems[12] = true -- FINGER 2
+						end
 						if enchantableItems[i] and enchant == "0" then
 							missingEnchants = missingEnchants + 1
 						end
