@@ -179,7 +179,7 @@ local function getBattleNetToon(presenceId)
 	end
 end
 
-local function handleWhisper(event, msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
+local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
 	if presenceId > 0 then
 		sender = getBattleNetToon(presenceId)
 		if not sender then return end

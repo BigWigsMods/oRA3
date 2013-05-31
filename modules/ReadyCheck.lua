@@ -400,7 +400,7 @@ function module:PLAYER_REGEN_DISABLED()
 	frame:Hide()
 end
 
-function module:READY_CHECK(event, initiator, duration)
+function module:READY_CHECK(initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 
 	self:CancelTimer(readychecking)
@@ -430,7 +430,7 @@ function module:READY_CHECK(event, initiator, duration)
 	end
 end
 
-function module:READY_CHECK_CONFIRM(event, unit, ready)
+function module:READY_CHECK_CONFIRM(unit, ready)
 	if not readychecking then return end
 	if unit:find("party", nil, true) and IsInRaid() then return end -- prevent multiple prints if you're in their party
 	local name = self:UnitName(unit)
@@ -453,7 +453,7 @@ end
 do
 	local noReply = {}
 	local notReady = {}
-	function module:READY_CHECK_FINISHED(event, preempted)
+	function module:READY_CHECK_FINISHED(preempted)
 		if not readychecking or preempted then return end -- is a dungeon group ready check
 
 		self:CancelTimer(readychecking)

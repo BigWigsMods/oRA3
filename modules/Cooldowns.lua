@@ -996,12 +996,12 @@ function module:OnRegister()
 		local function checkCooldown()
 			local start, duration = GetSpellCooldown(20608)
 			if start > 0 and duration > 1.5 then
-				self:SendComm("Reincarnation", duration-1)
+				module:SendComm("Reincarnation", duration-1)
 			end
 		end
 		hooksecurefunc("UseSoulstone", function()
 			if IsInGroup() then
-				self:ScheduleTimer(checkCooldown, 1)
+				module:ScheduleTimer(checkCooldown, 1)
 			end
 		end)
 	end
@@ -1125,13 +1125,13 @@ local talentScanners = {
 	end,
 }
 
-function module:UpdateCooldownModifiers(event)
+function module:UpdateCooldownModifiers()
 	local info = LGIST:GetCachedInfo(playerGUID)
 	if not info then return end
-	self:UpdateGroupCooldownModifiers(event, info)
+	self:UpdateGroupCooldownModifiers(info)
 end
 
-function module:UpdateGroupCooldownModifiers(event, info)
+function module:UpdateGroupCooldownModifiers(info)
 	if cdModifiers[info.guid] then
 		wipe(cdModifiers[info.guid])
 	end
@@ -1145,11 +1145,11 @@ function module:UpdateGroupCooldownModifiers(event, info)
 	if talentMod then talentMod(info) end
 end
 
-function module:InspectUpdate(event, guid, unit, info)
-	self:UpdateGroupCooldownModifiers(event, info)
+function module:InspectUpdate(_, guid, unit, info)
+	self:UpdateGroupCooldownModifiers(info)
 end
 
-function module:InspectRemove(event, guid)
+function module:InspectRemove(_, guid)
 	if not guid then return end
   cdModifiers[guid] = nil
 end

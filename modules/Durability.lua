@@ -45,7 +45,7 @@ function module:OnShutdown()
 	self:UnregisterAllEvents()
 end
 
-function module:CheckDurability(event)
+function module:CheckDurability()
 	local cur, max, broken, vmin = 0, 0, 0, 100
 	for i = 1, 18 do
 		local imin, imax = GetInventoryItemDurability(i)

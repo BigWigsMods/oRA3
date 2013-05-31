@@ -223,9 +223,9 @@ do
 	oraFrame:SetScript("OnEvent", function(_, event, ...)
 		for k,v in next, eventMap[event] do
 			if type(v) == "function" then
-				v(event, ...)
+				v(...)
 			else
-				k[v](k, event, ...)
+				k[v](k, ...)
 			end
 		end
 	end)
@@ -369,7 +369,7 @@ end
 
 do
 	local unitJoinedRaid = '^' .. ERR_RAID_MEMBER_ADDED_S:gsub("%%s", "(%%S+)") .. '$'
-	function addon:CHAT_MSG_SYSTEM(event, msg)
+	function addon:CHAT_MSG_SYSTEM(msg)
 		if not IsInRaid() then return end
 		local _, _, name = msg:find(unitJoinedRaid)
 		if not name then return end
@@ -443,7 +443,7 @@ do
 	local tmpGroup = {}
 	local tmpTanks = {}
 
-	function addon:GROUP_ROSTER_UPDATE(event)
+	function addon:GROUP_ROSTER_UPDATE()
 		local oldStatus = groupStatus
 		groupStatus = IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
@@ -519,7 +519,7 @@ function addon:SendComm(...)
 	SendAddonMessage("oRA", strjoin(" ", ...), IsPartyLFG() and "INSTANCE_CHAT" or "RAID")
 end
 
-function addon:OnCommReceived(_, prefix, message, distribution, sender)
+function addon:OnCommReceived(prefix, message, distribution, sender)
 	if prefix == "oRA" then
 		self.callbacks:Fire("OnCommReceived", sender, strsplit(" ", message))
 	end
