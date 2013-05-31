@@ -79,27 +79,29 @@ do
 
 				for i = 1, 17 do
 					local itemLink = GetInventoryItemLink("player", i)
-					if not itemLink then
-						print(i)
-					else
+					if itemLink then
 						local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d+):(%d+):(%d+):(%d+):(%d+)")
+
+						-- Handle missing enchants
 						if enchantableItems[i] and enchant == "0" then
 							missingEnchants = missingEnchants + 1
 						end
 
-						local statsTable = GetItemStats(itemLink)
+						-- Handle missing gems
 						local totalItemSockets = 0
-						if i == 6 then -- BELT/WAIST
+						if i == 6 then -- BELT/WAIST, add +1 as the belt buckle doesn't contribute to the EMPTY_SOCKET_GEM entries
 							totalItemSockets = 1
 						end
-						for k,v in next, statsTable do
+
+						local statsTable = GetItemStats(itemLink)
+						for k in next, statsTable do
 							if k:find("EMPTY_SOCKET_", nil, true) then
 								totalItemSockets = totalItemSockets + 1
 							end
 						end
+
 						local filledSockets = (gem1 ~= "0" and 1 or 0) + (gem2 ~= "0" and 1 or 0) + (gem3 ~= "0" and 1 or 0) + (gem4 ~= "0" and 1 or 0)
 						local finalCount = totalItemSockets - filledSockets
-						print(filledSockets, finalCount, totalItemSockets)
 						if finalCount > 0 then
 							emptySockets = emptySockets + finalCount
 						end
