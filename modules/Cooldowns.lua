@@ -1050,6 +1050,7 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
+	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
@@ -1075,8 +1076,15 @@ function module:OnCommReceived(_, sender, prefix, cd)
 	end
 end
 
+function module:GROUP_ROSTER_UPDATE()
+	for bar in next, self:GetBars() do
+		if not UnitExists(bar:Get("ora3cd:unit")) then
+			bar:Stop()
+		end
+	end
+end
+
 function module:Cooldown(player, spell, cd)
-	--print("We got a cooldown for " .. tostring(spell) .. " (" .. tostring(cd) .. ") from " .. tostring(player))
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
 	if db.onlyShowMine and not UnitIsUnit(player, "player") then return end
