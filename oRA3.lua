@@ -631,20 +631,20 @@ local function setupGUI()
 		PlaySound("igCharacterInfoTab")
 		addon:SelectPanel(self:GetText())
 	end
-	frame.selectedTab = 1
-	for i, tab in next, panels do
+	for i, tab in ipairs(panels) do
 		local f = CreateFrame("Button", "oRA3FrameTab"..i, frame, "CharacterFrameTabButtonTemplate")
 		if i > 1 then
 			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(i - 1)], "TOPRIGHT", -16, 0)
 		else
-			f:SetPoint("BOTTOMLEFT", 11,46)
+			f:SetPoint("BOTTOMLEFT", 11, 49)
 		end
 		f:SetText(tab.name)
 		f:SetScript("OnClick", selectPanel)
+		f:SetScale(0.95)
 
-		PanelTemplates_SetNumTabs(oRA3Frame, i)
-		PanelTemplates_UpdateTabs(oRA3Frame)
+		PanelTemplates_SetNumTabs(frame, i)
 	end
+	PanelTemplates_SetTab(frame, 1)
 
 	local subframe = CreateFrame("Frame", nil, frame)
 	subframe:SetPoint("TOPLEFT", 18, -70)
