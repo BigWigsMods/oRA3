@@ -24,7 +24,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnListSelected")
 	oRA.RegisterCallback(self, "OnCommReceived")
 
-	SLASH_ORALATENCY1 = "/ragear"
+	SLASH_ORAGEAR1 = "/ragear"
 	SlashCmdList.ORAGEAR = function()
 		oRA:OpenToList("GEAR")
 	end
