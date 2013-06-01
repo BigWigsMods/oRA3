@@ -64,7 +64,7 @@ function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
 	if prefix == "RequestUpdate" then
 		self:CheckDurability()
 	elseif prefix == "Durability" then
-		local k = util:inTable(durability, sender, 1)
+		local k = util.inTable(durability, sender, 1)
 		if not k then
 			durability[#durability + 1] = { sender }
 			k = #durability

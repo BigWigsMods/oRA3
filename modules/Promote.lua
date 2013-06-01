@@ -73,7 +73,7 @@ do
 
 	local function addCallback(widget, event, value)
 		if type(value) ~= "string" or value:trim():len() < 3 then return true end
-		if util:inTable(factionDb.promotes, value) then return true end
+		if util.inTable(factionDb.promotes, value) then return true end
 		table.insert(factionDb.promotes, value)
 		add:SetText()
 		delete:SetList(factionDb.promotes)
@@ -246,7 +246,7 @@ do
 		if factionDb.promoteAll then return true
 		elseif factionDb.promoteGuild and guildMembers[name] then return true
 		elseif guildMembers[name] and guildRankDb[guildMembers[name]] then return true
-		elseif util:inTable(factionDb.promotes, name) then return true
+		elseif util.inTable(factionDb.promotes, name) then return true
 		end
 	end
 

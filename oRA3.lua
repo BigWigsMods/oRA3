@@ -45,11 +45,15 @@ addon.coloredNames = coloredNames
 
 addon.util = {}
 local util = addon.util
-function util:inTable(t, value, subindex)
+function util.inTable(t, value, subindex)
 	for k, v in next, t do
 		if subindex then
-			if type(v) == "table" and v[subindex] == value then return k end
-		elseif v == value then return k end
+			if type(v) == "table" and v[subindex] == value then
+				return k
+			end
+		elseif v == value then
+			return k
+		end
 	end
 	return nil
 end

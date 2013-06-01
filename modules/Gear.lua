@@ -124,7 +124,7 @@ do
 				self:SendComm("Gear", floor(equipped), emptySockets, missingEnchants)
 			end
 		elseif prefix == "Gear" then
-			local k = util:inTable(gearTbl, sender, 1)
+			local k = util.inTable(gearTbl, sender, 1)
 			if not k then
 				k = #gearTbl + 1
 				gearTbl[k] = { sender }

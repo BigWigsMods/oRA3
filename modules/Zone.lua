@@ -131,7 +131,7 @@ end
 
 local function addPlayer(name, zone)
 	if not name then return end
-	local k = util:inTable(zones, name, 1)
+	local k = util.inTable(zones, name, 1)
 	if not k then
 		zones[#zones + 1] = { name }
 		k = #zones

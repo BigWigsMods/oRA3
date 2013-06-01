@@ -163,7 +163,7 @@ function module:CheckRoleAssignments()
 		for k,member in next, members do
 			local role = UnitGroupRolesAssigned(member)
 			--[[ IF requested at a later to auto-remove non tank role from tank list this can accomplish that.
-			if role ~= "TANK" and util:inTable(allIndexedTanks, member) then
+			if role ~= "TANK" and util.inTable(allIndexedTanks, member) then
 				for k, v in next, allIndexedTanks do
 					if v == member and not namedPersistent[member] then
 						table.remove(allIndexedTanks, k)
@@ -176,7 +176,7 @@ function module:CheckRoleAssignments()
 				end
 			end
 			--]]
-			if role == "TANK" and not deletedTanks[member] and not util:inTable(allIndexedTanks, member) then
+			if role == "TANK" and not deletedTanks[member] and not util.inTable(allIndexedTanks, member) then
 				allIndexedTanks[#allIndexedTanks + 1] = member
 				sessionTanks[member] = true
 				namedTanks[member] = true
@@ -220,7 +220,7 @@ end
 local function topScrollDeleteClick(self)
 	local value = self:GetParent().unitName
 	local btanks = oRA:GetBlizzardTanks()
-	if util:inTable(btanks, value) then return end
+	if util.inTable(btanks, value) then return end
 	-- remove from persistent if in there
 	for k, v in next, module.db.persistentTanks do
 		if v == value then
@@ -257,7 +257,7 @@ end
 
 local function topScrollSaveClick(self)
 	local value = self:GetParent().unitName
-	local k = util:inTable(module.db.persistentTanks, value)
+	local k = util.inTable(module.db.persistentTanks, value)
 	if k then
 		PlaySound("igMainMenuOptionCheckBoxOff")
 		table.remove(module.db.persistentTanks, k)
@@ -277,7 +277,7 @@ local function topScrollSaveClick(self)
 end
 
 local function topScrollUpClick(self)
-	local k = util:inTable(allIndexedTanks, self.unitName)
+	local k = util.inTable(allIndexedTanks, self.unitName)
 	local temp = allIndexedTanks[k]
 	if k == 1 then
 		allIndexedTanks[k] = allIndexedTanks[#allIndexedTanks]
@@ -298,7 +298,7 @@ end
 
 local function bottomScrollClick(self)
 	local value = self.unitName
-	if util:inTable(allIndexedTanks, value) then return true end
+	if util.inTable(allIndexedTanks, value) then return true end
 	allIndexedTanks[#allIndexedTanks + 1] = value
 	sessionTanks[value] = true
 	namedTanks[value] = true
@@ -491,7 +491,7 @@ function module:UpdateTopScroll()
 		local j = i + FauxScrollFrame_GetOffset(frame.topscroll)
 		if j <= nr then
 			local name = allIndexedTanks[j]
-			if util:inTable(btanks, name) then
+			if util.inTable(btanks, name) then
 				v.tank:SetAlpha(1)
 				if v.stank then v.stank:SetAlpha(1) end
 				v.delete:SetAlpha(.3)

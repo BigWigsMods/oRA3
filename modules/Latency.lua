@@ -58,7 +58,7 @@ do
 				self:SendComm("Lag", latencyHome, latencyWorld)
 			end
 		elseif prefix == "Lag" then
-			local k = util:inTable(latency, sender, 1)
+			local k = util.inTable(latency, sender, 1)
 			if not k then
 				k = #latency + 1
 				latency[k] = { sender }
