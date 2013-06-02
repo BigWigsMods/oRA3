@@ -159,7 +159,13 @@ L["Show"] = "Показать"
 L.showButtonHelp = "Показывать этого танка в вашем личном окне танков. Этот параметр имеет только локальный эффект и не изменит статуса танков для кого-либо ещё из вашей группы."
 
 -- Latency Module
-L["Latency"] = true
-L["Home"] = true
-L["World"] = true
+L["Latency"] = "Latency"
+L["Home"] = "Home"
+L["World"] = "World"
+
+-- Gear Module
+L["Gear"] = "Gear"
+L["Item Level"] = "Item Level"
+L["Missing Gems"] = "Missing Gems"
+L["Missing Enchants"] = "Missing Enchants"
 

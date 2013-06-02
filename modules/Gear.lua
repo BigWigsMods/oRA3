@@ -2,7 +2,6 @@
 -- Gear status is requested/transmitted when opening the list.
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-if oRA then return end -- DISABLED
 local util = oRA.util
 local module = oRA:NewModule("Gear")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
@@ -13,12 +12,12 @@ local gearTbl = {}
 
 function module:OnRegister()
 	oRA:RegisterList(
-		"GEAR",
+		L["Gear"],
 		gearTbl,
 		L["Name"],
-		"LVL",
-		"MISSING GEMS",
-		"MISSING ENCH"
+		L["Item Level"],
+		L["Missing Gems"],
+		L["Missing Enchants"]
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
@@ -26,7 +25,7 @@ function module:OnRegister()
 
 	SLASH_ORAGEAR1 = "/ragear"
 	SlashCmdList.ORAGEAR = function()
-		oRA:OpenToList("GEAR")
+		oRA:OpenToList(L["Gear"])
 	end
 end
 
@@ -37,7 +36,7 @@ end
 do
 	local prev = 0
 	function module:OnListSelected(event, list)
-		if list == "GEAR" then
+		if list == L["Gear"] then
 			local t = GetTime()
 			if t-prev > 20 then
 				prev = t
@@ -80,11 +79,8 @@ do
 				local isBlackSmith = GetSpellInfo((GetSpellInfo(2018))) -- Blacksmithing
 				local isEnchanter = GetSpellInfo((GetSpellInfo(7411))) -- Enchanting
 
-				if isEnchanter then
-					enchantableItems[11] = true -- FINGER 1
-					enchantableItems[12] = true -- FINGER 2
-				end
-
+				enchantableItems[11] = isEnchanter and true or false -- FINGER 1
+				enchantableItems[12] = isEnchanter and true or false -- FINGER 2
 
 				for i = 1, 17 do
 					local itemLink = GetInventoryItemLink("player", i)
@@ -133,7 +129,7 @@ do
 			gearTbl[k][3] = gems
 			gearTbl[k][4] = enchants
 
-			oRA:UpdateList("GEAR")
+			oRA:UpdateList(L["Gear"])
 		end
 	end
 end

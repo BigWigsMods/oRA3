@@ -162,3 +162,9 @@ L["Latency"] = true
 L["Home"] = true
 L["World"] = true
 
+-- Gear Module
+L["Gear"] = true
+L["Item Level"] = true
+L["Missing Gems"] = true
+L["Missing Enchants"] = true
+

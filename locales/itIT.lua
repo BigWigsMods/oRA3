@@ -159,7 +159,13 @@ L["Show"] = true
 L.showButtonHelp = "Show this tank in your personal sorted tank display. This option only has effect locally and will not change this tanks status for anyone else in your group."
 
 -- Latency Module
-L["Latency"] = true
-L["Home"] = true
-L["World"] = true
+L["Latency"] = "Latency"
+L["Home"] = "Home"
+L["World"] = "World"
+
+-- Gear Module
+L["Gear"] = "Gear"
+L["Item Level"] = "Item Level"
+L["Missing Gems"] = "Missing Gems"
+L["Missing Enchants"] = "Missing Enchants"
 
