@@ -80,7 +80,7 @@ local scrollhighs = {} -- scroll highlights
 local secureScrollhighs = {} -- clickable secure scroll highlights
 
 local function actuallyDisband()
-	if UnitIsGroupLeader("player") and not IsPartyLFG() then
+	if addon:IsPromoted() and not IsPartyLFG() and (not IsEveryoneAssistant() or UnitIsGroupLeader("player")) then
 		SendChatMessage(L["<oRA3> Disbanding group."], IsInRaid() and "RAID" or "PARTY")
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
@@ -765,7 +765,7 @@ function addon:ToggleFrame(force)
 end
 
 function addon:OnPromoted()
-	if oRA3Disband then
+	if oRA3Disband and not IsPartyLFG() then
 		oRA3Disband:Enable()
 	end
 end
