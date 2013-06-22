@@ -995,7 +995,7 @@ function module:OnRegister()
 		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
 		local function checkCooldown()
 			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 1.5 then
+			if start > 0 and (GetTime()-start) <= 2 then
 				module:SendComm("Reincarnation", duration-1)
 			end
 		end
