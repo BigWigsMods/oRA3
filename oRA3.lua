@@ -106,7 +106,10 @@ local defaults = {
 		repairFlagStorage = {},
 		repairAmountStorage = {},
 		open = false,
-	}
+	},
+	char = {
+		lastRaidDifficulty = 3,
+	},
 }
 
 local selectList -- implemented down the file
@@ -304,7 +307,7 @@ function addon:OnInitialize()
 		if addon:IsEnabled() and db.toggleWithRaid then
 			addon:ToggleFrame(true)
 		end
-		if addon.rehookAfterRaidUILoad and IsAddOnLoaded("Blizzard_RaidUI") then 
+		if addon.rehookAfterRaidUILoad and IsAddOnLoaded("Blizzard_RaidUI") then
 			-- Blizzard_RaidUI overwrites the RaidFrame "OnHide" script squashing the hook registered above, so re-hook.
 			addon.rehookAfterRaidUILoad = nil
 			RaidFrame:HookScript("OnHide", OnRaidHide)
@@ -321,6 +324,12 @@ function addon:OnInitialize()
 		if addon:IsEnabled() and addon.toggle then
 			addon:ToggleFrame(true)
 			addon.toggle = nil
+		end
+	end)
+
+	hooksecurefunc("SetRaidDifficultyID", function(difficultyID)
+		if difficultyID > 2 and difficultyID < 7 then
+			self.db.char.lastRaidDifficulty = difficultyID
 		end
 	end)
 
@@ -352,6 +361,12 @@ function addon:OnEnable()
 	-- init groupStatus
 	self:GROUP_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
+
+	-- restore raid difficulty
+	local diff = self.db.char.lastRaidDifficulty
+	if GetRaidDifficultyID() ~= diff then
+		SetRaidDifficultyID(diff)
+	end
 
 	if CUSTOM_CLASS_COLORS then
 		local function updateClassColors()
