@@ -984,6 +984,9 @@ function module:OnRegister()
 
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	oRA.RegisterCallback(self, "OnProfileUpdate", function()
+		db = database.profile
+	end)
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
 	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
 
@@ -995,8 +998,9 @@ function module:OnRegister()
 		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
 		local function checkCooldown()
 			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and (GetTime()-start) <= 2 then
-				module:SendComm("Reincarnation", duration-1)
+			if start > 0 and duration > 1.5 then
+				local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
+				module:SendComm("Reincarnation", duration-elapsed)
 			end
 		end
 		hooksecurefunc("UseSoulstone", function()

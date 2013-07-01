@@ -278,6 +278,7 @@ function addon:OnInitialize()
 	self.callbacks = CallbackHandler:New(self)
 
 	local function profileUpdate()
+		db = self.db.profile
 		self.callbacks:Fire("OnProfileUpdate")
 	end
 
