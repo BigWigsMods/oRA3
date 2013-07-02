@@ -364,9 +364,11 @@ function addon:OnEnable()
 	if IsInGuild() then GuildRoster() end
 
 	-- restore raid difficulty
-	local diff = self.db.char.lastRaidDifficulty
-	if GetRaidDifficultyID() ~= diff then
-		SetRaidDifficultyID(diff)
+	if not IsInGroup() then
+		local diff = self.db.char.lastRaidDifficulty
+		if GetRaidDifficultyID() ~= diff then
+			SetRaidDifficultyID(diff)
+		end
 	end
 
 	if CUSTOM_CLASS_COLORS then
