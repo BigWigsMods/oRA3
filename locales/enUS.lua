@@ -27,6 +27,7 @@ L.slashCommands = [[
 oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 
 |cff44ff44/radur|r - Opens the durability list.
+|cff44ff44/ragear|r - Opens the gear check list.
 |cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - Opens the zone list.
 |cff44ff44/radisband|r - Instantly disbands the raid with no verification.
@@ -79,6 +80,7 @@ L["Invite zone"] = true
 L["Invite everyone in your guild who are in the same zone as you."] = true
 L["Guild rank invites"] = true
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = true
+L["Only invite on keyword if in a raid group"] = true
 
 -- Promote module
 L["Demote everyone"] = true

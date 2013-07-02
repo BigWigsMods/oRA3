@@ -28,6 +28,7 @@ L.slashCommands = [[
 oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘迴在舊的CTRA日子，這裡有一些參考。所有/指令有各種速記也有長的，為了方便，更多描述在某些情況會被取代。
 
 |cff44ff44/radur|r - 開啟耐久度列表。
+|cff44ff44/ragear|r - Opens the gear check list.
 |cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - 開啟區域列表。
 |cff44ff44/radisband|r - 立刻解散團隊，不經過確認。
@@ -80,6 +81,7 @@ L["Invite zone"] = "區域邀請"
 L["Invite everyone in your guild who are in the same zone as you."] = "邀請在相同區域的公會成員。"
 L["Guild rank invites"] = "階級邀請"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "自動邀請階級高於等於所選等級的公會成員，按下該按鈕會自動在公會和幹部頻道發送要求10秒內離隊待組的消息，10秒後自動開始組人。"
+L["Only invite on keyword if in a raid group"] = true
 
 -- Promote module
 L["Demote everyone"] = "降級所有人"

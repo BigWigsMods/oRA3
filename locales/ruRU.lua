@@ -28,6 +28,7 @@ L.slashCommands = [[
 oRA3 имеет ряд слэш команд, которые помогут вам с рейдами. В случае, если вы не были знакомы со старым CTRA, здесь есть немного информации. Все команды имеют различные сокращения. Для удобства, в некоторых случаях есть альтернативное описание.
 
 |cff44ff44/radur|r - Открывает окно проверки прочности.
+|cff44ff44/ragear|r - Opens the gear check list.
 |cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - Открывает окно со списком зон.
 |cff44ff44/radisband|r - Мгновенно распускает рейд без подтверждения.
@@ -80,6 +81,7 @@ L["Invite zone"] = "Пригласить с зоны"
 L["Invite everyone in your guild who are in the same zone as you."] = "Пригласить всех с вашей гильдии, кто находиться в той же зоне, что и вы."
 L["Guild rank invites"] = "Пригласить по рангу гильдии"
 L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."] = "Нажатие любой из кнопок ниже, пригласит игроков выбранного звания и выше в ваше группу. К примеру нажатие кнопки 3, пригласит всех кто со званием 1, 2 или 3. Изначально будет выведено сообщение в канал гильдии или офицерский канал, что даст членам вашей гильдии 10 секунд, для того, чтобы они покинули свои группы, прежде чем вы начнёте приглашать их."
+L["Only invite on keyword if in a raid group"] = true
 
 -- Promote module
 L["Demote everyone"] = "Разжаловать всех"

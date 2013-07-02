@@ -376,13 +376,19 @@ function addon:OnDisable()
 end
 
 do
+	local unitJoinedParty = '^' .. JOINED_PARTY:gsub("%%s", "(%%S+)") .. '$'
 	local unitJoinedRaid = '^' .. ERR_RAID_MEMBER_ADDED_S:gsub("%%s", "(%%S+)") .. '$'
+	local unitJoinedInstanceGroup = '^' .. ERR_INSTANCE_GROUP_ADDED_S:gsub("%%s", "(%%S+)") .. '$'
+	local difficultyChanged = '^' .. ERR_RAID_DIFFICULTY_CHANGED_S:gsub("%%s", ".-") .. '$'
 	function addon:CHAT_MSG_SYSTEM(msg)
-		if not IsInRaid() then return end
-		local _, _, name = msg:find(unitJoinedRaid)
-		if not name then return end
-		if rawget(coloredNames, name) then
-			coloredNames[name] = nil
+		if msg:find(difficultyChanged) then
+			-- firing PLAYER_DIFFICULTY_CHANGED outside of instances would be nice ;[
+			self.callbacks:Fire("OnDifficultyChanged")
+		elseif IsInGroup() then
+			local name = msg:match(unitJoinedParty) or msg:match(unitJoinedInstanceGroup) or msg:match(unitJoinedRaid)
+			if name and rawget(coloredNames, name) then
+				coloredNames[name] = nil
+			end
 		end
 	end
 end

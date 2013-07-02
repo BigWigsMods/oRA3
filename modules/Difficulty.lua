@@ -1,4 +1,4 @@
-local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3") 
 local module = oRA:NewModule("Difficulty")
 
 module.VERSION = tonumber(("$Revision $"):sub(12, -3))

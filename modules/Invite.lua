@@ -1,4 +1,4 @@
- local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("Invite", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -9,6 +9,7 @@ local frame = nil
 local db = nil
 local peopleToInvite = {}
 local rankButtons = {}
+local difficultyDropdown, updateDifficultyDropdown = nil, nil -- a lot of effort for simply keeping the dialog in sync with the setting
 
 local function canInvite()
 	return not IsInGroup() or oRA:IsPromoted()
@@ -142,6 +143,7 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Invite", {
 		global = {
 			keyword = nil,
+			raidonly = false,
 		},
 	})
 	db = database.global
@@ -152,6 +154,9 @@ function module:OnRegister()
 		hideConfig
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
+	oRA.RegisterCallback(self, "OnStartup", updateDifficultyDropdown)
+	oRA.RegisterCallback(self, "OnShutdown", updateDifficultyDropdown)
+	oRA.RegisterCallback(self, "OnDifficultyChanged", updateDifficultyDropdown)
 
 	SLASH_ORAINVITE_GUILD1 = "/rainv"
 	SLASH_ORAINVITE_GUILD2 = "/rainvite"
@@ -164,6 +169,36 @@ function module:OnRegister()
 	SLASH_ORAINVITE_RANK1 = "/rarinv"
 	SLASH_ORAINVITE_RANK2 = "/rarinvite"
 	SlashCmdList.ORAINVITE_RANK = inviteRankCommand
+end
+
+local function inQueue()
+	-- LFG
+	for i=1, NUM_LE_LFG_CATEGORYS do
+		if GetLFGMode(i) then
+			return true
+		end
+	end
+
+	-- PvP
+	for i=1, GetMaxBattlefieldID() do
+		local status = GetBattlefieldStatus(i)
+		if status and status ~= "none" then
+			return true
+		end
+	end
+
+	-- World PvP (WG/TB)
+	--for i=1, MAX_WORLD_PVP_QUEUES do
+	--	local status = GetWorldPVPQueueStatus(i)
+	--	if status and status ~= "none" then
+	--		return true
+	--	end
+	--end
+
+	-- Pet Battle PvP
+	--if C_PetBattles.GetPVPMatchmakingInfo() then
+	--	return true
+	--end
 end
 
 local function getBattleNetToon(presenceId)
@@ -180,16 +215,20 @@ local function getBattleNetToon(presenceId)
 end
 
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
+	if not canInvite() then return end
+	if db.raidonly and not IsInRaid() then return end
+
 	if presenceId > 0 then
 		sender = getBattleNetToon(presenceId)
 		if not sender then return end
 	end
 
 	msg = msg:trim():lower()
-	if canInvite() and (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) then
+	if ( (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) )
+		and not IsPartyLFG() and not inQueue()
+	then
 		local _, instanceType = IsInInstance()
-		local num = GetNumGroupMembers()
-		if (instanceType == "party" and num == 5) or num == 40 then
+		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
 				BNSendWhisper(L["<oRA3> Sorry, the group is full."], presenceId)
 			else
@@ -205,6 +244,7 @@ end
 function module:OnEnable()
 	self:RegisterEvent("CHAT_MSG_BN_WHISPER", handleWhisper)
 	self:RegisterEvent("CHAT_MSG_WHISPER", handleWhisper)
+	self:RegisterEvent("PARTY_LEADER_CHANGED", updateDifficultyDropdown)
 end
 
 local function onControlEnter(widget, event, value)
@@ -261,12 +301,48 @@ local function saveKeyword(widget, event, value)
 	widget:SetText(value)
 end
 
+function updateDifficultyDropdown()
+	if not frame then return end
+	if not IsInGroup() or UnitIsGroupLeader("player") then
+		difficultyDropdown:SetDisabled(false)
+	else
+		difficultyDropdown:SetDisabled(true)
+	end
+	difficultyDropdown:SetValue(GetRaidDifficultyID())
+	frame:ResumeLayout()
+	frame:DoLayout()
+end
+
+local function difficultyCallback(widget, event, index, value)
+	SetRaidDifficultyID(index)
+end
+
+local function raidOnlyCallback(widget, event, value)
+	db.raidonly = value and true or false
+end
+
 function module:CreateFrame()
 	if frame then return end
 	local inGuild = IsInGuild()
 	frame = AceGUI:Create("ScrollFrame")
 	frame:PauseLayout()
 	frame:SetLayout("Flow")
+
+	local modes = {
+		[3] = RAID_DIFFICULTY1,
+		[4] = RAID_DIFFICULTY2,
+		[5] = RAID_DIFFICULTY3,
+		[6] = RAID_DIFFICULTY4,
+	}
+	local difficulty = AceGUI:Create("Dropdown")
+	difficulty:SetMultiselect(false)
+	difficulty:SetLabel(RAID_DIFFICULTY)
+	difficulty:SetList(modes)
+	difficulty:SetValue(GetRaidDifficultyID())
+	difficulty:SetCallback("OnValueChanged", difficultyCallback)
+	difficulty:SetFullWidth(true)
+	difficulty:SetDisabled(IsInGroup() and not UnitIsGroupLeader("player"))
+	difficultyDropdown = difficulty
 
 	local kwDescription = AceGUI:Create("Label")
 	kwDescription:SetText(L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."])
@@ -292,6 +368,12 @@ function module:CreateFrame()
 	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
+
+	local raidonly = AceGUI:Create("CheckBox")
+	raidonly:SetLabel(L["Only invite on keyword if in a raid group"])
+	raidonly:SetValue(db.raidonly)
+	raidonly:SetCallback("OnValueChanged", raidOnlyCallback)
+	raidonly:SetFullWidth(true)
 
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
@@ -327,15 +409,15 @@ function module:CreateFrame()
 
 	if inGuild then
 		if oRA.db.profile.showHelpTexts then
-			frame:AddChildren(guild, zone, kwDescription, keyword, guildonlykeyword, rankHeader, rankDescription)
+			frame:AddChildren(difficulty, guild, zone, kwDescription, keyword, guildonlykeyword, raidonly, rankHeader, rankDescription)
 		else
-			frame:AddChildren(guild, zone, keyword, guildonlykeyword, rankHeader)
+			frame:AddChildren(difficulty, guild, zone, keyword, guildonlykeyword, raidonly, rankHeader)
 		end
 	else
 		if oRA.db.profile.showHelpTexts then
-			frame:AddChildren(kwDescription, keyword)
+			frame:AddChildren(difficulty, kwDescription, keyword, raidonly)
 		else
-			frame:AddChild(keyword)
+			frame:AddChild(difficulty, keyword, raidonly)
 		end
 	end
 
