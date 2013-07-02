@@ -328,12 +328,6 @@ function addon:OnInitialize()
 		end
 	end)
 
-	hooksecurefunc("SetRaidDifficultyID", function(difficultyID)
-		if difficultyID > 2 and difficultyID < 7 then
-			self.db.char.lastRaidDifficulty = difficultyID
-		end
-	end)
-
 	db = self.db.profile
 
 	self.OnInitialize = nil
@@ -362,14 +356,6 @@ function addon:OnEnable()
 	-- init groupStatus
 	self:GROUP_ROSTER_UPDATE()
 	if IsInGuild() then GuildRoster() end
-
-	-- restore raid difficulty
-	if not IsInGroup() then
-		local diff = self.db.char.lastRaidDifficulty
-		if GetRaidDifficultyID() ~= diff then
-			SetRaidDifficultyID(diff)
-		end
-	end
 
 	if CUSTOM_CLASS_COLORS then
 		local function updateClassColors()
