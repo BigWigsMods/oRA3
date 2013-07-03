@@ -117,6 +117,7 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = "Recharge"
 L["Right-Click me for options!"] = "Clic droit pour les options !"
 L["Bar Settings"] = "Paramètres des barres"
+L["Text Settings"] = true
 L["Spawn test bar"] = "Afficher une barre de test"
 L["Use class color"] = "Couleur de classe"
 L["Custom color"] = "Couleur personnalisée"
@@ -129,10 +130,14 @@ L["Duration"] = "Durée"
 L["Unit name"] = "Nom unité"
 L["Spell name"] = "Nom du sort"
 L["Short Spell name"] = "Nom des sorts raccourcis"
+L["Label Font"] = true
+L["Label Font Size"] = true
 L["Label Align"] = "Alignement du libellé"
 L["Left"] = "Gauche"
 L["Right"] = "Droite"
 L["Center"] = "Centre"
+L["Duration Font"] = true
+L["Duration Font Size"] = true
 L["Grow up"] = "Ajouter vers le haut"
 
 -- Zone module

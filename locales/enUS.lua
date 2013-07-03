@@ -117,6 +117,7 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = true
 L["Right-Click me for options!"] = true
 L["Bar Settings"] = true
+L["Text Settings"] = true
 L["Spawn test bar"] = true
 L["Use class color"] = true
 L["Custom color"] = true
@@ -129,10 +130,14 @@ L["Duration"] = true
 L["Unit name"] = true
 L["Spell name"] = true
 L["Short Spell name"] = true
+L["Label Font"] = true
+L["Label Font Size"] = true
 L["Label Align"] = true
 L["Left"] = true
 L["Right"] = true
 L["Center"] = true
+L["Duration Font"] = true
+L["Duration Font Size"] = true
 L["Grow up"] = true
 
 -- Zone module

@@ -16,7 +16,8 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 -- Locals
 --
 
-local mType = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
+local mTypeBar = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
+local mTypeFont = media and media.MediaType and media.MediaType.FONT or "font"
 local playerName, playerGUID
 
 local glyphCooldowns = {
@@ -350,7 +351,8 @@ local options, restyleBars
 local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
 local showPane, hidePane
 local combatLog
-local textures = media:List(mType)
+local textures = media:List(mTypeBar)
+local fonts = media:List(mTypeFont)
 local function getOptions()
 	if not options then
 		options = {
@@ -450,6 +452,7 @@ local function getOptions()
 							order = 14,
 							disabled = function() return db.barClassColor end,
 						},
+						spacer = { type = "description", name = " ", order = 14.5 },
 						barHeight = {
 							type = "range",
 							name = L["Height"],
@@ -482,12 +485,7 @@ local function getOptions()
 								db.barTexture = textures[v]
 								restyleBars()
 							end,
-						},
-						barLabelAlign = {
-							type = "select",
-							name = L["Label Align"],
-							order = 18,
-							values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
+							itemControl = "DDI-Statusbar",
 						},
 						barGrowUp = {
 							type = "toggle",
@@ -523,6 +521,90 @@ local function getOptions()
 									name = L["Short Spell name"],
 								},
 							},
+						},
+					},
+				},
+				textSettings = {
+					type = "group",
+					name = L["Text Settings"],
+					order = 21,
+					width = "full",
+					inline = true,
+					args = {
+						barLabelClassColor = {
+							type = "toggle",
+							name = L["Use class color"],
+							order = 1,
+						},
+						barLabelColor = {
+							type = "color",
+							name = L["Custom color"],
+							get = function() return unpack(db.barLabelColor) end,
+							set = function(info, r, g, b)
+								db.barLabelColor = {r, g, b, 1}
+								restyleBars()
+							end,
+							order = 2,
+							disabled = function() return db.barLabelClassColor end,
+						},
+						spacer = { type = "description", name = " ", order = 3 },
+						barLabelFont = {
+							type = "select",
+							name = L["Label Font"],
+							order = 4,
+							values = fonts,
+							get = function()
+								for i, v in next, fonts do
+									if v == db.barLabelFont then
+										return i
+									end
+								end
+							end,
+							set = function(_, v)
+								db.barLabelFont = fonts[v]
+								restyleBars()
+							end,
+							itemControl = "DDI-Font",
+						},
+						barLabelFontSize = {
+							type = "range",
+							name = L["Label Font Size"],
+							order = 5,
+							min = 6,
+							max = 24,
+							step = 1,
+						},
+						barLabelAlign = {
+							type = "select",
+							name = L["Label Align"],
+							order = 6,
+							values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
+						},
+						barDurationFont = {
+							type = "select",
+							name = L["Duration Font"],
+							order = 7,
+							values = fonts,
+							get = function()
+								for i, v in next, fonts do
+									if v == db.barDurationFont then
+										return i
+									end
+								end
+							end,
+							set = function(_, v)
+								db.barDurationFont = fonts[v]
+								restyleBars()
+							end,
+							itemControl = "DDI-Font",
+						},
+						barDurationFontSize = {
+							type = "range",
+							name = L["Duration Font Size"],
+							order = 8,
+							min = 6,
+							max = 24,
+							step = 1,
 						},
 					},
 				},
@@ -698,7 +780,7 @@ do
 		bar:SetIcon(db.barShowIcon and bar:Get("ora3cd:icon") or nil)
 		bar:SetTimeVisibility(db.barShowDuration)
 		bar:SetScale(db.barScale)
-		bar:SetTexture(media:Fetch(mType, db.barTexture))
+		bar:SetTexture(media:Fetch(mTypeBar, db.barTexture))
 		local spell = bar:Get("ora3cd:spell")
 		local unit = bar:Get("ora3cd:unit"):gsub("(%a)%-(.*)", "%1")
 		if db.barShorthand then spell = shorts[spell] end
@@ -711,7 +793,19 @@ do
 		else
 			bar:SetLabel()
 		end
+		--bar.candyBarLabel:SetFontObject("GameFontHighlightSmallOutline")
+		bar.candyBarLabel:SetFont(media:Fetch(mTypeFont, db.barLabelFont), db.barLabelFontSize)
 		bar.candyBarLabel:SetJustifyH(db.barLabelAlign)
+		--bar.candyBarDuration:SetFontObject("GameFontHighlightSmallOutline")
+		bar.candyBarDuration:SetFont(media:Fetch(mTypeFont, db.barDurationFont), db.barDurationFontSize)
+		if db.barLabelClassColor then
+			local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
+			bar.candyBarLabel:SetTextColor(c.r, c.g, c.b, 1)
+			--bar.candyBarDuration:SetTextColor(c.r, c.g, c.b, 1)
+		else
+			bar.candyBarLabel:SetTextColor(unpack(db.barLabelColor))
+			--bar.candyBarDuration:SetTextColor(unpack(db.barLabelColor))
+		end
 		if db.barClassColor then
 			local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
@@ -963,6 +1057,12 @@ function module:OnRegister()
 			barLabelAlign = "CENTER",
 			barColor = { 0.25, 0.33, 0.68, 1 },
 			barTexture = "oRA3",
+			barLabelFont = "Friz Quadrata TT",
+			barLabelFontSize = 10,
+			barDurationFont = "Friz Quadrata TT",
+			barDurationFontSize = 10,
+			barLabelClassColor = false,
+			barLabelColor = { 1, 1, 1, 1 },
 		},
 	})
 	for k, v in next, database.profile.spells do
@@ -979,7 +1079,7 @@ function module:OnRegister()
 	)
 
 	if media then
-		media:Register(mType, "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
+		media:Register(mTypeBar, "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
 	end
 
 	oRA.RegisterCallback(self, "OnStartup")

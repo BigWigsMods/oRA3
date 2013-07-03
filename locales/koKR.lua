@@ -121,6 +121,7 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = "재사용 대기시간"
 L["Right-Click me for options!"] = "옵션 설정은 우-클릭!"
 L["Bar Settings"] = "바 설정"
+L["Text Settings"] = true
 L["Spawn test bar"] = "테스트 바 표시"
 L["Use class color"] = "직업 색상 사용"
 L["Custom color"] = "사용자 색상"
@@ -133,10 +134,14 @@ L["Duration"] = "지속 시간"
 L["Unit name"] = "유닛 이름"
 L["Spell name"] = "주문 이름"
 L["Short Spell name"] = "짧은 주문 이름"
+L["Label Font"] = true
+L["Label Font Size"] = true
 L["Label Align"] = "Label 정렬"
 L["Left"] = "좌측"
 L["Right"] = "우측"
 L["Center"] = "중앙"
+L["Duration Font"] = true
+L["Duration Font Size"] = true
 L["Grow up"] = "성장 방향"
 
 -- Zone module

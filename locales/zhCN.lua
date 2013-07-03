@@ -114,6 +114,7 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = "冷却"
 L["Right-Click me for options!"] = "右键打开设置"
 L["Bar Settings"] = "计时条设置"
+L["Text Settings"] = true
 L["Spawn test bar"] = "显示测试计时条"
 L["Use class color"] = "使用职业颜色"
 L["Height"] = "高度"
@@ -125,10 +126,14 @@ L["Duration"] = "时间"
 L["Unit name"] = "名字"
 L["Spell name"] = "技能"
 L["Short Spell name"] = "技能缩写"
+L["Label Font"] = true
+L["Label Font Size"] = true
 L["Label Align"] = "标签位置"
 L["Left"] = "左"
 L["Right"] = "右"
 L["Center"] = "中间"
+L["Duration Font"] = true
+L["Duration Font Size"] = true
 L["Grow up"] = "向上递增"
 
 -- Zone module
