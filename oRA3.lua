@@ -270,6 +270,7 @@ end
 
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA3")
 
 	-- Comm register
 	RegisterAddonMessagePrefix("oRA")
@@ -291,7 +292,9 @@ function addon:OnInitialize()
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
 
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db))
+	local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+	LibStub("LibDualSpec-1.0"):EnhanceOptions(profileOptions, self.db)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
 
 	local function OnRaidHide()
