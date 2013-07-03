@@ -18,6 +18,7 @@ local guildRankDb = nil
 local factionDb = nil
 local queuePromotes = nil
 local dontPromoteThisSession = {}
+local hasSetEveryoneAssistant = nil -- prevent re-enabling if changed later
 
 --------------------------------------------------------------------------------
 -- GUI
@@ -90,6 +91,9 @@ do
 
 	local function demoteRaid()
 		if not UnitIsGroupLeader("player") then return end
+		if IsEveryoneAssistant() then
+			SetEveryoneIsAssistant(false)
+		end
 		for i = 1, GetNumGroupMembers() do
 			local name, rank = GetRaidRosterInfo(i)
 			if rank == 1 then
@@ -126,6 +130,7 @@ do
 		everyone:SetCallback("OnLeave", onControlLeave)
 		everyone:SetCallback("OnValueChanged", everyoneCallback)
 		everyone:SetUserData("tooltip", L["Promote everyone automatically."])
+		--everyone:SetUserData("tooltip", L["Set \"Make Everyone Assistant\" automatically."])
 		everyone:SetFullWidth(true)
 
 		if guildRankDb then
@@ -243,8 +248,7 @@ do
 	local function shouldPromote(name)
 		if dontPromoteThisSession[name] then return false end
 		local guildMembers = oRA:GetGuildMembers()
-		if factionDb.promoteAll then return true
-		elseif factionDb.promoteGuild and guildMembers[name] then return true
+		if factionDb.promoteGuild and guildMembers[name] then return true
 		elseif guildMembers[name] and guildRankDb[guildMembers[name]] then return true
 		elseif util.inTable(factionDb.promotes, name) then return true
 		end
@@ -261,15 +265,27 @@ do
 
 	function queuePromotes()
 		if not IsInRaid() or not UnitIsGroupLeader("player") then return end
-
-		for i = 1, GetNumGroupMembers() do
-			local name, rank = GetRaidRosterInfo(i)
-			if name and rank == 0 and shouldPromote(name) then
-				promotes[name] = true
+		if factionDb.promoteAll then
+			if not IsEveryoneAssistant() and not hasSetEveryoneAssistant then
+				SetEveryoneIsAssistant(true)
+				hasSetEveryoneAssistant = true
 			end
-		end
-		if not scheduled and next(promotes) then
-			scheduled = module:ScheduleTimer(doPromotes, 2)
+		else
+			if hasSetEveryoneAssistant then
+				SetEveryoneIsAssistant(false)
+				hasSetEveryoneAssistant = nil
+			end
+			if not IsEveryoneAssistant() then
+				for i = 1, GetNumGroupMembers() do
+					local name, rank = GetRaidRosterInfo(i)
+					if rank == 0 and shouldPromote(name) then
+						promotes[name] = true
+					end
+				end
+				if not scheduled and next(promotes) then
+					scheduled = module:ScheduleTimer(doPromotes, 2)
+				end
+			end
 		end
 	end
 	function module:OnGroupChanged(event, status, members)
