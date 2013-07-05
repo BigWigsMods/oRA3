@@ -524,12 +524,13 @@ local function getOptions()
 						},
 					},
 				},
-				textSettings = {
+				labelSettings = {
 					type = "group",
-					name = L["Text Settings"],
+					name = L["Label Text Settings"],
 					order = 21,
 					width = "full",
 					inline = true,
+					disabled = function() return not db.barShowUnit and not db.barShowSpell end,
 					args = {
 						barLabelClassColor = {
 							type = "toggle",
@@ -545,12 +546,12 @@ local function getOptions()
 								restyleBars()
 							end,
 							order = 2,
-							disabled = function() return db.barLabelClassColor end,
+							disabled = function() return (not db.barShowUnit and not db.barShowSpell) or db.barLabelClassColor end,
 						},
 						spacer = { type = "description", name = " ", order = 3 },
 						barLabelFont = {
 							type = "select",
-							name = L["Label Font"],
+							name = L["Font"],
 							order = 4,
 							values = fonts,
 							get = function()
@@ -568,22 +569,53 @@ local function getOptions()
 						},
 						barLabelFontSize = {
 							type = "range",
-							name = L["Label Font Size"],
+							name = L["Font Size"],
 							order = 5,
-							min = 6,
-							max = 24,
-							step = 1,
+							min = 6, max = 24, step = 1,
+						},
+						barLabelOutline = {
+							type = "select",
+							name = L["Outline"],
+							order = 6,
+							values = { NONE = NONE, OUTLINE = L["Thin"], THICKOUTLINE = L["Thick"] },
 						},
 						barLabelAlign = {
 							type = "select",
 							name = L["Label Align"],
-							order = 6,
-							values = {LEFT = "Left", CENTER = "Center", RIGHT = "Right"},
+							order = 7,
+							values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" },
 						},
+					},
+				},
+				durationSettings = {
+					type = "group",
+					name = L["Duration Text Settings"],
+					order = 22,
+					width = "full",
+					inline = true,
+					disabled = function() return not db.barShowDuration end,
+					args = {
+						barDurationClassColor = {
+							type = "toggle",
+							name = L["Use class color"],
+							order = 1,
+						},
+						barDurationColor = {
+							type = "color",
+							name = L["Custom color"],
+							get = function() return unpack(db.barLabelColor) end,
+							set = function(info, r, g, b)
+								db.barLabelColor = {r, g, b, 1}
+								restyleBars()
+							end,
+							order = 2,
+							disabled = function() return not db.barShowDuration or db.barLabelClassColor end,
+						},
+						spacer = { type = "description", name = " ", order = 3 },
 						barDurationFont = {
 							type = "select",
-							name = L["Duration Font"],
-							order = 7,
+							name = L["Font"],
+							order = 9,
 							values = fonts,
 							get = function()
 								for i, v in next, fonts do
@@ -600,11 +632,15 @@ local function getOptions()
 						},
 						barDurationFontSize = {
 							type = "range",
-							name = L["Duration Font Size"],
-							order = 8,
-							min = 6,
-							max = 24,
-							step = 1,
+							name = L["Font Size"],
+							order = 10,
+							min = 6, max = 24, step = 1,
+						},
+						barDurationOutline = {
+							type = "select",
+							name = L["Outline"],
+							order = 11,
+							values = { NONE = NONE, OUTLINE = L["Thin"], THICKOUTLINE = L["Thick"] },
 						},
 					},
 				},
@@ -793,21 +829,26 @@ do
 		else
 			bar:SetLabel()
 		end
+
 		--bar.candyBarLabel:SetFontObject("GameFontHighlightSmallOutline")
-		bar.candyBarLabel:SetFont(media:Fetch(mTypeFont, db.barLabelFont), db.barLabelFontSize)
+		bar.candyBarLabel:SetFont(media:Fetch(mTypeFont, db.barLabelFont), db.barLabelFontSize, db.barLabelOutline ~= "NONE" and db.barLabelOutline)
 		bar.candyBarLabel:SetJustifyH(db.barLabelAlign)
+
 		--bar.candyBarDuration:SetFontObject("GameFontHighlightSmallOutline")
-		bar.candyBarDuration:SetFont(media:Fetch(mTypeFont, db.barDurationFont), db.barDurationFontSize)
+		bar.candyBarDuration:SetFont(media:Fetch(mTypeFont, db.barDurationFont), db.barDurationFontSize, db.barDurationOutline ~= "NONE" and db.barDurationOutline)
+
+		local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
 		if db.barLabelClassColor then
-			local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
 			bar.candyBarLabel:SetTextColor(c.r, c.g, c.b, 1)
-			--bar.candyBarDuration:SetTextColor(c.r, c.g, c.b, 1)
 		else
 			bar.candyBarLabel:SetTextColor(unpack(db.barLabelColor))
-			--bar.candyBarDuration:SetTextColor(unpack(db.barLabelColor))
+		end
+		if db.barDurationClassColor then
+			bar.candyBarDuration:SetTextColor(c.r, c.g, c.b, 1)
+		else
+			bar.candyBarDuration:SetTextColor(unpack(db.barDurationColor))
 		end
 		if db.barClassColor then
-			local c = oRA.classColors[bar:Get("ora3cd:unitclass")]
 			bar:SetColor(c.r, c.g, c.b, 1)
 		else
 			bar:SetColor(unpack(db.barColor))
@@ -1057,12 +1098,16 @@ function module:OnRegister()
 			barLabelAlign = "CENTER",
 			barColor = { 0.25, 0.33, 0.68, 1 },
 			barTexture = "oRA3",
-			barLabelFont = "Friz Quadrata TT",
-			barLabelFontSize = 10,
-			barDurationFont = "Friz Quadrata TT",
-			barDurationFontSize = 10,
 			barLabelClassColor = false,
 			barLabelColor = { 1, 1, 1, 1 },
+			barLabelFont = "Friz Quadrata TT",
+			barLabelFontSize = 10,
+			barLabelOutline = "NONE",
+			barDurationClassColor = false,
+			barDurationColor = { 1, 1, 1, 1 },
+			barDurationFont = "Friz Quadrata TT",
+			barDurationFontSize = 10,
+			barDurationOutline = "NONE",
 		},
 	})
 	for k, v in next, database.profile.spells do
