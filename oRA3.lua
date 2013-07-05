@@ -70,6 +70,7 @@ local playerPromoted = nil
 local UNGROUPED = 0
 local INPARTY = 1
 local INRAID = 2
+local ININSTANCE = 3
 local groupStatus = UNGROUPED -- flag indicating groupsize
 
 -- overview drek
@@ -79,8 +80,11 @@ local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
 local secureScrollhighs = {} -- clickable secure scroll highlights
 
+-- guild repair functions
+local onGroupChanged, onShutdown = nil, nil
+
 local function actuallyDisband()
-	if addon:IsPromoted() and not IsPartyLFG() and (not IsEveryoneAssistant() or UnitIsGroupLeader("player")) then
+	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 		SendChatMessage(L["<oRA3> Disbanding group."], IsInRaid() and "RAID" or "PARTY")
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
@@ -140,6 +144,14 @@ local function giveOptions()
 					descStyle = "inline",
 					order = 2,
 					width = "full",
+					set = function(info, value)
+						db[info[#info]] = value
+						if not value then
+							onShutdown()
+						elseif groupStatus == 2 then
+							onGroupChanged(nil, groupStatus, groupMembers)
+						end
+					end,
 				},
 				showHelpTexts = {
 					type = "toggle",
@@ -174,11 +186,18 @@ end
 -- Ensure guild repairs
 --
 
-local onGroupChanged, onShutdown = nil, nil
 do
 	local processedRanks = {}
 	function onGroupChanged(event, status, members)
-		if not db.ensureRepair or not IsGuildLeader() or not IsInRaid() or not addon:IsPromoted() then return end
+		local promoted = addon:IsPromoted() or 0
+		if not db.ensureRepair or not IsGuildLeader() or not IsInRaid() or promoted < 2 then return end
+		if status == 3 then -- don't enable for LFR or BGs
+			if next(processedRanks) then -- disable for premades
+				onShutdown(event, status)
+			end
+			return
+		end
+
 		local amount = math.floor(GetAverageItemLevel()) or 300 -- vhaarr am so smrt.. ?!
 		for _, name in next, members do
 			local rankIndex = guildMemberList[name]
@@ -352,6 +371,7 @@ function addon:OnEnable()
 
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
+	self.RegisterCallback(addon, "ConvertParty", onShutdown)
 
 	SLASH_ORADISBAND1 = "/radisband"
 	SlashCmdList.ORADISBAND = actuallyDisband
@@ -462,14 +482,14 @@ do
 
 	function addon:GROUP_ROSTER_UPDATE()
 		local oldStatus = groupStatus
-		groupStatus = IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
+		groupStatus = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and ININSTANCE or IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
 
 		wipe(tmpGroup)
 		wipe(tmpTanks)
-		if groupStatus == INRAID then
+		if IsInRaid() then
 			for i = 1, GetNumGroupMembers() do
 				local n, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
 				if n then
@@ -479,7 +499,7 @@ do
 					end
 				end
 			end
-		elseif groupStatus == INPARTY then
+		elseif IsInGroup() then
 			tinsert(tmpGroup, playerName)
 			for i = 1, 4 do
 				local n = UnitName("party" .. i)
@@ -510,7 +530,7 @@ do
 		if playerPromoted ~= self:IsPromoted() then
 			playerPromoted = self:IsPromoted()
 			if playerPromoted then
-				self:OnPromoted()
+				self:OnPromoted(playerPromoted)
 				self.callbacks:Fire("OnPromoted", playerPromoted)
 			else
 				self:OnDemoted()
@@ -524,7 +544,13 @@ function addon:IsPromoted(name)
 	if groupStatus == UNGROUPED then return end
 
 	if not name then name = "player" end
-	return UnitIsGroupLeader(name) or UnitIsGroupAssistant(name)
+	if UnitIsGroupLeader(name) then
+		return 3
+	elseif IsEveryoneAssistant() then
+		return 1
+	elseif UnitIsGroupAssistant(name) then
+		return 2
+	end
 end
 
 -----------------------------------------------------------------------
@@ -627,7 +653,7 @@ local function setupGUI()
 			StaticPopup_Show("oRA3DisbandGroup")
 		end
 	end)
-	if addon:IsPromoted() then
+	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 		disband:Enable()
 	else
 		disband:Disable()
@@ -777,16 +803,18 @@ function addon:ToggleFrame(force)
 	end
 end
 
-function addon:OnPromoted()
-	if oRA3Disband and not IsPartyLFG() then
+function addon:OnPromoted(promoted)
+	if oRA3Disband and promoted > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 		oRA3Disband:Enable()
 	end
+	onGroupChanged("OnPromoted", groupStatus, groupMembers)
 end
 
 function addon:OnDemoted()
 	if oRA3Disband then
 		oRA3Disband:Disable()
 	end
+	onShutdown("OnDemoted", groupStatus)
 end
 
 function addon:SetAllPointsToPanel(frame, aceguihacky)

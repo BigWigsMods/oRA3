@@ -225,7 +225,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 
 	msg = msg:trim():lower()
 	if ( (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) )
-		and not IsPartyLFG() and not inQueue()
+		and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and not inQueue()
 	then
 		local _, instanceType = IsInInstance()
 		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
