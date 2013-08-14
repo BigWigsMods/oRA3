@@ -357,7 +357,6 @@ local function createWindow()
 			title:SetText(L["Ready Check (%d seconds)"]:format(timer))
 		else
 			title:SetText(READY_CHECK_FINISHED)
-			module:UnregisterEvent("GROUP_ROSTER_UPDATE")
 			self:Stop()
 			if module.db.profile.autohide then
 				animFader:Play()
@@ -375,6 +374,11 @@ local function createWindow()
 		animUpdater:Play()
 		updateWindow()
 		module:RegisterEvent("GROUP_ROSTER_UPDATE", updateWindow) -- pick up group changes
+	end)
+	f:SetScript("OnHide", function(self)
+		module:UnregisterEvent("GROUP_ROSTER_UPDATE")
+		animUpdater:Stop()
+		animFader:Stop()
 	end)
 end
 
