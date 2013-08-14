@@ -369,6 +369,7 @@ local function createWindow()
 	timer:SetDuration(0.3)
 
 	f:SetScript("OnShow", function(self)
+		animFader:Stop()
 		title:SetText(READY_CHECK)
 		self:SetAlpha(1)
 		animUpdater:Play()
