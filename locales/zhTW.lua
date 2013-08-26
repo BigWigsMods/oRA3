@@ -28,8 +28,8 @@ L.slashCommands = [[
 oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘迴在舊的CTRA日子，這裡有一些參考。所有/指令有各種速記也有長的，為了方便，更多描述在某些情況會被取代。
 
 |cff44ff44/radur|r - 開啟耐久度列表。
-|cff44ff44/ragear|r - Opens the gear check list.
-|cff44ff44/ralag|r - Opens the latency list.
+|cff44ff44/ragear|r - 開啟裝備檢查列表。
+|cff44ff44/ralag|r - 開始延遲列表。
 |cff44ff44/razone|r - 開啟區域列表。
 |cff44ff44/radisband|r - 立刻解散團隊，不經過確認。
 |cff44ff44/raready|r - 執行準備確認。
@@ -166,13 +166,13 @@ L["Show"] = "顯示"
 L.showButtonHelp = "在你個人的坦克排列中顯示這個坦克. 此項只對本地有效, 不會影響團隊中其他人的配置"
 
 -- Latency Module
-L["Latency"] = "Latency"
-L["Home"] = "Home"
-L["World"] = "World"
+L["Latency"] = "延遲"
+L["Home"] = "家"
+L["World"] = "世界"
 
 -- Gear Module
-L["Gear"] = "Gear"
-L["Item Level"] = "Item Level"
-L["Missing Gems"] = "Missing Gems"
-L["Missing Enchants"] = "Missing Enchants"
+L["Gear"] = "裝備"
+L["Item Level"] = "物品等級"
+L["Missing Gems"] = "缺少寶石"
+L["Missing Enchants"] = "缺少附魔"
 
