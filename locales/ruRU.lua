@@ -118,7 +118,8 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = "Перезарядки"
 L["Right-Click me for options!"] = "[Правый-клик] открывает настройки."
 L["Bar Settings"] = "Настройка панели"
-L["Text Settings"] = true
+L["Label Text Settings"] = "Настройка текста"
+L["Duration Text Settings"] = "Настройка текста длительности"
 L["Spawn test bar"] = "Запустить тест панель"
 L["Use class color"] = "Окраска класса"
 L["Custom color"] = "Свой цвет"
@@ -131,14 +132,15 @@ L["Duration"] = "Длительность"
 L["Unit name"] = "Персонаж"
 L["Spell name"] = "Заклинание"
 L["Short Spell name"] = "Сокр. заклинание"
-L["Label Font"] = true
-L["Label Font Size"] = true
+L["Font"] = "Шрифт"
+L["Font Size"] = "Размер шрифта"
 L["Label Align"] = "Выравнивать"
 L["Left"] = "Влево"
 L["Right"] = "Вправо"
 L["Center"] = "По центру"
-L["Duration Font"] = true
-L["Duration Font Size"] = true
+L["Outline"] = "Контур"
+L["Thick"] = "Жирный"
+L["Thin"] = "Тонкий"
 L["Grow up"] = "Рост вверх"
 
 -- Zone module
