@@ -121,14 +121,18 @@ function module:OnRegister()
 	db = self.db.profile
 
 	oRA.RegisterCallback(self, "OnPromoted", "SetLoot")
-	oRA.RegisterCallback(self, "OnStartup", "SetLoot")
-	oRA.RegisterCallback(self, "OnConvertRaid", "SetLoot")
-	oRA.RegisterCallback(self, "OnConvertParty", "SetLoot")
+	oRA.RegisterCallback(self, "OnGroupChanged")
 	oRA.RegisterCallback(self, "OnProfileUpdate", function()
 		db = self.db.profile
 	end)
 
 	oRA:RegisterModuleOptions("Loot", getOptions, LOOT_METHOD)
+end
+
+function module:OnGroupChanged(_, groupStatus)
+	if groupStatus > 0 then
+		self:SetLoot()
+	end
 end
 
 function module:SetLoot()
