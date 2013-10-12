@@ -482,6 +482,7 @@ end
 do
 	local noReply = {}
 	local notReady = {}
+	module.stripservers = true
 	function module:READY_CHECK_FINISHED(preempted)
 		if not readychecking or preempted then return end -- is a dungeon group ready check
 
@@ -491,10 +492,13 @@ do
 		wipe(noReply)
 		wipe(notReady)
 		for name, ready in next, readycheck do
+			if module.stripservers then -- this is a hook for other addons to enable unambiguous character names
+				name = name:gsub("%-.*$", "")
+			end
 			if ready == "waiting" or ready == "offline" then
-				noReply[#noReply + 1] = name:gsub("%-.*$", "")
+				noReply[#noReply + 1] = name
 			elseif ready == "notready" then
-				notReady[#notReady + 1] = name:gsub("%-.*$", "")
+				notReady[#notReady + 1] = name
 			end
 		end
 
