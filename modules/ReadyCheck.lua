@@ -405,20 +405,6 @@ function module:PLAYER_REGEN_DISABLED()
 	frame:Hide()
 end
 
--- Send a fake CHAT_MSG_SYSTEM to the chat window(s)
--- This is superior to a blind ChatFrame:AddMessage() call, 
--- because it respects user filtering and ensures the output is handled 
--- and displayed in the same way as other readycheck-related system messages
-function module:fakeSystemMessage(message)
-	for i=1,NUM_CHAT_WINDOWS do
-		local f = _G["ChatFrame"..i]
-		local h = f and f:IsEventRegistered("CHAT_MSG_SYSTEM") and f:GetScript("OnEvent")
-		if h then
-			h(f, "CHAT_MSG_SYSTEM", message, "", "", "", "", "", 0, 0, "", 0, 0, nil, 0, false, false)
-		end
-	end
-end
-
 function module:READY_CHECK(initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
 
@@ -426,6 +412,7 @@ function module:READY_CHECK(initiator, duration)
 	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
 
 	wipe(readycheck)
+	local c = ChatTypeInfo["SYSTEM"]
 	local promoted = oRA:IsPromoted()
 	-- fill with default "No Response" and set the initiator "Ready"
 	if IsInRaid() then
@@ -434,7 +421,7 @@ function module:READY_CHECK(initiator, duration)
 			local status = not online and "offline" or GetReadyCheckStatus(name)
 			readycheck[name] = status
 			if not promoted and (status == "offline" or status == "notready") then
-				self:fakeSystemMessage(RAID_MEMBER_NOT_READY:format(name))	
+				DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
 			end
 		end
 	else
@@ -446,7 +433,7 @@ function module:READY_CHECK(initiator, duration)
 				local status = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
 				if not promoted and (status == "offline" or status == "notready") then
-					self:fakeSystemMessage(RAID_MEMBER_NOT_READY:format(name))	
+					DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
 				end
 			end
 		end
@@ -471,7 +458,8 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
 		readycheck[name] = "notready"
 		if not oRA:IsPromoted() then
-			self:fakeSystemMessage(RAID_MEMBER_NOT_READY:format(name))	
+			local c = ChatTypeInfo["SYSTEM"]
+			DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
 		end
 	end
 	if self.db.profile.gui and frame then
@@ -502,11 +490,12 @@ do
 			end
 		end
 
+		local c = ChatTypeInfo["SYSTEM"]
 		local promoted = oRA:IsPromoted()
 		local send = self.db.profile.relayReady and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
-				self:fakeSystemMessage(READY_CHECK_ALL_READY)	
+				DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
 			elseif send and promoted > 1 then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
@@ -514,7 +503,7 @@ do
 			if #noReply > 0 then
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 				if not promoted then
-					self:fakeSystemMessage(afk)	
+					DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
 				elseif send and promoted > 1 then
 					SendChatMessage(afk, "RAID")
 				end
@@ -522,7 +511,7 @@ do
 			if #notReady > 0 then
 				local no = L["The following players are not ready: %s"]:format(table.concat(notReady, ", "))
 				if not promoted then
-					self:fakeSystemMessage(no)	
+					DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
 				elseif send and promoted > 1 then
 					SendChatMessage(no, "RAID")
 				end
