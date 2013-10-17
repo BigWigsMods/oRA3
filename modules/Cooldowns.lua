@@ -676,7 +676,19 @@ do
 		GameTooltip:Hide()
 	end
 
-	local function sortBySpellName(a, b) return GetSpellInfo(a) < GetSpellInfo(b) end
+	local function sortBySpellName(a, b)
+		local spellA = GetSpellInfo(a)
+		if not spellA then
+			print("oRA: Invalid spell id:", a)
+			return
+		end
+		local spellB = GetSpellInfo(b)
+		if not spellB then
+			print("oRA: Invalid spell id:", b)
+			return
+		end
+		return spellA < spellB
+	end
 	local function dropdownGroupCallback(widget, event, key)
 		widget:PauseLayout()
 		widget:ReleaseChildren()

@@ -1,9 +1,9 @@
 ## Interface: 50400
 ## Title: oRA3
 ## Notes: Raid and Party Assist
-## Author: Funkydude, Nebula169, Ammo, Rabbit
+## Author: Funkydude, Nebula169
 
-## X-Credits: Cladhaire for the sliding/detaching panel
+## X-Credits: Cladhaire for the sliding/detaching panel, Ammo, Rabbit
 
 ## SavedVariables: oRA3DB
 
