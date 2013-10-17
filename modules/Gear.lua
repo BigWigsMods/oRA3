@@ -103,9 +103,9 @@ do
 						end
 
 						local statsTable = GetItemStats(itemLink)
-						for k in next, statsTable do
+						for k, v in next, statsTable do
 							if k:find("EMPTY_SOCKET_", nil, true) then
-								totalItemSockets = totalItemSockets + 1
+								totalItemSockets = totalItemSockets + v
 							end
 						end
 
