@@ -214,6 +214,18 @@ local function getBattleNetToon(presenceId)
 	end
 end
 
+local function shouldInvite(msg, sender)
+	if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and select(3, GetInstanceInfo()) ~= 14) or inQueue() then
+		return false -- in lfr or in queue
+	end
+
+	msg = msg:trim():lower()
+	local keyword = db.keyword and db.keyword:lower()
+	local guildkeyword = db.guildkeyword and db.guildkeyword:lower()
+
+	return msg == keyword or (msg == guildkeyword and oRA:IsGuildMember(sender))
+end
+
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
@@ -223,10 +235,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 		if not sender then return end
 	end
 
-	msg = msg:trim():lower()
-	if ( (db.keyword and msg == db.keyword:lower()) or (db.guildkeyword and msg == db.guildkeyword:lower() and oRA:IsGuildMember(sender)) )
-		and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and not inQueue()
-	then
+	if shouldInvite(msg, sender) then
 		local _, instanceType = IsInInstance()
 		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
