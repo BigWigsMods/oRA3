@@ -83,6 +83,7 @@ local spells = {
 		[781]   = 20,   -- Disengage
 		[19263] = 180,  -- Deterrence --- XXX need to figure out how to deal with multiple charges (cd doesn't start until the second charge is used, second charge cd doesn't start until first charge is off cd)
 		[34490] = 24,   -- Silencing Shot
+		[147362] = 24,  -- Counter Shot
 		[19386] = 45,   -- Wyvern Sting
 		[13809] = 30,   -- Ice Trap
 		[82941] = 30,   -- Ice Trap + Launcher
