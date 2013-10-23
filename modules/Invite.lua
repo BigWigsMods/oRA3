@@ -174,7 +174,8 @@ end
 local function inQueue()
 	-- LFG
 	for i=1, NUM_LE_LFG_CATEGORYS do
-		if GetLFGMode(i) then
+		local mode = GetLFGMode(i)
+		if mode and mode ~= "lfgparty" then
 			return true
 		end
 	end
