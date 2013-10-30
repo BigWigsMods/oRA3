@@ -50,6 +50,14 @@ do
 			module:ScheduleTimer(waitForParty, 1)
 		end
 	end
+	
+	local function invite(player)
+		if type(player) == "number" then
+			BNInviteFriend(player)
+		else
+			InviteUnit(player)
+		end
+	end
 
 	function doActualInvites()
 		if #peopleToInvite == 0 then return end
@@ -64,7 +72,7 @@ do
 				-- invite people until the party is full
 				for i = 1, math.min(5 - pNum, #peopleToInvite) do
 					local player = tremove(peopleToInvite)
-					InviteUnit(player)
+					invite(player)
 				end
 				-- invite the rest
 				if #peopleToInvite > 0 then
@@ -79,7 +87,7 @@ do
 			end
 		else
 			for _, player in next, peopleToInvite do
-				InviteUnit(player)
+				invite(player)
 			end
 			wipe(peopleToInvite)
 		end
@@ -205,12 +213,15 @@ end
 local function getBattleNetToon(presenceId)
 	local friendIndex = BNGetFriendIndex(presenceId)
 	for i=1, BNGetNumFriendToons(friendIndex) do
-		local _, toonName, client, realmName, realmId, faction = BNGetFriendToonInfo(friendIndex, i)
+		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == UnitFactionGroup("player") and realmId > 0 then
+			--[[ 5.4.1 broke returning realmName it seems
 			if realmName ~= GetRealmName() then
 				toonName = toonName.."-"..realmName
 			end
 			return toonName
+			--]]
+			return toonId
 		end
 	end
 end
