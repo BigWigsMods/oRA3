@@ -221,7 +221,7 @@ local function getBattleNetToon(presenceId)
 			end
 			return toonName
 			--]]
-			return toonId
+			return toonName, toonId
 		end
 	end
 end
@@ -242,12 +242,13 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
 
+	local toonName
 	if presenceId > 0 then
-		sender = getBattleNetToon(presenceId)
+		toonName, sender = getBattleNetToon(presenceId)
 		if not sender then return end
 	end
 
-	if shouldInvite(msg, sender) then
+	if shouldInvite(msg, toonName or sender) then
 		local _, instanceType = IsInInstance()
 		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
