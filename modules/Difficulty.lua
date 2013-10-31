@@ -30,14 +30,21 @@ end
 
 function module:OnEnable()
 	if not IsInGroup() then
+		-- GROUP_JOINED fires ~3s after PLAYER_LOGIN when you first login, so IsInGroup() is false until then
 		self:ScheduleTimer(restoreDifficulty, 4)
 	end
 end
 
 function module:OnShutdown()
-	local diff = db.lastRaidDifficulty
-	if GetRaidDifficultyID() ~= diff then
-		SetRaidDifficultyID(diff)
+	if not IsInInstance() then -- don't change on leaving group while still in the instance
+		SetRaidDifficultyID(db.lastRaidDifficulty)
+	else
+		self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	end
+end
+
+function module:ZONE_CHANGED_NEW_AREA(event)
+	self:UnregisterEvent(event)
+	self:OnShutdown()
 end
 
