@@ -43,8 +43,8 @@ function module:OnShutdown()
 	end
 end
 
-function module:ZONE_CHANGED_NEW_AREA(event)
-	self:UnregisterEvent(event)
+function module:ZONE_CHANGED_NEW_AREA()
+	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
 	self:OnShutdown()
 end
 
