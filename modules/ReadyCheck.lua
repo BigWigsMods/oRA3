@@ -135,7 +135,8 @@ local function createBottomFrame()
 	return f
 end
 
-local function setMemberStatus(num, bottom, name, class)
+function module:setMemberStatus(num, bottom, name, class)
+	-- oscarucb: this is a module function to allow hooking by other addons
 	if not name or not class then return end
 	local f
 	if bottom then
@@ -167,6 +168,7 @@ local function setMemberStatus(num, bottom, name, class)
 		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
 	end
 	f:Show()
+	return f
 end
 
 local function updateWindow()
@@ -191,10 +193,10 @@ local function updateWindow()
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
 			if subgroup < highgroup then
 				top = top + 1
-				setMemberStatus(top, false, name, class)
+				module:setMemberStatus(top, false, name, class)
 			else
 				bottom = bottom + 1
-				setMemberStatus(bottom, true, name, class)
+				module:setMemberStatus(bottom, true, name, class)
 			end
 		end
 		height = math.ceil(top / 2) * 14 + 43
@@ -209,12 +211,12 @@ local function updateWindow()
 			frame.bar:Show()
 		end
 	else
-		setMemberStatus(1, false, playerName, playerClass)
+		module:setMemberStatus(1, false, playerName, playerClass)
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = module:UnitName(unit)
 			local _, class = UnitClass(unit)
-			setMemberStatus(i+1, false, name, class)
+			module:setMemberStatus(i+1, false, name, class)
 		end
 	end
 
