@@ -11,6 +11,13 @@ local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 
+local roleIcons = {
+	["TANK"] = INLINE_TANK_ICON,
+	["HEALER"] = INLINE_HEALER_ICON,
+	["DAMAGER"] = INLINE_DAMAGER_ICON,
+	["NONE"] = "",
+}
+
 local readychecking = nil
 
 local defaults = {
@@ -135,8 +142,7 @@ local function createBottomFrame()
 	return f
 end
 
-function module:setMemberStatus(num, bottom, name, class)
-	-- oscarucb: this is a module function to allow hooking by other addons
+local function setMemberStatus(num, bottom, name, class)
 	if not name or not class then return end
 	local f
 	if bottom then
@@ -145,7 +151,8 @@ function module:setMemberStatus(num, bottom, name, class)
 		f = topMemberFrames[num] or createTopFrame()
 	end
 	local color = oRA.classColors[class]
-	f.NameText:SetText(name:gsub("%-.*$", ""))
+	local cleanName = name:gsub("%-.+", "*")
+	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], name)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 
@@ -168,7 +175,6 @@ function module:setMemberStatus(num, bottom, name, class)
 		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
 	end
 	f:Show()
-	return f
 end
 
 local function updateWindow()
@@ -193,10 +199,10 @@ local function updateWindow()
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
 			if subgroup < highgroup then
 				top = top + 1
-				module:setMemberStatus(top, false, name, class)
+				setMemberStatus(top, false, name, class)
 			else
 				bottom = bottom + 1
-				module:setMemberStatus(bottom, true, name, class)
+				setMemberStatus(bottom, true, name, class)
 			end
 		end
 		height = math.ceil(top / 2) * 14 + 43
@@ -211,12 +217,12 @@ local function updateWindow()
 			frame.bar:Show()
 		end
 	else
-		module:setMemberStatus(1, false, playerName, playerClass)
+		setMemberStatus(1, false, playerName, playerClass)
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = module:UnitName(unit)
 			local _, class = UnitClass(unit)
-			module:setMemberStatus(i+1, false, name, class)
+			setMemberStatus(i+1, false, name, class)
 		end
 	end
 
