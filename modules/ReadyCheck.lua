@@ -152,7 +152,7 @@ local function setMemberStatus(num, bottom, name, class)
 	end
 	local color = oRA.classColors[class]
 	local cleanName = name:gsub("%-.+", "*")
-	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], name)
+	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], cleanName)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 
