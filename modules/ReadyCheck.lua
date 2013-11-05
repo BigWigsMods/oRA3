@@ -426,10 +426,12 @@ function module:READY_CHECK(initiator, duration)
 	if IsInRaid() then
 		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			local status = not online and "offline" or GetReadyCheckStatus(name)
-			readycheck[name] = status
-			if not promoted and (status == "offline" or status == "notready") then
-				DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+			if name then -- Can be nil when performed whilst logging on
+				local status = not online and "offline" or GetReadyCheckStatus(name)
+				readycheck[name] = status
+				if not promoted and (status == "offline" or status == "notready") then
+					DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+				end
 			end
 		end
 	else
