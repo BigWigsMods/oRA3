@@ -391,19 +391,30 @@ local function createWindow()
 	end)
 end
 
-function module.sysprint(msg)
-	local c = ChatTypeInfo["SYSTEM"]
+local function sysprint(msg)
+	local filters = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM")
+	if filters then
+		for _, func in next, filters do
+			local filter, newMsg = func(nil, "CHAT_MSG_SYSTEM", msg)
+			if filter then
+				return true
+			elseif newMsg then
+				msg = newMsg
+			end
+		end
+	end
+
+	local info = ChatTypeInfo["SYSTEM"]
 	for i=1, NUM_CHAT_WINDOWS do
 		local frame = _G["ChatFrame"..i]
 		for _, msgType in ipairs(frame.messageTypeList) do
 			if msgType == "SYSTEM" then
-				frame:AddMessage(msg, c.r, c.g, c.b, c.id)
+				frame:AddMessage(msg, info.r, info.g, info.b, info.id)
 				break
 			end
 		end
 	end
 end
-local function sysprint(...) return module.sysprint(...) end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
