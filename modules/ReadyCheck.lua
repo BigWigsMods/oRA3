@@ -391,7 +391,7 @@ local function createWindow()
 	end)
 end
 
-function module:sysprint(msg)
+local function sysprint(msg)
 	local c = ChatTypeInfo["SYSTEM"]
 	for i=1, NUM_CHAT_WINDOWS do
 		local frame = _G["ChatFrame"..i]
@@ -403,6 +403,7 @@ function module:sysprint(msg)
 		end
 	end
 end
+module.sysprint = sysprint
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
@@ -442,7 +443,7 @@ function module:READY_CHECK(initiator, duration)
 				local status = not online and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
 				if not promoted and (status == "offline" or status == "notready") then
-					self:sysprint(RAID_MEMBER_NOT_READY:format(name))
+					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
 		end
@@ -455,7 +456,7 @@ function module:READY_CHECK(initiator, duration)
 				local status = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
 				if not promoted and (status == "offline" or status == "notready") then
-					self:sysprint(RAID_MEMBER_NOT_READY:format(name))
+					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
 		end
@@ -480,7 +481,7 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
 		readycheck[name] = "notready"
 		if not oRA:IsPromoted() then
-			self:sysprint(RAID_MEMBER_NOT_READY:format(name))
+			sysprint(RAID_MEMBER_NOT_READY:format(name))
 		end
 	end
 	if self.db.profile.gui and frame then
@@ -515,7 +516,7 @@ do
 		local send = self.db.profile.relayReady and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
-				self:sysprint(READY_CHECK_ALL_READY)
+				sysprint(READY_CHECK_ALL_READY)
 			elseif send and promoted > 1 then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
@@ -523,7 +524,7 @@ do
 			if #noReply > 0 then
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 				if not promoted then
-					self:sysprint(afk)
+					sysprint(afk)
 				elseif send and promoted > 1 then
 					SendChatMessage(afk, "RAID")
 				end
@@ -531,7 +532,7 @@ do
 			if #notReady > 0 then
 				local no = L["The following players are not ready: %s"]:format(table.concat(notReady, ", "))
 				if not promoted then
-					self:sysprint(no)
+					sysprint(no)
 				elseif send and promoted > 1 then
 					SendChatMessage(no, "RAID")
 				end
