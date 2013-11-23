@@ -8,6 +8,7 @@ module.VERSION = tonumber(("$Revision: $"):sub(12, -3))
 local db = nil
 local options = nil
 
+local raidFrameCount = {}
 local raidFrameIcons = setmetatable({}, { __index = function(t,i)
 	local parent = _G["RaidGroupButton"..i]
 	local icon = CreateFrame("Frame", nil, parent)
@@ -24,19 +25,28 @@ local raidFrameIcons = setmetatable({}, { __index = function(t,i)
 	return icon
 end })
 
-local function updateRaidFrameIcons()
-	if not db.enableRaidFrame then return end
-	for i = 1, GetNumGroupMembers() do
-		local button = _G["RaidGroupButton"..i]
-		if button and button.subframes then -- make sure the raid button is set up
-			local icon = raidFrameIcons[i]
-			local role = UnitGroupRolesAssigned("raid"..i)
-			if role and role ~= "NONE" then
-				icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
-				icon:Show()
-			else
-				icon:Hide()
+local updateRaidFrameIcons
+do
+	local count = {}
+	function updateRaidFrameIcons()
+		if not db.enableRaidFrame then return end
+		wipe(count)
+		for i = 1, GetNumGroupMembers() do
+			local button = _G["RaidGroupButton"..i]
+			if button and button.subframes then -- make sure the raid button is set up
+				local icon = raidFrameIcons[i]
+				local role = UnitGroupRolesAssigned("raid"..i)
+				if role and role ~= "NONE" then
+					icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
+					icon:Show()
+					count[role] = (count[role] or 0) + 1
+				else
+					icon:Hide()
+				end
 			end
+		end
+		for role, button in next, raidFrameCount do
+			button.count:SetText(count[role] or 0)
 		end
 	end
 end
@@ -57,18 +67,26 @@ local function getOptions()
 					get = function(k) return db[k[#k]] end,
 					set = function(k, v)
 						db[k[#k]] = v
-						for _, icon in next, raidFrameIcons do
-							icon:Hide()
-						end
-						if RaidFrame:IsShown() and RaidGroupFrame_Update then
-							updateRaidFrameIcons()
+						if not v then
+							for _, icon in next, raidFrameIcons do
+								icon:Hide()
+							end
+							for _, button in next, raidFrameCount do
+								button:Hide()
+							end
+						else
+							if RaidFrame:IsShown() and RaidGroupFrame_Update then
+								updateRaidFrameIcons()
+							end
+							for _, button in next, raidFrameCount do
+								button:Show()
+							end
 						end
 					end,
 					width = "full",
 					descStyle = "inline",
 					order = 1,
 				},
-				--[[
 				enableReadyCheck = {
 					type = "toggle",
 					name = colorize(L["Ready Check"]),
@@ -77,7 +95,6 @@ local function getOptions()
 					descStyle = "inline",
 					order = 2,
 				},
-				--]]
 			},
 		}
 	end
@@ -96,15 +113,12 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnProfileUpdate", function()
 		db = database.profile
 	end)
-	oRA:RegisterModuleOptions("RoleIcons", getOptions, L["Role Icons"])
+	--oRA:RegisterModuleOptions("RoleIcons", getOptions, L["Role Icons"])
 end
 
 function module:OnEnable()
 	if RaidGroupFrame_Update then
 		self:ADDON_LOADED("Blizzard_RaidUI")
-		if RaidFrame:IsShown() then
-			updateRaidFrameIcons()
-		end
 	else
 		self:RegisterEvent("ADDON_LOADED")
 	end
@@ -113,7 +127,32 @@ end
 function module:ADDON_LOADED(name)
 	if name == "Blizzard_RaidUI" then
 		self:UnregisterEvent("ADDON_LOADED")
+
+		for i, role in ipairs({"TANK", "HEALER", "DAMAGER"}) do
+			local button = CreateFrame("Frame", "oRA3RaidFrameRoleIcon"..role, RaidFrame)
+			button:SetSize(30, 30)
+			button:SetPoint("TOPLEFT", 52 + 30 * (i - 1), 8)
+
+			local icon = button:CreateTexture(nil, "OVERLAY")
+			icon:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
+			icon:SetTexCoord(GetTexCoordsForRole(role))
+			icon:SetAllPoints()
+			button.icon = icon
+
+			local count = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+			count:SetPoint("BOTTOMRIGHT", -2, 2)
+			count:SetText(0)
+			button.count = count
+
+			--TODO tooltips showing "[Group] Name"
+
+			raidFrameCount[role] = button
+		end
+
 		hooksecurefunc("RaidGroupFrame_Update", updateRaidFrameIcons)
+		if RaidFrame:IsShown() then
+			updateRaidFrameIcons()
+		end
 	end
 end
 
