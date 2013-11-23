@@ -9,6 +9,20 @@ local db = nil
 local options = nil
 
 local raidFrameCount = {}
+local function raidFrameCount_OnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+	GameTooltip:SetText(_G[self.role])
+	for i = 1, GetNumGroupMembers() do
+		local name, _, group, _, _, _, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
+		if groupRole == self.role then
+			-- TODO sort on group
+			local line = ("[%d] %s"):format(group, name)
+			GameTooltip:AddLine(line, 1, 1, 1)
+		end
+	end
+	GameTooltip:Show()
+end
+
 local raidFrameIcons = setmetatable({}, { __index = function(t,i)
 	local parent = _G["RaidGroupButton"..i]
 	local icon = CreateFrame("Frame", nil, parent)
@@ -129,9 +143,10 @@ function module:ADDON_LOADED(name)
 		self:UnregisterEvent("ADDON_LOADED")
 
 		for i, role in ipairs({"TANK", "HEALER", "DAMAGER"}) do
-			local button = CreateFrame("Frame", "oRA3RaidFrameRoleIcon"..role, RaidFrame)
+			local button = CreateFrame("Frame", "oRA3RaidFrameRoleIcon".._G[role], RaidFrame)
 			button:SetSize(30, 30)
 			button:SetPoint("TOPLEFT", 52 + 30 * (i - 1), 8)
+			button.role = role
 
 			local icon = button:CreateTexture(nil, "OVERLAY")
 			icon:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
@@ -144,7 +159,8 @@ function module:ADDON_LOADED(name)
 			count:SetText(0)
 			button.count = count
 
-			--TODO tooltips showing "[Group] Name"
+			button:SetScript("OnEnter", raidFrameCount_OnEnter)
+			button:SetScript("OnLeave", GameTooltip_Hide)
 
 			raidFrameCount[role] = button
 		end
