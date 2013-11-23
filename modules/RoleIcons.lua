@@ -1,29 +1,10 @@
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("RoleIcons")
---local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
-local L = setmetatable({}, {__index = function(t,k) return k end})
 
-module.VERSION = tonumber(("$Revision: $"):sub(12, -3))
+module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
-local db = nil
-local options = nil
-
-local raidFrameCount = {}
-local function raidFrameCount_OnEnter(self)
-	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetText(_G[self.role])
-	for i = 1, GetNumGroupMembers() do
-		local name, _, group, _, _, _, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
-		if groupRole == self.role then
-			-- TODO sort on group
-			local line = ("[%d] %s"):format(group, name)
-			GameTooltip:AddLine(line, 1, 1, 1)
-		end
-	end
-	GameTooltip:Show()
-end
-
-local raidFrameIcons = setmetatable({}, { __index = function(t,i)
+local countIcons
+local raidIcons = setmetatable({}, { __index = function(t,i)
 	local parent = _G["RaidGroupButton"..i]
 	local icon = CreateFrame("Frame", nil, parent)
 	icon:SetSize(14, 14)
@@ -39,16 +20,15 @@ local raidFrameIcons = setmetatable({}, { __index = function(t,i)
 	return icon
 end })
 
-local updateRaidFrameIcons
+local updateIcons
 do
 	local count = {}
-	function updateRaidFrameIcons()
-		if not db.enableRaidFrame then return end
+	function updateIcons()
 		wipe(count)
 		for i = 1, GetNumGroupMembers() do
 			local button = _G["RaidGroupButton"..i]
 			if button and button.subframes then -- make sure the raid button is set up
-				local icon = raidFrameIcons[i]
+				local icon = raidIcons[i]
 				local role = UnitGroupRolesAssigned("raid"..i)
 				if role and role ~= "NONE" then
 					icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
@@ -59,75 +39,63 @@ do
 				end
 			end
 		end
-		for role, button in next, raidFrameCount do
-			button.count:SetText(count[role] or 0)
+		for role, icon in next, countIcons.icons do
+			icon.count:SetText(count[role] or 0)
 		end
 	end
 end
 
-local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local function getOptions()
-	if not options then
-		options = {
-			type = "group",
-			name = L["Role Icons"],
-			get = function(k) return db[k[#k]] end,
-			set = function(k, v) db[k[#k]] = v end,
-			args = {
-				enableRaidFrame = {
-					type = "toggle",
-					name = colorize(L["Raid Frame"]),
-					desc = L["Show role icons on the Blizzard raid group frames."],
-					get = function(k) return db[k[#k]] end,
-					set = function(k, v)
-						db[k[#k]] = v
-						if not v then
-							for _, icon in next, raidFrameIcons do
-								icon:Hide()
-							end
-							for _, button in next, raidFrameCount do
-								button:Hide()
-							end
-						else
-							if RaidFrame:IsShown() and RaidGroupFrame_Update then
-								updateRaidFrameIcons()
-							end
-							for _, button in next, raidFrameCount do
-								button:Show()
-							end
-						end
-					end,
-					width = "full",
-					descStyle = "inline",
-					order = 1,
-				},
-				enableReadyCheck = {
-					type = "toggle",
-					name = colorize(L["Ready Check"]),
-					desc = L["Show role icons on the oRA3 ready check window."],
-					width = "full",
-					descStyle = "inline",
-					order = 2,
-				},
-			},
-		}
+local createCountIcons
+do
+	local roster = { [1] = {}, [2] = {}, [3] = {}, [4] = {}, [5] = {}, [6] = {}, [7] = {}, [8] = {} }
+	local function onEnter(self)
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetText(_G["INLINE_" .. self.role .. "_ICON"] .. _G[self.role])
+		for i = 1, GetNumGroupMembers() do
+			local name, _, group, _, _, _, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
+			if groupRole == self.role then
+				tinsert(roster[group], name)
+			end
+		end
+		for group, list in ipairs(roster) do
+			sort(list)
+			for _, name in ipairs(list) do
+				GameTooltip:AddLine(("[%d] %s"):format(group, name), 1, 1, 1)
+			end
+			wipe(list)
+		end
+		GameTooltip:Show()
 	end
-	return options
-end
 
-function module:OnRegister()
-	local database = oRA.db:RegisterNamespace("RoleIcons", {
-		profile = {
-			enableRaidFrame = true,
-			--enableReadyCheck = true,
-		}
-	})
-	db = database.profile
+	function createCountIcons()
+		countIcons = CreateFrame("Frame", "oRA3RaidFrameRoleIcons", RaidFrame)
+		countIcons:SetPoint("TOPLEFT", 51, 8)
+		countIcons:SetSize(30, 30)
 
-	oRA.RegisterCallback(self, "OnProfileUpdate", function()
-		db = database.profile
-	end)
-	--oRA:RegisterModuleOptions("RoleIcons", getOptions, L["Role Icons"])
+		countIcons.icons = {}
+		for i, role in ipairs({"TANK", "HEALER", "DAMAGER"}) do
+			local frame = CreateFrame("Frame", nil, countIcons)
+			frame:SetPoint("LEFT", 30 * (i - 1) - 2 * (i - 1), 0)
+			frame:SetSize(30, 30)
+
+			local icon = frame:CreateTexture(nil, "OVERLAY")
+			icon:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
+			icon:SetTexCoord(GetTexCoordsForRole(role))
+			icon:SetAllPoints()
+			frame.icon = icon
+
+			local count = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+			count:SetPoint("BOTTOMRIGHT", -2, 2)
+			count:SetText(0)
+			frame.count = count
+
+			frame.role = role
+			frame:SetScript("OnEnter", onEnter)
+			frame:SetScript("OnLeave", GameTooltip_Hide)
+
+			countIcons.icons[role] = frame
+		end
+	end
 end
 
 function module:OnEnable()
@@ -142,33 +110,12 @@ function module:ADDON_LOADED(name)
 	if name == "Blizzard_RaidUI" then
 		self:UnregisterEvent("ADDON_LOADED")
 
-		for i, role in ipairs({"TANK", "HEALER", "DAMAGER"}) do
-			local button = CreateFrame("Frame", "oRA3RaidFrameRoleIcon".._G[role], RaidFrame)
-			button:SetSize(30, 30)
-			button:SetPoint("TOPLEFT", 52 + 30 * (i - 1), 8)
-			button.role = role
-
-			local icon = button:CreateTexture(nil, "OVERLAY")
-			icon:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
-			icon:SetTexCoord(GetTexCoordsForRole(role))
-			icon:SetAllPoints()
-			button.icon = icon
-
-			local count = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-			count:SetPoint("BOTTOMRIGHT", -2, 2)
-			count:SetText(0)
-			button.count = count
-
-			button:SetScript("OnEnter", raidFrameCount_OnEnter)
-			button:SetScript("OnLeave", GameTooltip_Hide)
-
-			raidFrameCount[role] = button
-		end
-
-		hooksecurefunc("RaidGroupFrame_Update", updateRaidFrameIcons)
+		createCountIcons()
 		if RaidFrame:IsShown() then
-			updateRaidFrameIcons()
+			updateIcons()
 		end
+
+		hooksecurefunc("RaidGroupFrame_Update", updateIcons)
 	end
 end
 
