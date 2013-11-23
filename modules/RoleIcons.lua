@@ -24,6 +24,23 @@ local raidFrameIcons = setmetatable({}, { __index = function(t,i)
 	return icon
 end })
 
+local function updateRaidFrameIcons()
+	if not db.enableRaidFrame then return end
+	for i = 1, GetNumGroupMembers() do
+		local button = _G["RaidGroupButton"..i]
+		if button and button.subframes then -- make sure the raid button is set up
+			local icon = raidFrameIcons[i]
+			local role = UnitGroupRolesAssigned("raid"..i)
+			if role and role ~= "NONE" then
+				icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
+				icon:Show()
+			else
+				icon:Hide()
+			end
+		end
+	end
+end
+
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local function getOptions()
 	if not options then
@@ -44,7 +61,7 @@ local function getOptions()
 							icon:Hide()
 						end
 						if RaidFrame:IsShown() and RaidGroupFrame_Update then
-							RaidGroupFrame_Update()
+							updateRaidFrameIcons()
 						end
 					end,
 					width = "full",
@@ -85,6 +102,9 @@ end
 function module:OnEnable()
 	if RaidGroupFrame_Update then
 		self:ADDON_LOADED("Blizzard_RaidUI")
+		if RaidFrame:IsShown() then
+			updateRaidFrameIcons()
+		end
 	else
 		self:RegisterEvent("ADDON_LOADED")
 	end
@@ -93,22 +113,7 @@ end
 function module:ADDON_LOADED(name)
 	if name == "Blizzard_RaidUI" then
 		self:UnregisterEvent("ADDON_LOADED")
-		hooksecurefunc("RaidGroupFrame_Update", function()
-			if not db.enableRaidFrame then return end
-			for i = 1, GetNumGroupMembers() do
-				local button = _G["RaidGroupButton"..i]
-				if button and button.subframes then -- make sure the raid button is set up
-					local icon = raidFrameIcons[i]
-					local role = UnitGroupRolesAssigned("raid"..i)
-					if role and role ~= "NONE" then
-						icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
-						icon:Show()
-					else
-						icon:Hide()
-					end
-				end
-			end
-		end)
+		hooksecurefunc("RaidGroupFrame_Update", updateRaidFrameIcons)
 	end
 end
 
