@@ -391,6 +391,19 @@ local function createWindow()
 	end)
 end
 
+local function sysprint(msg)
+	local c = ChatTypeInfo["SYSTEM"]
+	for i=1, NUM_CHAT_WINDOWS do
+		local frame = _G["ChatFrame"..i]
+		for _, msgType in ipairs(frame.messageTypeList) do
+			if msgType == "SYSTEM" then
+				frame:AddMessage(msg, c.r, c.g, c.b, c.id)
+				break
+			end
+		end
+	end
+end
+
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
 	oRA:RegisterModuleOptions("ReadyCheck", getOptions, READY_CHECK)
@@ -420,7 +433,6 @@ function module:READY_CHECK(initiator, duration)
 	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
 
 	wipe(readycheck)
-	local c = ChatTypeInfo["SYSTEM"]
 	local promoted = oRA:IsPromoted()
 	-- fill with default "No Response" and set the initiator "Ready"
 	if IsInRaid() then
@@ -430,7 +442,7 @@ function module:READY_CHECK(initiator, duration)
 				local status = not online and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
 				if not promoted and (status == "offline" or status == "notready") then
-					DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
 		end
@@ -443,7 +455,7 @@ function module:READY_CHECK(initiator, duration)
 				local status = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
 				if not promoted and (status == "offline" or status == "notready") then
-					DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
 		end
@@ -468,8 +480,7 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
 		readycheck[name] = "notready"
 		if not oRA:IsPromoted() then
-			local c = ChatTypeInfo["SYSTEM"]
-			DEFAULT_CHAT_FRAME:AddMessage(RAID_MEMBER_NOT_READY:format(name), c.r, c.g, c.b, c.id)
+			sysprint(RAID_MEMBER_NOT_READY:format(name))
 		end
 	end
 	if self.db.profile.gui and frame then
@@ -500,12 +511,11 @@ do
 			end
 		end
 
-		local c = ChatTypeInfo["SYSTEM"]
 		local promoted = oRA:IsPromoted()
 		local send = self.db.profile.relayReady and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
-				DEFAULT_CHAT_FRAME:AddMessage(READY_CHECK_ALL_READY, c.r, c.g, c.b, c.id)
+				sysprint(READY_CHECK_ALL_READY)
 			elseif send and promoted > 1 then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
@@ -513,7 +523,7 @@ do
 			if #noReply > 0 then
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 				if not promoted then
-					DEFAULT_CHAT_FRAME:AddMessage(afk, c.r, c.g, c.b, c.id)
+					sysprint(afk)
 				elseif send and promoted > 1 then
 					SendChatMessage(afk, "RAID")
 				end
@@ -521,7 +531,7 @@ do
 			if #notReady > 0 then
 				local no = L["The following players are not ready: %s"]:format(table.concat(notReady, ", "))
 				if not promoted then
-					DEFAULT_CHAT_FRAME:AddMessage(no, c.r, c.g, c.b, c.id)
+					sysprint(no)
 				elseif send and promoted > 1 then
 					SendChatMessage(no, "RAID")
 				end
