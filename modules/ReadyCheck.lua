@@ -391,7 +391,7 @@ local function createWindow()
 	end)
 end
 
-local function sysprint(msg)
+function module.sysprint(msg)
 	local c = ChatTypeInfo["SYSTEM"]
 	for i=1, NUM_CHAT_WINDOWS do
 		local frame = _G["ChatFrame"..i]
@@ -403,7 +403,7 @@ local function sysprint(msg)
 		end
 	end
 end
-module.sysprint = sysprint
+local function sysprint(...) return module.sysprint(...) end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
