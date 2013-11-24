@@ -11,9 +11,11 @@ local raidIcons = setmetatable({}, { __index = function(t,i)
 	icon:SetPoint("RIGHT", parent.subframes.level, "LEFT", 2, 0)
 	RaiseFrameLevel(icon)
 
-	icon.texture = icon:CreateTexture(nil, "ARTWORK")
-	icon.texture:SetAllPoints()
-	icon.texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
+	local texture = icon:CreateTexture(nil, "ARTWORK")
+	texture:SetAllPoints()
+	texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
+	icon.texture = texture
+
 	icon:Hide()
 
 	t[i] = icon
@@ -47,13 +49,15 @@ end
 
 local createCountIcons
 do
-	local roster = { [1] = {}, [2] = {}, [3] = {}, [4] = {}, [5] = {}, [6] = {}, [7] = {}, [8] = {} }
+	local roster = {}
+	for i=1,NUM_RAID_GROUPS do roster[i] = {} end
 	local function onEnter(self)
+		local role = self.role
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:SetText(_G["INLINE_" .. self.role .. "_ICON"] .. _G[self.role])
+		GameTooltip:SetText(_G["INLINE_" .. role .. "_ICON"] .. _G[role])
 		for i = 1, GetNumGroupMembers() do
 			local name, _, group, _, _, _, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
-			if groupRole == self.role then
+			if groupRole == role then
 				tinsert(roster[group], name)
 			end
 		end
@@ -78,11 +82,11 @@ do
 			frame:SetPoint("LEFT", 30 * (i - 1) - 2 * (i - 1), 0)
 			frame:SetSize(30, 30)
 
-			local icon = frame:CreateTexture(nil, "OVERLAY")
-			icon:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
-			icon:SetTexCoord(GetTexCoordsForRole(role))
-			icon:SetAllPoints()
-			frame.icon = icon
+			local texture = frame:CreateTexture(nil, "OVERLAY")
+			texture:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
+			texture:SetTexCoord(GetTexCoordsForRole(role))
+			texture:SetAllPoints()
+			frame.texture = texture
 
 			local count = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 			count:SetPoint("BOTTOMRIGHT", -2, 2)
