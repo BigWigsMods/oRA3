@@ -102,12 +102,8 @@ do
 	end
 end
 
-function module:OnEnable()
-	if RaidGroupFrame_Update then
-		self:ADDON_LOADED("Blizzard_RaidUI")
-	else
-		self:RegisterEvent("ADDON_LOADED")
-	end
+function module:OnRegister()
+	self:RegisterEvent("ADDON_LOADED")
 end
 
 function module:ADDON_LOADED(name)
