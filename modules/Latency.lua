@@ -63,8 +63,8 @@ do
 				k = #latency + 1
 				latency[k] = { sender }
 			end
-			latency[k][2] = latencyHome
-			latency[k][3] = latencyWorld
+			latency[k][2] = tonumber(latencyHome)
+			latency[k][3] = tonumber(latencyWorld)
 
 			oRA:UpdateList(L["Latency"])
 		end

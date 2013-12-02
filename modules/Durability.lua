@@ -69,9 +69,9 @@ function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
 			durability[#durability + 1] = { sender }
 			k = #durability
 		end
-		durability[k][2] = perc
-		durability[k][3] = minimum
-		durability[k][4] = broken
+		durability[k][2] = tonumber(perc)
+		durability[k][3] = tonumber(minimum)
+		durability[k][4] = tonumber(broken)
 
 		oRA:UpdateList(L["Durability"])
 	end

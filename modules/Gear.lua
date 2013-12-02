@@ -76,7 +76,7 @@ do
 				local all, equipped = GetAverageItemLevel()
 				local missingEnchants, emptySockets = 0, 0
 
-				local isBlackSmith = GetSpellInfo((GetSpellInfo(2018))) -- Blacksmithing
+				local isBlacksmith = GetSpellInfo((GetSpellInfo(2018))) -- Blacksmithing
 				local isEnchanter = GetSpellInfo((GetSpellInfo(7411))) -- Enchanting
 
 				enchantableItems[11] = isEnchanter and true or false -- FINGER 1
@@ -125,9 +125,9 @@ do
 				k = #gearTbl + 1
 				gearTbl[k] = { sender }
 			end
-			gearTbl[k][2] = ilvl
-			gearTbl[k][3] = gems
-			gearTbl[k][4] = enchants
+			gearTbl[k][2] = tonumber(ilvl)
+			gearTbl[k][3] = tonumber(gems)
+			gearTbl[k][4] = tonumber(enchants)
 
 			oRA:UpdateList(L["Gear"])
 		end
