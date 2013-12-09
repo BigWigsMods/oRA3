@@ -308,12 +308,12 @@ function addon:OnInitialize()
 
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
 
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions, true)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
 
 	local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	LibStub("LibDualSpec-1.0"):EnhanceOptions(profileOptions, self.db)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions, true)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
 
 	local function OnRaidHide()
@@ -356,7 +356,7 @@ function addon:OnInitialize()
 end
 
 function addon:RegisterModuleOptions(name, optionTbl, displayName)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3"..name, optionTbl)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3"..name, optionTbl, true)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3"..name, displayName, "oRA3")
 end
 
