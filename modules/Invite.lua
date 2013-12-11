@@ -10,6 +10,7 @@ local db = nil
 local peopleToInvite = {}
 local rankButtons = {}
 local difficultyDropdown, updateDifficultyDropdown = nil, nil -- a lot of effort for simply keeping the dialog in sync with the setting
+local playerRealm = GetRealmName()
 
 local function canInvite()
 	return not IsInGroup() or oRA:IsPromoted()
@@ -97,13 +98,19 @@ end
 local function doGuildInvites(level, zone, rank)
 	for i = 1, GetNumGuildMembers() do
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
-		if name and online and not UnitInParty(name) and not UnitInRaid(name) and not UnitIsUnit(name, "player") then
-			if level and level <= unitLevel then
-				peopleToInvite[#peopleToInvite + 1] = name
-			elseif zone and zone == unitZone then
-				peopleToInvite[#peopleToInvite + 1] = name
-			elseif rank and rankIndex <= rank then
-				peopleToInvite[#peopleToInvite + 1] = name
+		if name and online then
+			local shortName, realm = strsplit("-", name, 2)
+			if realm == playerRealm then
+				name = shortName
+			end
+			if not UnitInParty(name) and not UnitInRaid(name) and not UnitIsUnit(name, "player") then
+				if level and level <= unitLevel then
+					peopleToInvite[#peopleToInvite + 1] = name
+				elseif zone and zone == unitZone then
+					peopleToInvite[#peopleToInvite + 1] = name
+				elseif rank and rankIndex <= rank then
+					peopleToInvite[#peopleToInvite + 1] = name
+				end
 			end
 		end
 	end
@@ -216,7 +223,7 @@ local function getBattleNetToon(presenceId)
 	for i=1, BNGetNumFriendToons(friendIndex) do
 		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
-			if realmName ~= "" and realmName ~= GetRealmName() then
+			if realmName ~= "" and realmName ~= playerRealm then
 				toonName = toonName.."-"..realmName
 			end
 			return toonName, toonId
