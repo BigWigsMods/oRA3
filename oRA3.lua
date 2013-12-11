@@ -60,6 +60,7 @@ end
 
 -- Locals
 local playerName = UnitName("player")
+local playerRealm = GetRealmName()
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
@@ -453,7 +454,11 @@ do
 		end
 		for i = 1, GetNumGuildMembers(true) do
 			local name, _, rankIndex = GetGuildRosterInfo(i)
-			if name then tmpMembers[name] = rankIndex + 1 end
+			if name then
+				local shortName, realm = strsplit("-", name, 2)
+				if realm == playerRealm then name = shortName end
+				tmpMembers[name] = rankIndex + 1
+			end
 		end
 		if not isIndexedEqual(tmpRanks, guildRanks) then
 			copyToTable(tmpRanks, guildRanks)
