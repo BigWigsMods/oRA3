@@ -59,7 +59,7 @@ function util.inTable(t, value, subindex)
 end
 
 -- Locals
-local playerName, playerRealm = GetFullName("player")
+local playerName, playerRealm = UnitFullName("player")
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
