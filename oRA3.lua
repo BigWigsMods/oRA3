@@ -60,7 +60,7 @@ end
 
 -- Locals
 local playerName = UnitName("player")
-local playerRealm = GetRealmName()
+local playerRealm = GetRealmName():gsub(" ", "")
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
