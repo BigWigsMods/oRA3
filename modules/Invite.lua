@@ -10,7 +10,7 @@ local db = nil
 local peopleToInvite = {}
 local rankButtons = {}
 local difficultyDropdown, updateDifficultyDropdown = nil, nil -- a lot of effort for simply keeping the dialog in sync with the setting
-local playerRealm = GetRealmName():gsub(" ", "")
+local _, playerRealm = GetFullName("player")
 
 local function canInvite()
 	return not IsInGroup() or oRA:IsPromoted()
