@@ -51,7 +51,7 @@ do
 			module:ScheduleTimer(waitForParty, 1)
 		end
 	end
-	
+
 	local function invite(player)
 		if type(player) == "number" then
 			BNInviteFriend(player)
@@ -100,9 +100,7 @@ local function doGuildInvites(level, zone, rank)
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
 		if name and online then
 			local shortName, realm = strsplit("-", name, 2)
-			if realm == playerRealm then
-				name = shortName
-			end
+			if realm == playerRealm then name = shortName end
 			if not UnitInParty(name) and not UnitInRaid(name) and not UnitIsUnit(name, "player") then
 				if level and level <= unitLevel then
 					peopleToInvite[#peopleToInvite + 1] = name
@@ -251,6 +249,9 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 	if presenceId > 0 then
 		toonName, sender = getBattleNetToon(presenceId)
 		if not sender then return end
+	else
+		local shortName, realm = strsplit("-", sender, 2)
+		if realm == playerRealm then sender = shortName end
 	end
 
 	if shouldInvite(msg, toonName or sender) then
