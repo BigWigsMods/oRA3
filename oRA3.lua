@@ -59,7 +59,7 @@ function util.inTable(t, value, subindex)
 end
 
 -- Locals
-local playerName, playerRealm = UnitFullName("player")
+local playerRealm = GetRealmName()
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
@@ -504,7 +504,7 @@ do
 				end
 			end
 		elseif IsInGroup() then
-			tinsert(tmpGroup, playerName)
+			tinsert(tmpGroup, (UnitName("player")))
 			for i = 1, 4 do
 				local n = UnitName("party" .. i)
 				if n then tmpGroup[#tmpGroup + 1] = n end
