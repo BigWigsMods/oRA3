@@ -22,6 +22,8 @@ L.showHelpTextsDesc = "oRA3 패널창에서 도움말을 표시합니다."
 L["Ensure guild repairs are enabled for all ranks present in raid"] = "공격대에서 현재 모든 등급에 대해 길드 수리가 활성화 되어있는지 확인"
 L.ensureRepairDesc = "당신이 만약 길드 관리자이며 팀에 합류하였고 지휘관 또는 승급자라면, 길드원의 수리비에 대해 길드 수리비(최대 300골드)를 지원하도록 설정 가능합니다. |cffff4411당신이 공격대를 떠난다면 적용되지 않으니 파산등의 걱정은 하지마세요 :)|r"
 L.repairEnabled = "이 공격대에서 %s 에 대해 길드 수리를 활성화합니다."
+L["Show role icons on raid pane"] = true
+L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
 
 L["Slash commands"] = "슬러쉬 명령어"
 L.slashCommands = [[

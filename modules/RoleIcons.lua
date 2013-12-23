@@ -27,6 +27,13 @@ do
 
 	local count = {}
 	function updateIcons()
+		if not oRA.db.profile.showRoleIcons then
+			countIcons:Hide()
+			for _,icon in next, roleIcons do
+				icon:Hide()
+			end
+			return
+		end
 		if not IsInRaid() then
 			countIcons:Hide()
 			return

@@ -22,6 +22,8 @@ L.showHelpTextsDesc = "Интерфейс оRA3 полон полезных те
 L["Ensure guild repairs are enabled for all ranks present in raid"] = "Убедитесь что ремонт гильдии включен для всех званий присутствующих в рейде."
 L.ensureRepairDesc = "Если вы гильд-мастер, при вступаете в рейд если вы являетесь лидером или имеете особые права в рейде, убедитесь, опция включена на время рейда (до 300 г). Как только вы покидаете группу, настройка будут восстановлена в первоначальное состояние |cffff4411при условии, что вы не умирали во время рейда.|r"
 L.repairEnabled = "Включить гильд-ремонт для %s, на продолжительность данного рейда."
+L["Show role icons on raid pane"] = true
+L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
 
 L["Slash commands"] = "Слэш команды"
 L.slashCommands = [[

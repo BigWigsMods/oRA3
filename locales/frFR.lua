@@ -21,6 +21,8 @@ L.showHelpTextsDesc = "L'interface de oRA3 est remplie de textes d'aide permetta
 L["Ensure guild repairs are enabled for all ranks present in raid"] = "S'assurer que les réparations de guilde sont activées pour tous les rangs présents dans le raid"
 L.ensureRepairDesc = "Si vous êtes le maître de guilde, à chaque fois que vous rejoignez un groupe de raid dans lequel vous êtes chef ou assistant, ceci s'assurera que les réparations de guilde sont activées pendant la durée du raid (jusqu'à 300po). Une fois que vous quittez le groupe de raid, les marqueurs retrouveront leur état initial |cffff4411à condition que votre jeu ne crash pas pendant le raid.|r"
 L.repairEnabled = "Réparations de guilde activées pour %s pendant la durée de ce raid."
+L["Show role icons on raid pane"] = true
+L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
 
 L["Slash commands"] = "Commandes « / »"
 L.slashCommands = [[

@@ -22,6 +22,8 @@ L.showHelpTextsDesc = "oRA3介面充滿幫助性的文字來引導將要做什�
 L["Ensure guild repairs are enabled for all ranks present in raid"] = "為所有在團隊裡出席的階級啟用公會修裝"
 L.ensureRepairDesc = "如果你是公會會長，任何時候你加入到團隊且是隊長或是被提升，你可以啟用公會修裝直到團隊結束(最多300g)。萬一你離開團隊，設定就會被還原到原始狀態|cffff4411預防你在團隊期間不會破產。|r"
 L.repairEnabled = "啟用%s公會修裝直到團隊結束。"
+L["Show role icons on raid pane"] = true
+L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
 
 L["Slash commands"] = "/指令"
 L.slashCommands = [[

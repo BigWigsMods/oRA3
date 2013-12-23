@@ -103,6 +103,7 @@ local defaults = {
 		positions = {},
 		showHelpTexts = true,
 		toggleWithRaid = true,
+		showRoleIcons = true,
 		lastSelectedPanel = nil,
 		lastSelectedList = nil,
 		ensureRepair = false,
@@ -136,12 +137,20 @@ local function giveOptions()
 					order = 1,
 					width = "full",
 				},
+				showRoleIcons = {
+					type = "toggle",
+					name = colorize(L["Show role icons on raid pane"]),
+					desc = L.showRoleIconsDesc,
+					descStyle = "inline",
+					order = 2,
+					width = "full",
+				},
 				ensureRepair = {
 					type = "toggle",
 					name = colorize(L["Ensure guild repairs are enabled for all ranks present in raid"]),
 					desc = L.ensureRepairDesc,
 					descStyle = "inline",
-					order = 2,
+					order = 3,
 					width = "full",
 					set = function(info, value)
 						db[info[#info]] = value
@@ -157,7 +166,7 @@ local function giveOptions()
 					name = colorize(L["Show interface help"]),
 					desc = L.showHelpTextsDesc,
 					descStyle = "inline",
-					order = 3,
+					order = 4,
 					width = "full",
 				},
 				slashCommands = {
@@ -165,7 +174,7 @@ local function giveOptions()
 					name = L["Slash commands"],
 					width = "full",
 					inline = true,
-					order = 4,
+					order = 5,
 					args = {
 						slashCommandHelp = {
 							type = "description",
@@ -371,7 +380,7 @@ function addon:OnEnable()
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
 	self.RegisterCallback(addon, "ConvertParty", onShutdown)
-
+	
 	SLASH_ORADISBAND1 = "/radisband"
 	SlashCmdList.ORADISBAND = actuallyDisband
 

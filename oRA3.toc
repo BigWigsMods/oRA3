@@ -27,6 +27,7 @@ locales\esES.lua
 oRA3.lua
 modulePrototype.lua
 
+modules\RoleIcons.lua
 modules\ReadyCheck.lua
 modules\Durability.lua
 modules\Gear.lua
