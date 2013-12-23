@@ -470,7 +470,7 @@ do
 		for i = 1, GetNumGuildMembers(true) do
 			local name, _, rankIndex = GetGuildRosterInfo(i)
 			if name then
-				tmpMembers[Ambiguate(name, "guild")] = rankIndex + 1
+				tmpMembers[Ambiguate(name, "none")] = rankIndex + 1
 			end
 		end
 		if not isIndexedEqual(tmpRanks, guildRanks) then

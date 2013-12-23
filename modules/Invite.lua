@@ -100,8 +100,8 @@ local function doGuildInvites(level, zone, rank)
 	for i = 1, GetNumGuildMembers() do
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
 		if name and online then
-			name = Ambiguate(name, "guild")
-			if not UnitInParty(name) and not UnitInRaid(name) and not UnitIsUnit(name, "player") then
+			local unit = Ambiguate(name, "none")
+			if not UnitInParty(unit) and not UnitInRaid(unit) and not UnitIsUnit(unit, "player") then
 				if level and level <= unitLevel then
 					peopleToInvite[#peopleToInvite + 1] = name
 				elseif zone and zone == unitZone then
@@ -222,9 +222,9 @@ local function getBattleNetToon(presenceId)
 		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
 			if realmName ~= "" and realmName ~= playerRealm then
-				 -- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
+				-- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
 				realmName = realmName:gsub("[%s%-]", "")
-				toonName = toonName.."-"..realmName
+				toonName = FULL_PLAYER_NAME:format(toonName, realmName)
 			end
 			return toonName, toonId
 		end
@@ -233,7 +233,7 @@ end
 
 local function shouldInvite(msg, sender)
 	if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and select(3, GetInstanceInfo()) ~= 14) or inQueue() then
-		return false -- in lfr or in queue
+		return false -- in lfr (not flex) or in queue
 	end
 
 	msg = msg:trim():lower()
