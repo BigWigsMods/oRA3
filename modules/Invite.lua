@@ -222,6 +222,8 @@ local function getBattleNetToon(presenceId)
 		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
 			if realmName ~= "" and realmName ~= playerRealm then
+				 -- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
+				realmName = realmName:gsub("[%s'%-]", "")
 				toonName = toonName.."-"..realmName
 			end
 			return toonName, toonId
