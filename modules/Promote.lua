@@ -144,19 +144,17 @@ do
 			guild:SetDisabled(factionDb.promoteAll)
 			guild:SetFullWidth(true)
 
+			local guildRanks = oRA:GetGuildRanks()
 			ranks = AceGUI:Create("Dropdown")
 			ranks:SetMultiselect(true)
 			ranks:SetLabel(L["By guild rank"])
-			ranks:SetList(oRA:GetGuildRanks())
-			ranks:SetCallback("OnValueChanged", ranksCallback)
-			ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
-			ranks:SetFullWidth(true)
-
-			local guildRanks = oRA:GetGuildRanks()
 			ranks:SetList(guildRanks)
 			for i, v in next, guildRanks do
 				ranks:SetItemValue(i, guildRankDb[i])
 			end
+			ranks:SetCallback("OnValueChanged", ranksCallback)
+			ranks:SetDisabled(factionDb.promoteAll or factionDb.promoteGuild)
+			ranks:SetFullWidth(true)
 		end
 
 		local individualHeader = AceGUI:Create("Heading")
@@ -247,9 +245,12 @@ end
 do
 	local function shouldPromote(name)
 		if dontPromoteThisSession[name] then return false end
-		local guildMembers = oRA:GetGuildMembers()
-		if factionDb.promoteGuild and guildMembers[name] then return true
-		elseif guildMembers[name] and guildRankDb[guildMembers[name]] then return true
+		if UnitIsInMyGuild(name) then
+			if factionDb.promoteGuild then return true end
+			local _, rankName, rank = GetGuildInfo(name)
+			if rankName and guildRankDb and guildRankDb[rank] then
+				return true
+			end
 		elseif util.inTable(factionDb.promotes, name) then return true
 		end
 	end
@@ -296,6 +297,7 @@ do
 	function module:OnEnable()
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
+		self:OnGroupChanged()
 	end
 end
 
