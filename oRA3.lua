@@ -381,6 +381,13 @@ function addon:OnEnable()
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
 	self.RegisterCallback(addon, "ConvertParty", onShutdown)
 	
+	SLASH_ORA1 = "/ora"
+	SLASH_ORA2 = "/ora3"
+	SlashCmdList.ORA = function()
+		InterfaceOptionsFrame_OpenToCategory("oRA3")
+		InterfaceOptionsFrame_OpenToCategory("oRA3")
+	end
+
 	SLASH_ORADISBAND1 = "/radisband"
 	SlashCmdList.ORADISBAND = actuallyDisband
 
