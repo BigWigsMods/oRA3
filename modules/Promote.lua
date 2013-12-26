@@ -279,7 +279,7 @@ do
 			if not IsEveryoneAssistant() then
 				for i = 1, GetNumGroupMembers() do
 					local name, rank = GetRaidRosterInfo(i)
-					if rank == 0 and shouldPromote(name) then
+					if name and rank == 0 and shouldPromote(name) then
 						promotes[name] = true
 					end
 				end
