@@ -248,7 +248,7 @@ do
 		if UnitIsInMyGuild(name) then
 			if factionDb.promoteGuild then return true end
 			local _, rankName, rank = GetGuildInfo(name)
-			if rankName and guildRankDb and guildRankDb[rank] then
+			if rankName and guildRankDb and guildRankDb[rank+1] then
 				return true
 			end
 		elseif util.inTable(factionDb.promotes, name) then return true
