@@ -96,7 +96,7 @@ do
 		end
 		for i = 1, GetNumGroupMembers() do
 			local name, rank = GetRaidRosterInfo(i)
-			if rank == 1 then
+			if name and rank == 1 then
 				DemoteAssistant(name)
 			end
 		end

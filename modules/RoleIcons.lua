@@ -72,7 +72,7 @@ do
 		GameTooltip:SetText(_G["INLINE_" .. role .. "_ICON"] .. _G[role])
 		for i = 1, GetNumGroupMembers() do
 			local name, _, group, _, _, class, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
-			if groupRole == role then
+			if name and groupRole == role then
 				local color = oRA.classColors[class]
 				local coloredName = ("|cff%02x%02x%02x%s"):format(color.r * 255, color.g * 255, color.b * 255, name:gsub("%-.+", "*"))
 				tinsert(roster[group], coloredName)
