@@ -100,6 +100,7 @@ do
 				DemoteAssistant(name)
 			end
 		end
+		--wipe(dontPromoteThisSession)
 	end
 
 	local function createFrame()
@@ -251,7 +252,9 @@ do
 			if rankName and guildRankDb and guildRankDb[rank+1] then
 				return true
 			end
-		elseif util.inTable(factionDb.promotes, name) then return true
+		end
+		if util.inTable(factionDb.promotes, name) then
+			return true
 		end
 	end
 
@@ -289,7 +292,7 @@ do
 			end
 		end
 	end
-	function module:OnGroupChanged(event, status, members)
+	function module:OnGroupChanged()
 		updateDemoteButton()
 		queuePromotes()
 	end
@@ -297,7 +300,7 @@ do
 	function module:OnEnable()
 		self:OnGuildRanksUpdate(nil, oRA:GetGuildRanks())
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
-		self:OnGroupChanged()
+		self:ScheduleTimer("OnGroupChanged", 5)
 	end
 end
 
@@ -308,7 +311,7 @@ function module:GUILD_ROSTER_UPDATE()
 	end
 end
 
-function module:OnGuildRanksUpdate(event, guildRanks)
+function module:OnGuildRanksUpdate(_, guildRanks)
 	if ranks then
 		ranks:SetList(guildRanks)
 		for i, v in next, guildRanks do
