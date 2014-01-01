@@ -24,17 +24,7 @@ local hasSetEveryoneAssistant = nil -- prevent re-enabling if changed later
 -- GUI
 --
 
-local demoteButton = nil
-local function updateDemoteButton()
-	if not demoteButton then return end
-	if IsInRaid() and UnitIsGroupLeader("player") then
-		demoteButton:SetDisabled(false)
-	else
-		demoteButton:SetDisabled(true)
-	end
-end
-
-local ranks, showPane, hidePane
+local ranks, showPane, hidePane, demoteButton
 do
 	local frame = nil
 	-- Widgets (in order of appearance)
@@ -118,7 +108,7 @@ do
 		demoteButton:SetCallback("OnLeave", onControlLeave)
 		demoteButton:SetCallback("OnClick", demoteRaid)
 		demoteButton:SetFullWidth(true)
-		updateDemoteButton()
+		demoteButton:SetDisabled(not IsInRaid() or not UnitIsGroupLeader("player"))
 
 		local massHeader = AceGUI:Create("Heading")
 		massHeader:SetText(L["Mass promotion"])
@@ -248,8 +238,8 @@ do
 		if dontPromoteThisSession[name] then return false end
 		if UnitIsInMyGuild(name) then
 			if factionDb.promoteGuild then return true end
-			local _, rankName, rank = GetGuildInfo(name)
-			if rankName and guildRankDb and guildRankDb[rank+1] then
+			local rank = oRA:IsGuildMember(name)
+			if guildRankDb and guildRankDb[rank] then
 				return true
 			end
 		end
@@ -293,7 +283,9 @@ do
 		end
 	end
 	function module:OnGroupChanged()
-		updateDemoteButton()
+		if demoteButton then
+			demoteButton:SetDisabled(not IsInRaid() or not UnitIsGroupLeader("player"))
+		end
 		queuePromotes()
 	end
 
