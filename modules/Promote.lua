@@ -63,7 +63,7 @@ do
 	end
 
 	local function addCallback(widget, event, value)
-		if type(value) ~= "string" or value:trim():len() < 3 then return true end
+		if type(value) ~= "string" then return true end
 		if util.inTable(factionDb.promotes, value) then return true end
 		table.insert(factionDb.promotes, value)
 		add:SetText()
