@@ -585,7 +585,7 @@ end
 
 function addon:OnCommReceived(prefix, message, distribution, sender)
 	if prefix == "oRA" then
-		self.callbacks:Fire("OnCommReceived", sender, strsplit(" ", message))
+		self.callbacks:Fire("OnCommReceived", Ambiguate(sender, "none"), strsplit(" ", message))
 	end
 end
 
