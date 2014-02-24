@@ -41,7 +41,7 @@ oRA3 dispone di una serie di comandi slash per aiutarti a configurare velocement
 ]]
 
 -- Ready check module
-L["The following players are not ready: %s"] = "I seguenti giocatori non sono pronti"
+L["The following players are not ready: %s"] = "I seguenti giocatori non sono pronti: %s"
 L["Ready Check (%d seconds)"] = "Appello (%d secondi)"
 L["Ready"] = "Pronto"
 L["Not Ready"] = "Non Pronto"
@@ -113,7 +113,7 @@ L["Toggle whether the cooldown display should only show the cooldown for spells 
 L["Cooldown settings"] = "Impostazioni Recuperi"
 L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."] = "Seleziona quali recuperi mostrare usando il menù a tendina e i segni di spunta sottostanti. Ogni classe ha un certo numero di incantesimi disponibili per poterne vedere i tempi di recupero. Seleziona una classe dal menù a scomparsa e poi configura quali incantesimi di classe monitorare per i tuoi bisogni."
 L["Select class"] = "Seleziona classe"
-L["Never show my own spells"] = "non mostrare mai i miei incantesimi"
+L["Never show my own spells"] = "Non mostrare mai i miei incantesimi"
 L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."] = "Attiva o no la visualizzazione sul monitor dei recuperi di quelli relativi ai tuoi incantesimi o abilità. Per esempio, se usi un'altro addon per tenere traccia dei tuoi recuperi."
 
 -- monitor
@@ -121,7 +121,8 @@ L["Cooldowns"] = "Recuperi"
 L["Right-Click me for options!"] = "Clic_Destro su di me per le opzioni!"
 L["Bar Settings"] = "Impostazioni Barra"
 L["Text Settings"] = "Impostazioni Testo"
-L["Spawn test bar"] = "Apparizione barra di test"
+L["Label Text Settings"] = "Impostazioni Testo Etichetta"
+L["Spawn test bar"] = "Prova barra di test"
 L["Use class color"] = "Usa il colore di classe"
 L["Custom color"] = "Colore personalizzato"
 L["Height"] = "Altezza"
@@ -147,7 +148,7 @@ L["Grow up"] = "Crescente"
 L["Zone"] = "Zona"
 
 -- Loot module
-L["Leave empty to make yourself Master Looter."] = "Lascia vuoto per impostare te stesso Responsabile del Bottino."
+L["Leave empty to make yourself Master Looter."] = "Lascia vuoto per impostare te stesso come Responsabile del Bottino."
 L["Let oRA3 to automatically set the loot mode to what you specify below when entering a party or raid."] = "Lascia che sia oRA3 ad impostare automaticamente la modalità di depredamento con le modalità impostate successivamente quando entri in un gruppo od incursione."
 L["Set the loot mode automatically when joining a group"] = "imposta automaticamente la modalità di depredamento quando entri in un gruppo o incursione"
 
@@ -173,7 +174,7 @@ L["Home"] = "Locale"
 L["World"] = "Reame"
 
 -- Gear Module
-L["Gear"] = "Equipaggiamento"
+L["Gear"] = "Armatura"
 L["Item Level"] = "Livello Oggetto"
 L["Missing Gems"] = "Gemme Mancanti"
 L["Missing Enchants"] = "Incantamenti Mancanti"
