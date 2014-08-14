@@ -200,19 +200,6 @@ local function inQueue()
 			return true
 		end
 	end
-
-	-- World PvP (WG/TB)
-	--for i=1, MAX_WORLD_PVP_QUEUES do
-	--	local status = GetWorldPVPQueueStatus(i)
-	--	if status and status ~= "none" then
-	--		return true
-	--	end
-	--end
-
-	-- Pet Battle PvP
-	--if C_PetBattles.GetPVPMatchmakingInfo() then
-	--	return true
-	--end
 end
 
 local playerFaction = UnitFactionGroup("player")
@@ -232,7 +219,9 @@ local function getBattleNetToon(presenceId)
 end
 
 local function shouldInvite(msg, sender)
-	if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and select(3, GetInstanceInfo()) ~= 14) or inQueue() then
+	local _, _, diff = GetInstanceInfo()
+	local isFlex = diff == 14 or diff == 15
+	if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and not isFlex) or inQueue() then
 		return false -- in lfr (not flex) or in queue
 	end
 
