@@ -2,15 +2,13 @@
 -- Setup
 --
 
-local isWOD = select(4, GetBuildInfo()) >= 60000 -- XXX compat
-
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
 local media = LibStub("LibSharedMedia-3.0")
-local LGIST = not isWOD and LibStub("LibGroupInSpecT-1.0", true)
+local LGIST = LibStub("LibGroupInSpecT-1.0", true) or LibStub("LibGroupInSpecT-1.1", true)
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
@@ -1215,10 +1213,8 @@ function module:OnStartup()
 	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-	if LGIST then
-		LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
-		LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
-	end
+	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
+	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
 
 	oRA.RegisterCallback(self, "OnCommReceived")
 
@@ -1228,9 +1224,7 @@ end
 function module:OnShutdown()
 	self:UnregisterAllEvents()
 	oRA3CooldownFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	if LGIST then
-		LGIST.UnregisterAllCallbacks(self)
-	end
+	LGIST.UnregisterAllCallbacks(self)
 
 	stopAll()
 	hideDisplay()
@@ -1301,9 +1295,10 @@ local talentScanners = {
 }
 
 function module:UpdateCooldownModifiers()
-	local info = LGIST and LGIST:GetCachedInfo(playerGUID)
-	if not info then return end
-	self:UpdateGroupCooldownModifiers(info)
+	local info = LGIST:GetCachedInfo(playerGUID)
+	if info then
+		self:UpdateGroupCooldownModifiers(info)
+	end
 end
 
 function module:UpdateGroupCooldownModifiers(info)
