@@ -14,7 +14,8 @@
 <Include file="libs\LibCandyBar-3.0\lib.xml"/>
 <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 <Include file="libs\LibDDI-1.0\lib.xml"/>
-<Include file="libs\LibGroupInSpecT-1.0\lib.xml"/>
+<Script file="libs\LibGroupInSpecT\LibGroupInSpecT-1.0.lua"/>
+<Script file="libs\LibGroupInSpecT\LibGroupInSpecT-1.1.lua"/>
 <Script file="libs\LibDualSpec-1.0\LibDualSpec-1.0.lua"/>
 
 </Ui>
