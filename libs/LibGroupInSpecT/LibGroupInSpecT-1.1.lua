@@ -319,7 +319,7 @@ function lib:GetCachedTalentInfo (class_id, tier, col, group, is_inspect, unit)
   local talent_id, name, icon, sel, avail = GetTalentInfo (tier, col, group, is_inspect, unit)
   if not talent_id or not class_id then
     --[===[@debug@
-    debug ("GetCachedTalentInfo("..class_id..","..tier..","..col..","..group..","..(is_inspect or 'nil')..","..(unit or 'nil')..") returned nil") --@end-debug
+    debug ("GetCachedTalentInfo("..class_id..","..tier..","..col..","..group..","..(is_inspect or 'nil')..","..(unit or 'nil')..") returned nil") --@end-debug@]===]
     return {}
   end
   talents[class_id] = talents[class_id] or {}
@@ -398,7 +398,7 @@ end
 function lib:Refresh (unit)
   local guid = UnitGUID (unit)
   if not guid then return end
-  --@debug@
+  --[===[@debug@
   debug ("Refreshing "..unit) --@end-debug@]===]
   if not self.state.mainq[guid] then
     self.state.staleq[guid] = 1
