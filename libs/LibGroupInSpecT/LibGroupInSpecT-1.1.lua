@@ -77,7 +77,7 @@ if interface_ver < 60000 then
 	return
 end
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 63 $"):match ("(%d+)") or 0)
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 64 $"):match ("(%d+)") or 0)
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -317,7 +317,11 @@ tip:SetOwner (UIParent, "ANCHOR_NONE")
 function lib:GetCachedTalentInfo (class_id, tier, col, group, is_inspect, unit)
   local talents = self.static_cache.talents
   local talent_id, name, icon, sel, avail = GetTalentInfo (tier, col, group, is_inspect, unit)
-  if not talent_id or not class_id then return end
+  if not talent_id or not class_id then
+    --[===[@debug@
+    debug ("GetCachedTalentInfo("..class_id..","..tier..","..col..","..group..","..(is_inspect or 'nil')..","..(unit or 'nil')..") returned nil") --@end-debug
+    return {}
+  end
   talents[class_id] = talents[class_id] or {}
   local class_talents = talents[class_id]
   if not class_talents[talent_id] then
@@ -394,7 +398,7 @@ end
 function lib:Refresh (unit)
   local guid = UnitGUID (unit)
   if not guid then return end
-  --[===[@debug@
+  --@debug@
   debug ("Refreshing "..unit) --@end-debug@]===]
   if not self.state.mainq[guid] then
     self.state.staleq[guid] = 1
@@ -528,7 +532,9 @@ function lib:BuildInfo (unit)
     for tier = 1, MAX_NUM_TALENT_TIERS do
       for col = 1, MAX_NUM_TALENT_COLUMNS do
         local talent, sel = self:GetCachedTalentInfo (info.class_id, tier, col, info.spec_group, is_inspect, unit)
-        info.talents[talent.talent_id] = sel and talent or nil -- Set/clear as needed
+        if talent and talent.talent_id then
+          info.talents[talent.talent_id] = sel and talent or nil -- Set/clear as needed
+        end
       end
     end
   end
