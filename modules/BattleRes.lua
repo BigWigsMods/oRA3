@@ -1,6 +1,6 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-if oRA then return end -- XXX don't load
+if oRA then return end -- Disabled
 local util = oRA.util
 local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
@@ -11,6 +11,7 @@ local resAmount = 1
 local ticker = 0
 local timeToGo = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
+local theDead = {}
 
 local brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
 brez:SetPoint("CENTER", UIParent, "CENTER")
@@ -29,14 +30,14 @@ header:SetPoint("BOTTOM", brez, "TOP")
 header:SetJustifyH("CENTER")
 header:SetText("Combat Res Monitor")
 
-local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 timer:SetSize(0,0)
 timer:SetPoint("RIGHT", brez, "RIGHT")
 timer:SetTextColor(1,1,1)
 timer:SetJustifyH("RIGHT")
 timer:SetText("0:00")
 
-local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 remaining:SetSize(0,0)
 remaining:SetPoint("LEFT", brez, "LEFT")
 remaining:SetTextColor(1,1,1)
@@ -52,6 +53,7 @@ scroll:SetMaxLines(3)
 scroll:SetFading(false)
 scroll:SetTextColor(1,1,1)
 scroll:SetJustifyH("CENTER")
+scroll:SetInsertMode("TOP")
 scroll:Show()
 
 function module:OnRegister()
@@ -89,6 +91,7 @@ local function updateTime()
 			if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 				theDead[k] = nil
 			elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
+				resAmount = resAmount - 1
 				remaining:SetText(resAmount)
 				theDead[k] = nil
 			end
@@ -122,7 +125,6 @@ function module:OnShutdown()
 	
 end
 
-local theDead = {}
 brez:SetScript("OnEvent", function(_, _, _, event, ...)
 	local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
 	if event == "SPELL_RESURRECT" then
@@ -133,9 +135,12 @@ brez:SetScript("OnEvent", function(_, _, _, event, ...)
 		local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
 		_, class = UnitClass(name)
 		local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-		scroll:AddMessage(strjoin(("|Hplayer:"..name.."|h|cFF%02x%02x%02x["..name:gsub("%-.+", "*").."]|r|h"):format(s.r * 255, s.g * 255, s.b * 255), ">>",
-			"|cFF71d5ff|Hspell:"..spellId.."|h["..spellName.."]|h|r", ">>",
-			("|Hplayer:"..tarName.."|h|cFF%02x%02x%02x["..tarName:gsub("%-.+", "*").."]|r|h"):format(t.r * 255, t.g * 255, t.b * 255))
+		local shortName = name:gsub("%-.+", "*")
+		local shortTarName = tarName:gsub("%-.+", "*")
+		scroll:AddMessage(
+			("|Hplayer:%s|h|cFF%02x%02x%02x[%s]|r|h >> |cFF71d5ff|Hspell:%d|h[%s]|h|r >> |Hplayer:%s|h|cFF%02x%02x%02x[%s]|r|h"):format(
+				name, s.r * 255, s.g * 255, s.b * 255, shortName, spellId, spellName, tarName, t.r * 255, t.g * 255, t.b * 255, shortTarName
+			)
 		)
 
 		--[[local origPlayer = "Unknown"
