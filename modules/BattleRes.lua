@@ -110,6 +110,7 @@ function module:ENCOUNTER_START()
 	self:ScheduleRepeatingTimer(updateTime, 1)
 	print("oRA3: Gaining a res every", timeToGo, "seconds.")
 	brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	scroll:Clear()
 end
 
@@ -119,6 +120,12 @@ function module:ENCOUNTER_END()
 	self:CancelAllTimers()
 	remaining:SetText("0")
 	timer:SetText("0:00")
+end
+
+function module:ZONE_CHANGED_NEW_AREA()
+	if not IsEncounterInProgress() then
+		self:ENCOUNTER_END() -- Son, did you just ragequit?
+	end
 end
 
 function module:OnShutdown()
