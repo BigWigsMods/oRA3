@@ -72,12 +72,15 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local _,_,_,interface_ver = GetBuildInfo()
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 68 $"):match ("(%d+)") or 0)
+
+-- TODO: remove once WoD is out proper
+_,_,_,interface_ver = GetBuildInfo ()
 if interface_ver < 60000 then
-	return
+  print(MAJOR.." is too new for this version of WoW - one of your addons needs to be downgraded!")
+  return
 end
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 64 $"):match ("(%d+)") or 0)
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -104,8 +107,11 @@ local MAX_NUM_TALENT_COLUMNS = MAX_NUM_TALENT_COLUMNS or 3
 local MAX_ATTEMPTS = 2
 
 --[===[@debug@
+lib.debug = true
 local function debug (...)
-  print (...)
+  if lib.debug then  -- allow programmatic override of debug output by client addons
+    print (...) 
+  end
 end
 --@end-debug@]===]
 
@@ -319,7 +325,7 @@ function lib:GetCachedTalentInfo (class_id, tier, col, group, is_inspect, unit)
   local talent_id, name, icon, sel, avail = GetTalentInfo (tier, col, group, is_inspect, unit)
   if not talent_id or not class_id then
     --[===[@debug@
-    debug ("GetCachedTalentInfo("..class_id..","..tier..","..col..","..group..","..(is_inspect or 'nil')..","..(unit or 'nil')..") returned nil") --@end-debug@]===]
+    debug ("GetCachedTalentInfo("..tostring(class_id)..","..tier..","..col..","..group..","..tostring(is_inspect)..","..tostring(unit)..") returned nil") --@end-debug@]===]
     return {}
   end
   talents[class_id] = talents[class_id] or {}
