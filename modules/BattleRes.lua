@@ -167,6 +167,7 @@ end
 function module:ENCOUNTER_START()
 	if not IsInGroup() or not self.db.profile.showDisplay then return end
 
+	wipe(theDead)
 	resAmount = 1
 	ticker = 0
 	remaining:SetText(resAmount)

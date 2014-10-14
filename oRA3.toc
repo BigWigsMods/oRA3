@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Author: Funkydude, Nebula169
