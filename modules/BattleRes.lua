@@ -21,14 +21,14 @@ brez:EnableMouse(true)
 brez:RegisterForDrag("LeftButton")
 brez:SetClampedToScreen(true)
 brez:SetMovable(true)
-brez:SetScript("OnDragStart", function(frame) if IsAltKeyDown() then frame:StartMoving() end end)
-brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() end)
+brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
+brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
 
 local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 header:SetSize(0,0)
 header:SetPoint("BOTTOM", brez, "TOP")
 header:SetJustifyH("CENTER")
-header:SetText("Combat Res Monitor")
+header:SetText("Battle Res Monitor")
 
 local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 timer:SetSize(0,0)
@@ -56,7 +56,69 @@ scroll:SetJustifyH("CENTER")
 scroll:SetInsertMode("TOP")
 scroll:Show()
 
+local function toggleLock()
+	if module.db.profile.lock then
+		brez:EnableMouse(false)
+		header:Hide()
+	else
+		brez:EnableMouse(true)
+		header:Show()
+	end
+end
+
+local function toggleShow()
+	if module.db.profile.showDisplay then
+		brez:Show()
+	else
+		brez:Hide()
+	end
+end
+
+local defaults = {
+	profile = {
+		showDisplay = true,
+		lock = false,
+	}
+}
+local function colorize(input) return ("|cfffed000%s|r"):format(input) end
+local options
+local function getOptions()
+	if not options then
+		options = {
+			type = "group",
+			name = "Res Monitor",
+			get = function(k) return module.db.profile[k[#k]] end,
+			set = function(k, v)
+				module.db.profile[k[#k]] = v
+				toggleLock()
+				toggleShow()
+			end,
+			args = {
+				showDisplay = {
+					type = "toggle",
+					name = colorize(L["Show monitor"]),
+					desc = "Show",
+					width = "full",
+					descStyle = "inline",
+					order = 1,
+				},
+				lock = {
+					type = "toggle",
+					name = colorize(L["Lock monitor"]),
+					desc = "Lock",
+					width = "full",
+					descStyle = "inline",
+					order = 2,
+				},
+			}
+		}
+	end
+	return options
+end
+
 function module:OnRegister()
+	self.db = oRA.db:RegisterNamespace("BattleRes", defaults)
+	oRA:RegisterModuleOptions("BattleRes", getOptions, "Res Monitor")
 	oRA.RegisterCallback(self, "OnShutdown")
 end
 
@@ -68,6 +130,9 @@ difficultyID 17 (Looking For Raid flex10-30, new)
 ]]
 
 function module:OnEnable()
+	toggleLock()
+	toggleShow()
+	oRA3:RestorePosition("oRA3BattleResMonitor")
 	self:RegisterEvent("ENCOUNTER_START")
 	self:RegisterEvent("ENCOUNTER_END")
 end
@@ -100,7 +165,7 @@ local function updateTime()
 end
 
 function module:ENCOUNTER_START()
-	if not IsInGroup() then return end
+	if not IsInGroup() or not self.db.profile.showDisplay then return end
 
 	resAmount = 1
 	ticker = 0
