@@ -189,7 +189,6 @@ local spells = {
 		[36554] = 24,   -- Shadowstep
 		[1776]  = 10,   -- Gouge
 		[408]   = 20,   -- Kidney Shot
-		[51722] = 60,   -- Dismantle
 		[51690] = 120,  -- Killing Spree
 		[51713] = 60,   -- Shadow Dance
 		[74001] = 120,  -- Combat Readiness
