@@ -12,6 +12,7 @@ local ticker = 0
 local timeToGo = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}
+local updateFunc
 local brez
 
 local function createFrame()
@@ -25,6 +26,7 @@ local function createFrame()
 	brez:SetMovable(true)
 	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
+	brez:SetScript("OnEvent", updateFunc)
 
 	local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	header:SetSize(0,0)
@@ -212,7 +214,7 @@ function module:OnShutdown()
 	brez:Hide()
 end
 
-brez:SetScript("OnEvent", function(_, _, _, event, ...)
+updateFunc = function(_, _, _, event, ...)
 	local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
 	if event == "SPELL_RESURRECT" then
 		local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
