@@ -171,7 +171,8 @@ function module:ENCOUNTER_START()
 	resAmount = 1
 	ticker = 0
 	remaining:SetText(resAmount)
-	timeToGo = (90/GetNumGroupMembers())*60
+	local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
+	timeToGo = (90/instanceGroupSize())*60
 	self:ScheduleRepeatingTimer(addOne, timeToGo)
 	self:ScheduleRepeatingTimer(updateTime, 1)
 	print("oRA3: Gaining a res every", timeToGo, "seconds.")
