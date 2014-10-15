@@ -251,5 +251,5 @@ updateFunc = function(_, _, _, event, ...)
 	elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then 
 		theDead[tarName] = true
 	end
-end)
+end
 
