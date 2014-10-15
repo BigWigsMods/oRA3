@@ -187,7 +187,7 @@ function module:ENCOUNTER_START()
 	ticker = 0
 	brez.remaining:SetText(resAmount)
 	local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
-	timeToGo = (90/instanceGroupSize())*60
+	timeToGo = (90/instanceGroupSize)*60
 	self:ScheduleRepeatingTimer(addOne, timeToGo)
 	self:ScheduleRepeatingTimer(updateTime, 1)
 	brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
