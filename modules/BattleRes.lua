@@ -1,6 +1,5 @@
 
 local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
-if oRA then return end -- Disabled
 local util = oRA.util
 local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
@@ -131,13 +130,6 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 end
-
---[[
-difficultyID 14 (Normal flex10-30, previously "Flex")
-difficultyID 15 (Heroic flex10-30, new)
-difficultyID 16 (Mythic 20, new)
-difficultyID 17 (Looking For Raid flex10-30, new)
-]]
 
 function module:OnStartup()
 	if not brez then
