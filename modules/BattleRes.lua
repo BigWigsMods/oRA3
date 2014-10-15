@@ -65,6 +65,7 @@ local function createFrame()
 end
 
 local function toggleLock()
+	if not brez then return end
 	if module.db.profile.lock then
 		brez:EnableMouse(false)
 		brez.header:Hide()
@@ -75,6 +76,7 @@ local function toggleLock()
 end
 
 local function toggleShow()
+	if not brez then return end
 	if module.db.profile.showDisplay then
 		brez:Show()
 	else
