@@ -12,57 +12,64 @@ local ticker = 0
 local timeToGo = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}
+local brez
 
-local brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
-brez:SetPoint("CENTER", UIParent, "CENTER")
-brez:SetWidth(100)
-brez:SetHeight(25)
-brez:EnableMouse(true)
-brez:RegisterForDrag("LeftButton")
-brez:SetClampedToScreen(true)
-brez:SetMovable(true)
-brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
-brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
+local function createFrame()
+	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
+	brez:SetPoint("CENTER", UIParent, "CENTER")
+	brez:SetWidth(100)
+	brez:SetHeight(25)
+	brez:EnableMouse(true)
+	brez:RegisterForDrag("LeftButton")
+	brez:SetClampedToScreen(true)
+	brez:SetMovable(true)
+	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
+	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
 
-local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-header:SetSize(0,0)
-header:SetPoint("BOTTOM", brez, "TOP")
-header:SetJustifyH("CENTER")
-header:SetText("Battle Res Monitor")
+	local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	header:SetSize(0,0)
+	header:SetPoint("BOTTOM", brez, "TOP")
+	header:SetJustifyH("CENTER")
+	header:SetText(L.battleResTitle)
+	brez.header = header
 
-local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-timer:SetSize(0,0)
-timer:SetPoint("RIGHT", brez, "RIGHT")
-timer:SetTextColor(1,1,1)
-timer:SetJustifyH("RIGHT")
-timer:SetText("0:00")
+	local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	timer:SetSize(0,0)
+	timer:SetPoint("RIGHT", brez, "RIGHT")
+	timer:SetTextColor(1,1,1)
+	timer:SetJustifyH("RIGHT")
+	timer:SetText("0:00")
+	brez.timer = timer
 
-local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-remaining:SetSize(0,0)
-remaining:SetPoint("LEFT", brez, "LEFT")
-remaining:SetTextColor(1,1,1)
-remaining:SetJustifyH("LEFT")
-remaining:SetText("0")
+	local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	remaining:SetSize(0,0)
+	remaining:SetPoint("LEFT", brez, "LEFT")
+	remaining:SetTextColor(1,1,1)
+	remaining:SetJustifyH("LEFT")
+	remaining:SetText("0")
+	brez.remaining = remaining
 
-local scroll = CreateFrame("ScrollingMessageFrame", "TESTT", brez)
-scroll:SetPoint("TOP", brez, "BOTTOM")
-scroll:SetFontObject(GameFontNormal)
-scroll:SetWidth(1920)
-scroll:SetHeight(40)
-scroll:SetMaxLines(3)
-scroll:SetFading(false)
-scroll:SetTextColor(1,1,1)
-scroll:SetJustifyH("CENTER")
-scroll:SetInsertMode("TOP")
-scroll:Show()
+	local scroll = CreateFrame("ScrollingMessageFrame", "TESTT", brez)
+	scroll:SetPoint("TOP", brez, "BOTTOM")
+	scroll:SetFontObject(GameFontNormal)
+	scroll:SetWidth(1920)
+	scroll:SetHeight(40)
+	scroll:SetMaxLines(3)
+	scroll:SetFading(false)
+	scroll:SetTextColor(1,1,1)
+	scroll:SetJustifyH("CENTER")
+	scroll:SetInsertMode("TOP")
+	scroll:Show()
+	brez.scroll = scroll
+end
 
 local function toggleLock()
 	if module.db.profile.lock then
 		brez:EnableMouse(false)
-		header:Hide()
+		brez.header:Hide()
 	else
 		brez:EnableMouse(true)
-		header:Show()
+		brez.header:Show()
 	end
 end
 
@@ -97,7 +104,7 @@ local function getOptions()
 				showDisplay = {
 					type = "toggle",
 					name = colorize(L["Show monitor"]),
-					desc = "Show",
+					desc = L.battleResShowDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 1,
@@ -105,7 +112,7 @@ local function getOptions()
 				lock = {
 					type = "toggle",
 					name = colorize(L["Lock monitor"]),
-					desc = "Lock",
+					desc = L.battleResLockDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 2,
@@ -119,6 +126,7 @@ end
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("BattleRes", defaults)
 	oRA:RegisterModuleOptions("BattleRes", getOptions, "Res Monitor")
+	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 end
 
@@ -129,7 +137,13 @@ difficultyID 16 (Mythic 20, new)
 difficultyID 17 (Looking For Raid flex10-30, new)
 ]]
 
-function module:OnEnable()
+function module:OnStartup()
+	if not brez then
+		createFrame()
+		createFrame = nil
+		print("|cFF33FF99oRA3|r: We've added a new Battle Res Monitor! It will show how many resses you have available, and the time remaining until you gain another res.")
+		print("|cFF33FF99oRA3|r: As it's brand new it may be buggy. We're looking for input and tweaking it as required.")
+	end
 	toggleLock()
 	toggleShow()
 	oRA3:RestorePosition("oRA3BattleResMonitor")
@@ -139,9 +153,8 @@ end
 
 local function addOne()
 	resAmount = resAmount + 1
-	remaining:SetText(resAmount)
+	brez.remaining:SetText(resAmount)
 	ticker = 0
-	print"oRA3: adding a res"
 end
 
 local function updateTime()
@@ -149,7 +162,7 @@ local function updateTime()
 	local time = timeToGo - ticker
 	local m = floor(time/60)
 	local s = mod(time, 60)
-	timer:SetFormattedText("%d:%02d", m, s)
+	brez.timer:SetFormattedText("%d:%02d", m, s)
 
 	if next(theDead) then
 		for k in next, theDead do
@@ -157,7 +170,7 @@ local function updateTime()
 				theDead[k] = nil
 			elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 				resAmount = resAmount - 1
-				remaining:SetText(resAmount)
+				brez.remaining:SetText(resAmount)
 				theDead[k] = nil
 			end
 		end
@@ -165,28 +178,26 @@ local function updateTime()
 end
 
 function module:ENCOUNTER_START()
-	if not IsInGroup() or not self.db.profile.showDisplay then return end
+	if not self.db.profile.showDisplay then return end
 
 	wipe(theDead)
 	resAmount = 1
 	ticker = 0
-	remaining:SetText(resAmount)
+	brez.remaining:SetText(resAmount)
 	local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
 	timeToGo = (90/instanceGroupSize())*60
 	self:ScheduleRepeatingTimer(addOne, timeToGo)
 	self:ScheduleRepeatingTimer(updateTime, 1)
-	print("oRA3: Gaining a res every", timeToGo, "seconds.")
 	brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-	scroll:Clear()
+	brez.scroll:Clear()
 end
 
 function module:ENCOUNTER_END()
 	brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	print("oRA3: Resses back to normal.")
 	self:CancelAllTimers()
-	remaining:SetText("0")
-	timer:SetText("0:00")
+	brez.remaining:SetText("0")
+	brez.timer:SetText("0:00")
 end
 
 function module:ZONE_CHANGED_NEW_AREA()
@@ -196,14 +207,14 @@ function module:ZONE_CHANGED_NEW_AREA()
 end
 
 function module:OnShutdown()
-	
+	self:UnregisterEvent("ENCOUNTER_START")
+	self:UnregisterEvent("ENCOUNTER_END")
+	brez:Hide()
 end
 
 brez:SetScript("OnEvent", function(_, _, _, event, ...)
 	local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
 	if event == "SPELL_RESURRECT" then
-		print("oRA3:", event, ...)
-
 		local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
 		local _, class = UnitClass(tarName)
 		local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
@@ -211,12 +222,13 @@ brez:SetScript("OnEvent", function(_, _, _, event, ...)
 		local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
 		local shortName = name:gsub("%-.+", "*")
 		local shortTarName = tarName:gsub("%-.+", "*")
-		scroll:AddMessage(
-			("|Hplayer:%s|h|cFF%02x%02x%02x[%s]|r|h >> |cFF71d5ff|Hspell:%d|h[%s]|h|r >> |Hplayer:%s|h|cFF%02x%02x%02x[%s]|r|h"):format(
+		brez.scroll:AddMessage(
+			("|Hplayer:%s|h|cFF%02x%02x%02x%s|r|h >> |cFF71d5ff|Hspell:%d|h[%s]|h|r >> |Hplayer:%s|h|cFF%02x%02x%02x%s|r|h"):format(
 				name, s.r * 255, s.g * 255, s.b * 255, shortName, spellId, spellName, tarName, t.r * 255, t.g * 255, t.b * 255, shortTarName
 			)
 		)
 
+		-- XXX we need to support pets
 		--[[local origPlayer = "Unknown"
 		for i = 1, GetNumGroupMembers() do
 			if UnitGUID(("raid%dpet"):format(i)) == sGuid then

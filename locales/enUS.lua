@@ -179,3 +179,8 @@ L["Item Level"] = true
 L["Missing Gems"] = true
 L["Missing Enchants"] = true
 
+-- BattleRes Module
+L.battleResTitle = "Battle Res Monitor"
+L.battleResLockDesc = "Toggle locking the monitor, preventing movement and hiding the header text."
+L.battleResShowDesc = "Toggle showing or hiding the monitor."
+
