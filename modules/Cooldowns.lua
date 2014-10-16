@@ -121,6 +121,7 @@ local spells = {
 		[115610] = 25,  -- Temporal Shield
 		[102051] = 20,  -- Frostjaw
 		[110959] = 90,  -- Greater Invisibility
+		[159916] = 60,  -- Amplify Magic
 	},
 	PALADIN = {
 		[633]   = 600,  -- Lay on Hands
