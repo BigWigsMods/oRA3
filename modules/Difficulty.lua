@@ -13,7 +13,7 @@ function module:OnRegister()
 	db = oRA.db.char
 
 	hooksecurefunc("SetRaidDifficultyID", function(difficultyID)
-		if difficultyID > 2 and difficultyID < 7 then
+		if difficultyID > 13 and difficultyID < 17 then
 			db.lastRaidDifficulty = difficultyID
 		end
 	end)
