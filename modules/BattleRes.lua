@@ -216,11 +216,13 @@ do
 end
 
 function module:OnShutdown()
-	brez:Hide()
-	brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	module:CancelAllTimers()
-	brez.remaining:SetText("0")
-	brez.timer:SetText("0:00")
+	if brez then
+		brez:Hide()
+		brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		module:CancelAllTimers()
+		brez.remaining:SetText("0")
+		brez.timer:SetText("0:00")
+	end
 end
 
 do
