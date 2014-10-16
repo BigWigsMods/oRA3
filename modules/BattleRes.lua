@@ -13,6 +13,8 @@ local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}
 local updateFunc
 local brez
+local inCombat = false
+local IsEncounterInProgress = IsEncounterInProgress
 
 local function createFrame()
 	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
@@ -102,6 +104,7 @@ local function getOptions()
 				module.db.profile[k[#k]] = v
 				toggleLock()
 				toggleShow()
+				module:ZONE_CHANGED_NEW_AREA()
 			end,
 			args = {
 				showDisplay = {
@@ -134,116 +137,144 @@ function module:OnRegister()
 end
 
 function module:OnStartup()
-	if not brez then
-		createFrame()
-		createFrame = nil
-		print("|cFF33FF99oRA3|r: We've added a new Battle Res Monitor! It will show how many resses you have available, and the time remaining until you gain another res.")
-		print("|cFF33FF99oRA3|r: As it's brand new it may be buggy. We're looking for input and tweaking it as required.")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:ZONE_CHANGED_NEW_AREA()
+end
+
+do
+	local function addOne()
+		resAmount = resAmount + 1
+		brez.remaining:SetText(resAmount)
+		ticker = 0
 	end
-	toggleLock()
-	toggleShow()
-	oRA3:RestorePosition("oRA3BattleResMonitor")
-	self:RegisterEvent("ENCOUNTER_START")
-	self:RegisterEvent("ENCOUNTER_END")
-end
 
-local function addOne()
-	resAmount = resAmount + 1
-	brez.remaining:SetText(resAmount)
-	ticker = 0
-end
+	local function updateTime()
+		ticker = ticker + 1
+		local time = timeToGo - ticker
+		local m = floor(time/60)
+		local s = mod(time, 60)
+		brez.timer:SetFormattedText("%d:%02d", m, s)
 
-local function updateTime()
-	ticker = ticker + 1
-	local time = timeToGo - ticker
-	local m = floor(time/60)
-	local s = mod(time, 60)
-	brez.timer:SetFormattedText("%d:%02d", m, s)
-
-	if next(theDead) then
-		for k in next, theDead do
-			if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
-				theDead[k] = nil
-			elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
-				resAmount = resAmount - 1
-				brez.remaining:SetText(resAmount)
-				theDead[k] = nil
+		if next(theDead) then
+			for k in next, theDead do
+				if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
+					theDead[k] = nil
+				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
+					resAmount = resAmount - 1
+					brez.remaining:SetText(resAmount)
+					theDead[k] = nil
+				end
 			end
 		end
 	end
-end
 
-function module:ENCOUNTER_START()
-	if not self.db.profile.showDisplay then return end
+	local countUpdater, timeUpdater = nil, nil
+	local function updateStatus()
+		if not inCombat and IsEncounterInProgress() then
+			inCombat = true
+			wipe(theDead)
+			resAmount = 1
+			ticker = 0
+			brez.remaining:SetText(resAmount)
+			-- XXX fix mythic scaling
+			local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
+			timeToGo = (90/instanceGroupSize)*60
+			countUpdater = module:ScheduleRepeatingTimer(addOne, timeToGo)
+			timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
+			brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			brez.scroll:Clear()
+		elseif inCombat and not IsEncounterInProgress() then
+			inCombat = false
+			brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			module:CancelTimer(countUpdater)
+			module:CancelTimer(timeUpdater)
+			brez.remaining:SetText("0")
+			brez.timer:SetText("0:00")
+		end
+	end
 
-	wipe(theDead)
-	resAmount = 1
-	ticker = 0
-	brez.remaining:SetText(resAmount)
-	local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
-	timeToGo = (90/instanceGroupSize)*60
-	self:ScheduleRepeatingTimer(addOne, timeToGo)
-	self:ScheduleRepeatingTimer(updateTime, 1)
-	brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-	brez.scroll:Clear()
-end
+	function module:ZONE_CHANGED_NEW_AREA()
+		local _, type = GetInstanceInfo()
+		if type == "raid" and self.db.profile.showDisplay then
+			if not inCombat then self:CancelAllTimers() end
 
-function module:ENCOUNTER_END()
-	brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self:CancelAllTimers()
-	brez.remaining:SetText("0")
-	brez.timer:SetText("0:00")
-end
+			if not brez then
+				createFrame()
+				createFrame = nil
+				self:ScheduleTimer(function()
+					print("|cFF33FF99oRA3|r: We've added a new Battle Res Monitor! It will show how many resses you have available, and the time remaining until you gain another res.")
+					print("|cFF33FF99oRA3|r: As it's brand new it may be buggy. We're looking for input and tweaking it as required.")
+				end, 5)
+			end
+			toggleLock()
+			toggleShow()
+			oRA3:RestorePosition("oRA3BattleResMonitor")
 
-function module:ZONE_CHANGED_NEW_AREA()
-	if not IsEncounterInProgress() then
-		self:ENCOUNTER_END() -- Son, did you just ragequit?
+			self:ScheduleRepeatingTimer(updateStatus, 0.1)
+		end
 	end
 end
 
 function module:OnShutdown()
-	self:UnregisterEvent("ENCOUNTER_START")
-	self:UnregisterEvent("ENCOUNTER_END")
 	brez:Hide()
+	brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	module:CancelAllTimers()
+	brez.remaining:SetText("0")
+	brez.timer:SetText("0:00")
 end
 
-updateFunc = function(_, _, _, event, ...)
-	local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
-	if event == "SPELL_RESURRECT" then
-		local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
-		local _, class = UnitClass(tarName)
-		local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-		_, class = UnitClass(name)
-		local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-		local shortName = name:gsub("%-.+", "*")
-		local shortTarName = tarName:gsub("%-.+", "*")
-		brez.scroll:AddMessage(
-			("|Hplayer:%s|h|cFF%02x%02x%02x%s|r|h >> |cFF71d5ff|Hspell:%d|h[%s]|h|r >> |Hplayer:%s|h|cFF%02x%02x%02x%s|r|h"):format(
-				name, s.r * 255, s.g * 255, s.b * 255, shortName, spellId, spellName, tarName, t.r * 255, t.g * 255, t.b * 255, shortTarName
-			)
-		)
+do
+	local function getPetOwner(pet, guid)
+		if UnitGUID("pet") == guid then
+			return module:UnitName("player")
+		end
 
-		-- XXX we need to support pets
-		--[[local origPlayer = "Unknown"
-		for i = 1, GetNumGroupMembers() do
-			if UnitGUID(("raid%dpet"):format(i)) == sGuid then
-				origPlayer = GetRaidRosterInfo(i)
+		local owner
+		if IsInRaid() then
+			for i=1, GetNumGroupMembers() do
+				if UnitGUID(("raid%dpet"):format(i)) == guid then
+					owner = ("raid%d"):format(i)
+					break
+				end
+			end
+		else
+			for i=1, GetNumSubgroupMembers() do
+				if UnitGUID(("party%dpet"):format(i)) == guid then
+					owner = ("party%d"):format(i)
+					break
+				end
 			end
 		end
-		local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
-		local _, class = UnitClass(tarName)
-		local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-		_, class = UnitClass(origPlayer)
-		local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-		print("|cFF33FF99bRez|r: ", ("|Hplayer:"..origPlayer.."|h|cFF%02x%02x%02x["..origPlayer:gsub("%-.+", "*").." ("..name..")]|r|h"):format(s.r * 255, s.g * 255, s.b * 255), ">>",
-			"|cFF71d5ff|Hspell:126393|h["..spellName.."]|h|r", ">>",
-			("|Hplayer:"..tarName.."|h|cFF%02x%02x%02x["..tarName:gsub("%-.+", "*").."]|r|h"):format(t.r * 255, t.g * 255, t.b * 255)
-		)]]
+		if owner then
+			return module:UnitName(owner)
+		end
+		return pet
+	end
 
-	-- Lots of lovely checks before adding someone to the deaths table
-	elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then 
-		theDead[tarName] = true
+	updateFunc = function(_, _, _, event, ...)
+		local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
+		if event == "SPELL_RESURRECT" then
+			if spellId == 126393 then -- Eternal Guardian
+				name = getPetOwner(name, sGuid)
+			end
+
+			local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
+			local _, class = UnitClass(tarName)
+			local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
+			_, class = UnitClass(name)
+			local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
+			local shortName = name:gsub("%-.+", "*")
+			local shortTarName = tarName:gsub("%-.+", "*")
+			brez.scroll:AddMessage(
+				("|Hplayer:%s|h|cFF%02x%02x%02x%s|r|h >> |Hplayer:%s|h|cFF%02x%02x%02x%s|r|h"):format(
+					name, s.r * 255, s.g * 255, s.b * 255, shortName, tarName, t.r * 255, t.g * 255, t.b * 255, shortTarName
+				)
+			)
+
+		-- Lots of lovely checks before adding someone to the deaths table
+		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then 
+			theDead[tarName] = true
+		end
 	end
 end
 
