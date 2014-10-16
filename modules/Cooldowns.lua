@@ -30,29 +30,27 @@ local glyphCooldowns = {
 	[55688] = {64044, 10},     -- Psychic Horror, -10sec
 	[63309] = {48020, 4},      -- Demonic Circle: Teleport, -4sec
 	[58058] = {556, 300},      -- Astral Recall, -300sec
-	[55441] = {8177, -35},     -- Grounding Totem, +35sec
+	[55441] = {8177, -20},     -- Grounding Totem, +20sec
 	[63270] = {51490, 10},     -- Thunderstorm, -10sec
 	[63328] = {23920, 5},      -- Spell Reflection, -5sec
 	[59219] = {1850, 60},      -- Dash, -60sec
 	[58673] = {48792, 90},     -- Icebound Fortitude, -90sec (-50%)
 	[56368] = {11129, -45},    -- Combustion, +45sec (+100%)
-	[58686] = {47528, 2},      -- Mind Freeze, -2sec
-	[116216] = {106839, -10},  -- Skull Bash, +10sec
-	[116203] = {16689, 30},    -- Nature's Grasp, -30sec
-	[114223] = {61336, 60},    -- Survival Instincts, -60sec
+	[58686] = {47528, 1},      -- Mind Freeze, -1sec
+	[116216] = {106839, -5},   -- Skull Bash, +5sec
+	[114223] = {61336, 40},    -- Survival Instincts, -40sec
 	[56376] = {122, 5},        -- Frost Nova, -5sec
 	[62210] = {12042, -90},    -- Arcane Power, +90sec (+100%)
 	[115703] = {2139, -4},     -- Counterspell, +4sec
 	[54925] = {96231, -5},     -- Rebuke, +5sec
 	[56805] = {1766, -4},      -- Kick, +4sec
 	[55451] = {57994, -3},     -- Wind Shear, +3sec
-	[123391] = {115080, -90},  -- Touch of Death, +90sec
+	[123391] = {115080, -120}, -- Touch of Death, +120sec
 	[63331] = {77606, 30},     -- Dark Simulacrum, -30sec
 }
 
 local spells = {
 	DRUID = {
-		[20484] = 600,  -- Rebirth
 		[132158] = 60,  -- Nature's Swiftness
 		[61336] = 180,  -- Survival Instincts
 		[22812] = 60,   -- Barkskin
@@ -69,7 +67,7 @@ local spells = {
 		[1850]  = 180,  -- Dash
 		[740]   = 480,  -- Tranquility
 		[77761] = 120,  -- Stampeding Roar
-		[102342] = 60, -- Ironbark
+		[102342] = 60,  -- Ironbark
 		[102359] = 30,  -- Mass Entanglement
 	},
 	HUNTER = {
@@ -95,7 +93,6 @@ local spells = {
 		[51753] = 60,   -- Camouflage
 		[90355] = 360,  -- Ancient Hysteria
 		[160452] = 360, -- Netherwinds
-		[126393] = 600, -- Eternal Guardian
 		[109248] = 45,  -- Binding Shot
 		[109304] = 120, -- Exhilaration
 		[121818] = 300, -- Stampede
@@ -137,7 +134,7 @@ local spells = {
 		[31850] = 180,  -- Ardent Defender
 		[96231] = 15,   -- Rebuke
 		[20066] = 15,   -- Repentance
-		[31884] = 180,  -- Avenging Wrath
+		[31884] = 120,  -- Avenging Wrath
 		[853]   = 60,   -- Hammer of Justice
 		[31935] = 15,   -- Avenger's Shield
 		[86659] = 180,  -- Guardian of Ancient Kings (Prot)
@@ -217,7 +214,6 @@ local spells = {
 		[114049] = 180, -- Ascendance
 	},
 	WARLOCK = {
-		[20707] = 600,  -- Soulstone Resurrection
 		[698]   = 120,  -- Ritual of Summoning
 		[1122]  = 600,  -- Summon Infernal
 		[18540] = 600,  -- Summon Doomguard
@@ -266,7 +262,6 @@ local spells = {
 		[47476] = 60,   -- Strangulate
 		[48792] = 180,  -- Icebound Fortitude
 		[48707] = 45,   -- Anti-Magic Shell
-		[61999] = 600,  -- Raise Ally
 		[42650] = 600,  -- Army of the Dead
 		[49222] = 60,   -- Bone Shield
 		[55233] = 60,   -- Vampiric Blood
@@ -315,8 +310,6 @@ for class, spells in next, spells do
 		classLookup[id] = class
 	end
 end
-allSpells[95750] = 600 -- Combat Soulstone
-classLookup[95750] = "WARLOCK"
 
 local db = nil
 local cdModifiers = {}
@@ -1062,11 +1055,7 @@ function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
 			spells = {
-				[20484] = true,
-				[20608] = true,
-				[20707] = true,
-				[61999] = true,
-				[126393] = true,
+				[20608] = true, -- Reincarnation
 			},
 			showDisplay = true,
 			onlyShowMine = nil,
@@ -1237,11 +1226,6 @@ local function addMod(guid, spell, modifier)
 end
 
 local talentScanners = {
-	PALADIN = function(info)
-		if info.spec_index == 3 then -- Retribution
-			addMod(info.guid, 31884, 60) -- 60 seconds off Avenging Wrath
-		end
-	end,
 	WARRIOR = function(info)
 		if info.talents[103826] then -- Juggernaut
 			addMod(info.guid, 100, 8) -- 8 seconds off Charge
@@ -1256,14 +1240,6 @@ local talentScanners = {
 	MAGE = function(info)
 		if info.talents[110959] then -- Greater Invis
 			addMod(info.guid, 66, 210) -- 210 secs off Invisibility
-		end
-		if info.talents[114003] then -- Invocation
-			addMod(info.guid, 12051, 120) -- Evocation goes to 0
-		end
-	end,
-	DRUID = function(info)
-		if info.spec_index == 4 then -- Resto
-			addMod(info.guid, 740, 300) -- 5min off Tranquility
 		end
 	end,
 }
@@ -1299,42 +1275,10 @@ function module:InspectRemove(_, guid)
 end
 
 do
-	local function getPetOwner(pet, guid)
-		if UnitGUID("pet") == guid then
-			return playerName, playerGUID
-		end
-
-		local owner
-		if IsInRaid() then
-			for i=1, GetNumGroupMembers() do
-				if UnitGUID(("raid%dpet"):format(i)) == guid then
-					owner = ("raid%d"):format(i)
-					break
-				end
-			end
-		else
-			for i=1, GetNumSubgroupMembers() do
-				if UnitGUID(("party%dpet"):format(i)) == guid then
-					owner = ("party%d"):format(i)
-					break
-				end
-			end
-		end
-		if owner then
-			return module:UnitName(owner), UnitGUID(owner)
-		end
-		return pet, guid
-	end
-
 	local IsEncounterInProgress, band, inEncounter = IsEncounterInProgress, bit.band, nil
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	function combatLog(_, _, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId)
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
-			if spellId == 126393 or spellId == 90355 or spellId == 160452 then -- Eternal Guardian/Ancient Hysteria/Netherwinds
-				source, srcGUID = getPetOwner(source, srcGUID)
-			elseif spellId == 95750 then -- Combat Soulstone, funnel it via normal Soulstone
-				spellId = 20707
-			end
 			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 		end
 
