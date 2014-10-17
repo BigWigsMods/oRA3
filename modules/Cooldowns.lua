@@ -8,7 +8,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 local AceGUI = LibStub("AceGUI-3.0")
 local candy = LibStub("LibCandyBar-3.0")
 local media = LibStub("LibSharedMedia-3.0")
-local LGIST = LibStub("LibGroupInSpecT-1.0", true) or LibStub("LibGroupInSpecT-1.1", true)
+local LGIST = LibStub("LibGroupInSpecT-1.1")
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
@@ -97,6 +97,7 @@ local spells = {
 		[109304] = 120, -- Exhilaration
 		[121818] = 300, -- Stampede
 		[53271] = 45,   -- Master's Call
+		[172106] = 180, -- Aspect of the Fox
 		-- XXX Pets missing
 	},
 	MAGE = {
