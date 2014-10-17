@@ -156,12 +156,30 @@ do
 		brez.timer:SetFormattedText("%d:%02d", m, s)
 
 		if next(theDead) then
-			for k in next, theDead do
+			for k, v in next, theDead do
 				if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
-					resAmount = resAmount - 1
-					brez.remaining:SetText(resAmount)
+					if v == "br" then
+						resAmount = resAmount - 1
+						brez.remaining:SetText(resAmount)
+					else
+						local _, class = UnitClass(k)
+						if class == "SHAMAN" then
+							-- print?
+						else
+							local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
+							local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
+							local shortName = k:gsub("%-.+", "*")
+							brez.scroll:AddMessage(
+								("|cFF71d5ff|Hspell:20707|h%s|h|r >> |cFF%02x%02x%02x%s|r"):format(
+									GetSpellInfo(20707), s.r * 255, s.g * 255, s.b * 255, shortName
+								)
+							)
+							resAmount = resAmount - 1
+							brez.remaining:SetText(resAmount)
+						end
+					end
 					theDead[k] = nil
 				end
 			end
@@ -268,10 +286,11 @@ do
 			local shortName = name:gsub("%-.+", "*")
 			local shortTarName = tarName:gsub("%-.+", "*")
 			brez.scroll:AddMessage(
-				("|Hplayer:%s|h|cFF%02x%02x%02x%s|r|h >> |Hplayer:%s|h|cFF%02x%02x%02x%s|r|h"):format(
-					name, s.r * 255, s.g * 255, s.b * 255, shortName, tarName, t.r * 255, t.g * 255, t.b * 255, shortTarName
+				("|cFF%02x%02x%02x%s|r >> |cFF%02x%02x%02x%s|r"):format(
+					s.r * 255, s.g * 255, s.b * 255, shortName, t.r * 255, t.g * 255, t.b * 255, shortTarName
 				)
 			)
+			theDead[tarName] = "br"
 
 		-- Lots of lovely checks before adding someone to the deaths table
 		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then 
