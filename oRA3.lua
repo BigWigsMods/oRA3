@@ -111,9 +111,6 @@ local defaults = {
 		repairAmountStorage = {},
 		open = false,
 	},
-	char = {
-		lastRaidDifficulty = 3,
-	},
 }
 
 local selectList -- implemented down the file
@@ -296,6 +293,8 @@ end
 --
 
 function addon:OnInitialize()
+	oRA3DB.char = nil -- XXX temp cleanup from Difficulty module
+
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA3")
 
