@@ -118,7 +118,7 @@ function module:UPDATE_FACTION()
 				end
 				CollapseFactionHeader(i)
 			end
-		else
+		elseif name then
 			factionList[name] = true
 		end
 	end
@@ -150,6 +150,7 @@ function module:UpdateZoneList()
 	elseif IsInGroup() then
 		if not tip then
 			createTooltip()
+			createTooltip = nil
 		end
 		addPlayer(UnitName("player"), GetRealZoneText())
 		for i = 1, MAX_PARTY_MEMBERS do
