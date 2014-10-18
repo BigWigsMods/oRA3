@@ -19,8 +19,9 @@ local IsEncounterInProgress = IsEncounterInProgress
 local function createFrame()
 	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
 	brez:SetPoint("CENTER", UIParent, "CENTER")
-	brez:SetWidth(100)
-	brez:SetHeight(25)
+	oRA3:RestorePosition("oRA3BattleResMonitor")
+	brez:SetWidth(140)
+	brez:SetHeight(30)
 	brez:EnableMouse(true)
 	brez:RegisterForDrag("LeftButton")
 	brez:SetClampedToScreen(true)
@@ -29,24 +30,33 @@ local function createFrame()
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
 	brez:SetScript("OnEvent", updateFunc)
 
+	local bg = brez:CreateTexture(nil, "PARENT")
+	bg:SetAllPoints(brez)
+	bg:SetBlendMode("BLEND")
+	bg:SetTexture(0, 0, 0, 0.3)
+	brez.background = bg
+
 	local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	header:SetSize(0,0)
+	header:SetWidth(200)
+	header:SetHeight(20)
 	header:SetPoint("BOTTOM", brez, "TOP")
 	header:SetJustifyH("CENTER")
 	header:SetText(L.battleResTitle)
 	brez.header = header
 
-	local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	timer:SetSize(0,0)
-	timer:SetPoint("RIGHT", brez, "RIGHT")
+	local timer = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge2")
+	timer:SetWidth(200)
+	timer:SetHeight(20)
+	timer:SetPoint("RIGHT", brez, "RIGHT", -20, 0)
 	timer:SetTextColor(1,1,1)
 	timer:SetJustifyH("RIGHT")
 	timer:SetText("0:00")
 	brez.timer = timer
 
-	local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	remaining:SetSize(0,0)
-	remaining:SetPoint("LEFT", brez, "LEFT")
+	local remaining = brez:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge2")
+	remaining:SetWidth(200)
+	remaining:SetHeight(20)
+	remaining:SetPoint("LEFT", brez, "LEFT", 20, 0)
 	remaining:SetTextColor(1,1,1)
 	remaining:SetJustifyH("LEFT")
 	remaining:SetText("0")
@@ -145,6 +155,7 @@ do
 	local function addOne()
 		resAmount = resAmount + 1
 		brez.remaining:SetText(resAmount)
+		brez.remaining:SetTextColor(0,1,0)
 		ticker = 0
 	end
 
@@ -163,6 +174,9 @@ do
 					if v == "br" then
 						resAmount = resAmount - 1
 						brez.remaining:SetText(resAmount)
+						if resAmount == 0 then
+							brez.remaining:SetTextColor(1,0,0)
+						end
 					else
 						local _, class = UnitClass(k)
 						if class == "SHAMAN" then
@@ -178,6 +192,9 @@ do
 							)
 							resAmount = resAmount - 1
 							brez.remaining:SetText(resAmount)
+							if resAmount == 0 then
+								brez.remaining:SetTextColor(1,0,0)
+							end
 						end
 					end
 					theDead[k] = nil
@@ -194,6 +211,7 @@ do
 			resAmount = 1
 			ticker = 0
 			brez.remaining:SetText(resAmount)
+			brez.remaining:SetTextColor(0,1,0)
 			-- XXX fix mythic scaling
 			local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
 			timeToGo = (90/instanceGroupSize)*60
@@ -226,7 +244,6 @@ do
 			end
 			toggleLock()
 			toggleShow()
-			oRA3:RestorePosition("oRA3BattleResMonitor")
 
 			self:ScheduleRepeatingTimer(updateStatus, 0.1)
 		end
@@ -240,6 +257,7 @@ function module:OnShutdown()
 		module:CancelAllTimers()
 		brez.remaining:SetText("0")
 		brez.timer:SetText("0:00")
+		brez.remaining:SetTextColor(1,1,1)
 	end
 end
 
