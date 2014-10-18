@@ -9,9 +9,7 @@
 
 ## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.0, LibDualSpec-1.0
 
-#@no-lib-strip@
 libs.xml
-#@end-no-lib-strip@
 
 locales\enUS.lua
 locales\itIT.lua
