@@ -76,12 +76,6 @@ do
 				local all, equipped = GetAverageItemLevel()
 				local missingEnchants, emptySockets = 0, 0
 
-				local isBlacksmith = GetSpellInfo((GetSpellInfo(2018))) -- Blacksmithing
-				local isEnchanter = GetSpellInfo((GetSpellInfo(7411))) -- Enchanting
-
-				enchantableItems[11] = isEnchanter and true or false -- FINGER 1
-				enchantableItems[12] = isEnchanter and true or false -- FINGER 2
-
 				for i = 1, 17 do
 					local itemLink = GetInventoryItemLink("player", i)
 					if itemLink then
@@ -97,8 +91,7 @@ do
 						-- Handle missing gems
 						local totalItemSockets = 0
 						-- WAIST, add +1 as the belt buckle doesn't contribute to the EMPTY_SOCKET_GEM entries
-						-- WRIST & HANDS, same as above for smithies
-						if i == 6 or ((i == 9 or i == 10) and isBlacksmith) then
+						if i == 6 then
 							totalItemSockets = 1
 						end
 
