@@ -81,9 +81,11 @@ local function toggleLock()
 	if module.db.profile.lock then
 		brez:EnableMouse(false)
 		brez.header:Hide()
+		brez.background:Hide()
 	else
 		brez:EnableMouse(true)
 		brez.header:Show()
+		brez.background:Show()
 	end
 end
 
