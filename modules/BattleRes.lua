@@ -226,6 +226,7 @@ do
 			module:CancelTimer(timeUpdater)
 			brez.remaining:SetText("0")
 			brez.timer:SetText("0:00")
+			brez.remaining:SetTextColor(1,1,1)
 		end
 	end
 
