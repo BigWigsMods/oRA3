@@ -22,11 +22,16 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
 	oRA.RegisterCallback(self, "OnCommReceived")
+	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORAGEAR1 = "/ragear"
 	SlashCmdList.ORAGEAR = function()
 		oRA:OpenToList(L["Gear"])
 	end
+end
+
+function module:OnGroupChanged()
+	oRA:UpdateList(L["Gear"])
 end
 
 function module:OnShutdown()

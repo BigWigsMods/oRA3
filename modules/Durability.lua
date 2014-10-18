@@ -24,12 +24,17 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnCommReceived")
+	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORADURABILITY1 = "/radur"
 	SLASH_ORADURABILITY2 = "/radurability"
 	SlashCmdList.ORADURABILITY = function()
 		oRA:OpenToList(L["Durability"])
 	end
+end
+
+function module:OnGroupChanged()
+	oRA:UpdateList(L["Durability"])
 end
 
 function module:OnStartup()
