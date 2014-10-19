@@ -22,8 +22,8 @@ L.showHelpTextsDesc = "oRA3介面充滿幫助性的文字來引導將要做什�
 L["Ensure guild repairs are enabled for all ranks present in raid"] = "為所有在團隊裡出席的階級啟用公會修裝"
 L.ensureRepairDesc = "如果你是公會會長，任何時候你加入到團隊且是隊長或是被提升，你可以啟用公會修裝直到團隊結束(最多300g)。萬一你離開團隊，設定就會被還原到原始狀態|cffff4411預防你在團隊期間不會破產。|r"
 L.repairEnabled = "啟用%s公會修裝直到團隊結束。"
-L["Show role icons on raid pane"] = true
-L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
+L["Show role icons on raid pane"] = "在團隊面板顯示角色圖示"
+L.showRoleIconsDesc = "顯示角色圖示與各角色總數在內建團隊面板。妳需要重新開起團隊面板來讓設定生效。"
 
 L["Slash commands"] = "/指令"
 L.slashCommands = [[
@@ -120,7 +120,8 @@ L["Toggle whether the cooldown display should never show your own cooldowns. For
 L["Cooldowns"] = "冷卻"
 L["Right-Click me for options!"] = "右鍵點擊設定"
 L["Bar Settings"] = "計時條設定"
-L["Text Settings"] = "文字設定"
+L["Label Text Settings"] = "標籤文字設定"
+L["Duration Text Settings"] = "持續時間文字設定"
 L["Spawn test bar"] = "顯示測試計時條"
 L["Use class color"] = "使用職業顏色"
 L["Custom color"] = "自訂顏色"
@@ -133,14 +134,15 @@ L["Duration"] = "時間"
 L["Unit name"] = "名字"
 L["Spell name"] = "技能"
 L["Short Spell name"] = "技能縮寫"
-L["Label Font"] = "標記字型"
-L["Label Font Size"] = "標記字型大小"
+L["Font"] = true
+L["Font Size"] = true
 L["Label Align"] = "標記對齊"
 L["Left"] = "左"
 L["Right"] = "右"
 L["Center"] = "中"
-L["Duration Font"] = "時間字型"
-L["Duration Font Size"] = "時間字型大小"
+L["Outline"] = "輪廓"
+L["Thick"] = "粗"
+L["Thin"] = "細"
 L["Grow up"] = "向上遞增"
 
 -- Zone module
