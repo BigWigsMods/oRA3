@@ -156,7 +156,6 @@ L["Set the loot mode automatically when joining a group"] = "加入一個團隊�
 -- Tanks module
 L["Tanks"] = "坦克"
 L.tankTabTopText = "點擊下方列表將其設為坦克. 將鼠標移動到按鈕上可看到操作提示."
--- L["Remove"] is defined above
 L.deleteButtonHelp = "從坦克名單移除。"
 L["Blizzard Main Tank"] = "內建主坦克"
 L.tankButtonHelp = "切換是否這坦克應該為內建主坦克。"
@@ -181,7 +180,7 @@ L["Missing Gems"] = "缺少寶石"
 L["Missing Enchants"] = "缺少附魔"
 
 -- BattleRes Module
---L.battleResTitle = "Battle Res Monitor"
---L.battleResLockDesc = "Toggle locking the monitor. This will hide the header text, background, and prevent movement."
---L.battleResShowDesc = "Toggle showing or hiding the monitor."
+L.battleResTitle = "戰鬥復活監視器"
+L.battleResLockDesc = "切換鎖定監視器。這會隱藏標題文字、背景並預防移動。"
+L.battleResShowDesc = "切換顯示或隱藏監視器。"
 
