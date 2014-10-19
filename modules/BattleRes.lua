@@ -240,10 +240,6 @@ do
 			if not brez then
 				createFrame()
 				createFrame = nil
-				self:ScheduleTimer(function()
-					print("|cFF33FF99oRA3|r: We've added a new Battle Res Monitor! It will show how many resses you have available, and the time remaining until you gain another res.")
-					print("|cFF33FF99oRA3|r: As it's brand new it may be buggy. We're looking for input and tweaking it as required.")
-				end, 5)
 			end
 			toggleLock()
 			toggleShow()

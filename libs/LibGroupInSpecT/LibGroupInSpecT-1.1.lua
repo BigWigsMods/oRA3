@@ -72,15 +72,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 68 $"):match ("(%d+)") or 0)
-
--- TODO: remove once WoD is out proper
-local _,_,_,interface_ver = GetBuildInfo ()
-if interface_ver < 60000 then
-  print(MAJOR.." is too new for this version of WoW - one of your addons needs to be downgraded!")
-  return
-end
-
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 69 $"):match ("(%d+)") or 0)
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
