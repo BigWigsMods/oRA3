@@ -181,6 +181,6 @@ L["Missing Enchants"] = "Enchantements manquants"
 
 -- BattleRes Module
 --L.battleResTitle = "Battle Res Monitor"
---L.battleResLockDesc = "Toggle locking the monitor, preventing movement and hiding the header text."
+--L.battleResLockDesc = "Toggle locking the monitor. This will hide the header text, background, and prevent movement."
 --L.battleResShowDesc = "Toggle showing or hiding the monitor."
 
