@@ -2,10 +2,11 @@
 -- Durability is transmitted when the player dies or zones or closes a merchant window
 -- Durability information will be available from the oRA3 gui for everyone.
 
-local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+local addonName, scope = ...
+local oRA = scope.addon
 local util = oRA.util
 local module = oRA:NewModule("Durability")
-local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+local L = scope.locale
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 

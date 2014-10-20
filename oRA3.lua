@@ -1,12 +1,17 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("oRA3")
+
+local addonName, scope = ...
+local addon = LibStub("AceAddon-3.0"):NewAddon(addonName)
+scope.addon = addon
+
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
-local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+scope.locale = L
 local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
-BINDING_HEADER_oRA3 = "oRA3"
+BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
 
 local hexColors, classColors = {}, {UNKNOWN = {r = 0.8, g = 0.8, b = 0.8}}
@@ -121,7 +126,7 @@ local options = nil
 local function giveOptions()
 	if not options then
 		options = {
-			name = "oRA3",
+			name = addonName,
 			type = "group",
 			get = function(info) return db[info[#info]] end,
 			set = function(info, value) db[info[#info]] = value end,
@@ -298,7 +303,7 @@ function addon:OnInitialize()
 	end
 
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
-	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA3")
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, addonName)
 
 	-- Comm register
 	RegisterAddonMessagePrefix("oRA")
@@ -317,13 +322,13 @@ function addon:OnInitialize()
 
 	self:RegisterPanel(L["Checks"], showLists, hideLists)
 
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3", giveOptions, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3", "oRA3")
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, giveOptions, true)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
 
 	local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	LibStub("LibDualSpec-1.0"):EnhanceOptions(profileOptions, self.db)
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], "oRA3")
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], addonName)
 
 	local function OnRaidHide()
 		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
@@ -365,8 +370,8 @@ function addon:OnInitialize()
 end
 
 function addon:RegisterModuleOptions(name, optionTbl, displayName)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3"..name, optionTbl, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3"..name, displayName, "oRA3")
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName..name, optionTbl, true)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName..name, displayName, addonName)
 end
 
 function addon:OnEnable()
@@ -385,8 +390,8 @@ function addon:OnEnable()
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
 	SlashCmdList.ORA = function()
-		InterfaceOptionsFrame_OpenToCategory("oRA3")
-		InterfaceOptionsFrame_OpenToCategory("oRA3")
+		InterfaceOptionsFrame_OpenToCategory(addonName)
+		InterfaceOptionsFrame_OpenToCategory(addonName)
 	end
 
 	SLASH_ORADISBAND1 = "/radisband"
@@ -689,7 +694,8 @@ local function setupGUI()
 	options:SetText(L["Options"])
 	options:SetPoint("TOPRIGHT", -40, -37)
 	options:SetScript("OnClick", function()
-		InterfaceOptionsFrame_OpenToCategory("oRA3")
+		InterfaceOptionsFrame_OpenToCategory(addonName)
+		InterfaceOptionsFrame_OpenToCategory(addonName)
 	end)
 
 	local function selectPanel(self)

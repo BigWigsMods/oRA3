@@ -1,6 +1,8 @@
-local oRA = LibStub("AceAddon-3.0"):GetAddon("oRA3")
+
+local addonName, scope = ...
+local oRA = scope.addon
 local module = oRA:NewModule("Loot", "AceTimer-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
+local L = scope.locale
 
 module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 local db
