@@ -293,7 +293,9 @@ end
 --
 
 function addon:OnInitialize()
-	oRA3DB.char = nil -- XXX temp cleanup from Difficulty module
+	if oRA3DB and oRA3DB.char then
+		oRA3DB.char = nil -- XXX temp cleanup from Difficulty module
+	end
 
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
 	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA3")
