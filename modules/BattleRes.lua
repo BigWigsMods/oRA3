@@ -107,7 +107,7 @@ local function getOptions()
 	if not options then
 		options = {
 			type = "group",
-			name = "Res Monitor",
+			name = L.battleResTitle,
 			get = function(k) return module.db.profile[k[#k]] end,
 			set = function(k, v)
 				module.db.profile[k[#k]] = v
@@ -140,7 +140,7 @@ end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("BattleRes", defaults)
-	oRA:RegisterModuleOptions("BattleRes", getOptions, "Res Monitor")
+	oRA:RegisterModuleOptions("BattleRes", getOptions, L.battleResTitle)
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 end
