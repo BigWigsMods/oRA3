@@ -6,15 +6,12 @@ local L = LibStub("AceLocale-3.0"):GetLocale("oRA3")
 
 module.VERSION = tonumber(("$Revision: 712 $"):sub(12, -3))
 
-local resAmount = 1
-local ticker = 0
-local timeToGo = 0
+local resAmount = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}
 local updateFunc
 local brez
 local inCombat = false
-local IsEncounterInProgress = IsEncounterInProgress
 
 local function createFrame()
 	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
@@ -154,16 +151,10 @@ function module:OnStartup()
 end
 
 do
-	local function addOne()
-		resAmount = resAmount + 1
-		brez.remaining:SetText(resAmount)
-		brez.remaining:SetTextColor(0,1,0)
-		ticker = 0
-	end
-
+	local GetTime, GetSpellCharges = GetTime, GetSpellCharges
 	local function updateTime()
-		ticker = ticker + 1
-		local time = timeToGo - ticker
+		local charges, maxCharges, started, duration = GetSpellCharges(20484) -- Rebirth
+		local time = duration - (GetTime() - started)
 		local m = floor(time/60)
 		local s = mod(time, 60)
 		brez.timer:SetFormattedText("%d:%02d", m, s)
@@ -173,13 +164,7 @@ do
 				if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
-					if v == "br" then
-						resAmount = resAmount - 1
-						brez.remaining:SetText(resAmount)
-						if resAmount == 0 then
-							brez.remaining:SetTextColor(1,0,0)
-						end
-					else
+					if v ~= "br" then
 						local _, class = UnitClass(k)
 						if class == "SHAMAN" then
 							-- print?
@@ -192,11 +177,6 @@ do
 									GetSpellInfo(20707), s.r * 255, s.g * 255, s.b * 255, shortName
 								)
 							)
-							resAmount = resAmount - 1
-							brez.remaining:SetText(resAmount)
-							if resAmount == 0 then
-								brez.remaining:SetTextColor(1,0,0)
-							end
 						end
 					end
 					theDead[k] = nil
@@ -205,28 +185,32 @@ do
 		end
 	end
 
-	local countUpdater, timeUpdater = nil, nil
+	local timeUpdater = nil
 	local function updateStatus()
-		if not inCombat and IsEncounterInProgress() then
-			inCombat = true
-			wipe(theDead)
-			resAmount = 1
-			ticker = 0
-			brez.remaining:SetText(resAmount)
-			brez.remaining:SetTextColor(0,1,0)
-			-- XXX fix mythic scaling
-			local _, _, _, _, _, _, _, _, instanceGroupSize = GetInstanceInfo()
-			timeToGo = (90/instanceGroupSize)*60
-			countUpdater = module:ScheduleRepeatingTimer(addOne, timeToGo)
-			timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
-			brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-			brez.scroll:Clear()
-		elseif inCombat and not IsEncounterInProgress() then
+		local charges, maxCharges, started, duration = GetSpellCharges(20484) -- Rebirth
+		if charges then
+			if not inCombat then
+				inCombat = true
+				theDead = {}
+				timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
+				brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				brez.scroll:Clear()
+			end
+			if charges ~= resAmount then
+				resAmount = charges
+				brez.remaining:SetText(resAmount)
+				if charges == 0 then
+					brez.remaining:SetTextColor(1,0,0)
+				else
+					brez.remaining:SetTextColor(0,1,0)
+				end
+			end
+		elseif inCombat and not charges then
 			inCombat = false
+			resAmount = 0
 			brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-			module:CancelTimer(countUpdater)
 			module:CancelTimer(timeUpdater)
-			brez.remaining:SetText("0")
+			brez.remaining:SetText(resAmount)
 			brez.timer:SetText("0:00")
 			brez.remaining:SetTextColor(1,1,1)
 		end
