@@ -221,10 +221,8 @@ local function getBattleNetToon(presenceId)
 end
 
 local function shouldInvite(msg, sender)
-	local _, _, diff = GetInstanceInfo()
-	local isFlex = diff == 14 or diff == 15
-	if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and not isFlex) or inQueue() then
-		return false -- in lfr (not flex) or in queue
+	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or inQueue() then
+		return false
 	end
 
 	msg = msg:trim():lower()
@@ -247,7 +245,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 		local _, instanceType = IsInInstance()
 		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
-				BNSendWhisper(L["<oRA3> Sorry, the group is full."], presenceId)
+				BNSendWhisper(presenceId, L["<oRA3> Sorry, the group is full."])
 			else
 				SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, sender)
 			end
@@ -331,7 +329,7 @@ function updateDifficultyDropdown()
 end
 
 local function difficultyCallback(widget, event, index, value)
-	SetRaidDifficultyID(index)
+	SetRaidDifficulties(true, index)
 end
 
 local function raidOnlyCallback(widget, event, value)
@@ -346,10 +344,9 @@ function module:CreateFrame()
 	frame:SetLayout("Flow")
 
 	local modes = {
-		[3] = RAID_DIFFICULTY1,
-		[4] = RAID_DIFFICULTY2,
-		[5] = RAID_DIFFICULTY3,
-		[6] = RAID_DIFFICULTY4,
+		[14] = PLAYER_DIFFICULTY1,
+		[15] = PLAYER_DIFFICULTY2,
+		[16] = PLAYER_DIFFICULTY6,
 	}
 	local difficulty = AceGUI:Create("Dropdown")
 	difficulty:SetMultiselect(false)
