@@ -329,7 +329,7 @@ function updateDifficultyDropdown()
 end
 
 local function difficultyCallback(widget, event, index, value)
-	SetRaidDifficulties(true, index)
+	SetRaidDifficultyID(index)
 end
 
 local function raidOnlyCallback(widget, event, value)
