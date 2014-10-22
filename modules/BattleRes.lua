@@ -155,6 +155,7 @@ do
 	local GetTime, GetSpellCharges = GetTime, GetSpellCharges
 	local function updateTime()
 		local charges, maxCharges, started, duration = GetSpellCharges(20484) -- Rebirth
+		if not charges then return end
 		local time = duration - (GetTime() - started)
 		local m = floor(time/60)
 		local s = mod(time, 60)
