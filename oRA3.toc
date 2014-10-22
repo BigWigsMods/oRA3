@@ -7,8 +7,8 @@
 
 ## SavedVariables: oRA3DB
 
-## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.0, LibDualSpec-1.0
-## X-Embeds: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.0, LibDualSpec-1.0
+## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0
+## X-Embeds: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0
 
 libs.xml
 
