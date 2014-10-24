@@ -25,7 +25,7 @@ local playerName, playerGUID
 local cdModifiers = {}
 
 local function addMod(guid, spell, modifier)
-	if modifier > 0 then
+	if modifier ~= 0 then
 		if not cdModifiers[guid] then cdModifiers[guid] = {} end
 		cdModifiers[guid][spell] = (cdModifiers[guid][spell] or 0) + modifier
 	end
