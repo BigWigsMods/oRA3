@@ -17,9 +17,35 @@ module.VERSION = tonumber(("$Revision$"):sub(12, -3))
 -- Locals
 --
 
-local mTypeBar = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
-local mTypeFont = media and media.MediaType and media.MediaType.FONT or "font"
+-- GLOBALS: oRA3 oRA3CooldownFrame NUM_GLYPH_SLOTS MAX_TALENT_TIERS  NUM_TALENT_COLUMNS NONE UIParent
+-- GLOBALS: GameTooltip GameFontNormal GameFontHighlight LOCALIZED_CLASS_NAMES_MALE InterfaceOptionsFrame_OpenToCategory
+
 local playerName, playerGUID
+
+local cdModifiers = {}
+
+local function addMod(guid, spell, modifier)
+	if modifier > 0 then
+		if not cdModifiers[guid] then cdModifiers[guid] = {} end
+		cdModifiers[guid][spell] = (cdModifiers[guid][spell] or 0) + modifier
+	end
+end
+
+local talentCooldowns = {
+	[19364] = function(guid) -- Crouching Tiger, Hidden Chimera
+		addMod(guid, 781, 10) -- Disengage, -10sec
+		addMod(guid, 19263, 60) -- Deterrence, -60sec
+	end,
+	[17591] = function(guid) -- Unbreakable Spirit
+		addMod(guid, 642, 150) -- Divine Shield, -150sec
+		addMod(guid, 498, 30) -- Divine Protection, -30sec
+		local divinity = cdModifiers[guid] and cdModifiers[guid][633]
+		addMod(guid, 633, divinity and 360 or 300) -- Lay on Hands, (-50%) -300sec / -360sec with Glyph of Divinity
+	end,
+	[15775] = function(guid) -- Juggernaut
+		addMod(guid, 100, 8) -- Charge, -8sec
+	end,
+}
 
 local glyphCooldowns = {
 	[55678] = {6346, 60},      -- Fear Ward, -60sec
@@ -46,7 +72,6 @@ local glyphCooldowns = {
 	[56376] = {122, 5},        -- Frost Nova, -5sec
 	[62210] = {12042, -90},    -- Arcane Power, +90sec (+100%)
 	[115703] = {2139, -4},     -- Counterspell, +4sec
-	--[146659] = {1953, -25},    -- Blink, +2 charges
 	[54925] = {96231, -5},     -- Rebuke, +5sec
 	[56805] = {1766, -4},      -- Kick, +4sec
 	[55451] = {57994, -3},     -- Wind Shear, +3sec
@@ -359,6 +384,21 @@ local spells = {
 	},
 }
 
+local chargeSpells = {
+	-- these will always return the charge info with GetSpellCharges
+	[78674] = true,  -- Starsurge (3 charges)
+	[48505] = true,  -- Starfall (3 charges)
+	[33831] = true,  -- Force of Nature (3 charges)
+	[19263] = true,  -- Deterrence (2 charges)
+	[48982] = true,  -- Rune Tap (2 charges)
+	[157980] = true, -- Supernova (2 charges)
+	[157981] = true, -- Blast Wave (2 charges)
+	[157997] = true, -- Ice Nova (2 charges)
+	-- normally nil
+	[1953] = true,   -- Blink  (2 charges with glyph)
+	[100] = true,    -- Charge (2 charges with talent)
+}
+
 local allSpells = {}
 local classLookup = {}
 for class, spells in next, spells do
@@ -367,9 +407,12 @@ for class, spells in next, spells do
 		classLookup[id] = class
 	end
 end
+--allSpells[66235] = 110 -- Ardent Defender heal
 
 local db = nil
-local cdModifiers = {}
+
+local mTypeBar = media and media.MediaType and media.MediaType.STATUSBAR or "statusbar"
+local mTypeFont = media and media.MediaType and media.MediaType.FONT or "font"
 
 local options, restyleBars
 local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
@@ -854,7 +897,7 @@ do
 		bar:SetScale(db.barScale)
 		bar:SetTexture(media:Fetch(mTypeBar, db.barTexture))
 		local spell = bar:Get("ora3cd:spell")
-		local unit = bar:Get("ora3cd:unit"):gsub("(%a)%-(.*)", "%1")
+		local unit = bar:Get("ora3cd:unit"):gsub("%-.+", "*")
 		if db.barShorthand then spell = shorts[spell] end
 		if db.barShowSpell and db.barShowUnit and not db.onlyShowMine then
 			bar:SetLabel(("%s: %s"):format(unit, spell))
@@ -1082,7 +1125,7 @@ do
 		setup()
 		local bar
 		for b, v in next, visibleBars do
-			if b:Get("ora3cd:unit") == unit and b:Get("ora3cd:spell") == name then
+			if UnitIsUnit(b:Get("ora3cd:unit"), unit) and b:Get("ora3cd:spell") == name then
 				bar = b
 				break
 			end
@@ -1191,9 +1234,8 @@ end
 function module:IsOnCD(unit, spell)
 	local barSpellKey = type(spell) == "string" and "ora3cd:spell" or "ora3cd:spellid"
 	for bar in next, self:GetBars() do
-		local barUnit = bar:Get("ora3cd:unit")
-		if UnitIsUnit(barUnit, unit) and spell == bar:Get(barSpellKey) then
-			return true
+		if UnitIsUnit(bar:Get("ora3cd:unit"), unit) and spell == bar:Get(barSpellKey) then
+			return true, bar
 		end
 	end
 	return false
@@ -1217,20 +1259,10 @@ do
 	end
 end
 
-local function getCooldown(guid, spellId)
-	local cd = allSpells[spellId]
-	if cdModifiers[guid] and cdModifiers[guid][spellId] then
-		cd = cd - cdModifiers[guid][spellId]
-	end
-	return cd
-end
-
 function module:OnStartup()
 	setupCooldownDisplay()
 	oRA3CooldownFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCooldownModifiers")
-	self:RegisterEvent("PLAYER_ALIVE", "UpdateCooldownModifiers")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
@@ -1276,33 +1308,6 @@ function module:Cooldown(player, spell, cd)
 	startBar(player, spell, spellName, icon, cd)
 end
 
-local function addMod(guid, spell, modifier)
-	if modifier == 0 then return end
-	if not cdModifiers[guid] then cdModifiers[guid] = {} end
-	cdModifiers[guid][spell] = (cdModifiers[guid][spell] or 0) + modifier
-end
-
-local talentScanners = {
-	WARRIOR = function(info)
-		if info.talents[103826] then -- Juggernaut
-			addMod(info.guid, 100, 8) -- 8s off Charge
-		end
-	end,
-	HUNTER = function(info)
-		if info.talents[118675] then -- Crouching Tiger, Hidden Chimera
-			addMod(info.guid, 781, 10) -- 10s off Disengage
-			addMod(info.guid, 19263, 60) -- 60s off Deterrence
-		end
-	end,
-	PALADIN = function(info)
-		if info.talents[114154] then -- Unbreakable Spirit
-			addMod(info.guid, 498, 30) -- 30s off Divine Protection
-			addMod(info.guid, 642, 150) -- 2.5min off Divine Shield
-			addMod(info.guid, 633, info.glyphs[54939] and 360 or 300) -- 300s (360s with Divinity) off Lay on Hands
-		end
-	end,
-}
-
 function module:UpdateCooldownModifiers()
 	local info = LGIST:GetCachedInfo(playerGUID)
 	if info then
@@ -1320,8 +1325,11 @@ function module:UpdateGroupCooldownModifiers(info)
 			addMod(info.guid, spell, modifier)
 		end
 	end
-	local talentMod = info.class and talentScanners[info.class]
-	if talentMod then talentMod(info) end
+	for talentId in next, info.talents do
+		if talentCooldowns[talentId] then
+			talentCooldowns[talentId](info.guid)
+		end
+	end
 end
 
 function module:InspectUpdate(_, guid, unit, info)
@@ -1336,9 +1344,25 @@ end
 do
 	local IsEncounterInProgress, band, inEncounter = IsEncounterInProgress, bit.band, nil
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
+
+	local function getCooldown(guid, spellId)
+		local cd = allSpells[spellId]
+		if cdModifiers[guid] and cdModifiers[guid][spellId] then
+			cd = cd - cdModifiers[guid][spellId]
+		end
+		return cd
+	end
+
 	function combatLog(_, _, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId)
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
-			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
+			if chargeSpells[spellId] then
+				local charges, maxCharges, start, duration = GetSpellCharges(spellId)
+				if not module:IsOnCD(source, spellId) then -- guess cd, nothing displayed so assume it's the first charge
+					module:Cooldown(source, spellId, duration or getCooldown(srcGUID, spellId))
+				end
+			else
+				module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
+			end
 		end
 
 		if not inEncounter and IsEncounterInProgress() then
@@ -1347,7 +1371,7 @@ do
 			inEncounter = nil
 			for bar in next, module:GetBars() do
 				local spell = bar:Get("ora3cd:spellid")
-				if allSpells[spell] > 299 and spell ~= 20608 then -- reset 5min+ cds (but not reincarnation)
+				if allSpells[spell] > 180 and spell ~= 20608 then -- reset +3min cds (except Reincarnation)
 					bar:Stop()
 				end
 			end
