@@ -83,8 +83,6 @@ local glyphCooldowns = {
 	--[159548] = {31850, 110},   -- Ardent Defender, set to 60sec after 10s
 }
 
--- XXX need to figure out how to deal with multiple charges
--- CD doesn't start until the second charge is used, second charge CD doesn't start until first charge is off CD
 local spells = {
 	DRUID = {
 		[99] = 30,      -- Incapacitating Roar
@@ -181,7 +179,7 @@ local spells = {
 		[115610] = 25,  -- Temporal Shield
 		[102051] = 20,  -- Frostjaw
 		[110959] = 90,  -- Greater Invisibility
-		[159916] = 60,  -- Amplify Magic
+		[159916] = 120,  -- Amplify Magic
 		[157913] = 45,  -- Evanesce
 		[108843] = 25,  -- Blazing Speed
 		[108839] = 20,  -- Ice Floes
