@@ -1047,11 +1047,14 @@ do
 		if not display then setupCooldownDisplay() end
 		display:Show()
 		shown = true
+		oRA3CooldownFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
 	function hideDisplay()
 		if not display then return end
 		display:Hide()
 		shown = nil
+		oRA3CooldownFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		stopAll()
 	end
 
 	local function setup()
@@ -1103,17 +1106,13 @@ do
 		tex:SetPoint("CENTER", drag)
 
 		if db.lockDisplay then
-			locked = nil
 			lockDisplay()
 		else
-			locked = true
 			unlockDisplay()
 		end
 		if db.showDisplay then
-			shown = true
 			showDisplay()
 		else
-			shown = nil
 			hideDisplay()
 		end
 	end
@@ -1143,6 +1142,34 @@ do
 		rearrangeBars()
 	end
 	startBar = start
+end
+
+do
+	local spellList, reverseClass = nil, nil
+	function module:SpawnTestBar()
+		if not spellList then
+			spellList = {}
+			reverseClass = {}
+			for k in next, allSpells do spellList[#spellList + 1] = k end
+			for name, class in next, oRA._testUnits do reverseClass[class] = name end
+		end
+		local spell = spellList[math.random(1, #spellList)]
+		local name, _, icon = GetSpellInfo(spell)
+		if not name then return end
+		local unit = reverseClass[classLookup[spell]]
+		local duration = (allSpells[spell] / 30) + math.random(1, 120)
+		startBar(unit, spell, name, icon, duration)
+	end
+end
+
+function module:IsOnCD(unit, spell)
+	local barSpellKey = type(spell) == "string" and "ora3cd:spell" or "ora3cd:spellid"
+	for bar in next, self:GetBars() do
+		if UnitIsUnit(bar:Get("ora3cd:unit"), unit) and spell == bar:Get(barSpellKey) then
+			return true, bar
+		end
+	end
+	return false
 end
 
 --------------------------------------------------------------------------------
@@ -1229,34 +1256,6 @@ function module:OnRegister()
 	end
 end
 
-function module:IsOnCD(unit, spell)
-	local barSpellKey = type(spell) == "string" and "ora3cd:spell" or "ora3cd:spellid"
-	for bar in next, self:GetBars() do
-		if UnitIsUnit(bar:Get("ora3cd:unit"), unit) and spell == bar:Get(barSpellKey) then
-			return true, bar
-		end
-	end
-	return false
-end
-
-do
-	local spellList, reverseClass = nil, nil
-	function module:SpawnTestBar()
-		if not spellList then
-			spellList = {}
-			reverseClass = {}
-			for k in next, allSpells do spellList[#spellList + 1] = k end
-			for name, class in next, oRA._testUnits do reverseClass[class] = name end
-		end
-		local spell = spellList[math.random(1, #spellList)]
-		local name, _, icon = GetSpellInfo(spell)
-		if not name then return end
-		local unit = reverseClass[classLookup[spell]]
-		local duration = (allSpells[spell] / 30) + math.random(1, 120)
-		startBar(unit, spell, name, icon, duration)
-	end
-end
-
 function module:OnStartup()
 	setupCooldownDisplay()
 	oRA3CooldownFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -1273,10 +1272,9 @@ end
 
 function module:OnShutdown()
 	self:UnregisterAllEvents()
-	oRA3CooldownFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	oRA.UnregisterCallback(self, "OnCommReceived")
 	LGIST.UnregisterAllCallbacks(self)
 
-	stopAll()
 	hideDisplay()
 	wipe(cdModifiers)
 end
@@ -1296,11 +1294,11 @@ function module:GROUP_ROSTER_UPDATE()
 end
 
 function module:Cooldown(player, spell, cd)
+	if not db.showDisplay then return end
 	if type(spell) ~= "number" or type(cd) ~= "number" then error("Spell or number had the wrong type.") end
 	if not db.spells[spell] then return end
 	if db.onlyShowMine and not UnitIsUnit(player, "player") then return end
 	if db.neverShowMine and UnitIsUnit(player, "player") then return end
-	if not db.showDisplay then return end
 	local spellName, _, icon = GetSpellInfo(spell)
 	if not spellName or not icon then return end
 	startBar(player, spell, spellName, icon, cd)
