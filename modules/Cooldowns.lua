@@ -1348,8 +1348,12 @@ do
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if chargeSpells[spellId] then
 				local charges, maxCharges, start, duration = GetSpellCharges(spellId)
-				if not module:IsOnCD(source, spellId) then -- guess cd, nothing displayed so assume it's the first charge
-					module:Cooldown(source, spellId, duration or getCooldown(srcGUID, spellId))
+				if charges then -- your spell
+					if charges == 0 then
+						module:Cooldown(source, spellId, duration - (GetTime() - start))
+					end
+				elseif not module:IsOnCD(source, spellId) then -- guess cd, nothing displayed so assume it's the first charge
+					module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 				end
 			else
 				module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
