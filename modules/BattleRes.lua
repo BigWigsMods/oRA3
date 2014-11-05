@@ -168,12 +168,16 @@ do
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 					if v ~= "br" then
 						local _, class = UnitClass(k)
+						local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
+						local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
+						local shortName = k:gsub("%-.+", "*")
 						if class == "SHAMAN" then
-							-- print?
+							brez.scroll:AddMessage(
+								("|cFF71d5ff|Hspell:20608|h%s|h|r >> |cFF%02x%02x%02x%s|r"):format(
+									GetSpellInfo(20608), s.r * 255, s.g * 255, s.b * 255, shortName
+								)
+							)
 						else
-							local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
-							local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-							local shortName = k:gsub("%-.+", "*")
 							brez.scroll:AddMessage(
 								("|cFF71d5ff|Hspell:20707|h%s|h|r >> |cFF%02x%02x%02x%s|r"):format(
 									GetSpellInfo(20707), s.r * 255, s.g * 255, s.b * 255, shortName
@@ -274,8 +278,7 @@ do
 		return pet
 	end
 
-	updateFunc = function(_, _, _, event, ...)
-		local _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId, spellName = ...
+	updateFunc = function(_, _, _, event, _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId)
 		if event == "SPELL_RESURRECT" then
 			if spellId == 126393 then -- Eternal Guardian
 				name = getPetOwner(name, sGuid)
