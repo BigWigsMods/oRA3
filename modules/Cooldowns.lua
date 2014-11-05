@@ -179,7 +179,7 @@ local spells = {
 		[115610] = 25,  -- Temporal Shield
 		[102051] = 20,  -- Frostjaw
 		[110959] = 90,  -- Greater Invisibility
-		[159916] = 120,  -- Amplify Magic
+		[159916] = 120, -- Amplify Magic
 		[157913] = 45,  -- Evanesce
 		[108843] = 25,  -- Blazing Speed
 		[108839] = 20,  -- Ice Floes
@@ -1258,20 +1258,18 @@ end
 
 function module:OnStartup()
 	setupCooldownDisplay()
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
-	self:RegisterEvent("GROUP_ROSTER_UPDATE")
+	oRA.RegisterCallback(self, "OnCommReceived")
+	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
-
-	oRA.RegisterCallback(self, "OnCommReceived")
-
-	self:UpdateCooldownModifiers()
+	LGIST:Query("player")
 end
 
 function module:OnShutdown()
 	self:UnregisterAllEvents()
 	oRA.UnregisterCallback(self, "OnCommReceived")
+	oRA.UnregisterCallback(self, "OnGroupChanged")
 	LGIST.UnregisterAllCallbacks(self)
 
 	hideDisplay()
@@ -1284,7 +1282,9 @@ function module:OnCommReceived(_, sender, prefix, cd)
 	end
 end
 
-function module:GROUP_ROSTER_UPDATE()
+function module:OnGroupChanged(_, groupStatus)
+	if groupStatus == 0 then return end
+
 	for bar in next, self:GetBars() do
 		if not UnitExists(bar:Get("ora3cd:unit")) then
 			bar:Stop()
@@ -1303,32 +1303,21 @@ function module:Cooldown(player, spell, cd)
 	startBar(player, spell, spellName, icon, cd)
 end
 
-function module:UpdateCooldownModifiers()
-	local info = LGIST:GetCachedInfo(playerGUID)
-	if info then
-		self:UpdateGroupCooldownModifiers(info)
-	end
-end
-
-function module:UpdateGroupCooldownModifiers(info)
-	if cdModifiers[info.guid] then
+function module:InspectUpdate(_, guid, unit, info)
+	if cdModifiers[guid] then
 		wipe(cdModifiers[info.guid])
 	end
 	for spellId in next, info.glyphs do
 		if glyphCooldowns[spellId] then
 			local spell, modifier = unpack(glyphCooldowns[spellId])
-			addMod(info.guid, spell, modifier)
+			addMod(guid, spell, modifier)
 		end
 	end
 	for talentId in next, info.talents do
 		if talentCooldowns[talentId] then
-			talentCooldowns[talentId](info.guid)
+			talentCooldowns[talentId](guid)
 		end
 	end
-end
-
-function module:InspectUpdate(_, guid, unit, info)
-	self:UpdateGroupCooldownModifiers(info)
 end
 
 function module:InspectRemove(_, guid)
