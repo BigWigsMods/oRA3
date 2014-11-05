@@ -1,6 +1,6 @@
 
 local addonName, scope = ...
-local addon = LibStub("AceAddon-3.0"):NewAddon(addonName)
+local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
@@ -88,14 +88,14 @@ local secureScrollhighs = {} -- clickable secure scroll highlights
 local onGroupChanged, onShutdown = nil, nil
 
 local function actuallyDisband()
-	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+	if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
 		SendChatMessage(L["<oRA3> Disbanding group."], IsInRaid() and "RAID" or "PARTY")
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
 				UninviteUnit(unit)
 			end
 		end
-		LeaveParty()
+		addon:ScheduleTimer(LeaveParty, 2)
 	end
 end
 
@@ -526,7 +526,8 @@ do
 		elseif IsInGroup() then
 			tinsert(tmpGroup, (UnitName("player")))
 			for i = 1, 4 do
-				local n = UnitName("party" .. i)
+				local n,s = UnitName("party" .. i)
+				if s and s ~= "" then n = n.."-"..s end
 				if n then tmpGroup[#tmpGroup + 1] = n end
 			end
 		end
