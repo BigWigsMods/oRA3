@@ -1258,7 +1258,6 @@ end
 
 function module:OnStartup()
 	setupCooldownDisplay()
-	oRA3CooldownFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", "UpdateCooldownModifiers")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
