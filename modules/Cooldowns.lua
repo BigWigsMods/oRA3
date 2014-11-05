@@ -1176,6 +1176,8 @@ end
 -- Module
 --
 
+local checkReincarnationCooldown = nil
+
 function module:OnRegister()
 	local database = oRA.db:RegisterNamespace("Cooldowns", {
 		profile = {
@@ -1241,7 +1243,7 @@ function module:OnRegister()
 	local _, playerClass = UnitClass("player")
 	if playerClass == "SHAMAN" then
 		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
-		local function checkCooldown()
+		function checkReincarnationCooldown()
 			local start, duration = GetSpellCooldown(20608)
 			if start > 0 and duration > 1.5 then
 				local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
@@ -1250,16 +1252,17 @@ function module:OnRegister()
 		end
 		hooksecurefunc("UseSoulstone", function()
 			if IsInGroup() then
-				module:ScheduleTimer(checkCooldown, 1)
+				module:ScheduleTimer(checkReincarnationCooldown, 1)
 			end
 		end)
 	end
 end
 
-function module:OnStartup()
+function module:OnStartup(_, groupStatus)
 	setupCooldownDisplay()
 	oRA.RegisterCallback(self, "OnCommReceived")
 	oRA.RegisterCallback(self, "OnGroupChanged")
+	self:OnGroupChanged(nil, groupStatus)
 
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update", "InspectUpdate")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove", "InspectRemove")
@@ -1289,6 +1292,10 @@ function module:OnGroupChanged(_, groupStatus)
 		if not UnitExists(bar:Get("ora3cd:unit")) then
 			bar:Stop()
 		end
+	end
+
+	if checkReincarnationCooldown then
+		checkReincarnationCooldown()
 	end
 end
 
