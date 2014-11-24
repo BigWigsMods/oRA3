@@ -315,7 +315,7 @@ local spells = {
 		[1719]  = 180,  -- Recklessness
 		[6552]  = 15,   -- Pummel
 		[5246]  = 90,   -- Intimidating Shout
-		[871]   = 180,  -- Shield Wall
+		[871]   = 120,  -- Shield Wall
 		[64382] = 300,  -- Shattering Throw
 		[55694] = 60,   -- Enraged Regeneration
 		[12975] = 180,  -- Last Stand
@@ -1329,7 +1329,7 @@ end
 
 function module:InspectRemove(_, guid)
 	if not guid then return end
-  cdModifiers[guid] = nil
+	cdModifiers[guid] = nil
 end
 
 do
