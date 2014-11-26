@@ -1416,18 +1416,18 @@ do
 			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
 		end
 
-		if not inEncounter and IsEncounterInProgress() then
-			inEncounter = true
-			-- reset combat reses
-			for bar in next, module:GetBars() do
-				local spell = bar:Get("ora3cd:spellid")
-				if combatResSpells[spell] then
-					bar:Stop()
+		if IsInRaid() then
+			if not inEncounter and IsEncounterInProgress() then
+				inEncounter = true
+				-- reset combat reses
+				for bar in next, module:GetBars() do
+					local spell = bar:Get("ora3cd:spellid")
+					if combatResSpells[spell] then
+						bar:Stop()
+					end
 				end
-			end
-		elseif inEncounter and not IsEncounterInProgress() then
-			inEncounter = nil
-			if IsInRaid() then
+			elseif inEncounter and not IsEncounterInProgress() then
+				inEncounter = nil
 				-- reset +3min cds, except Reincarnation
 				for bar in next, module:GetBars() do
 					local spell = bar:Get("ora3cd:spellid")
