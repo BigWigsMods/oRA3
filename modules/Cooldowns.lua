@@ -1427,11 +1427,13 @@ do
 			end
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = nil
-			-- reset +3min cds, except Reincarnation
-			for bar in next, module:GetBars() do
-				local spell = bar:Get("ora3cd:spellid")
-				if allSpells[spell] > 180 and spell ~= 20608 then
-					bar:Stop()
+			if IsInRaid() then
+				-- reset +3min cds, except Reincarnation
+				for bar in next, module:GetBars() do
+					local spell = bar:Get("ora3cd:spellid")
+					if allSpells[spell] > 180 and spell ~= 20608 then
+						bar:Stop()
+					end
 				end
 			end
 		end
