@@ -157,6 +157,8 @@ local spells = {
 		[90355] = 360,  -- Ancient Hysteria
 		[160452] = 360, -- Netherwinds
 		[126393] = 600, -- Eternal Guardian
+		[159956] = 600, -- Dust of Life
+		[159931] = 600, -- Gift of Chi-Ji
 	},
 	MAGE = {
 		[45438] = 300,  -- Ice Block
@@ -394,6 +396,8 @@ local combatResSpells = {
 	[95750] = true,  -- Soulstone Resurrection
 	[61999] = true,  -- Raise Ally
 	[126393] = true, -- Eternal Guardian
+	[159956] = true, -- Dust of Life
+	[159931] = true, -- Gift of Chi-Ji
 }
 
 local petSpells = {
