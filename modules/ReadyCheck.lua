@@ -194,6 +194,8 @@ local function updateWindow()
 			highgroup = 6
 		elseif diff == 16 then -- 20 man
 			highgroup = 5
+		elseif diff == 14 or diff == 15 then
+			highgroup = 7
 		else -- 40 man
 			highgroup = 9
 		end
