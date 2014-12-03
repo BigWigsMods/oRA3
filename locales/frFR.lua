@@ -18,11 +18,11 @@ L["Open with raid pane"] = "Ouvrir avec le panneau de raid"
 L.toggleWithRaidDesc = "Ouvre et ferme le panneau de oRA3 automatiquement en même temps que le panneau de raid de Blizzard. Si vous désactivez cette option, vous pouvez toujours ouvrir le panneau de oRA3 en utilisant son raccourci clavier ou une commande slash, telle que |cff44ff44/radur|r."
 L["Show interface help"] = "Afficher l'aide de l'interface"
 L.showHelpTextsDesc = "L'interface de oRA3 est remplie de textes d'aide permettant de mieux comprendre les différents éléments de l'interface. Désactiver cette option enlèvera ces textes, limitant l'encombrement sur chaque panneau. |cffff4411Nécessite parfois un rechargement de l'interface.|r"
-L["Ensure guild repairs are enabled for all ranks present in raid"] = "S'assurer que les réparations de guilde sont activées pour tous les rangs présents dans le raid"
+L["Ensure guild repairs are enabled for all ranks present in raid"] = "S'assurer que les réparations de guilde sont activées pour tous les rangs du raid"
 L.ensureRepairDesc = "Si vous êtes le maître de guilde, à chaque fois que vous rejoignez un groupe de raid dans lequel vous êtes chef ou assistant, ceci s'assurera que les réparations de guilde sont activées pendant la durée du raid (jusqu'à 300po). Une fois que vous quittez le groupe de raid, les marqueurs retrouveront leur état initial |cffff4411à condition que votre jeu ne crash pas pendant le raid.|r"
 L.repairEnabled = "Réparations de guilde activées pour %s pendant la durée de ce raid."
-L["Show role icons on raid pane"] = true
-L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
+L["Show role icons on raid pane"] = "Afficher les icônes de rôle sur le panneau raid"
+L.showRoleIconsDesc = "Affiche les icônes de rôle et le nombre total de chaque rôle sur le panneau de raid Blizzard. Vous devrez réouvrir le panneau de raid pour que les changements de ce paramètre prennent effet."
 
 L["Slash commands"] = "Commandes « / »"
 L.slashCommands = [[
@@ -180,7 +180,7 @@ L["Missing Gems"] = "Gemmes manquantes"
 L["Missing Enchants"] = "Enchantements manquants"
 
 -- BattleRes Module
---L.battleResTitle = "Battle Res Monitor"
---L.battleResLockDesc = "Toggle locking the monitor. This will hide the header text, background, and prevent movement."
---L.battleResShowDesc = "Toggle showing or hiding the monitor."
+L.battleResTitle = "Moniteur des rez de combat"
+L.battleResLockDesc = "Verrouille ou non le moniteur. Ceci masquera le texte d'en-tête, l'arrière-plan, et empêchera son déplacement."
+L.battleResShowDesc = "Affiche ou cache le moniteur."
 
