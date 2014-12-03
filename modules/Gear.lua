@@ -96,10 +96,6 @@ do
 
 						-- Handle missing gems
 						local totalItemSockets = 0
-						-- WAIST, add +1 as the belt buckle doesn't contribute to the EMPTY_SOCKET_GEM entries
-						if i == 6 then
-							totalItemSockets = 1
-						end
 
 						local statsTable = GetItemStats(itemLink)
 						for k, v in next, statsTable do
