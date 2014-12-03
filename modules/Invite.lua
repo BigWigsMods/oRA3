@@ -242,8 +242,8 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 	end
 	sender = Ambiguate(sender, "none")
 	if shouldInvite(msg, sender) then
-		local _, instanceType = IsInInstance()
-		if (instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
+		local inInstance, instanceType = IsInInstance()
+		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
 				BNSendWhisper(presenceId, L["<oRA3> Sorry, the group is full."])
 			else
