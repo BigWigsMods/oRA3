@@ -312,9 +312,15 @@ local spells = {
 		[113858] = 120, -- Dark Soul: Instability
 		[108508] = 60,  -- Mannoroth's Fury
 		[137587] = 60,  -- Kil'jaden's Cunning
+		[171140] = 24,  -- Doomguard Shadow Lock (via Command Demon, originates from player)
+		[119911] = 24,  -- Observer Optical Blast (via Command Demon, originates from player)
+		[119910] = 24,  -- Felhunter Spell Lock (via Command Demon, originates from player)
+		[132409] = 24,  -- Felhunter Sacrifice, Spell Lock
+		[171139] = 24,  -- Doomguard Sacrifice, Shadow Lock
 		-- Pet
-		[19647]  = 24,  -- Felhunter Spell Lock
-		[171138] = 24,  -- Doomguard Shadow Lock
+		[171138] = 24,  -- Doomguard Shadow Lock (Normal, originates from pet)
+		[115781] = 24,  -- Observer Optical Blast (Normal, originates from pet)
+		[19647]  = 24,  -- Felhunter Spell Lock (Normal, originates from pet)
 	},
 	WARRIOR = {
 		[100]   = 20,   -- Charge
@@ -403,8 +409,9 @@ local combatResSpells = {
 local petSpells = {
 	[90355] = true,  -- Ancient Hysteria
 	[160452] = true, -- Netherwinds
-	[19647] = true,  -- Spell Lock
-	[171138] = true, -- Shadow Lock
+	[171138] = true, -- Doomguard Shadow Lock
+	[115781] = true, -- Observer Optical Blast
+	[19647] = true,  -- Felhunter Spell Lock
 }
 
 local chargeSpells = {
