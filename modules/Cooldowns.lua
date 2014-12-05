@@ -387,6 +387,7 @@ local spells = {
 		[101545] = 25,  -- Flying Serpent Kick
 		[137562] = 120, -- Nimble Brew
 		[123904] = 180, -- Invoke Xuen, the White Tiger
+		[115295] = 30,  -- Guard
 	},
 }
 
