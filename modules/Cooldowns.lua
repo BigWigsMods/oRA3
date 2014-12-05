@@ -1061,7 +1061,6 @@ do
 	end
 
 	function lockDisplay()
-		if locked then return end
 		if not display then setupCooldownDisplay() end
 		display:EnableMouse(false)
 		display:SetMovable(false)
@@ -1077,7 +1076,6 @@ do
 		locked = true
 	end
 	function unlockDisplay()
-		if not locked then return end
 		if not display then setupCooldownDisplay() end
 		display:EnableMouse(true)
 		display:SetMovable(true)
