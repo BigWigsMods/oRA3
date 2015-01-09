@@ -44,7 +44,7 @@ do
 	function module:OnListSelected(event, list)
 		if list == L["Gear"] then
 			local t = GetTime()
-			if t-prev > 20 then
+			if t-prev > 15 then
 				prev = t
 				self:SendComm("QueryGear")
 			end
@@ -76,7 +76,7 @@ do
 	function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 		if prefix == "QueryGear" then
 			local t = GetTime()
-			if t-prev > 20 then
+			if t-prev > 10 then
 				prev = t
 
 				local all, equipped = GetAverageItemLevel()
