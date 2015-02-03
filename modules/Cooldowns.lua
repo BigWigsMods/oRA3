@@ -107,7 +107,7 @@ local spells = {
 		[5217]  = 30,   -- Tiger's Fury
 		[1850]  = 180,  -- Dash
 		[740]   = 180,  -- Tranquility
-		[77761] = 120,  -- Stampeding Roar
+		[77761] = 120,  -- Stampeding Roar, Bear
 		[33831] = 30,   -- Force of Nature (3 charges)
 		[33891] = 180,  -- Incarnation: Tree of Life
 		[102543] = 180, -- Incarnation: King of the Jungle
@@ -431,6 +431,8 @@ local mergeSpells = { -- Used for merging multiple ids into one option
 	[171140] = 19647, -- Doomguard Shadow Lock (via Command Demon, originates from player)
 	[171139] = 19647, -- Doomguard Sacrifice, Shadow Lock
 	[95750]  = 20707, -- Combat Soulstone
+	[77764] = 77761, -- Stampeding Roar, Cat
+	[106898] = 77761, -- Stampeding Roar, Misc
 }
 
 local allSpells = {}
@@ -448,6 +450,8 @@ allSpells[119911] = 24 -- Observer Optical Blast (via Command Demon, originates 
 allSpells[115781] = 24 -- Observer Optical Blast (Normal, originates from pet)
 allSpells[171140] = 24 -- Doomguard Shadow Lock (via Command Demon, originates from player)
 allSpells[171139] = 24 -- Doomguard Sacrifice, Shadow Lock
+allSpells[77764] = 120 -- Spampeding Roar, Cat
+allSpells[106898] = 120 -- Spampeding Roar, Misc
 classLookup[95750] = "WARLOCK"
 classLookup[119910] = "WARLOCK"
 classLookup[132409] = "WARLOCK"
@@ -455,6 +459,8 @@ classLookup[119911] = "WARLOCK"
 classLookup[115781] = "WARLOCK"
 classLookup[171140] = "WARLOCK"
 classLookup[171139] = "WARLOCK"
+classLookup[77764] = "DRUID" -- Stampeding Roar, Cat
+classLookup[106898] = "DRUID" -- Stampeding Roar, Misc
 --allSpells[66235] = 110 -- Ardent Defender heal
 
 local db = nil
