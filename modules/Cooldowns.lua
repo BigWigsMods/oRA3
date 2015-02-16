@@ -341,7 +341,7 @@ local spells = {
 		[118000] = 60,  -- Dragon Roar
 	},
 	DEATHKNIGHT = {
-		[49576] = 25,   -- Death Grip -- XXX Perk reduces CD by 5s
+		[49576] = 20,   -- Death Grip -- XXX Perk reduces CD by 5s (base 25)
 		[47528] = 15,   -- Mind Freeze
 		[47476] = 60,   -- Strangulate
 		[48792] = 180,  -- Icebound Fortitude
@@ -398,14 +398,6 @@ local combatResSpells = {
 	[126393] = true, -- Eternal Guardian
 	[159956] = true, -- Dust of Life
 	[159931] = true, -- Gift of Chi-Ji
-}
-
-local petSpells = {
-	[90355] = true,  -- Ancient Hysteria
-	[160452] = true, -- Netherwinds
-	[171138] = true, -- Doomguard Shadow Lock
-	[115781] = true, -- Observer Optical Blast
-	[19647] = true,  -- Felhunter Spell Lock
 }
 
 local chargeSpells = {
@@ -469,11 +461,12 @@ local mTypeBar = media and media.MediaType and media.MediaType.STATUSBAR or "sta
 local mTypeFont = media and media.MediaType and media.MediaType.FONT or "font"
 
 local options, restyleBars
-local lockDisplay, unlockDisplay, isDisplayLocked, showDisplay, hideDisplay, isDisplayShown
+local lockDisplay, unlockDisplay, showDisplay, hideDisplay
 local showPane, hidePane
 local combatLog
 local textures = media:List(mTypeBar)
 local fonts = media:List(mTypeFont)
+
 local function getOptions()
 	if not options then
 		options = {
@@ -900,8 +893,6 @@ do
 	local visibleBars = {}
 	local locked = nil
 	local shown = nil
-	function isDisplayLocked() return locked end
-	function isDisplayShown() return shown end
 
 	function module:GetBars()
 		return visibleBars
@@ -1416,6 +1407,7 @@ do
 
 	local IsEncounterInProgress, band, inEncounter = IsEncounterInProgress, bit.band, nil
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
+	local pet = bit.bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_TYPE_PET)
 
 	local function getCooldown(guid, spellId)
 		local cd = allSpells[spellId]
@@ -1425,21 +1417,25 @@ do
 		return cd
 	end
 
+	local function checkCharges(srcGUID, source, spellId)
+		local charges, maxCharges, start, duration = GetSpellCharges(spellId)
+		if charges then -- your spell
+			if charges == 0 then
+				module:Cooldown(source, spellId, duration - (GetTime() - start))
+			end
+		elseif not module:IsOnCD(source, spellId) then -- guess cd, nothing displayed so assume it's the first charge
+			module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
+		end
+	end
+
 	function combatLog(_, _, _, event, _, srcGUID, source, srcFlags, _, _, _, _, _, spellId)
 		if source and (event == "SPELL_CAST_SUCCESS" or event == "SPELL_RESURRECT") and allSpells[spellId] and band(srcFlags, group) ~= 0 then
 			if combatResSpells[spellId] and inEncounter then
 				return
-			elseif petSpells[spellId] then
+			elseif band(srcFlags, pet) > 0 then
 				source, srcGUID = getPetOwner(source, srcGUID)
 			elseif chargeSpells[spellId] then
-				local charges, maxCharges, start, duration = GetSpellCharges(spellId)
-				if charges then -- your spell
-					if charges == 0 then
-						module:Cooldown(source, spellId, duration - (GetTime() - start))
-					end
-				elseif not module:IsOnCD(source, spellId) then -- guess cd, nothing displayed so assume it's the first charge
-					module:Cooldown(source, spellId, getCooldown(srcGUID, spellId))
-				end
+				module:ScheduleTimer(checkCharges, 0.1, srcGUID, source, spellId)
 				return
 			end
 			if mergeSpells[spellId] then
