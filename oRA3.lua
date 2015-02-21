@@ -172,7 +172,7 @@ local function giveOptions()
 				},
 				slashCommands = {
 					type = "group",
-					name = L.slashCommands,
+					name = L.slashCommandsHeader,
 					width = "full",
 					inline = true,
 					order = 5,

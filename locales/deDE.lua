@@ -22,7 +22,7 @@ L.ensureRepair = "Stellt sicher, dass Gildenreparatur für alle im Schlachtzug a
 L.ensureRepairDesc = "Falls du Gildenleiter und zugleich Raidleiter/Assistent der aktuellen Schlachtgruppe bist, wirst du die Gildenreparatur für die Dauer der Gruppe aktivieren (bis 300g). Sobald du die Gruppe verlässt, wird der vorherige Status wieder gesetzt, |cffff4411sofern du nicht aus dem Spiel geflogen bist.|r"
 L.repairEnabled = "Gildenreparatur für %s für die Dauer dieses Schlachtzugs aktiviert."
 
-L.slashCommands = "Befehle"
+L.slashCommandsHeader = "Befehle"
 L.slashCommands = [[
 oRA3 verfügt über eine Reihe von Befehlen, die in hektischer Raidumgebung hilfreich sein können. Für den Fall, dass du in den alten CTRA-Tagen nicht dabei warst: Eine kleine Referenz. Alle Befehle haben diverse Abkürzungen, aber manchmal auch längere, aussagekräftigere Alternativen.
 

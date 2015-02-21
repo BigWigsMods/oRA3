@@ -26,7 +26,7 @@ L.repairEnabled = "Enabled guild repairs for %s for the duration of this raid."
 L.showRoleIcons = "Show role icons on raid pane"
 L.showRoleIconsDesc = "Show role icons and the total count for each role on the Blizzard raid pane. You will need to reopen the raid pane for changes to this setting to take effect."
 
-L.slashCommands = "Slash commands"
+L.slashCommandsHeader = "Slash commands"
 L.slashCommands = [[
 oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 

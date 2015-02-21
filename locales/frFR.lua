@@ -27,7 +27,7 @@ L.repairEnabled = "Réparations de guilde activées pour %s pendant la durée de
 L.showRoleIcons = "Afficher les icônes de rôle sur le panneau raid"
 L.showRoleIconsDesc = "Affiche les icônes de rôle et le nombre total de chaque rôle sur le panneau de raid Blizzard. Vous devrez réouvrir le panneau de raid pour que les changements de ce paramètre prennent effet."
 
-L.slashCommands = "Commandes « / »"
+L.slashCommandsHeader = "Commandes « / »"
 L.slashCommands = [[
 oRA3 supporte toute une série de commandes « / » (ou slash) pour vous aider rapidement en raid.
 

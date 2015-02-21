@@ -27,7 +27,7 @@ L.repairEnabled = "Abilita le riparazioni di gilda per %s per tutta la durata di
 L.showRoleIcons = "Mostra icona di ruolo nel pannello Incursione"
 L.showRoleIconsDesc = "Mostra l'icona del ruolo e il conteggio totale di ogni ruolo nel pannello Incursione della Blizzard. Devi riaprire il pannello incursione per applicare le modifiche."
 
-L.slashCommands = "Comandi Slash"
+L.slashCommandsHeader = "Comandi Slash"
 L.slashCommands = [[
 oRA3 dispone di una serie di comandi slash per aiutarti a configurare velocemente le incursioni. Se non eri presente quando c'era CTRA, ecco una piccola lista. Tutti i comandi slash hanno varie scorciatoie ma anche versioni più lunghe, e descrizioni alternative in alcuni casi.
 

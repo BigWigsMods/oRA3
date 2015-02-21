@@ -27,7 +27,7 @@ L.repairEnabled = "Activadas reparaciones de hermandad de %s para la duración d
 L.showRoleIcons = "Mostrar iconos de rol en el panel de raid"
 L.showRoleIconsDesc = "Muestra iconos de rol y la cantidad total de cada uno en el panel de raid de Blizzard. Necesitarás reabrir el panel de raid para que los cambios tengan efecto."
 
-L.slashCommands = "Comandos"
+L.slashCommandsHeader = "Comandos"
 L.slashCommands = [[
 oRA3 tiene una serie de comandos que agilizan la tarea de administrar la raid. En el caso de que no esté familiarizado con el viejo CTRA, aquí se muestra una pequeña referencia. Todos los comandos tienen atajos y otros más largos, alternativas más descriptivas en algunos casos, según sea conveniente.
 

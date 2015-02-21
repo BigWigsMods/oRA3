@@ -27,7 +27,7 @@ L.repairEnabled = "啟用%s公會修裝直到團隊結束。"
 L.showRoleIcons = "在團隊面板顯示角色圖示"
 L.showRoleIconsDesc = "顯示角色圖示與各角色總數在內建團隊面板。妳需要重新開起團隊面板來讓設定生效。"
 
-L.slashCommands = "/指令"
+L.slashCommandsHeader = "指令"
 L.slashCommands = [[
 oRA3誇示/指令範圍來幫助你在快節奏的團隊中。假如你不再徘迴在舊的CTRA日子，這裡有一些參考。所有/指令有各種速記也有長的，為了方便，更多描述在某些情況會被取代。
 

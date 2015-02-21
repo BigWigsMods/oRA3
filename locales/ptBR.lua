@@ -27,7 +27,7 @@ L.repairEnabled = "Habilita reparos de guilda para %s pela duração desta raide
 L.showRoleIcons = "Exibir ícones de função na janela de raide"
 L.showRoleIconsDesc = "Exibir ícones de função e o total para cada função na janela de raide da Blizzard. Você terá que abrir a janela de raide novamente para que essas mudanças tenham efeito."
 
-L.slashCommands = "Comandos de barra"
+L.slashCommandsHeader = "Comandos de barra"
 L.slashCommands = [[
 oRA3 disponibiliza uma série de comandos de barra para te ajudar em um ritmo acelerado de raide. Caso você não tenha usado nos tempos do CTRA, aqui vai uma pequena referência. Todos os comandos de barra possuem diversos versões mais curtas ou longas, alternativas mais descritivas em alguns casos, para sua conveniência.
 

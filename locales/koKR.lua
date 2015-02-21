@@ -25,7 +25,7 @@ L.ensureRepair = "공격대에서 현재 모든 등급에 대해 길드 수리�
 L.ensureRepairDesc = "당신이 만약 길드 관리자이며 팀에 합류하였고 지휘관 또는 승급자라면, 길드원의 수리비에 대해 길드 수리비(최대 300골드)를 지원하도록 설정 가능합니다. |cffff4411당신이 공격대를 떠난다면 적용되지 않으니 파산등의 걱정은 하지마세요 :)|r"
 L.repairEnabled = "이 공격대에서 %s 에 대해 길드 수리를 활성화합니다."
 
-L.slashCommands = "슬러쉬 명령어"
+L.slashCommandsHeader = "슬러쉬 명령어"
 
 -- Ready check module
 L.notReady = "준비가 되지 않은 플레이어: %s"
