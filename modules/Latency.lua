@@ -14,11 +14,11 @@ local latency = {}
 
 function module:OnRegister()
 	oRA:RegisterList(
-		L["Latency"],
+		L.latency,
 		latency,
-		L["Name"],
-		L["Home"],
-		L["World"]
+		L.name,
+		L.home,
+		L.world
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
@@ -28,12 +28,12 @@ function module:OnRegister()
 	SLASH_ORALATENCY1 = "/ralag"
 	SLASH_ORALATENCY2 = "/ralatency"
 	SlashCmdList.ORALATENCY = function()
-		oRA:OpenToList(L["Latency"])
+		oRA:OpenToList(L.latency)
 	end
 end
 
 function module:OnGroupChanged()
-	oRA:UpdateList(L["Latency"])
+	oRA:UpdateList(L.latency)
 end
 
 function module:OnShutdown()
@@ -43,7 +43,7 @@ end
 do
 	local prev = 0
 	function module:OnListSelected(event, list)
-		if list == L["Latency"] then
+		if list == L.latency then
 			local t = GetTime()
 			if t-prev > 7 then
 				prev = t
@@ -72,7 +72,7 @@ do
 			latency[k][2] = tonumber(latencyHome)
 			latency[k][3] = tonumber(latencyWorld)
 
-			oRA:UpdateList(L["Latency"])
+			oRA:UpdateList(L.latency)
 		end
 	end
 end

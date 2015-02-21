@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- Setup
 --
-
+-- XXX PEt DESTINATION FOR WARLOCK INTERUPT
 local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
@@ -471,7 +471,7 @@ local function getOptions()
 	if not options then
 		options = {
 			type = "group",
-			name = L["Cooldowns"],
+			name = L.cooldowns,
 			get = function(k) return db[k[#k]] end,
 			set = function(k, v)
 				local key = k[#k]
@@ -495,29 +495,29 @@ local function getOptions()
 			args = {
 				showDisplay = {
 					type = "toggle",
-					name = L["Show monitor"],
-					desc = L["Show or hide the cooldown bar display in the game world."],
+					name = L.showMonitor,
+					desc = L.showMonitorDesc,
 					order = 1,
 					width = "full",
 				},
 				lockDisplay = {
 					type = "toggle",
-					name = L["Lock monitor"],
-					desc = L["Note that locking the cooldown monitor will hide the title and the drag handle and make it impossible to move it, resize it or open the display options for the bars."],
+					name = L.lockMonitor,
+					desc = L.lockMonitorDesc,
 					order = 2,
 					width = "full",
 				},
 				onlyShowMine = {
 					type = "toggle",
-					name = L["Only show my own spells"],
-					desc = L["Toggle whether the cooldown display should only show the cooldown for spells cast by you, basically functioning as a normal cooldown display addon."],
+					name = L.onlyMyOwnSpells,
+					desc = L.onlyMyOwnSpellsDesc,
 					order = 3,
 					width = "full",
 				},
 				neverShowMine = {
 					type = "toggle",
-					name = L["Never show my own spells"],
-					desc = L["Toggle whether the cooldown display should never show your own cooldowns. For example if you use another cooldown display addon for your own cooldowns."],
+					name = L.neverShowOwnSpells,
+					desc = L.neverShowOwnSpellsDesc,
 					order = 4,
 					width = "full",
 				},
@@ -529,14 +529,14 @@ local function getOptions()
 				},
 				shownow = {
 					type = "execute",
-					name = L["Open monitor"],
+					name = L.openMonitor,
 					func = showDisplay,
 					width = "full",
 					order = 11,
 				},
 				test = {
 					type = "execute",
-					name = L["Spawn test bar"],
+					name = L.spawnTestBar,
 					func = function()
 						module:SpawnTestBar()
 					end,
@@ -545,19 +545,19 @@ local function getOptions()
 				},
 				settings = {
 					type = "group",
-					name = L["Bar Settings"],
+					name = L.barSettings,
 					order = 20,
 					width = "full",
 					inline = true,
 					args = {
 						barClassColor = {
 							type = "toggle",
-							name = L["Use class color"],
+							name = L.useClassColor,
 							order = 13,
 						},
 						barColor = {
 							type = "color",
-							name = L["Custom color"],
+							name = L.customColor,
 							get = function() return unpack(db.barColor) end,
 							set = function(info, r, g, b)
 								db.barColor = {r, g, b, 1}
@@ -569,7 +569,7 @@ local function getOptions()
 						spacer = { type = "description", name = " ", order = 14.5 },
 						barHeight = {
 							type = "range",
-							name = L["Height"],
+							name = L.height,
 							order = 15,
 							min = 8,
 							max = 32,
@@ -577,7 +577,7 @@ local function getOptions()
 						},
 						barScale = {
 							type = "range",
-							name = L["Scale"],
+							name = L.scale,
 							order = 15,
 							min = 0.1,
 							max = 5.0,
@@ -585,7 +585,7 @@ local function getOptions()
 						},
 						barTexture = {
 							type = "select",
-							name = L["Texture"],
+							name = L.texture,
 							order = 17,
 							values = textures,
 							get = function()
@@ -603,36 +603,36 @@ local function getOptions()
 						},
 						barGrowUp = {
 							type = "toggle",
-							name = L["Grow up"],
+							name = L.growUpwards,
 							order = 19,
 							width = "full",
 						},
 						show = {
 							type = "group",
-							name = L["Show"],
+							name = L.show,
 							order = 20,
 							width = "full",
 							inline = true,
 							args = {
 								barShowIcon = {
 									type = "toggle",
-									name = L["Icon"],
+									name = L.icon,
 								},
 								barShowDuration = {
 									type = "toggle",
-									name = L["Duration"],
+									name = L.duration,
 								},
 								barShowUnit = {
 									type = "toggle",
-									name = L["Unit name"],
+									name = L.unitName,
 								},
 								barShowSpell = {
 									type = "toggle",
-									name = L["Spell name"],
+									name = L.spellName,
 								},
 								barShorthand = {
 									type = "toggle",
-									name = L["Short Spell name"],
+									name = L.shortSpellName,
 								},
 							},
 						},
@@ -640,7 +640,7 @@ local function getOptions()
 				},
 				labelSettings = {
 					type = "group",
-					name = L["Label Text Settings"],
+					name = L.labelTextSettings,
 					order = 21,
 					width = "full",
 					inline = true,
@@ -648,12 +648,12 @@ local function getOptions()
 					args = {
 						barLabelClassColor = {
 							type = "toggle",
-							name = L["Use class color"],
+							name = L.useClassColor,
 							order = 1,
 						},
 						barLabelColor = {
 							type = "color",
-							name = L["Custom color"],
+							name = L.customColor,
 							get = function() return unpack(db.barLabelColor) end,
 							set = function(info, r, g, b)
 								db.barLabelColor = {r, g, b, 1}
@@ -665,7 +665,7 @@ local function getOptions()
 						spacer = { type = "description", name = " ", order = 3 },
 						barLabelFont = {
 							type = "select",
-							name = L["Font"],
+							name = L.font,
 							order = 4,
 							values = fonts,
 							get = function()
@@ -683,19 +683,19 @@ local function getOptions()
 						},
 						barLabelFontSize = {
 							type = "range",
-							name = L["Font Size"],
+							name = L.fontSize,
 							order = 5,
 							min = 6, max = 24, step = 1,
 						},
 						barLabelOutline = {
 							type = "select",
-							name = L["Outline"],
+							name = L.outline,
 							order = 6,
-							values = { NONE = NONE, OUTLINE = L["Thin"], THICKOUTLINE = L["Thick"] },
+							values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
 						},
 						barLabelAlign = {
 							type = "select",
-							name = L["Label Align"],
+							name = L.labelAlign,
 							order = 7,
 							values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" },
 						},
@@ -703,7 +703,7 @@ local function getOptions()
 				},
 				durationSettings = {
 					type = "group",
-					name = L["Duration Text Settings"],
+					name = L.durationTextSettings,
 					order = 22,
 					width = "full",
 					inline = true,
@@ -711,12 +711,12 @@ local function getOptions()
 					args = {
 						barDurationClassColor = {
 							type = "toggle",
-							name = L["Use class color"],
+							name = L.useClassColor,
 							order = 1,
 						},
 						barDurationColor = {
 							type = "color",
-							name = L["Custom color"],
+							name = L.customColor,
 							get = function() return unpack(db.barLabelColor) end,
 							set = function(info, r, g, b)
 								db.barLabelColor = {r, g, b, 1}
@@ -728,7 +728,7 @@ local function getOptions()
 						spacer = { type = "description", name = " ", order = 3 },
 						barDurationFont = {
 							type = "select",
-							name = L["Font"],
+							name = L.font,
 							order = 9,
 							values = fonts,
 							get = function()
@@ -746,15 +746,15 @@ local function getOptions()
 						},
 						barDurationFontSize = {
 							type = "range",
-							name = L["Font Size"],
+							name = L.fontSize,
 							order = 10,
 							min = 6, max = 24, step = 1,
 						},
 						barDurationOutline = {
 							type = "select",
-							name = L["Outline"],
+							name = L.outline,
 							order = 11,
-							values = { NONE = NONE, OUTLINE = L["Thin"], THICKOUTLINE = L["Thick"] },
+							values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
 						},
 					},
 				},
@@ -841,7 +841,7 @@ do
 		frame:SetLayout("List")
 
 		local moduleDescription = AceGUI:Create("Label")
-		moduleDescription:SetText(L["Select which cooldowns to display using the dropdown and checkboxes below. Each class has a small set of spells available that you can view using the bar display. Select a class from the dropdown and then configure the spells for that class according to your own needs."])
+		moduleDescription:SetText(L.selectClassDesc)
 		moduleDescription:SetFontObject(GameFontHighlight)
 		moduleDescription:SetFullWidth(true)
 
@@ -853,7 +853,7 @@ do
 
 		group = AceGUI:Create("DropdownGroup")
 		group:SetLayout("Flow")
-		group:SetTitle(L["Select class"])
+		group:SetTitle(L.selectClass)
 		group:SetGroupList(classes)
 		group:SetCallback("OnGroupSelected", dropdownGroupCallback)
 		local _, playerClass = UnitClass("player")
@@ -1049,7 +1049,7 @@ do
 
 	local function displayOnMouseDown(self, mouseButton)
 		if mouseButton ~= "RightButton" then return end
-		InterfaceOptionsFrame_OpenToCategory(L["Cooldowns"])
+		InterfaceOptionsFrame_OpenToCategory(L.cooldowns)
 	end
 
 	local function onDragStart(self) self:StartMoving() end
@@ -1123,11 +1123,11 @@ do
 		display.bg = bg
 		local header = display:CreateFontString(nil, "OVERLAY")
 		header:SetFontObject(GameFontNormal)
-		header:SetText(L["Cooldowns"])
+		header:SetText(L.cooldowns)
 		header:SetPoint("BOTTOM", display, "TOP", 0, 4)
 		local help = display:CreateFontString(nil, "HIGHLIGHT")
 		help:SetFontObject(GameFontNormal)
-		help:SetText(L["Right-Click me for options!"])
+		help:SetText(L.rightClick)
 		help:SetAllPoints(display)
 		display.header = header
 
@@ -1265,7 +1265,7 @@ function module:OnRegister()
 	db = database.profile
 
 	oRA:RegisterPanel(
-		L["Cooldowns"],
+		L.cooldowns,
 		showPane,
 		hidePane
 	)
@@ -1280,7 +1280,7 @@ function module:OnRegister()
 		db = database.profile
 	end)
 	candy.RegisterCallback(self, "LibCandyBar_Stop", barStopped)
-	oRA:RegisterModuleOptions("CoolDowns", getOptions, L["Cooldowns"])
+	oRA:RegisterModuleOptions("CoolDowns", getOptions, L.cooldowns)
 
 	playerName = UnitName("player")
 	playerGUID = UnitGUID("player")

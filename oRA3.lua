@@ -7,12 +7,11 @@ local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
 
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-scope.locale = L
+local L = scope.locale
 local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
 BINDING_HEADER_oRA3 = addonName
-BINDING_NAME_TOGGLEORA3 = L["Toggle oRA3 Pane"]
+BINDING_NAME_TOGGLEORA3 = L.togglePane
 
 local hexColors, classColors = {}, {UNKNOWN = {r = 0.8, g = 0.8, b = 0.8}}
 for k, v in next, RAID_CLASS_COLORS do
@@ -89,7 +88,7 @@ local onGroupChanged, onShutdown = nil, nil
 
 local function actuallyDisband()
 	if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
-		SendChatMessage(L["<oRA3> Disbanding group."], IsInRaid() and "RAID" or "PARTY")
+		SendChatMessage("<oRA3> ".. L.disbandingGroupChatMsg, IsInRaid() and "RAID" or "PARTY")
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
 				UninviteUnit(unit)
@@ -133,7 +132,7 @@ local function giveOptions()
 			args = {
 				toggleWithRaid = {
 					type = "toggle",
-					name = colorize(L["Open with raid pane"]),
+					name = colorize(L.toggleWithRaid),
 					desc = L.toggleWithRaidDesc,
 					descStyle = "inline",
 					order = 1,
@@ -141,7 +140,7 @@ local function giveOptions()
 				},
 				showRoleIcons = {
 					type = "toggle",
-					name = colorize(L["Show role icons on raid pane"]),
+					name = colorize(L.showRoleIcons),
 					desc = L.showRoleIconsDesc,
 					descStyle = "inline",
 					order = 2,
@@ -149,7 +148,7 @@ local function giveOptions()
 				},
 				ensureRepair = {
 					type = "toggle",
-					name = colorize(L["Ensure guild repairs are enabled for all ranks present in raid"]),
+					name = colorize(L.ensureRepair),
 					desc = L.ensureRepairDesc,
 					descStyle = "inline",
 					order = 3,
@@ -165,7 +164,7 @@ local function giveOptions()
 				},
 				showHelpTexts = {
 					type = "toggle",
-					name = colorize(L["Show interface help"]),
+					name = colorize(L.showHelpTexts),
 					desc = L.showHelpTextsDesc,
 					descStyle = "inline",
 					order = 4,
@@ -173,7 +172,7 @@ local function giveOptions()
 				},
 				slashCommands = {
 					type = "group",
-					name = L["Slash commands"],
+					name = L.slashCommands,
 					width = "full",
 					inline = true,
 					order = 5,
@@ -320,7 +319,7 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", profileUpdate)
 	self.db.RegisterCallback(self, "OnProfileReset", profileUpdate)
 
-	self:RegisterPanel(L["Checks"], showLists, hideLists)
+	self:RegisterPanel(L.checks, showLists, hideLists)
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, giveOptions, true)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
@@ -328,7 +327,7 @@ function addon:OnInitialize()
 	local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	LibStub("LibDualSpec-1.0"):EnhanceOptions(profileOptions, self.db)
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L["Profile"], addonName)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L.profile, addonName)
 
 	local function OnRaidHide()
 		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
@@ -657,12 +656,12 @@ local function setupGUI()
 	disband:SetNormalFontObject(GameFontNormalSmall)
 	disband:SetHighlightFontObject(GameFontHighlightSmall)
 	disband:SetDisabledFontObject(GameFontDisableSmall)
-	disband:SetText(L["Disband Group"])
+	disband:SetText(L.disbandGroup)
 	disband:SetPoint("TOPLEFT", 72, -37)
 	disband:SetScript("OnClick", function()
 		if not StaticPopupDialogs["oRA3DisbandGroup"] then
 			StaticPopupDialogs["oRA3DisbandGroup"] = {
-				text = L["Are you sure you want to disband your group?"],
+				text = L.disbandGroupWarning,
 				button1 = YES,
 				button2 = NO,
 				whileDead = 1,
@@ -683,8 +682,8 @@ local function setupGUI()
 	else
 		disband:Disable()
 	end
-	disband.tooltipText = L["Disband Group"]
-	disband.newbieText = L["Disbands your current party or raid, kicking everyone from your group, one by one, until you are the last one remaining.\n\nSince this is potentially very destructive, you will be presented with a confirmation dialog. Hold down Control to bypass this dialog."]
+	disband.tooltipText = L.disbandGroup
+	disband.newbieText = L.disbandGroupDesc
 
 	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate")
 	options:SetWidth(115)
@@ -692,7 +691,7 @@ local function setupGUI()
 	options:SetNormalFontObject(GameFontNormalSmall)
 	options:SetHighlightFontObject(GameFontHighlightSmall)
 	options:SetDisabledFontObject(GameFontDisableSmall)
-	options:SetText(L["Options"])
+	options:SetText(L.options)
 	options:SetPoint("TOPRIGHT", -40, -37)
 	options:SetScript("OnClick", function()
 		InterfaceOptionsFrame_OpenToCategory(addonName)
@@ -993,7 +992,7 @@ function addon:SelectList(index)
 end
 
 function addon:OpenToList(name)
-	self:SelectPanel(L["Checks"])
+	self:SelectPanel(L.checks)
 	for i, list in next, lists do
 		if list.name == name then
 			self:SelectList(i)
@@ -1139,7 +1138,7 @@ local function setScrollHeaderWidth(nr, width)
 	_G[scrollheaders[nr]:GetName().."Middle"]:SetWidth(width - 9)
 end
 
-local listHeader = ("%s - %%s"):format(L["Checks"])
+local listHeader = ("%s - %%s"):format(L.checks)
 local retainSortOrder = nil
 function showLists()
 	-- hide all scrollheaders per default

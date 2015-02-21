@@ -45,47 +45,47 @@ local function getOptions()
 				sound = {
 					type = "toggle",
 					name = colorize(SOUND_LABEL),
-					desc = L["Play the ready check sound using the Master sound channel when a ready check is performed. This will play the sound while \"Sound Effects\" is disabled and at a higher volume."],
+					desc = L.readyCheckSound,
 					width = "full",
 					descStyle = "inline",
 					order = 1,
 				},
 				gui = {
 					type = "toggle",
-					name = colorize(L["Show window"]),
-					desc = L["Show the window when a ready check is performed."],
+					name = colorize(L.showWindow),
+					desc = L.showWindowDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 2,
 				},
 				autohide = {
 					type = "toggle",
-					name = colorize(L["Hide window when done"]),
-					desc = L["Automatically hide the window when the ready check is finished."],
+					name = colorize(L.hideWhenDone),
+					desc = L.hideWhenDoneDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 3,
 				},
 				hideOnCombat = {
 					type = "toggle",
-					name = colorize(L["Hide in combat"]),
-					desc = L["Automatically hide the ready check window when you get in combat."],
+					name = colorize(L.hideInCombat),
+					desc = L.hideInCombatDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 4,
 				},
 				hideReady = {
 					type = "toggle",
-					name = colorize(L["Hide players who are ready"]),
-					desc = L["Hide players that are marked as ready from the window."],
+					name = colorize(L.hideReadyPlayers),
+					desc = L.hideReadyPlayersDesc,
 					width = "full",
 					descStyle = "inline",
 					order = 5,
 				},
 				relayReady = {
 					type = "toggle",
-					name = colorize(L["Relay ready check results to raid chat"]),
-					desc = L["If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."],
+					name = colorize(L.printToRaid),
+					desc = L.printToRaidDesc,
 					order = 6,
 					descStyle = "inline",
 					width = "full",
@@ -368,7 +368,7 @@ local function createWindow()
 	animUpdater:SetScript("OnLoop", function(self)
 		local timer = GetReadyCheckTimeLeft()
 		if timer > 0 then
-			title:SetText(L["Ready Check (%d seconds)"]:format(timer))
+			title:SetText(L.readyCheckSeconds:format(timer))
 		else
 			title:SetText(READY_CHECK_FINISHED)
 			self:Stop()
@@ -547,7 +547,7 @@ do
 				end
 			end
 			if #notReady > 0 then
-				local no = L["The following players are not ready: %s"]:format(table.concat(notReady, ", "))
+				local no = L.notReady:format(table.concat(notReady, ", "))
 				if not promoted then
 					sysprint(no)
 				elseif send and promoted > 1 then

@@ -119,7 +119,7 @@ local function getOptions()
 			args = {
 				showDisplay = {
 					type = "toggle",
-					name = colorize(L["Show monitor"]),
+					name = colorize(L.showMonitor),
 					desc = L.battleResShowDesc,
 					width = "full",
 					descStyle = "inline",
@@ -127,7 +127,7 @@ local function getOptions()
 				},
 				lock = {
 					type = "toggle",
-					name = colorize(L["Lock monitor"]),
+					name = colorize(L.lockMonitor),
 					desc = L.battleResLockDesc,
 					width = "full",
 					descStyle = "inline",

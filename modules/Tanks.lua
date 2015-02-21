@@ -43,7 +43,7 @@ function module:OnRegister()
 	})
 	self.db = database.factionrealm
 	oRA:RegisterPanel(
-		L["Tanks"],
+		L.tanks,
 		showConfig,
 		hideConfig
 	)
@@ -359,7 +359,7 @@ function module:CreateFrame()
 		helpButton:SetHeight(24)
 		helpButton:SetPoint("TOPRIGHT", -4, -8)
 		helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
-		helpButton.tooltipTitle = L["What is all this?"]
+		helpButton.tooltipTitle = L.whatIsThis
 		helpButton.tooltipText = L.tankHelp
 	end
 
@@ -372,8 +372,8 @@ function module:CreateFrame()
 		t:SetScript("OnClick", topScrollUpClick)
 		t:SetScript("OnLeave", OnLeave)
 		t:SetScript("OnEnter", OnEnter)
-		t.tooltipTitle = L["Sort"]
-		t.tooltipText = L["Click to move this tank up."]
+		t.tooltipTitle = L.sort
+		t.tooltipText = L.moveTankUp
 
 		if i == 1 then
 			t:SetPoint("TOPLEFT", frame.topscroll)
@@ -396,7 +396,7 @@ function module:CreateFrame()
 
 		local name = oRA:CreateScrollEntry(t)
 		name:SetPoint("TOPLEFT", hidden, "TOPRIGHT", 4, 0)
-		name:SetText(L["Name"])
+		name:SetText(L.name)
 		t.label = name
 
 		local delete = createButton(t)
@@ -415,7 +415,7 @@ function module:CreateFrame()
 		else
 			tank:Disable()
 		end
-		tank.tooltipTitle = L["Blizzard Main Tank"]
+		tank.tooltipTitle = L.blizzMainTank
 		tank.tooltipText = L.tankButtonHelp
 		t.tank = tank
 
@@ -430,7 +430,7 @@ function module:CreateFrame()
 			else
 				stank:Disable()
 			end
-			stank.tooltipTitle = L["Blizzard Main Tank"]
+			stank.tooltipTitle = L.blizzMainTank
 			stank.tooltipText = L.tankButtonHelp
 			t.stank = stank
 			t.tank:Hide()
@@ -462,9 +462,9 @@ function module:CreateFrame()
 		local name = oRA:CreateScrollEntry(b)
 		name:SetPoint("TOPLEFT", b)
 		name:SetPoint("BOTTOMRIGHT", b)
-		name:SetText(L["Name"])
+		name:SetText(L.name)
 		b.label = name
-		b.unitName = L["Name"]
+		b.unitName = L.name
 		bottom[i] = b
 	end
 
@@ -533,7 +533,7 @@ function module:PLAYER_REGEN_ENABLED()
 			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
 			stank:SetAttribute("type", "maintank")
 			stank:SetAttribute("action", "toggle")
-			stank.tooltipTitle = L["Blizzard Main Tank"]
+			stank.tooltipTitle = L.blizzMainTank
 			stank.tooltipText = L.tankButtonHelp
 			top[i].stank = stank
 		end

@@ -75,10 +75,10 @@ end
 
 function module:OnRegister()
 	oRA:RegisterList(
-		L["Zone"],
+		L.zone,
 		zones,
-		L["Name"],
-		L["Zone"]
+		L.name,
+		L.zone
 	)
 	oRA.RegisterCallback(self, "OnListSelected")
 	oRA.RegisterCallback(self, "OnGroupChanged")
@@ -87,7 +87,7 @@ function module:OnRegister()
 	SLASH_ORAZONE1 = "/razone"
 	SLASH_ORAZONE2 = "/raz"
 	SlashCmdList.ORAZONE = function()
-		oRA:OpenToList(L["Zone"])
+		oRA:OpenToList(L.zone)
 	end
 end
 
@@ -97,7 +97,7 @@ function module:OnEnable()
 end
 
 function module:OnListSelected(event, list)
-	if list == L["Zone"] then
+	if list == L.zone then
 		self:UpdateZoneList()
 	end
 end
@@ -128,7 +128,7 @@ function module:UPDATE_FACTION()
 end
 
 function module:OnGroupChanged(event, status, members)
-	oRA:UpdateList(L["Zone"])
+	oRA:UpdateList(L.zone)
 end
 
 local function addPlayer(name, zone)
@@ -138,7 +138,7 @@ local function addPlayer(name, zone)
 		zones[#zones + 1] = { name }
 		k = #zones
 	end
-	zone = zone or L["Unknown"]
+	zone = zone or L.unknown
 	zones[k][2] = zone
 end
 

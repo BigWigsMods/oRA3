@@ -121,7 +121,7 @@ local function inviteGuild()
 	if not canInvite() then return end
 	GuildRoster()
 	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
-	SendChatMessage(L["All max level characters will be invited to raid in 10 seconds. Please leave your groups."], "GUILD")
+	SendChatMessage(L.invitePrintMaxLevel, "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
 end
 
@@ -129,7 +129,7 @@ local function inviteZone()
 	if not canInvite() then return end
 	GuildRoster()
 	local currentZone = GetRealZoneText()
-	SendChatMessage((L["All characters in %s will be invited to raid in 10 seconds. Please leave your groups."]):format(currentZone), "GUILD")
+	SendChatMessage((L.invitePrintZone):format(currentZone), "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, nil, currentZone, nil)
 end
 
@@ -139,7 +139,7 @@ local function inviteRank(rank, name)
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
-	SendChatMessage((L["All characters of rank %s or higher will be invited to raid in 10 seconds. Please leave your groups."]):format(name), channel)
+	SendChatMessage((L.invitePrintRank):format(name), channel)
 	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1)
 end
 
@@ -164,7 +164,7 @@ function module:OnRegister()
 	db = database.global
 
 	oRA:RegisterPanel(
-		L["Invite"],
+		L.invite,
 		showConfig,
 		hideConfig
 	)
@@ -245,9 +245,9 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if presenceId > 0 then
-				BNSendWhisper(presenceId, L["<oRA3> Sorry, the group is full."])
+				BNSendWhisper(presenceId, "<oRA3> ".. L.invitePrintGroupIsFull)
 			else
-				SendChatMessage(L["<oRA3> Sorry, the group is full."], "WHISPER", nil, sender)
+				SendChatMessage("<oRA3> ".. L.invitePrintGroupIsFull, "WHISPER", nil, sender)
 			end
 		else
 			peopleToInvite[#peopleToInvite + 1] = sender
@@ -289,7 +289,7 @@ local function updateRankButtons()
 		local rankName = ranks[i]
 		local button = AceGUI:Create("Button")
 		button:SetText(rankName)
-		button:SetUserData("tooltip", L["Invite all guild members of rank %s or higher."]:format(rankName))
+		button:SetUserData("tooltip", L.inviteGuildRankDesc:format(rankName))
 		button:SetUserData("rank", i)
 		button:SetCallback("OnEnter", onControlEnter)
 		button:SetCallback("OnLeave", onControlLeave)
@@ -359,32 +359,32 @@ function module:CreateFrame()
 	difficultyDropdown = difficulty
 
 	local kwDescription = AceGUI:Create("Label")
-	kwDescription:SetText(L["When people whisper you the keywords below, they will automatically be invited to your group. If you're in a party and it's full, you will convert to a raid group. The keywords will only stop working when you have a full raid of 40 people. Setting a keyword to nothing will disable it."])
+	kwDescription:SetText(L.inviteDesc)
 	kwDescription:SetFullWidth(true)
 	kwDescription:SetFontObject(GameFontHighlight)
 
 	local keyword = AceGUI:Create("EditBox")
-	keyword:SetLabel(L["Keyword"])
+	keyword:SetLabel(L.keyword)
 	keyword:SetText(db.keyword)
 	keyword:SetUserData("key", "keyword")
-	keyword:SetUserData("tooltip", L["Anyone who whispers you this keyword will automatically and immediately be invited to your group."])
+	keyword:SetUserData("tooltip", L.keywordDesc)
 	keyword:SetCallback("OnEnter", onControlEnter)
 	keyword:SetCallback("OnLeave", onControlLeave)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetRelativeWidth(0.5)
 
 	local guildonlykeyword = AceGUI:Create("EditBox")
-	guildonlykeyword:SetLabel(L["Guild Keyword"])
+	guildonlykeyword:SetLabel(L.guildKeyword)
 	guildonlykeyword:SetText(db.guildkeyword)
 	guildonlykeyword:SetUserData("key", "guildkeyword")
-	guildonlykeyword:SetUserData("tooltip", L["Any guild member who whispers you this keyword will automatically and immediately be invited to your group."])
+	guildonlykeyword:SetUserData("tooltip", L.guildKeywordDesc)
 	guildonlykeyword:SetCallback("OnEnter", onControlEnter)
 	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
 
 	local raidonly = AceGUI:Create("CheckBox")
-	raidonly:SetLabel(L["Only invite on keyword if in a raid group"])
+	raidonly:SetLabel(L.inviteInRaidOnly)
 	raidonly:SetValue(db.raidonly)
 	raidonly:SetCallback("OnValueChanged", raidOnlyCallback)
 	raidonly:SetFullWidth(true)
@@ -392,8 +392,8 @@ function module:CreateFrame()
 	local guild, zone, rankHeader, rankDescription
 	if inGuild then
 		guild = AceGUI:Create("Button")
-		guild:SetText(L["Invite guild"])
-		guild:SetUserData("tooltip", L["Invite everyone in your guild at the maximum level."])
+		guild:SetText(L.inviteGuild)
+		guild:SetUserData("tooltip", L.inviteGuildDesc)
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
 		guild:SetCallback("OnClick", inviteGuild)
@@ -404,19 +404,19 @@ function module:CreateFrame()
 		guild:SetFullWidth(true)
 
 		zone = AceGUI:Create("Button")
-		zone:SetText(L["Invite zone"])
-		zone:SetUserData("tooltip", L["Invite everyone in your guild who are in the same zone as you."])
+		zone:SetText(L.inviteZone)
+		zone:SetUserData("tooltip", L.inviteZoneDesc)
 		zone:SetCallback("OnEnter", onControlEnter)
 		zone:SetCallback("OnLeave", onControlLeave)
 		zone:SetCallback("OnClick", inviteZone)
 		zone:SetFullWidth(true)
 
 		rankHeader = AceGUI:Create("Heading")
-		rankHeader:SetText(L["Guild rank invites"])
+		rankHeader:SetText(L.guildRankInvites)
 		rankHeader:SetFullWidth(true)
 
 		rankDescription = AceGUI:Create("Label")
-		rankDescription:SetText(L["Clicking any of the buttons below will invite anyone of the selected rank AND HIGHER to your group. So clicking the 3rd button will invite anyone of rank 1, 2 or 3, for example. It will first post a message in either guild or officer chat and give your guild members 10 seconds to leave their groups before doing the actual invites."])
+		rankDescription:SetText(L.guildRankInvitesDesc)
 		rankDescription:SetFullWidth(true)
 		rankDescription:SetFontObject(GameFontHighlight)
 	end
