@@ -378,7 +378,7 @@ function addon:OnEnable()
 		local l = GetLocale()
 		if l~="enUS" and l~="enGB" and l~="ptBR" then
 			C_Timer.After(7, function()
-				print("|cFF33FF99oRA3|r: You can now add/update our translations/localization on wowace!")) -- XXX remove me
+				print("|cFF33FF99oRA3|r: You can now add/update our translations/localization on wowace!") -- XXX remove me
 			end)
 		end
 	end
