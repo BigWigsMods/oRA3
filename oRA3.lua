@@ -374,15 +374,6 @@ function addon:RegisterModuleOptions(name, optionTbl, displayName)
 end
 
 function addon:OnEnable()
-	if not SLASH_ORA1 then
-		local l = GetLocale()
-		if l~="enUS" and l~="enGB" and l~="ptBR" then
-			C_Timer.After(7, function()
-				print("|cFF33FF99oRA3|r: You can now add/update our translations/localization on wowace!") -- XXX remove me
-			end)
-		end
-	end
-
 	-- Roster Status Events
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
