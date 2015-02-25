@@ -445,7 +445,7 @@ function module:PLAYER_REGEN_DISABLED()
 end
 
 function module:READY_CHECK(initiator, duration)
-	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.wav", "Master") end
+	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master") end
 
 	self:CancelTimer(readychecking)
 	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
