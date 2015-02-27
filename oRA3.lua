@@ -13,6 +13,7 @@ local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L.togglePane
 
+local playerName = UnitName("player")
 local hexColors, classColors = {}, {UNKNOWN = {r = 0.8, g = 0.8, b = 0.8}}
 for k, v in next, RAID_CLASS_COLORS do
 	hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
@@ -523,9 +524,9 @@ do
 				end
 			end
 		elseif IsInGroup() then
-			tinsert(tmpGroup, (UnitName("player")))
+			tinsert(tmpGroup, playerName)
 			for i = 1, 4 do
-				local n,s = UnitName("party" .. i)
+				local n,s = UnitName(("party%d"):format(i))
 				if s and s ~= "" then n = n.."-"..s end
 				if n then tmpGroup[#tmpGroup + 1] = n end
 			end
