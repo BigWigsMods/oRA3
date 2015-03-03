@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- Setup
 --
--- XXX PEt DESTINATION FOR WARLOCK INTERUPT
+
 local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
@@ -288,7 +288,7 @@ local spells = {
 		[108281] = 120, -- Ancestral Guidance
 		[108273] = 60,  -- Windwalk Totem
 		[108271] = 90,  -- Astral Shift
-		[114049] = 180, -- Ascendance
+		[114049] = 180, -- Ascendance (Id is old and invalid, but keeping it for backwards compat as the master option for the 3 merged spells)
 		[108285] = 180, -- Call of the Elements
 	},
 	WARLOCK = {
@@ -425,6 +425,9 @@ local mergeSpells = { -- Used for merging multiple ids into one option
 	[95750]  = 20707, -- Combat Soulstone
 	[77764] = 77761, -- Stampeding Roar, Cat
 	[106898] = 77761, -- Stampeding Roar, Misc
+	[114050] = 114049, -- Ascendance, Elemental
+	[114051] = 114049, -- Ascendance, Enhancement
+	[114052] = 114049, -- Ascendance, Restoration
 }
 
 local allSpells = {}
@@ -444,6 +447,9 @@ allSpells[171140] = 24 -- Doomguard Shadow Lock (via Command Demon, originates f
 allSpells[171139] = 24 -- Doomguard Sacrifice, Shadow Lock
 allSpells[77764] = 120 -- Spampeding Roar, Cat
 allSpells[106898] = 120 -- Spampeding Roar, Misc
+allSpells[114050] = 180, -- Ascendance, Elemental
+allSpells[114051] = 180, -- Ascendance, Enhancement
+allSpells[114052] = 180, -- Ascendance, Restoration
 classLookup[95750] = "WARLOCK"
 classLookup[119910] = "WARLOCK"
 classLookup[132409] = "WARLOCK"
@@ -453,6 +459,9 @@ classLookup[171140] = "WARLOCK"
 classLookup[171139] = "WARLOCK"
 classLookup[77764] = "DRUID" -- Stampeding Roar, Cat
 classLookup[106898] = "DRUID" -- Stampeding Roar, Misc
+classLookup[114050] = "SHAMAN", -- Ascendance, Elemental
+classLookup[114051] = "SHAMAN", -- Ascendance, Enhancement
+classLookup[114052] = "SHAMAN", -- Ascendance, Restoration
 --allSpells[66235] = 110 -- Ardent Defender heal
 
 local db = nil
