@@ -528,7 +528,7 @@ do
 		end
 
 		local promoted = oRA:IsPromoted()
-		local send = self.db.profile.relayReady and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
+		local send = self.db.profile.relayReady and IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
 				sysprint(READY_CHECK_ALL_READY)
@@ -545,7 +545,7 @@ do
 				end
 			end
 			if #notReady > 0 then
-				local no = L.notReady:format(table.concat(notReady, ", "))
+				local no = L.playersNotReady:format(table.concat(notReady, ", "))
 				if not promoted then
 					sysprint(no)
 				elseif send and promoted > 1 then
