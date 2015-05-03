@@ -12,10 +12,10 @@ local _, playerClass = UnitClass("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 
 local roleIcons = {
-	["TANK"] = INLINE_TANK_ICON,
-	["HEALER"] = INLINE_HEALER_ICON,
-	["DAMAGER"] = INLINE_DAMAGER_ICON,
-	["NONE"] = "",
+	TANK = INLINE_TANK_ICON,
+	HEALER = INLINE_HEALER_ICON,
+	DAMAGER = INLINE_DAMAGER_ICON,
+	NONE = "",
 }
 
 local readychecking = nil
@@ -528,11 +528,11 @@ do
 		end
 
 		local promoted = oRA:IsPromoted()
-		local send = self.db.profile.relayReady and IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
+		local send = self.db.profile.relayReady and promoted and promoted > 1 and IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
 				sysprint(READY_CHECK_ALL_READY)
-			elseif send and promoted > 1 then
+			elseif send then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
 		else
@@ -540,7 +540,7 @@ do
 				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
 				if not promoted then
 					sysprint(afk)
-				elseif send and promoted > 1 then
+				elseif send then
 					SendChatMessage(afk, "RAID")
 				end
 			end
@@ -548,7 +548,7 @@ do
 				local no = L.playersNotReady:format(table.concat(notReady, ", "))
 				if not promoted then
 					sysprint(no)
-				elseif send and promoted > 1 then
+				elseif send then
 					SendChatMessage(no, "RAID")
 				end
 			end
