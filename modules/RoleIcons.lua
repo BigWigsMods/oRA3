@@ -3,8 +3,6 @@ local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("RoleIcons")
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local countIcons -- frame containing the totals by role
 
 local updateIcons

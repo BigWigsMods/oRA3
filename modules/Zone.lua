@@ -5,8 +5,6 @@ local util = oRA.util
 local module = oRA:NewModule("Zone")
 local L = scope.locale
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local zones = {}
 local factionList = {}
 local tip = nil

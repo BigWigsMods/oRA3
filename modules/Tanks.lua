@@ -6,8 +6,6 @@ local module = oRA:NewModule("Tanks")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local frame = nil
 local indexedTanks = {} -- table containing the final tank list
 local namedTanks = {} -- table containing current active tanks by name

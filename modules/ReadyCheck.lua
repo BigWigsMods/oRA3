@@ -4,8 +4,6 @@ local oRA = scope.addon
 local module = oRA:NewModule("ReadyCheck", "AceTimer-3.0")
 local L = scope.locale
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
 

@@ -1,6 +1,7 @@
 ## Interface: 60100
 ## Title: oRA3
 ## Notes: Raid and Party Assist
+## Version: @project-revision@
 ## Author: Funkydude, Nebula169
 
 ## X-Credits: Cladhaire for the sliding/detaching panel, Ammo, Rabbit

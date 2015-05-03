@@ -5,8 +5,6 @@ local util = oRA.util
 local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = scope.locale
 
-module.VERSION = tonumber(("$Revision: 712 $"):sub(12, -3))
-
 local resAmount = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}

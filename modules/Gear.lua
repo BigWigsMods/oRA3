@@ -7,8 +7,6 @@ local util = oRA.util
 local module = oRA:NewModule("Gear")
 local L = scope.locale
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local gearTbl = {}
 
 function module:OnRegister()

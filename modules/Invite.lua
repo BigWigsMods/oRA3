@@ -5,8 +5,6 @@ local module = oRA:NewModule("Invite", "AceTimer-3.0")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local frame = nil
 local db = nil
 local peopleToInvite = {}

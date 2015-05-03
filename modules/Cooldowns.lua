@@ -11,8 +11,6 @@ local candy = LibStub("LibCandyBar-3.0")
 local media = LibStub("LibSharedMedia-3.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 --------------------------------------------------------------------------------
 -- Locals
 --

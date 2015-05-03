@@ -9,8 +9,6 @@ local module = oRA:NewModule("Promote", "AceTimer-3.0")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
-module.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 --------------------------------------------------------------------------------
 -- Locals
 --

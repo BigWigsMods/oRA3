@@ -5,8 +5,6 @@ scope.addon = addon
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
-addon.VERSION = tonumber(("$Revision$"):sub(12, -3))
-
 local L = scope.locale
 local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
@@ -444,24 +442,25 @@ end
 do
 	local function isIndexedEqual(a, b)
 		if #a ~= #b then return false end
-		for i, v in next, a do
-			if v ~= b[i] then return false end
+		for i = 1, #a do
+			if a[i] ~= b[i] then return false end
 		end
 		return true
 	end
 	local function isKeyedEqual(a, b)
-		local aC, bC = 0, 0
-		for k in next, a do aC = aC + 1 end
-		for k in next, b do bC = bC + 1 end
-		if aC ~= bC then return false end
 		for k, v in next, a do
-			if not b[k] or v ~= b[k] then return false end
+			if v ~= b[k] then return false end
+		end
+		for k, v in next, b do
+			if v ~= a[k] then return false end
 		end
 		return true
 	end
 	local function copyToTable(src, dst)
 		wipe(dst)
-		for i, v in next, src do dst[i] = v end
+		for i, v in next, src do
+			dst[i] = v
+		end
 	end
 
 	local tmpRanks = {}
