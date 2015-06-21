@@ -116,7 +116,6 @@ local defaults = {
 	},
 }
 
-local selectList -- implemented down the file
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
 local function colorize(input) return string.format("|cfffed000%s|r", input) end
@@ -650,6 +649,9 @@ local function setupGUI()
 	title:SetPoint("TOP", 3, -16)
 	frame.title = title
 
+	local drag = frame:CreateTitleRegion()
+	drag:SetAllPoints(title)
+
 	local disband = CreateFrame("Button", "oRA3Disband", frame, "UIPanelButtonTemplate")
 	disband:SetWidth(115)
 	disband:SetHeight(22)
@@ -922,7 +924,7 @@ function addon:RegisterPanel(name, show, hide)
 	})
 end
 
-function addon:SelectPanel(name)
+function addon:SelectPanel(name, noUpdate)
 	self:ToggleFrame(true)
 	if not name then
 		name = db.lastSelectedPanel or panels[1].name
@@ -944,6 +946,10 @@ function addon:SelectPanel(name)
 	PanelTemplates_UpdateTabs(oRA3Frame)
 
 	panels[index].show()
+
+	if not noUpdate then
+		UpdateUIPanelPositions(oRA3Frame) -- snap the panel back
+	end
 end
 
 -----------------------------------------------------------------------
@@ -1139,7 +1145,6 @@ local function setScrollHeaderWidth(nr, width)
 end
 
 local listHeader = ("%s - %%s"):format(L.checks)
-local retainSortOrder = nil
 function showLists()
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
@@ -1147,7 +1152,6 @@ function showLists()
 	end
 
 	if not openedList then openedList = db.lastSelectedList and lists[db.lastSelectedList] and db.lastSelectedList or 1 end
-	retainSortOrder = db.lastSelectedList == openedList
 	db.lastSelectedList = openedList
 
 	local list = lists[openedList]
