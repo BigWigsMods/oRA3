@@ -17,7 +17,7 @@ oRA3CD = module
 -- GLOBALS: LOCK LOCALIZED_CLASS_NAMES_MALE NONE OKAY SPELLS SETTINGS TYPE YES
 -- GLOBALS: COMBATLOG_OBJECT_AFFILIATION_MINE COMBATLOG_OBJECT_AFFILIATION_PARTY COMBATLOG_OBJECT_AFFILIATION_RAID
 -- GLOBALS: COMBATLOG_OBJECT_TYPE_GUARDIAN COMBATLOG_OBJECT_TYPE_PET
--- GLOBALS: ARENA BATTLEGROUND DAMAGER HEALER INSTANCE PARTY RAID ROLE TANK
+-- GLOBALS: ARENA BATTLEGROUND DAMAGER HEALER INSTANCE PARTY RAID ROLE TANK RAID_GROUPS GROUP_NUMBER
 -- GLOBALS: oRA3CD SLASH_ORACOOLDOWN1 SLASH_ORACOOLDOWN2 SlashCmdList
 
 --------------------------------------------------------------------------------
@@ -595,6 +595,19 @@ for class, classSpells in next, spells do
 end
 
 
+local function guidToUnit(guid)
+	local token = IsInRaid and "raid%d" or "party%d"
+	for i = 1, GetNumGroupMembers() do
+		local unit = token:format(i)
+		if UnitGUID(unit) == guid then
+			return unit
+		end
+	end
+	if guid == playerGUID then
+		return "player"
+	end
+end
+
 function module:GetPlayerFromGUID(guid)
 	if infoCache[guid] then
 		return infoCache[guid].name, infoCache[guid].class
@@ -620,7 +633,9 @@ function module:CheckFilter(display, player)
 	-- returns => true = show, nil = hide
 	if not UnitExists(player) then return end
 	local db = display.filterDB
+	local info = infoCache[UnitGUID(player)]
 	local isMe = UnitIsUnit(player, "player")
+
 	if db.showOnlyMine and not isMe then return end
 	if db.neverShowMine and isMe then return end
 	if db.hideDead and not UnitIsDeadOrGhost(player) then return end
@@ -628,20 +643,19 @@ function module:CheckFilter(display, player)
 	--if db.hideOutOfCombat and InCombatLockdown() and not UnitAffectingCombat(player) then return end
 	if db.hideOutOfRange and not isMe and not UnitInRange(player) then return end
 	--if db.hideNameList[player] then return end
-	--if db.hideGroup[group] then return end
 
-	if next(db.hideRoles) then
-		local guid = UnitGUID(player)
-		local spec = infoCache[guid] and infoCache[guid].spec
-		local role = spec and GetSpecializationRoleByID(spec) or UnitGroupRolesAssigned(player)
-		if db.hideRoles[role] then return end
+	local index = info and info.unit:match("raid(%d+)")
+	if index then
+		local _, _, group = GetRaidRosterInfo(index)
+		if db.hideGroup[group] then return end
 	end
 
-	if next(db.hideInInstance) then
-		local inInstance, instanceType = IsInInstance() -- this should really act on the display itself
-		if inInstance and db.hideInInstance[instanceType] then return end
-		if db.hideInInstance.lfg and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return end
-	end
+	local role = info and GetSpecializationRoleByID(info.spec or 0) or UnitGroupRolesAssigned(player)
+	if db.hideRoles[role] then return end
+
+	local inInstance, instanceType = IsInInstance() -- this should really act on the display itself
+	if inInstance and db.hideInInstance[instanceType] then return end
+	if db.hideInInstance.lfg and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return end
 
 	return true
 end
@@ -751,7 +765,7 @@ do
 	end
 
 	local tmp = {}
-	local tabStatus, classStatus = { selected = "tab1", scrollvalue = 0 }, { selected = "ALL", scrollvalue = 0 }
+	local tabStatus, classStatus, filterStatus = { selected = "tab1", scrollvalue = 0 }, { selected = "ALL", scrollvalue = 0 }, { scrollvalue = 0 }
 	local displayList = {}
 	local classList = nil
 
@@ -1196,6 +1210,7 @@ do
 
 		elseif value == "tab3" then -- Filters
 			local scroll = AceGUI:Create("ScrollFrame")
+			scroll:SetStatusTable(filterStatus)
 			scroll:SetLayout("List")
 			scroll:SetFullWidth(true)
 			scroll:SetFullHeight(true)
@@ -1217,7 +1232,14 @@ do
 			--scroll:AddChild(addFilterOptionToggle("hideOutOfCombat", L.hideOutOfCombat))
 			scroll:AddChild(addFilterOptionToggle("hideOutOfRange", L.hideOutOfRange))
 			scroll:AddChild(addFilterOptionMultiselect("hideRoles", ROLE, L.hideRolesDesc, { TANK = TANK, HEALER = HEALER, DAMAGER = DAMAGER }))
-			scroll:AddChild(addFilterOptionMultiselect("hideInInstance", INSTANCE, L.hideInInstanceDesc, { raid = RAID, party = PARTY, pvp = BATTLEGROUND, arena = ARENA, lfg = "LFG" }))
+			scroll:AddChild(addFilterOptionMultiselect("hideInInstance", INSTANCE, L.hideInInstanceDesc, {
+				raid = RAID, party = PARTY, lfg = "LFG",
+				pvp = BATTLEGROUND, arena = ARENA,
+			}))
+			scroll:AddChild(addFilterOptionMultiselect("hideGroup", RAID_GROUPS, L.hideGroupDesc, {
+				[1] = GROUP_NUMBER:format(1), [2] = GROUP_NUMBER:format(2), [3] = GROUP_NUMBER:format(3), [4] = GROUP_NUMBER:format(4),
+				[5] = GROUP_NUMBER:format(5), [6] = GROUP_NUMBER:format(6), [7] = GROUP_NUMBER:format(7), [8] = GROUP_NUMBER:format(8),
+			}))
 
 			widget:AddChild(scroll)
 		end
@@ -1382,7 +1404,10 @@ function module:OnRegister()
 						pvp = false, arena = false,
 					},
 					--hideNameList = {},
-					--hideGroup = {},
+					hideGroup = {
+						[1] = false, [2] = false, [3] = false, [4] = false,
+						[5] = false, [6] = false, [7] = false, [8] = false,
+					},
 				}
 			},
 			enabled = true,
@@ -1627,6 +1652,7 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 						level = UnitLevel(player),
 						glyphs = {},
 						talents = {},
+						unit = "",
 					}
 					updateCooldownsByGUID(guid)
 				end
@@ -1650,6 +1676,7 @@ function module:GroupInSpecT_Update(_, guid, unit, info)
 			level = UnitLevel(unit),
 			glyphs = {},
 			talents = {},
+			unit = "",
 		}
 	end
 
@@ -1657,6 +1684,7 @@ function module:GroupInSpecT_Update(_, guid, unit, info)
 		local cache = infoCache[guid]
 		cache.level = UnitLevel(unit)
 		cache.spec = info.global_spec_id
+		cache.unit = unit ~= "player" and unit or guidToUnit(guid) or ""
 
 		for _, mods in next, cdModifiers do mods[guid] = nil end
 		for _, mods in next, chargeModifiers do mods[guid] = nil end
