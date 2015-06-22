@@ -82,18 +82,16 @@ function module:CreateDisplay(type, name)
 
 		-- init db
 		local moduleDB = module.db.profile
-		if not moduleDB.displays[name] then
-			moduleDB.displays[name] = {}
-		end
 		local db = moduleDB.displays[name]
 
 		-- reset settings on type change
 		if db.type and db.type ~= type then
 			wipe(db)
+			db.showDisplay = true
+			db.lockDisplay = false
 		end
 		db.type = type
 
-		copyDefaults(db, self.defaults)
 		copyDefaults(db, display.defaultDB)
 		display.db = db
 
@@ -108,12 +106,7 @@ function module:CreateDisplay(type, name)
 		end
 		display.spellDB = spellDB
 
-		if not moduleDB.filters[name] then
-			moduleDB.filters[name] = {}
-		end
-		local filterDB = moduleDB.filters[name]
-		copyDefaults(filterDB, self.filterDefaults)
-		display.filterDB = filterDB
+		display.filterDB = moduleDB.filters[name]
 
 		return display
 	else

@@ -199,6 +199,10 @@ function container:SetPosition(x, y, w, h)
 	if w then opt.Width = w end
 	if h then opt.Height = h end
 
+	if not self.frame then
+		self:Setup()
+	end
+
 	return oRA3:RestorePosition(name)
 end
 
