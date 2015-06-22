@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+<Script file="Cooldowns.lua"/>
+
+<Script file="Registry.lua"/>
+<Script file="Container.lua"/>
+
+<Script file="Displays\Bars.lua"/>
+<Script file="Displays\Icons.lua"/>
+<Script file="Displays\IconGroups.lua"/>
+<Script file="Displays\Log.lua"/>
+
+</Ui>
