@@ -289,17 +289,28 @@ local function UpdateTooltip(self)
 
 	local spellId = self:Get("ora3cd:spellid")
 	for guid, player in next, self:Get("ora3cd:players") do
+		local ready = READY
 		if oRA3CD:GetPlayerFromGUID(guid) then
 			local cd = oRA3CD:GetRemainingCooldown(guid, spellId)
+			local maxCharges = oRA3CD:GetCharges(guid, spellId)
+			if cd == 0 and maxCharges > 0 then
+				local charges = oRA3CD:GetRemainingCharges(guid, spellId)
+				if charges < maxCharges then
+					local chargeRemaining = oRA3CD:GetRemainingChargeCooldown(guid, spellId)
+					ready = ("(%d) %s |cffff7f3f%s|r"):format(charges, ready, SecondsToTime(chargeRemaining, nil, nil, 2, true))
+				else
+					ready = ("(%d) %s"):format(charges, ready)
+				end
+			end
 			local status = not UnitIsConnected(player) and L.offline or UnitIsDeadOrGhost(player) and L.dead or (IsInGroup() and not UnitInRange(player)) and L.range
 			if status then
 				GameTooltip:AddDoubleLine(
-					("%s (%s)"):format(player:gsub("-.*", ""), status), cd == 0 and READY or SecondsToTime(cd, nil, nil, 2, true),
+					("%s (%s)"):format(player:gsub("-.*", ""), status), cd == 0 and ready or ("|cffff2020%s|r"):format(SecondsToTime(cd, nil, nil, 2, true)),
 					0.8, 0.8, 0.8, 0.8, 0.8, 0.8
 				)
 			else
 				GameTooltip:AddDoubleLine(
-					player:gsub("-.*", ""), cd == 0 and ("|cff20ff20%s|r"):format(READY) or ("|cffff2020%s|r"):format(SecondsToTime(cd, nil, nil, 2, true)),
+					player:gsub("-.*", ""), cd == 0 and ("|cff20ff20%s|r"):format(ready) or ("|cffff2020%s|r"):format(SecondsToTime(cd, nil, nil, 2, true)),
 					1, 1, 1, 1, 1, 1
 				)
 			end
