@@ -284,7 +284,6 @@ local spells = {
 		[131894] = {60, 75, nil, 13}, -- A Murder of Crow
 		[121818] = {300, 75, nil, 15}, -- Stampede
 		[19263] = {180, 78}, -- Deterrence (2 charges)
-		[172106] = {180, 84}, -- Aspect of the Fox
 		[51753] = {60, 85}, -- Camouflage
 		[117050] = {15, 90, nil, 16}, -- Glaive Toss
 		[109259] = {45, 90, nil, 17}, -- Powershot
@@ -327,7 +326,6 @@ local spells = {
 		[157997] = {25, 75, 64, 15}, -- Ice Nova (2 charges)
 		[11129] = {45, 80, 63}, -- Combustion
 		[80353] = {300, 84}, -- Time Warp
-		[159916] = {120, 87}, -- Amplify Magic
 		[55342]  = {120, 90, nil, 16}, -- Mirror Image
 		[152087]  = {90, 100, nil, 20}, -- Prismatic Crystal
 		[153626]  = {15, 100, 62, 21}, -- Arcane Orb
@@ -1989,11 +1987,12 @@ do
 					updateCooldownsBySpell(spellId)
 				end
 			end
-			-- XXX 6.2 changes: Dark Soul is always reset
-			--for _, spellId in next, {113860, 113861, 113858} do -- Misery, Knowledge, Instability
-			--	chargeSpellsOnCooldown[spellId] = nil
-			--	updateCooldownsBySpell(spellId)
-			--end
+			-- Dark Soul: Misery, Knowledge, Instability are reset
+			for _, spellId in next, {113860, 113861, 113858} do
+				spellsOnCooldown[spellId] = nil
+				chargeSpellsOnCooldown[spellId] = nil
+				updateCooldownsBySpell(spellId)
+			end
 		end
 
 		-- track non-event driven player states (combat and range)
