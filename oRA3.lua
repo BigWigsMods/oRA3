@@ -1,4 +1,19 @@
 
+-- XXX temp WTF
+do
+	if ElvUI then
+		local E = unpack(ElvUI)
+		local func = E.StaticPopup_Show
+		E.StaticPopup_Show = function(self, name, ...)
+			if name == "ORA_SLE_INCOMPATIBLE" then
+				return
+			else
+				return func(self, name, ...)
+			end
+		end
+	end
+end
+
 local addonName, scope = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
