@@ -496,6 +496,9 @@ do
 	local function sortByRemaining(a, b) -- remaining > class > spell name
 		if a:Get("ora3cd:ready") and b:Get("ora3cd:ready") then
 			if a:Get("ora3cd:class") == b:Get("ora3cd:class") then
+				if a:Get("ora3cd:spell") == b:Get("ora3cd:spell") then
+					return a:Get("ora3cd:player") < b:Get("ora3cd:player")
+				end
 				return a:Get("ora3cd:spell") < b:Get("ora3cd:spell")
 			else
 				return a:Get("ora3cd:class") < b:Get("ora3cd:class")
@@ -509,7 +512,9 @@ do
 	local function sortByGroup(a, b) -- class > spell name > remaining
 		if a:Get("ora3cd:class") == b:Get("ora3cd:class") then
 			if a:Get("ora3cd:spell") == b:Get("ora3cd:spell") then
-				if a:Get("ora3cd:ready") or b:Get("ora3cd:ready") then
+				if a:Get("ora3cd:ready") and b:Get("ora3cd:ready") then
+					return a:Get("ora3cd:player") < b:Get("ora3cd:player")
+				elseif a:Get("ora3cd:ready") or b:Get("ora3cd:ready") then
 					return a:Get("ora3cd:ready") and not b:Get("ora3cd:ready") -- ready on top
 				end
 				return a.remaining < b.remaining
