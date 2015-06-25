@@ -636,7 +636,7 @@ function module:CheckFilter(display, player)
 
 	if db.showOnlyMine and not isMe then return end
 	if db.neverShowMine and isMe then return end
-	if db.hideDead and not UnitIsDeadOrGhost(player) then return end
+	if db.hideDead and UnitIsDeadOrGhost(player) then return end
 	if db.hideOffline and not UnitIsConnected(player) then return end
 	--if db.hideOutOfCombat and InCombatLockdown() and not UnitAffectingCombat(player) then return end
 	if db.hideOutOfRange and not isMe and not UnitInRange(player) then return end
