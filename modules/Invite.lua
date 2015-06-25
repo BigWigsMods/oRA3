@@ -5,13 +5,18 @@ local module = oRA:NewModule("Invite", "AceTimer-3.0")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
+-- GLOBALS: BNET_CLIENT_WOW FULL_PLAYER_NAME LE_PARTY_CATEGORY_INSTANCE NUM_LE_LFG_CATEGORYS MAX_PLAYER_LEVEL_TABLE
+-- GLOBALS: GameFontHighlight PLAYER_DIFFICULTY1 PLAYER_DIFFICULTY2 PLAYER_DIFFICULTY6 RAID_DIFFICULTY
+-- GLOBALS: SlashCmdList SLASH_ORAINVITE_GUILD1 SLASH_ORAINVITE_GUILD2 SLASH_ORAINVITE_ZONE1 SLASH_ORAINVITE_ZONE2
+-- GLOBALS: SLASH_ORAINVITE_RANK1 SLASH_ORAINVITE_RANK2
+
 local frame = nil
 local db = nil
 local peopleToInvite = {}
 local rankButtons = {}
 local difficultyDropdown, updateDifficultyDropdown = nil, nil -- a lot of effort for simply keeping the dialog in sync with the setting
 local playerRealm = GetRealmName()
-local Ambiguate = Ambiguate
+local playerFaction = UnitFactionGroup("player")
 
 local function canInvite()
 	return not IsInGroup() or oRA:IsPromoted()
@@ -184,7 +189,7 @@ function module:OnRegister()
 	SlashCmdList.ORAINVITE_RANK = inviteRankCommand
 end
 
-local function inQueue()
+local function isInQueue()
 	-- LFG
 	for i=1, NUM_LE_LFG_CATEGORYS do
 		local mode = GetLFGMode(i)
@@ -202,10 +207,9 @@ local function inQueue()
 	end
 end
 
-local playerFaction = UnitFactionGroup("player")
 local function getBattleNetToon(presenceId)
 	local friendIndex = BNGetFriendIndex(presenceId)
-	for i=1, BNGetNumFriendToons(friendIndex) do
+	for i = 1, BNGetNumFriendToons(friendIndex) do
 		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
 			if realmName ~= "" and realmName ~= playerRealm then
@@ -219,7 +223,7 @@ local function getBattleNetToon(presenceId)
 end
 
 local function shouldInvite(msg, sender)
-	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or inQueue() then
+	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then
 		return false
 	end
 
@@ -242,10 +246,11 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 	if shouldInvite(msg, sender) then
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
+			local groupIsFull = ("<oRA3> %s"):format(L.invitePrintGroupIsFull)
 			if presenceId > 0 then
-				BNSendWhisper(presenceId, "<oRA3> ".. L.invitePrintGroupIsFull)
+				BNSendWhisper(presenceId, groupIsFull)
 			else
-				SendChatMessage("<oRA3> ".. L.invitePrintGroupIsFull, "WHISPER", nil, sender)
+				SendChatMessage(groupIsFull, "WHISPER", nil, sender)
 			end
 		else
 			peopleToInvite[#peopleToInvite + 1] = sender
@@ -395,10 +400,6 @@ function module:CreateFrame()
 		guild:SetCallback("OnEnter", onControlEnter)
 		guild:SetCallback("OnLeave", onControlLeave)
 		guild:SetCallback("OnClick", inviteGuild)
-		-- Default height is 24, per AceGUIWidget-Button.lua
-		-- FIXME: Jesus christ that looks crappy, buttons apparently only have 3 textures,
-		-- left, middle and right, so making it higher actually stretches the texture.
-		--guild:SetHeight(24 * 2)
 		guild:SetFullWidth(true)
 
 		zone = AceGUI:Create("Button")
