@@ -242,6 +242,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 		sender, id = getBattleNetToon(presenceId)
 		if not id then return end
 	end
+	sender = Ambiguate(sender, "none")
 	if shouldInvite(msg, sender) then
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
