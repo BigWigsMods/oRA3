@@ -31,8 +31,6 @@ local showPane, hidePane
 local combatLogHandler = CreateFrame("Frame")
 local combatOnUpdate = nil
 
-local playerName, playerGUID
-local playerClass = select(2, UnitClass("player"))
 local checkReincarnationCooldown = nil
 
 local infoCache = {}
@@ -601,7 +599,7 @@ local function guidToUnit(guid)
 			return unit
 		end
 	end
-	if guid == playerGUID then
+	if UnitGUID("player") == guid then
 		return "player"
 	end
 end
@@ -1497,9 +1495,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	self:RegisterEvent("PLAYER_LOGOUT")
 
-	playerName = UnitName("player")
-	playerGUID = UnitGUID("player")
-
+	local _, playerClass = UnitClass("player")
 	if playerClass == "SHAMAN" then
 		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
 		function checkReincarnationCooldown()
@@ -1751,7 +1747,7 @@ end
 do
 	local function getPetOwner(pet, guid)
 		if UnitGUID("pet") == guid then
-			return playerName, playerGUID
+			return UnitName("player"), UnitGUID("player")
 		end
 
 		local owner
