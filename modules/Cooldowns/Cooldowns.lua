@@ -1437,6 +1437,12 @@ function module:OnRegister()
 				width = "full",
 				order = 1,
 			},
+			settings = {
+				type = "execute",
+				name = "Open Settings",
+				func = function() self:OpenDisplayOptions("Default") end,
+				order = 2,
+			},
 		}
 	}, L.cooldowns)
 
@@ -1473,6 +1479,7 @@ function module:OnRegister()
 				db[k] = nil
 			end
 		end
+		settingsDB.enabled = true
 
 		-- update position
 		if oRA.db.profile.positions.oRA3CooldownFrame then
