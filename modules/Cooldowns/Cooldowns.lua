@@ -1427,10 +1427,10 @@ function module:OnRegister()
 				set = function(info, value)
 					self:OnShutdown()
 					self.db.profile.enabled = value
-					if value and (IsInGroup() or frame:IsShown()) then
+					if value and (IsInGroup() or (frame and frame:IsShown())) then
 						self:OnStartup()
 					end
-					if frame:IsShown() then
+					if frame and frame:IsShown() then
 						showPane()
 					end
 				end,
