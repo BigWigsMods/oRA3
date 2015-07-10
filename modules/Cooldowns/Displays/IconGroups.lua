@@ -1,4 +1,6 @@
 
+local DISPLAY_TYPE, DISPLAY_VERSION = "Icon Groups", 1
+
 local _, scope = ...
 local oRA3 = scope.addon
 local oRA3CD = oRA3:GetModule("Cooldowns")
@@ -601,7 +603,7 @@ end
 local function New(name)
 	local self = {}
 	self.name = name
-	self.type = "Icon Groups"
+	self.type = DISPLAY_TYPE
 	self.defaultDB = defaultDB
 	self.icons = {}
 
@@ -637,5 +639,5 @@ local function New(name)
 	return self
 end
 
-oRA3CD:RegisterDisplayType(L.iconGroupDisplay, L.iconGroupDisplayDesc, New, 1, GetOptions)
+oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.iconGroupDisplay, L.iconGroupDisplayDesc, DISPLAY_VERSION, New, GetOptions)
 

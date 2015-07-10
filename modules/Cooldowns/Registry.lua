@@ -8,18 +8,20 @@ local module = oRA3:GetModule("Cooldowns")
 --
 
 local layoutRegistry = {}
+local layoutNames = {}
 local layoutDescriptions = {}
 local layoutVersions = {}
 local layoutOptionsRegistry = {}
 local layoutTypes = {}
 
-function module:RegisterDisplayType(name, description, new, version, options)
+function module:RegisterDisplayType(name, localizedName, description, version, new, options)
 	assert(type(name) == "string")
 	assert(type(new) == "function")
 	assert(type(version) == "number")
 	local oldVersion = layoutVersions[name]
 	if not oldVersion or oldVersion < version then
 		layoutRegistry[name] = new
+		layoutNames[name] = localizedName
 		layoutDescriptions[name] = description
 		layoutVersions[name] = version
 		if type(options) == "function" then
@@ -44,12 +46,8 @@ function module:GetDisplayOptionsTable(display)
 	end
 end
 
-function module:GetDisplayVersion(name)
-	return layoutVersions[name]
-end
-
-function module:GetDisplayDescription(name)
-	return layoutDescriptions[name]
+function module:GetDisplayInfo(name)
+	return layoutNames[name], layoutDescriptions[name], layoutVersions[name]
 end
 
 function module:IterateDisplayTypes()
@@ -72,7 +70,33 @@ local function copyDefaults(dst, src)
 	end
 end
 
+-- XXX locales as of r895
+local translateType = {
+	--esES
+	["Barras"] = "Bars",
+	["Iconos"] = "Icons",
+	["Grupos de iconos"] = "Icon Groups",
+	["Registro"] = "Log",
+	--deDE
+	["Leisten"] = "Bars",
+	["Icon Gruppen"] = "Icon Groups",
+	--frFR
+	["Barres"] = "Bars",
+	["Icônes"] = "Icons",
+	["Groupes d'icônes"] = "Icon Groups",
+	["Journal"] = "Log",
+}
+
 function module:CreateDisplay(type, name)
+	-- XXX I dun fucked up and localized my unique index
+	if not layoutRegistry[type] and translateType[type] then
+		local newType = translateType[type]
+		local db = module.db.profile.displays[name]
+		if db.type and db.type == type then
+			db.type = newType
+		end
+		type = newType
+	end
 	if layoutRegistry[type] then
 		local display = layoutRegistry[type](name)
 		display.name = name

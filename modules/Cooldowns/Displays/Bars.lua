@@ -1,4 +1,6 @@
 
+local DISPLAY_TYPE, DISPLAY_VERSION = "Bars", 1
+
 local _, scope = ...
 local oRA3 = scope.addon
 local oRA3CD = oRA3:GetModule("Cooldowns")
@@ -1192,7 +1194,7 @@ end
 local function New(name)
 	local self = {}
 	self.name = name
-	self.type = "Bars"
+	self.type = DISPLAY_TYPE
 	self.defaultDB = defaultDB
 	self.bars = {}
 
@@ -1219,5 +1221,5 @@ local function New(name)
 	return self
 end
 
-oRA3CD:RegisterDisplayType(L.barDisplay, L.barDisplayDesc, New, 1, GetOptions)
+oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.barDisplay, L.barDisplayDesc, DISPLAY_VERSION, New, GetOptions)
 

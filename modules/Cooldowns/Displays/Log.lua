@@ -1,4 +1,6 @@
 
+local DISPLAY_TYPE, DISPLAY_VERSION = "Log", 1
+
 local _, scope = ...
 local oRA3 = scope.addon
 local L = scope.locale
@@ -208,6 +210,7 @@ end
 
 local function New(name)
 	local self = {}
+	self.type = DISPLAY_TYPE
 	self.defaultDB = defaultDB
 
 	oRA3CD:AddContainer(self)
@@ -223,5 +226,5 @@ local function New(name)
 	return self
 end
 
-oRA3CD:RegisterDisplayType(L.logDisplay, L.logDisplayDesc, New, 1, GetOptions)
+oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.logDisplay, L.logDisplayDesc, DISPLAY_VERSION, New, GetOptions)
 

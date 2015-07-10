@@ -817,7 +817,7 @@ do
 	end
 
 	local function convertDisplay(name, dtype)
-		if not activeDisplays[name] or not module:GetDisplayVersion(dtype) then
+		if not activeDisplays[name] or not module:GetDisplayInfo(dtype) then
 			error(format("Failed to convert to display type '%s'", dtype), 0)
 		end
 
@@ -1300,9 +1300,9 @@ do
 
 		wipe(tmp)
 		local typeDescription = ""
-		for _, name in module:IterateDisplayTypes() do
-			tmp[name] = name
-			local desc = module:GetDisplayDescription(name)
+		for _, type in module:IterateDisplayTypes() do
+			local name, desc = module:GetDisplayInfo(type)
+			tmp[type] = name
 			if desc and desc ~= "" then
 				typeDescription = ("%s|cff20ff20%s|r: %s\n"):format(typeDescription, name, desc)
 			end

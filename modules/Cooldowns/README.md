@@ -48,7 +48,7 @@ Note: displays can "embed" RegisterEvent, UnregisterEvent, and UnregisterAllEven
 
 ## API:
 
- `oRA3CD:RegisterDisplayType(displayName, displayDescription, constructorFunc, displayVersion, optionsTable)`: Registers a display constructor which returns a new instance of the display.
+ `oRA3CD:RegisterDisplayType(typeName, displayName, displayDescription, displayVersion, constructorFunc, optionsTable)`: Registers a display constructor which returns a new instance of the display.
 
 
  - `oRA3CD:GetPlayerFromGUID(guid)`: returns player name and class
