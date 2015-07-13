@@ -119,7 +119,7 @@ local specCooldowns = {
 			--addMod(info.guid, 101643, 35) -- Transcendence
 		end
 	end,
-	[268] = function(info) -- Mistweaver Monk
+	[270] = function(info) -- Mistweaver Monk
 		if info.level >= 100 then
 			addMod(info.guid, 116849, 20) -- Life Cocoon
 			--addMod(info.guid, 101643, 35) -- Transcendence
