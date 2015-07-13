@@ -4,6 +4,7 @@ local DISPLAY_TYPE, DISPLAY_VERSION = "Log", 1
 local _, scope = ...
 local oRA3 = scope.addon
 local L = scope.locale
+local coloredNames = oRA3.coloredNames
 local oRA3CD = oRA3:GetModule("Cooldowns")
 
 local media = LibStub("LibSharedMedia-3.0")
@@ -68,32 +69,31 @@ end
 ---------------------------------------
 -- Text
 
-function prototype:AddMessage(player, class, spellId)
+function prototype:AddMessage(spellId, player, target)
 	if not self.db.showDisplay then return end
 	self:Setup()
 
-	local classColor = RAID_CLASS_COLORS[class] and RAID_CLASS_COLORS[class].colorStr or "ffcccccc"
 	local icon = GetSpellTexture(spellId)
 	local link = GetSpellLink(spellId)
 	local timestamp = self.db.timestamp and date("|cffcccccc[%H:%M:%S] ") or ""
-	local text = ("%s|c%s%s|r used |T%s:0:0:0:0:64:64:4:60:4:60|t%s"):format(timestamp, classColor, player, icon, link)
-	self.scroll:AddMessage(text, 1, 1, 1, 1)
-end
 
-function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duration)
-	if self.spellDB[spellId] and duration == oRA3CD:GetCooldown(guid, spellId) and oRA3CD:CheckFilter(self, player) then
-		self:AddMessage(player, class, spellId)
+	if target and player ~= target and UnitIsPlayer(target) then
+		local text = ("%s%s used |T%s:0:0:0:0:64:64:4:60:4:60|t%s on %s"):format(timestamp, coloredNames[player], icon, link, coloredNames[target])
+		self.scroll:AddMessage(text, 1, 1, 1, 1)
+	else
+		local text = ("%s%s used |T%s:0:0:0:0:64:64:4:60:4:60|t%s"):format(timestamp, coloredNames[player], icon, link)
+		self.scroll:AddMessage(text, 1, 1, 1, 1)
 	end
 end
 
-function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, duration, charges, maxCharges, ready)
-	if not ready and charges > 0 and self.spellDB[spellId] and oRA3CD:CheckFilter(self, player) then
-		self:AddMessage(player, class, spellId)
+function prototype:oRA3CD_SpellUsed(_, spellId, srcGUID, srcName, dstGUID, dstName)
+	if self.spellDB[spellId] and oRA3CD:CheckFilter(self, srcName) then
+		self:AddMessage(spellId, srcName, dstName)
 	end
 end
 
 function prototype:TestCooldown(player, class, spellId, duration)
-	self:AddMessage(player, class, spellId)
+	self:AddMessage(spellId, player, random(1, 3) == 1 and UnitName("player"))
 end
 
 ---------------------------------------
@@ -220,8 +220,7 @@ local function New(name)
 	end
 	oRA3CD.RegisterCallback(self, "OnStartup", "Show")
 	oRA3CD.RegisterCallback(self, "OnShutdown", "Hide")
-	oRA3CD.RegisterCallback(self, "oRA3CD_StartCooldown")
-	oRA3CD.RegisterCallback(self, "oRA3CD_UpdateCharges")
+	oRA3CD.RegisterCallback(self, "oRA3CD_SpellUsed")
 
 	return self
 end
