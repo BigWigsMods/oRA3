@@ -37,9 +37,9 @@ local coloredNames = setmetatable({}, {__index =
 		if type(key) == "nil" then return nil end
 		local class = select(2, UnitClass(key)) or _testUnits[key]
 		if class then
-			self[key] = hexColors[class] .. key .. "|r"
+			self[key] = string.format("%s%s|r", hexColors[class], key:gsub("%-.+", ""))
 		else
-			self[key] = "|cffcccccc<"..key..">|r"
+			self[key] = string.format("|cffcccccc<%s>|r", key:gsub("%-.+", ""))
 		end
 		return self[key]
 	end
