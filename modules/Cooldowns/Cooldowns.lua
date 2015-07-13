@@ -1824,6 +1824,7 @@ do
 				-- tracking by spell cast isn't very useful in an encounter because it only counts when accepted
 				return
 			end
+			callbacks:Fire("oRA3CD_SpellUsed", spellId, srcGUID, source, destGUID, destName)
 
 			if module:GetCharges(srcGUID, spellId) > 0 then
 				if not chargeSpellsOnCooldown[spellId] then chargeSpellsOnCooldown[spellId] = { [srcGUID] = {} }
