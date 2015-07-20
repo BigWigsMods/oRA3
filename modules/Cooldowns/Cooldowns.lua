@@ -31,8 +31,6 @@ local showPane, hidePane
 local combatLogHandler = CreateFrame("Frame")
 local combatOnUpdate = nil
 
-local checkReincarnationCooldown = nil
-
 local infoCache = {}
 local cdModifiers, chargeModifiers = {}, {}
 local spellsOnCooldown, chargeSpellsOnCooldown = nil, nil
@@ -450,6 +448,7 @@ local spells = {
 		[51485] = {30, 30, nil, 5}, -- Earthgrab Totem
 		[108273] = {60, 30, nil, 6}, -- Windwalk Totem
 		[20608] = {1800, 32}, -- Reincarnation
+		[21169] = 20608, -- Reincarnation (Resurrection)
 		[8177]  = {25, 38}, -- Grounding Totem
 		[108285] = {180, 45, nil, 7}, -- Call of the ELements
 		[8143]  = {60, 54}, -- Tremor Totem
@@ -1502,23 +1501,6 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnShutdown")
 	self:RegisterEvent("PLAYER_LOGOUT")
 
-	local _, playerClass = UnitClass("player")
-	if playerClass == "SHAMAN" then
-		-- GetSpellCooldown returns 0 when UseSoulstone is invoked, so we delay the check
-		function checkReincarnationCooldown()
-			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 1.5 then
-				local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
-				module:SendComm("Reincarnation", duration-elapsed)
-			end
-		end
-		hooksecurefunc("UseSoulstone", function()
-			if IsInGroup() then
-				module:ScheduleTimer(checkReincarnationCooldown, 1)
-			end
-		end)
-	end
-
 	oRA:RegisterPanel(L.cooldowns, showPane, hidePane)
 
 	SLASH_ORACOOLDOWN1 = "/racd"
@@ -1624,6 +1606,17 @@ end
 --------------------------------------------------------------------------------
 -- Events
 --
+
+local checkReincarnationCooldown = nil
+if select(2, UnitClass("player")) == "SHAMAN" then
+	function checkReincarnationCooldown()
+		local start, duration = GetSpellCooldown(20608)
+		if start > 0 and duration > 1.5 then
+			local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
+			module:SendComm("Reincarnation", duration-elapsed)
+		end
+	end
+end
 
 function module:OnCommReceived(_, sender, prefix, cd)
 	if prefix == "Reincarnation" then
