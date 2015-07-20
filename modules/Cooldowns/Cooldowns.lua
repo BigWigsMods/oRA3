@@ -232,6 +232,7 @@ local spells = {
 		[22812] = {60, 44, {102, 104, 105}}, -- Barkskin
 		[102359] = {30, 45, nil, 8}, -- Mass Entanglement
 		[132469] = {30, 45, nil, 9}, -- Typhoon
+		[61391] = 132469, -- Typhoon (actual event)
 		[50334] = {180, 48, {103, 104}}, -- Berserk
 		[20484] = {600, 56}, -- Rebirth
 		[61336] = {180, 56, {103, 104}}, -- Survival Instincts
