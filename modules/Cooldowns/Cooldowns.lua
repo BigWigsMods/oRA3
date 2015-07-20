@@ -1375,13 +1375,13 @@ function module:OnRegister()
 		profile = {
 			spells = {},
 			displays = {
-				["*"] = {
+				["**"] = {
 					showDisplay = true,
 					lockDisplay = false,
 				}
 			},
 			filters = {
-				["*"] = {
+				["**"] = {
 					showOnlyMine = false,
 					neverShowMine = false,
 					hideDead = false,
@@ -1465,19 +1465,20 @@ function module:OnRegister()
 		filterDB.neverShowMine = db.neverShowMine
 
 		-- set up a display with our old bar settings
-		local settingsDB = db.displays.Default
-		settingsDB.type = "Bars"
-		settingsDB.showDisplay = true
-		settingsDB.lockDisplay = false
+		local displayDB = db.displays.Default
+		displayDB.type = "Bars"
+		displayDB.showDisplay = true
+		displayDB.lockDisplay = false
 		for k, v in next, db do
-			if k ~= "displays" and k ~= "spells" and k ~= "filters" and k ~= "enabled" then
+			if k ~= "displays" and k ~= "spells" and k ~= "filters" then
 				if k:find("^bar") then
-					settingsDB[k] = type(db[k]) == "table" and CopyTable(db[k]) or db[k]
+					displayDB[k] = type(db[k]) == "table" and CopyTable(db[k]) or db[k]
 				end
 				db[k] = nil
 			end
 		end
-		settingsDB.enabled = true
+
+		db.enabled = true
 
 		-- update position
 		if oRA.db.profile.positions.oRA3CooldownFrame then
