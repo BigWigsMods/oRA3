@@ -180,7 +180,6 @@ local glyphCooldowns = {
 	[59332] = {77575, 60}, -- Outbreak, -60sec
 	[54939] = {633, -120}, -- Lay on Hands, +120sec
 	[146955] = {31821, 60}, -- Devotion Aura, -60sec
-	--[159548] = {31850, 110}, -- Ardent Defender, set to 60sec after 10s
 }
 
 -- { cd, level, spec id, talent index, glyph spell id }
@@ -1792,6 +1791,56 @@ do
 
 	combatLogHandler.userdata = {}
 	local scratch = combatLogHandler.userdata
+	local specialEvents = {
+		SPELL_CAST_SUCCESS = {
+			[11958] = function(srcGUID, source) -- Cold Snap
+				local spec = infoCache[srcGUID] and infoCache[srcGUID].spec
+				if not spec then return end
+
+				-- reset Ice Block, Presence of Mind, Dragon's Breath, Cone of Cold, Frost Nova
+				resetCooldown(srcGUID, source, 45438) -- Ice Block
+				if spec == 62 then resetCooldown(srcGUID, source, 12043) end  -- Presence of Mind
+				if spec == 63 then resetCooldown(srcGUID, source, 31661) end  -- Dragon's Breath
+				if spec == 64 then resetCooldown(srcGUID, source, 120) end  -- Cone of Cold
+				if module:IsSpellUsable(srcGUID, 122) then resetCooldown(srcGUID, source, 122) end -- Frost Nova
+			end,
+		},
+		SPELL_AURA_APPLIED = {
+			[48707] = function(srcGUID, source, _, amount) -- Anti-Magic Shell
+				local info = infoCache[srcGUID]
+				if info and info.glyphs[146648] and amount > 0 then -- Glyph of Regenerative Magic
+					scratch[srcGUID] = amount
+				end
+			end,
+		},
+		SPELL_AURA_REMOVED = {
+			[48707] = function(srcGUID, source, _, amount) -- Anti-Magic Shell
+				if amount > 0 and scratch[srcGUID] then
+					local cd = module:GetRemainingCooldown(srcGUID, 48707)
+					if cd < 41 then
+						local maxAbsorb = scratch[srcGUID]
+						scratch[srcGUID] = nil
+
+						-- reduce remaining cd (should be ~40s) by half of the remaining absorb % (so 100% left would reduce the cd by 50%, or 20s)
+						local cd = cd - (min(amount / maxAbsorb, 1) * 0.5 * cd)
+						resetCooldown(srcGUID, source, 48707, cd)
+					end
+				end
+			end,
+			[31850] = function(srcGUID, source) -- Ardent Defender
+				local info = infoCache[srcGUID]
+				if info and info.glyphs[159548] and not scratch[srcGUID] then -- 159548 = Glyph of Ardent Defender
+					resetCooldown(srcGUID, source, 31850, 50) -- reset to 60s (less the 10s it was active)
+				end
+				scratch[srcGUID] = nil
+			end,
+		},
+		SPELL_HEAL = {
+			[66235] = function(srcGUID, source) -- Ardent Defender (life saving heal)
+				scratch[srcGUID] = true
+			end,
+		},
+	}
 
 	local inEncounter = nil
 	local band = bit.band
@@ -1850,66 +1899,16 @@ do
 		end
 
 		-- Special cooldown conditions
-		-- XXX should move these to a lookup table to a more performant
 		if event == "SPELL_DISPEL" then
 			local extraSpellId = ...
 			if extraSpellId == 3674 then -- Black Arrow
 				resetCooldown(destGUID, destName, extraSpellId)
 			end
-
-		elseif event == "SPELL_HEAL" then
-			if spellId == 66235 then -- Ardent Defender
-				scratch[srcGUID] = true
+		else
+			local func = specialEvents[event] and specialEvents[event][spellId]
+			if func then
+				func(srcGUID, source, ...)
 			end
-
-		elseif event == "SPELL_CAST_SUCCESS" then
-			if spellId == 11958 then -- Cold Snap
-				local spec = infoCache[srcGUID] and infoCache[srcGUID].spec
-				if not spec then return end
-
-				-- reset Ice Block, Presence of Mind, Dragon's Breath, Cone of Cold, Frost Nova
-				resetCooldown(srcGUID, source, 45438) -- Ice Block
-				if spec == 62 then resetCooldown(srcGUID, source, 12043) end  -- Presence of Mind
-				if spec == 63 then resetCooldown(srcGUID, source, 31661) end  -- Dragon's Breath
-				if spec == 64 then resetCooldown(srcGUID, source, 120) end  -- Cone of Cold
-				if module:IsSpellUsable(srcGUID, 122) then resetCooldown(srcGUID, source, 122) end -- Frost Nova
-			end
-
-		elseif event == "SPELL_AURA_APPLIED" then
-			if spellId == 48707 then -- Anti-Magic Shell
-				local info = infoCache[srcGUID]
-				if not info then return end
-
-				local _, amount = ...
-				if amount > 0 and info.glyphs[146648] then -- Glyph of Regenerative Magic
-					scratch[srcGUID] = amount
-				end
-			end
-
-		elseif event == "SPELL_AURA_REMOVED" then
-			if spellId == 48707 then -- Anti-Magic Shell
-				local _, amount = ...
-				if amount > 0 and scratch[srcGUID] then
-					local cd = module:GetRemainingCooldown(srcGUID, spellId)
-					if cd < 41 then
-						local maxAbsorb = scratch[srcGUID]
-						scratch[srcGUID] = nil
-
-						-- reduce remaining cd (should be ~40s) by half of the remaining absorb % (so 100% left would reduce the cd by 50%, or 20s)
-						local cd = cd - (min(amount / maxAbsorb, 1) * 0.5 * cd)
-						resetCooldown(srcGUID, source, spellId, cd)
-					end
-				end
-			elseif spellId == 31850 then -- Ardent Defender
-				local info = infoCache[srcGUID]
-				if not info then return end
-
-				if info.glyphs[159548] and not scratch[srcGUID] then -- Glyph of Ardent Defender
-					resetCooldown(srcGUID, source, spellId, 50) -- reset to 60s (less the 10s it was active)
-				end
-				scratch[srcGUID] = nil
-			end
-
 		end
 	end)
 
