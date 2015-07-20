@@ -1609,12 +1609,15 @@ end
 --
 
 local checkReincarnationCooldown = nil
-if select(2, UnitClass("player")) == "SHAMAN" then
-	function checkReincarnationCooldown()
-		local start, duration = GetSpellCooldown(20608)
-		if start > 0 and duration > 1.5 then
-			local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
-			module:SendComm("Reincarnation", duration-elapsed)
+do
+	local _, class = UnitClass("player")
+	if class == "SHAMAN" then
+		function checkReincarnationCooldown()
+			local start, duration = GetSpellCooldown(20608)
+			if start > 0 and duration > 1.5 then
+				local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
+				module:SendComm("Reincarnation", duration-elapsed)
+			end
 		end
 	end
 end
