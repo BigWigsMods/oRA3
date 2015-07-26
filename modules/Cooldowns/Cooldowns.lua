@@ -1624,8 +1624,14 @@ end
 
 function module:OnCommReceived(_, sender, prefix, cd)
 	if prefix == "Reincarnation" then
+		local spellId = 20608
 		local guid = UnitGUID(sender)
-		callbacks:Fire("oRA3CD_StartCooldown", guid, sender, "SHAMAN", 20608, tonumber(cd))
+		if self:GetRemainingCooldown(guid, spellId) == 0 then
+			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
+			local cd = tonumber(cd)
+			spellsOnCooldown[spellId][guid] = GetTime() + cd
+			callbacks:Fire("oRA3CD_StartCooldown", guid, sender, "SHAMAN", spellId, cd)
+		end
 	end
 end
 
