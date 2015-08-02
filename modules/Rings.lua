@@ -134,10 +134,10 @@ function display:OnSetup(frame)
 	tinsert(self.icons, CreateIcon(DAMAGER, frame, "Interface\\Icons\\inv_60legendary_ring1c"))
 
 	frame:SetSize(200, 124)
-	frame:SetMinResize(100, 20)
 	frame.header:SetText(L.legendaryRings)
 	frame:SetScript("OnMouseDown", function(self, button)
 		if button == "RightButton" then
+			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
 			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
 		end
 	end)
@@ -155,23 +155,12 @@ function display:OnResize()
 	local spacing = db.spacing
 	local scale = db.scale
 
-	-- right then down direction
-	local anchor = "TOPLEFT"
-	local point = "LEFT"
-	local relativePoint, xRowDir, yRowDir = "RIGHT", 1, 0
-	local columnPoint = "TOP"
-	local columnRelativePoint, xColDir, yColDir = "BOTTOM", 0, -1
-
 	local textHeight = db.showText and (db.fontSize * 1.025) or 0 -- just works! (instead of using fs:GetHeight)
 	local size = 64 * scale + spacing
-	local iconsPerRow, iconsPerColumn
-	if point == "LEFT" or point == "RIGHT" then
-		iconsPerRow = floor(self:GetWidth() / size)
-		iconsPerColumn = floor(self:GetHeight() / (size + textHeight))
-	else
-		iconsPerRow = floor(self:GetHeight() / size)
-		iconsPerColumn = floor(self:GetWidth() / (size + textHeight))
-	end
+	local iconsPerRow = floor(self:GetWidth() / size)
+	local iconsPerColumn = floor(self:GetHeight() / (size + textHeight))
+
+	display.frame:SetMinResize(max(size + 4, 20), max(size + textHeight + 4, 20))
 
 	local last, columnAnchor = nil, nil
 	local row, column = 1, 0
@@ -197,13 +186,13 @@ function display:OnResize()
 			frame:Hide()
 		else
 			if not last then
-				frame:SetPoint(anchor, self:GetContainer(), anchor, 0, 0)
+				frame:SetPoint("TOPLEFT", self:GetContainer(), "TOPLEFT", 0, 0)
 				columnAnchor = frame
 			elseif column == 1 then
-				frame:SetPoint(columnPoint, columnAnchor, columnRelativePoint, xColDir * spacing, yColDir * (spacing + textHeight))
+				frame:SetPoint("TOP", columnAnchor, "BOTTOM", 0, -1 * (spacing + textHeight))
 				columnAnchor = frame
 			else
-				frame:SetPoint(point, last, relativePoint, xRowDir * spacing, yRowDir * (spacing + textHeight))
+				frame:SetPoint("LEFT", last, "RIGHT", spacing, 0)
 			end
 
 			last = frame
