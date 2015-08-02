@@ -190,7 +190,7 @@ L.timeVisible = "Time visible (0 = always)"
 L.spellTooltip = "Show spell tooltips"
 L.timestamp = "Show timestamps"
 L.showCooldownText = "Show cooldown text"
-L.showCooldownTextDesc = "Show the Blizzard cooldown text"
+L.showCooldownTextDesc = "Show the Blizzard cooldown text. This option will be disabled if you have \"Show Numbers for Cooldowns\" unchecked."
 
 -- Zone module
 L.zone = "Zone"
@@ -237,6 +237,6 @@ L.battleResShowDesc = "Toggle showing or hiding the monitor."
 L.legendaryRings = "Legendary Rings"
 L.showRings = "Show Rings"
 L.displaySettings = "Display Settings"
-L.showText = "Show Text"
+L.showText = "Show text"
 L.showTextDesc = "Show ring name or the name of last player to use the ring."
 

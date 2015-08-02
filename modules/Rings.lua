@@ -186,7 +186,7 @@ function display:OnResize()
 			frame:Hide()
 		else
 			if not last then
-				frame:SetPoint("TOPLEFT", self:GetContainer(), "TOPLEFT", 0, 0)
+				frame:SetPoint("TOPLEFT", display.frame, "TOPLEFT", 0, 0)
 				columnAnchor = frame
 			elseif column == 1 then
 				frame:SetPoint("TOP", columnAnchor, "BOTTOM", 0, -1 * (spacing + textHeight))
@@ -208,6 +208,7 @@ local defaults = {
 	profile = {
 		showDisplay = true,
 		lockDisplay = false,
+		showInRaids = true,
 		showTank = true,
 		showHealer = true,
 		showDamager = true,
@@ -270,6 +271,14 @@ local function GetOptions()
 				descStyle = "inline",
 				order = 2,
 			},
+			-- showInRaids = {
+			-- 	type = "toggle",
+			-- 	name = colorize("Only show in raids"),
+			-- 	desc = "Only show the monitor while you're in a raid group.",
+			-- 	width = "full",
+			-- 	descStyle = "inline",
+			-- 	order = 3,
+			-- },
 			show = {
 				type = "group",
 				name = L.showRings,
@@ -350,11 +359,12 @@ local function GetOptions()
 					},
 					showCooldownText = {
 						type = "toggle",
-						name = L.showCooldownText,
+						name = colorize(L.showCooldownText),
 						desc = L.showCooldownTextDesc,
+						descStyle = "inline",
 						order = 5,
 						width = "full",
-						disabled = function() return not GetCVarBool("countdownForCooldowns") end,
+						disabled = function() return not GetCVarBool("countdownForCooldowns") end, -- if the setting is off, SetHideCountdownNumbers does nothing
 					},
 					font = {
 						type = "select",
