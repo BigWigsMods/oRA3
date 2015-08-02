@@ -208,7 +208,7 @@ local defaults = {
 	profile = {
 		showDisplay = true,
 		lockDisplay = false,
-		showInRaids = true,
+		showInRaid = true,
 		showTank = true,
 		showHealer = true,
 		showDamager = true,
@@ -271,14 +271,14 @@ local function GetOptions()
 				descStyle = "inline",
 				order = 2,
 			},
-			-- showInRaids = {
-			-- 	type = "toggle",
-			-- 	name = colorize("Only show in raids"),
-			-- 	desc = "Only show the monitor while you're in a raid group.",
-			-- 	width = "full",
-			-- 	descStyle = "inline",
-			-- 	order = 3,
-			-- },
+			showInRaid = {
+				type = "toggle",
+				name = colorize("Only show in raids"),
+				desc = "Only show the monitor while you're in a raid group.",
+				width = "full",
+				descStyle = "inline",
+				order = 3,
+			},
 			show = {
 				type = "group",
 				name = L.showRings,
@@ -419,6 +419,8 @@ function module:OnRegister()
 	oRA3.RegisterCallback(self, "OnProfileUpdate")
 	oRA3.RegisterCallback(self, "OnStartup")
 	oRA3.RegisterCallback(self, "OnShutdown")
+	oRA3.RegisterCallback(self, "OnConvertRaid", "OnStartup")
+	oRA3.RegisterCallback(self, "OnConvertParty")
 
 	if Masque then
 		module.group = Masque:Group("oRA3 Cooldowns", "Legendary Rings")
@@ -430,10 +432,17 @@ function module:OnRegister()
 end
 
 function module:OnStartup()
-	display:Show()
+	if not self.db.profile.showInRaid or IsInRaid() then
+		display:Show()
+	end
+end
+
+function module:OnConvertParty()
+	if self.db.profile.showInRaid then
+		display:Hide()
+	end
 end
 
 function module:OnShutdown()
 	display:Hide()
 end
-

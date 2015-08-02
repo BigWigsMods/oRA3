@@ -382,7 +382,7 @@ function addon:OnEnable()
 
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
-	self.RegisterCallback(addon, "ConvertParty", onShutdown)
+	--self.RegisterCallback(addon, "OnConvertParty", onShutdown)
 
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
