@@ -137,7 +137,9 @@ function display:OnSetup(frame)
 	frame:SetMinResize(100, 20)
 	frame.header:SetText(L.legendaryRings)
 	frame:SetScript("OnMouseDown", function(self, button)
-		InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
+		if button == "RightButton" then
+			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
+		end
 	end)
 end
 
