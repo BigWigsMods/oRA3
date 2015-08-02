@@ -233,3 +233,10 @@ L.battleResLockDesc = "Toggle locking the monitor. This will hide the header tex
 L.showMonitor = "Show monitor"
 L.battleResShowDesc = "Toggle showing or hiding the monitor."
 
+-- Legendary Rings Module
+L.legendaryRings = "Legendary Rings"
+L.showRings = "Show Rings"
+L.displaySettings = "Display Settings"
+L.showText = "Show Text"
+L.showTextDesc = "Show ring name or the name of last player to use the ring."
+

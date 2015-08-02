@@ -40,4 +40,5 @@ modules\Cooldowns\module.xml
 modules\Tanks.lua
 modules\Loot.lua
 modules\Difficulty.lua
+modules\Rings.lua
 

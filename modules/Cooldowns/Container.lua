@@ -118,6 +118,7 @@ do
 			help:SetWordWrap(true)
 			help:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", -2, -4)
 			help:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 2, -4)
+			frame.help = help
 
 			local drag = CreateFrame("Frame", frameName.."DragHandle", frame)
 			drag:SetFrameLevel(frame:GetFrameLevel() + 10) -- place this above everything
