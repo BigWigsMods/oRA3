@@ -8,6 +8,9 @@ local L = scope.locale
 local media = LibStub("LibSharedMedia-3.0")
 local Masque = LibStub("Masque", true)
 
+local DEFAULT_SOUND = "Interface\\AddOns\\oRA3\\media\\twinkle.ogg"
+media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
+
 -- GLOBALS: ActionButton_ShowOverlayGlow ActionButton_HideOverlayGlow InterfaceOptionsFrame_OpenToCategory
 -- GLOBALS: TANK HEALER DAMAGE RAID_CLASS_COLORS
 
@@ -37,14 +40,23 @@ do
 		self.cooldown:SetReverse(true)
 		self.cooldown:SetCooldown(self.start, 15)
 		ActionButton_ShowOverlayGlow(self)
+		if module.db.profile.sound then
+			local spec = GetSpecialization() or 0
+			if not module.db.profile.soundForMe or GetSpecializationRole(spec) == self.role then
+				local sound = media:Fetch("sound", module.db.profile.soundFile) or DEFAULT_SOUND
+				PlaySoundFile(sound, "master")
+			end
+		end
 	end
 
-	function CreateIcon(name, parent, texture)
+	function CreateIcon(role, parent, texture)
+		local name = _G[role]
 		local frameName = "oRA3RingsIcon"..name
 		local f = CreateFrame("Button", frameName, parent)
 		f:SetSize(64, 64)
 		f:SetScale(1)
 		f.name = name
+		f.role = role
 
 		local icon = f:CreateTexture(frameName.."Icon", "BACKGROUND")
 		icon:SetAllPoints()
@@ -129,9 +141,9 @@ do
 end
 
 function display:OnSetup(frame)
-	tinsert(self.icons, CreateIcon(TANK, frame, "Interface\\Icons\\inv_60legendary_ring1b"))
-	tinsert(self.icons, CreateIcon(HEALER, frame, "Interface\\Icons\\inv_60legendary_ring1a"))
-	tinsert(self.icons, CreateIcon(DAMAGER, frame, "Interface\\Icons\\inv_60legendary_ring1c"))
+	tinsert(self.icons, CreateIcon("TANK", frame, "Interface\\Icons\\inv_60legendary_ring1b"))
+	tinsert(self.icons, CreateIcon("HEALER", frame, "Interface\\Icons\\inv_60legendary_ring1a"))
+	tinsert(self.icons, CreateIcon("DAMAGER", frame, "Interface\\Icons\\inv_60legendary_ring1c"))
 
 	frame:SetSize(200, 124)
 	frame.header:SetText(L.legendaryRings)
@@ -212,6 +224,9 @@ local defaults = {
 		showTank = true,
 		showHealer = true,
 		showDamager = true,
+		sound = true,
+		soundForMe = false,
+		soundFile = "oRA3: Twinkle",
 		scale = 1,
 		spacing = 2,
 		showText = true,
@@ -259,24 +274,24 @@ local function GetOptions()
 				type = "toggle",
 				name = colorize(L.showMonitor),
 				desc = L.battleResShowDesc,
-				width = "full",
 				descStyle = "inline",
+				width = "full",
 				order = 1,
 			},
 			lockDisplay = {
 				type = "toggle",
 				name = colorize(L.lockMonitor),
 				desc = L.battleResLockDesc,
-				width = "full",
 				descStyle = "inline",
+				width = "full",
 				order = 2,
 			},
 			showInRaid = {
 				type = "toggle",
-				name = colorize("Only show in raids"),
-				desc = "Only show the monitor while you're in a raid group.",
-				width = "full",
+				name = colorize(L.onlyRaids),
+				desc = L.onlyRaidsDesc,
 				descStyle = "inline",
+				width = "full",
 				order = 3,
 			},
 			show = {
@@ -300,6 +315,52 @@ local function GetOptions()
 						name = DAMAGER,
 						order = 3,
 					},
+				}
+			},
+			sound = {
+				type = "group",
+				name = L.sound,
+				inline = true,
+				order = 6,
+				args = {
+					sound = {
+						type = "toggle",
+						name = colorize(ENABLE),
+						desc = L.soundDesc,
+						descStyle = "inline",
+						order = 1,
+						width = "full",
+					},
+					soundForMe = {
+						type = "toggle",
+						name = colorize(L.onlyMyRing),
+						desc = L.onlyMyRingDesc,
+						descStyle = "inline",
+						disabled = function() return not module.db.profile.sound end,
+						order = 2,
+						width = "full",
+					},
+					soundFile = {
+						type = "select",
+						name = L.sound,
+						values = media:List("sound"),
+						itemControl = "DDI-Sound",
+						get = function(info)
+							local key = info[#info]
+							for i, v in next, media:List("sound") do
+								if v == module.db.profile[key] then
+										return i
+								end
+							end
+						end,
+						set = function(info, value)
+							local list = media:List("sound")
+							module.db.profile[info[#info]] = list[value]
+						end,
+						disabled = function() return not module.db.profile.sound end,
+						width = "full",
+						order = 3,
+					}
 				}
 			},
 			display = {
@@ -333,63 +394,63 @@ local function GetOptions()
 						values = skinList,
 						get = function(info) return module.group.db.SkinID or "Blizzard" end,
 						set = function(info, value) module.group:SetOption("SkinID", value) end,
-						order = 0,
-						width = "full",
 						hidden = not module.group,
+						width = "full",
+						order = 0,
 					},
 					scale = {
 						name = L.scale,
 						type = "range", min = 0.1, softMax = 10, step = 0.1,
-						order = 1,
 						width = "full",
+						order = 1,
 					},
 					spacing = {
 						name = L.spacing,
 						type = "range", min = -10, softMax = 10, step = 1,
-						order = 2,
 						width = "full",
+						order = 2,
 					},
 					showText = {
 						type = "toggle",
 						name = colorize(L.showText),
 						desc = L.showTextDesc,
 						descStyle = "inline",
-						order = 4,
 						width = "full",
+						order = 4,
 					},
 					showCooldownText = {
 						type = "toggle",
 						name = colorize(L.showCooldownText),
 						desc = L.showCooldownTextDesc,
 						descStyle = "inline",
-						order = 5,
-						width = "full",
 						disabled = function() return not GetCVarBool("countdownForCooldowns") end, -- if the setting is off, SetHideCountdownNumbers does nothing
+						width = "full",
+						order = 5,
 					},
 					font = {
 						type = "select",
 						name = L.font,
 						values = media:List("font"),
 						itemControl = "DDI-Font",
-						order = 6,
-						width = "full",
 						disabled = function() return not module.db.profile.showText end,
+						width = "full",
+						order = 6,
 					},
 					fontSize = {
 						type = "range",
 						name = L.fontSize,
 						min = 6, max = 24, step = 1,
-						order = 7,
-						width = "full",
 						disabled = function() return not module.db.profile.showText end,
+						width = "full",
+						order = 7,
 					},
 					fontOutline = {
 						type = "select",
 						name = L.outline,
 						values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
-						order = 8,
-						width = "full",
 						disabled = function() return not module.db.profile.showText end,
+						width = "full",
+						order = 8,
 					},
 				}
 			}
