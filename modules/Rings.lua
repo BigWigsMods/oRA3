@@ -40,7 +40,7 @@ do
 		self.cooldown:SetReverse(true)
 		self.cooldown:SetCooldown(self.start, 15)
 		ActionButton_ShowOverlayGlow(self)
-		if module.db.profile.sound then
+		if self:IsShown() and module.db.profile.sound then
 			local spec = GetSpecialization() or 0
 			if not module.db.profile.soundForMe or GetSpecializationRole(spec) == self.role then
 				local sound = media:Fetch("sound", module.db.profile.soundFile) or DEFAULT_SOUND
@@ -264,6 +264,12 @@ local function GetOptions()
 					display:Lock()
 				else
 					display:Unlock()
+				end
+			elseif key == "showInRaid" then
+				if value and not IsInRaid() then
+					display:Hide()
+				elseif not value and IsInGroup() then
+					display:Show()
 				end
 			else
 				display:OnResize()
