@@ -23,9 +23,15 @@ do
 		local f = self:GetParent()
 		if f.start then -- active finish
 			ActionButton_HideOverlayGlow(f)
+			local t = GetTime()
+			if t < f.finish then
+				self:SetReverse(false)
+				self:SetCooldown(t, f.finish - t)
+			else
+				f.text:SetText(f.name)
+			end
 			f.start = nil
-			self:SetReverse(false)
-			self:SetCooldown(GetTime(), 105) -- 2min less the 15 duration
+			f.finish = nil
 		else -- cd finish
 			f.text:SetText(f.name)
 		end
@@ -37,6 +43,7 @@ do
 		self.text:SetFormattedText("|c%s%s|r", color, player:gsub("%-.+", "*"))
 
 		self.start = GetTime()
+		self.finish = self.start + 120
 		self.cooldown:SetReverse(true)
 		self.cooldown:SetCooldown(self.start, 15)
 		ActionButton_ShowOverlayGlow(self)
