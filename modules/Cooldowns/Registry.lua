@@ -155,7 +155,10 @@ local barStyles = {
 			return display and display.db.barGap
 		end,
 		ApplyStyle = function(bar) end,
-		BarStopped = function(bar) end,
+		BarStopped = function(bar)
+			bar.candyBarDuration:ClearAllPoints()
+			bar.candyBarDuration:SetPoint("RIGHT", bar.candyBarBar, "RIGHT", -2, 0)
+		end,
 		GetStyleName = function() return DEFAULT end,
 	}
 }

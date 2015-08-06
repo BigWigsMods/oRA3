@@ -266,6 +266,17 @@ do
 		end
 		bar:SetTimeVisibility(db.barShowDuration and not bar:Get("ora3cd:ready")) -- show cd text for charges?
 
+		if barStyle == "Default" then
+			bar.candyBarDuration:ClearAllPoints()
+			if db.barDurationAlign == "RIGHT" then
+				bar.candyBarDuration:SetPoint("RIGHT", bar.candyBarBar, "RIGHT", -2, 0)
+			elseif db.barDurationAlign == "LEFT" then
+				bar.candyBarDuration:SetPoint("LEFT", bar.candyBarBar, "LEFT", 2, 0)
+			elseif db.barDurationAlign == "CENTER" then
+				bar.candyBarDuration:SetPoint("CENTER", bar.candyBarBar, "CENTER", 0, 0)
+			end
+		end
+
 		barStyles[barStyle].ApplyStyle(bar)
 	end
 end
@@ -488,6 +499,7 @@ local defaultDB = {
 	barLabelFont = "Friz Quadrata TT",
 	barLabelFontSize = 10,
 	barLabelOutline = "NONE",
+	barDurationAlign = "RIGHT",
 	barDurationClassColor = false,
 	barDurationColor = { 1, 1, 1, 1 },
 	barDurationFont = "Friz Quadrata TT",
@@ -757,6 +769,14 @@ local function GetOptions(self, db)
 				values = outlines,
 				disabled = function() return not db.barShowDuration end,
 				order = 35,
+				width = "full",
+			},
+			barDurationAlign = {
+				type = "select",
+				name = L.align,
+				values = alignment,
+				disabled = function() return not db.barShowDuration or db.barStyle ~= "Default" end,
+				order = 36,
 				width = "full",
 			},
 		},
