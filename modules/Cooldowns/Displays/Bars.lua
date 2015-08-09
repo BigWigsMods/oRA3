@@ -9,7 +9,9 @@ local classColors = oRA3.classColors
 
 local candy = LibStub("LibCandyBar-3.0")
 local media = LibStub("LibSharedMedia-3.0")
-media:Register("statusbar", "oRA3", "Interface\\AddOns\\oRA3\\images\\statusbar")
+
+local DEFAULT_BAR = "Interface\\AddOns\\oRA3\\media\\statusbar"
+media:Register("statusbar", "oRA3", DEFAULT_BAR)
 
 local barStyles = oRA3CD:GetBarStyles()
 
@@ -308,7 +310,7 @@ function prototype:TestCooldown(player, class, spellId, duration)
 	if not self.db.showDisplay then return end
 	self:Setup()
 
-	local bar = self:GetBar(player, spellId) or candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", self:GetWidth(), self.db.barHeight)
+	local bar = self:GetBar(player, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
 	local spell, _, icon = GetSpellInfo(spellId)
@@ -335,7 +337,7 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duratio
 	if not self.spellDB[spellId] or not oRA3CD:CheckFilter(self, player) then return end
 	self:Setup()
 
-	local bar = self:GetBar(guid, spellId) or candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", self:GetWidth(), self.db.barHeight)
+	local bar = self:GetBar(guid, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
 	local spell, _, icon = GetSpellInfo(spellId)
@@ -365,7 +367,7 @@ function prototype:CooldownReady(guid, player, class, spellId)
 	if not self.db.showDisplay or not self.db.showOffCooldown then return end
 	self:Setup()
 
-	local bar = self:GetBar(guid, spellId) or candy:New("Interface\\AddOns\\oRA3\\images\\statusbar", self:GetWidth(), self.db.barHeight)
+	local bar = self:GetBar(guid, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
 	local spell, _, icon = GetSpellInfo(spellId)

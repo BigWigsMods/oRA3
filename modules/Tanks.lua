@@ -407,7 +407,7 @@ function module:CreateFrame()
 
 		local tank = createButton(t)
 		tank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
-		tank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+		tank.icon:SetTexture("Interface\\AddOns\\oRA3\\media\\maintank")
 		if oRA:IsPromoted() then
 			tank:Enable()
 		else
@@ -420,7 +420,7 @@ function module:CreateFrame()
 		if not InCombatLockdown() then
 			local stank = createButton(t, "SecureActionButtonTemplate")
 			stank:SetPoint("TOPRIGHT", delete, "TOPLEFT", -2, 0)
-			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\media\\maintank")
 			stank:SetAttribute("type", "maintank")
 			stank:SetAttribute("action", "toggle")
 			if oRA:IsPromoted() then
@@ -528,7 +528,7 @@ function module:PLAYER_REGEN_ENABLED()
 		if not top[i].stank then
 			local stank = createButton(top[i], "SecureActionButtonTemplate")
 			stank:SetPoint("TOPRIGHT", top[i].delete, "TOPLEFT", -2, 0)
-			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\images\\maintank")
+			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\media\\maintank")
 			stank:SetAttribute("type", "maintank")
 			stank:SetAttribute("action", "toggle")
 			stank.tooltipTitle = L.blizzMainTank

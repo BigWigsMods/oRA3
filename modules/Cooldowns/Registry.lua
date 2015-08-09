@@ -196,7 +196,7 @@ end
 do
 	-- !Beautycase styling, based on !Beatycase by Neal "Neave" @ WowI, texture made by Game92 "Aftermathh" @ WowI
 
-	local textureNormal = "Interface\\AddOns\\oRA3\\images\\beautycase"
+	local textureNormal = "Interface\\AddOns\\oRA3\\media\\beautycase"
 
 	local backdropbc = {
 		bgFile = "Interface\\Buttons\\WHITE8x8",

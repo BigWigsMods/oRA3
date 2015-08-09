@@ -131,7 +131,7 @@ do
 			frame.drag = drag
 
 			local texture = drag:CreateTexture(nil, "OVERLAY")
-			texture:SetTexture("Interface\\AddOns\\oRA3\\images\\draghandle")
+			texture:SetTexture("Interface\\AddOns\\oRA3\\media\\draghandle")
 			texture:SetSize(16, 16)
 			texture:SetBlendMode("ADD")
 			texture:SetPoint("CENTER", drag)
