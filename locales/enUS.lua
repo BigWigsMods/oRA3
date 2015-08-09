@@ -244,5 +244,5 @@ L.onlyMyRing = "Only my ring"
 L.onlyMyRingDesc = "Only play a sound when your ring type activates."
 L.displaySettings = "Display Settings"
 L.showText = "Show text"
-L.showTextDesc = "Show ring name or the name of last player to use the ring."
+L.showTextDesc = "Show ring type or the name of the last player who used the ring."
 
