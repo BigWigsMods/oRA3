@@ -120,10 +120,12 @@ do
 		[187620] = 3, -- Maalus (agi dps)
 	}
 	local throttle = {}
+	local band = bit.band
+	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 
 	local combatLogHandler = CreateFrame("Frame")
-	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, _, _, source, _, _, _, target, _, _, spellId, spellName)
-		if event == "SPELL_AURA_APPLIED" and rings[spellId] then
+	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, _, _, source, srcFlags, _, _, target, _, _, spellId, spellName)
+		if event == "SPELL_AURA_APPLIED" and rings[spellId] and band(srcFlags, group) ~= 0 then
 			local ring = rings[spellId]
 			local t = GetTime()
 			if t > (throttle[ring] or 0) then
