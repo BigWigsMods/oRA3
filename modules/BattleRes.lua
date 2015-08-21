@@ -165,12 +165,7 @@ do
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 					if v ~= "br" then
-						local _, class = UnitClass(k)
-						if class == "SHAMAN" then
-							brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[k]))
-						else
-							brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k]))
-						end
+						brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k])) -- Soulstone
 					end
 					theDead[k] = nil
 				end
@@ -184,7 +179,7 @@ do
 		if charges then
 			if not inCombat then
 				inCombat = true
-				theDead = {}
+				wipe(theDead)
 				timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
 				brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 				brez.scroll:Clear()
@@ -273,6 +268,10 @@ do
 
 			brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
 			theDead[tarName] = "br"
+
+		elseif event == "SPELL_CAST_SUCCESS" and spellId == 21169 then -- Reincarnation
+			brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[name]))
+			theDead[name] = nil
 
 		-- Lots of lovely checks before adding someone to the deaths table
 		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then
