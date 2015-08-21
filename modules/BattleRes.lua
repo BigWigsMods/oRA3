@@ -112,9 +112,14 @@ local function getOptions()
 				module.db.profile[k[#k]] = v
 				toggleLock()
 				toggleShow()
-				module:ZONE_CHANGED_NEW_AREA()
+				module:CheckOpen()
 			end,
 			args = {
+				header = {
+					type = "description",
+					name = L.battleResHeader,
+					order = 0,
+				},
 				showDisplay = {
 					type = "toggle",
 					name = colorize(L.showMonitor),
@@ -145,8 +150,13 @@ function module:OnRegister()
 end
 
 function module:OnStartup()
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-	self:ZONE_CHANGED_NEW_AREA()
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckOpen")
+	self:CheckOpen()
+end
+
+function module:OnShutdown()
+	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:Close()
 end
 
 do
@@ -204,7 +214,7 @@ do
 		end
 	end
 
-	function module:ZONE_CHANGED_NEW_AREA()
+	function module:CheckOpen()
 		local _, type = GetInstanceInfo()
 		if type == "raid" and self.db.profile.showDisplay then
 			if not inCombat then self:CancelAllTimers() end
@@ -217,15 +227,17 @@ do
 			toggleShow()
 
 			self:ScheduleRepeatingTimer(updateStatus, 0.1)
+		else
+			self:Close()
 		end
 	end
 end
 
-function module:OnShutdown()
+function module:Close()
 	if brez then
 		brez:Hide()
 		brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		module:CancelAllTimers()
+		self:CancelAllTimers()
 		brez.remaining:SetText("0")
 		brez.timer:SetText("0:00")
 		brez.remaining:SetTextColor(1,1,1)
@@ -235,7 +247,7 @@ end
 do
 	local function getPetOwner(pet, guid)
 		if UnitGUID("pet") == guid then
-			return module:UnitName("player")
+			return UnitName("player")
 		end
 
 		local owner

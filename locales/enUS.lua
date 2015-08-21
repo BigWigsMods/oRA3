@@ -228,6 +228,7 @@ L.missingEnchants = "Missing Enchants"
 
 -- BattleRes Module
 L.battleResTitle = "Battle Res Monitor"
+L.battleResHeader = "The monitor will only be shown while you are in a group in a raid instance."
 L.lockMonitor = "Lock monitor"
 L.battleResLockDesc = "Toggle locking the monitor. This will hide the header text, background, and prevent movement."
 L.showMonitor = "Show monitor"
