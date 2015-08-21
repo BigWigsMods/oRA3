@@ -12,7 +12,7 @@ local DEFAULT_SOUND = "Interface\\AddOns\\oRA3\\media\\twinkle.ogg"
 media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
 
 -- GLOBALS: ActionButton_ShowOverlayGlow ActionButton_HideOverlayGlow InterfaceOptionsFrame_OpenToCategory
--- GLOBALS: TANK HEALER DAMAGE
+-- GLOBALS: COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID
 ---------------------------------------
 -- Icons
 
@@ -218,6 +218,21 @@ function display:OnResize()
 	end
 end
 
+local function toggleShow()
+	local db = module.db.profile
+	if db.lockDisplay then
+		display:Lock()
+	else
+		display:Unlock()
+	end
+	if db.showDisplay and IsInGroup() and (not db.showInRaid or IsInRaid()) then
+		display:Show()
+	else
+		display:Hide()
+	end
+	display:OnResize()
+end
+
 ---------------------------------------
 -- Options
 
@@ -258,27 +273,7 @@ local function GetOptions()
 		set = function(info, value)
 			local key = info[#info]
 			module.db.profile[key] = value
-			if key == "showDisplay" then
-				if value then
-					display:Show()
-				else
-					display:Hide()
-				end
-			elseif key == "lockDisplay" then
-				if value then
-					display:Lock()
-				else
-					display:Unlock()
-				end
-			elseif key == "showInRaid" then
-				if value and not IsInRaid() then
-					display:Hide()
-				elseif not value and IsInGroup() then
-					display:Show()
-				end
-			else
-				display:OnResize()
-			end
+			toggleShow()
 		end,
 		args = {
 			showDisplay = {
@@ -472,27 +467,17 @@ end
 
 function module:OnProfileUpdate()
 	display.db = module.db.profile
-	if display.db.showDisplay then
-		display:Show()
-	else
-		display:Hide()
-	end
-	if display.db.lockDisplay then
-		display:Lock()
-	else
-		display:Unlock()
-	end
-	display:OnResize()
+	toggleShow()
 end
 
 function module:OnRegister()
 	self.db = oRA3.db:RegisterNamespace("Rings", defaults)
 	oRA3:RegisterModuleOptions("Rings", GetOptions, L.legendaryRings)
 	oRA3.RegisterCallback(self, "OnProfileUpdate")
-	oRA3.RegisterCallback(self, "OnStartup")
-	oRA3.RegisterCallback(self, "OnShutdown")
-	oRA3.RegisterCallback(self, "OnConvertRaid", "OnStartup")
-	oRA3.RegisterCallback(self, "OnConvertParty")
+	oRA3.RegisterCallback(self, "OnStartup", toggleShow)
+	oRA3.RegisterCallback(self, "OnShutdown", toggleShow)
+	oRA3.RegisterCallback(self, "OnConvertRaid", toggleShow)
+	oRA3.RegisterCallback(self, "OnConvertParty", toggleShow)
 
 	if Masque then
 		module.group = Masque:Group("oRA3 Cooldowns", "Legendary Rings")
@@ -500,21 +485,5 @@ function module:OnRegister()
 
 	display.db = module.db.profile
 	oRA3CD:AddContainer(display)
-	display:Hide()
-end
-
-function module:OnStartup()
-	if not self.db.profile.showInRaid or IsInRaid() then
-		display:Show()
-	end
-end
-
-function module:OnConvertParty()
-	if self.db.profile.showInRaid then
-		display:Hide()
-	end
-end
-
-function module:OnShutdown()
 	display:Hide()
 end
