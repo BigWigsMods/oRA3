@@ -6,18 +6,16 @@ scope.addon = addon
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 local L = scope.locale
-local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
 BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L.togglePane
 
-local playerName = UnitName("player")
-local hexColors, classColors = {}, {UNKNOWN = {r = 0.8, g = 0.8, b = 0.8}}
+local classColors = setmetatable({UNKNOWN = {r = 0.8, g = 0.8, b = 0.8, colorStr = "ffcccccc"}}, {__index = function(self) return self.UNKNOWN end})
 for k, v in next, RAID_CLASS_COLORS do
-	hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
 	classColors[k] = v
 end
 addon.classColors = classColors
+
 local _testUnits = {
 	Wally = "WARRIOR",
 	Kingkong = "DEATHKNIGHT",
@@ -32,16 +30,17 @@ local _testUnits = {
 	Ling = "MONK",
 }
 addon._testUnits = _testUnits
+
 local coloredNames = setmetatable({}, {__index =
 	function(self, key)
 		if type(key) == "nil" then return nil end
 		local class = select(2, UnitClass(key)) or _testUnits[key]
 		if class then
-			self[key] = string.format("%s%s|r", hexColors[class], key:gsub("%-.+", ""))
+			self[key] = string.format("|c%s%s|r", classColors[class].colorStr, key:gsub("%-.+", ""))
+			return self[key]
 		else
-			self[key] = string.format("|cffcccccc<%s>|r", key:gsub("%-.+", ""))
+			return string.format("|cffcccccc<%s>|r", key:gsub("%-.+", ""))
 		end
-		return self[key]
 	end
 })
 addon.coloredNames = coloredNames
@@ -62,6 +61,10 @@ function util.inTable(t, value, subindex)
 end
 
 -- Locals
+
+local playerName = UnitName("player")
+local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
+
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
 local groupMembers = {} -- Index:Name
@@ -401,7 +404,6 @@ function addon:OnEnable()
 	if CUSTOM_CLASS_COLORS then
 		local function updateClassColors()
 			for k, v in next, CUSTOM_CLASS_COLORS do
-				hexColors[k] = string.format("|cff%02x%02x%02x", v.r * 255, v.g * 255, v.b * 255)
 				classColors[k] = v
 			end
 			wipe(coloredNames)

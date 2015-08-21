@@ -12,8 +12,7 @@ local DEFAULT_SOUND = "Interface\\AddOns\\oRA3\\media\\twinkle.ogg"
 media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
 
 -- GLOBALS: ActionButton_ShowOverlayGlow ActionButton_HideOverlayGlow InterfaceOptionsFrame_OpenToCategory
--- GLOBALS: TANK HEALER DAMAGE RAID_CLASS_COLORS
-
+-- GLOBALS: TANK HEALER DAMAGE
 ---------------------------------------
 -- Icons
 
@@ -38,10 +37,7 @@ do
 	end
 
 	local function Start(self, player)
-		local _, class = UnitClass(player)
-		local color = class and RAID_CLASS_COLORS[class].colorStr or "ffcccccc"
-		self.text:SetFormattedText("|c%s%s|r", color, player:gsub("%-.+", "*"))
-
+		self.text:SetText(oRA3.coloredNames[player])
 		self.start = GetTime()
 		self.finish = self.start + 120
 		self.cooldown:SetReverse(true)

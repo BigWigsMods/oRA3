@@ -1,9 +1,9 @@
 
 local addonName, scope = ...
 local oRA = scope.addon
-local util = oRA.util
 local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = scope.locale
+local coloredNames = oRA.coloredNames
 
 local resAmount = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
@@ -15,7 +15,7 @@ local inCombat = false
 local function createFrame()
 	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
 	brez:SetPoint("CENTER", UIParent, "CENTER")
-	oRA3:RestorePosition("oRA3BattleResMonitor")
+	oRA:RestorePosition("oRA3BattleResMonitor")
 	brez:SetWidth(140)
 	brez:SetHeight(30)
 	brez:EnableMouse(true)
@@ -23,7 +23,7 @@ local function createFrame()
 	brez:SetClampedToScreen(true)
 	brez:SetMovable(true)
 	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
-	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA3:SavePosition("oRA3BattleResMonitor") end)
+	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA:SavePosition("oRA3BattleResMonitor") end)
 	brez:SetScript("OnEvent", updateFunc)
 
 	local bg = brez:CreateTexture(nil, "PARENT")
@@ -166,21 +166,10 @@ do
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 					if v ~= "br" then
 						local _, class = UnitClass(k)
-						local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
-						local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-						local shortName = k:gsub("%-.+", "*")
 						if class == "SHAMAN" then
-							brez.scroll:AddMessage(
-								("|cFF71d5ff|Hspell:20608|h%s|h|r >> |cFF%02x%02x%02x%s|r"):format(
-									GetSpellInfo(20608), s.r * 255, s.g * 255, s.b * 255, shortName
-								)
-							)
+							brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[k]))
 						else
-							brez.scroll:AddMessage(
-								("|cFF71d5ff|Hspell:20707|h%s|h|r >> |cFF%02x%02x%02x%s|r"):format(
-									GetSpellInfo(20707), s.r * 255, s.g * 255, s.b * 255, shortName
-								)
-							)
+							brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k]))
 						end
 					end
 					theDead[k] = nil
@@ -282,22 +271,11 @@ do
 				name = getPetOwner(name, sGuid)
 			end
 
-			local tbl = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS -- Support custom class color addons, if installed
-			local _, class = UnitClass(tarName)
-			local t = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-			_, class = UnitClass(name)
-			local s = class and tbl[class] or GRAY_FONT_COLOR -- Failsafe, rarely UnitClass can return nil
-			local shortName = name:gsub("%-.+", "*")
-			local shortTarName = tarName:gsub("%-.+", "*")
-			brez.scroll:AddMessage(
-				("|cFF%02x%02x%02x%s|r >> |cFF%02x%02x%02x%s|r"):format(
-					s.r * 255, s.g * 255, s.b * 255, shortName, t.r * 255, t.g * 255, t.b * 255, shortTarName
-				)
-			)
+			brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
 			theDead[tarName] = "br"
 
 		-- Lots of lovely checks before adding someone to the deaths table
-		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then 
+		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then
 			theDead[tarName] = true
 		end
 	end

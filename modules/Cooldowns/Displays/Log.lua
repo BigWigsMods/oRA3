@@ -9,7 +9,7 @@ local oRA3CD = oRA3:GetModule("Cooldowns")
 
 local media = LibStub("LibSharedMedia-3.0")
 
--- GLOBALS: ChatFontNormal GameTooltip GameTooltip_Hide RAID_CLASS_COLORS
+-- GLOBALS: ChatFontNormal GameTooltip GameTooltip_Hide
 
 ---------------------------------------
 -- Display
