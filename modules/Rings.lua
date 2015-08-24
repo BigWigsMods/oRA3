@@ -8,10 +8,13 @@ local L = scope.locale
 local media = LibStub("LibSharedMedia-3.0")
 local Masque = LibStub("Masque", true)
 
+local ShowOverlayGlow = LibStub("LibButtonGlow-1.0").ShowOverlayGlow
+local HideOverlayGlow = LibStub("LibButtonGlow-1.0").HideOverlayGlow
+
 local DEFAULT_SOUND = "Interface\\AddOns\\oRA3\\media\\twinkle.ogg"
 media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
 
--- GLOBALS: ActionButton_ShowOverlayGlow ActionButton_HideOverlayGlow InterfaceOptionsFrame_OpenToCategory
+-- GLOBALS: InterfaceOptionsFrame_OpenToCategory
 -- GLOBALS: COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID
 ---------------------------------------
 -- Icons
@@ -21,7 +24,7 @@ do
 	local function OnCooldownDone(self)
 		local f = self:GetParent()
 		if f.start then -- active finish
-			ActionButton_HideOverlayGlow(f)
+			HideOverlayGlow(f)
 			local t = GetTime()
 			if t < f.finish then
 				self:SetReverse(false)
@@ -42,7 +45,8 @@ do
 		self.finish = self.start + 120
 		self.cooldown:SetReverse(true)
 		self.cooldown:SetCooldown(self.start, 15)
-		ActionButton_ShowOverlayGlow(self)
+		ShowOverlayGlow(self)
+
 		if self:IsShown() and module.db.profile.sound then
 			local spec = GetSpecialization() or 0
 			if not module.db.profile.soundForMe or GetSpecializationRole(spec) == self.role then
