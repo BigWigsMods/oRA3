@@ -984,7 +984,7 @@ end
 function addon:UpdateList(name)
 	if not openedList or not oRA3Frame:IsVisible() then return end
 	if lists[openedList].name ~= name then return end
-	showLists()
+	showLists(true)
 end
 
 function addon:SelectList(index)
@@ -1147,7 +1147,7 @@ local function setScrollHeaderWidth(nr, width)
 end
 
 local listHeader = ("%s - %%s"):format(L.checks)
-function showLists()
+function showLists(listUpdated)
 	-- hide all scrollheaders per default
 	for k, f in next, scrollheaders do
 		f:Hide()
@@ -1157,7 +1157,9 @@ function showLists()
 	db.lastSelectedList = openedList
 
 	local list = lists[openedList]
-	addon.callbacks:Fire("OnListSelected", list.name)
+	if not listUpdated then -- Don't spam this callback when updating the list we're looking at
+		addon.callbacks:Fire("OnListSelected", list.name)
+	end
 	oRA3Frame.title:SetText(listHeader:format(list.name))
 
 	contentFrame.listFrame:Show()
