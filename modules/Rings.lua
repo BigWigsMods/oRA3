@@ -84,6 +84,8 @@ do
 		text:SetTextColor(1, 1, 1, 1)
 		text:SetJustifyH("CENTER")
 		text:SetJustifyV("TOP")
+		text:SetShadowColor(0, 0, 0, 1)
+		text:SetShadowOffset(1, -1)
 		text:SetPoint("TOPLEFT", f, "BOTTOMLEFT")
 		text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT")
 		f.text = text
@@ -280,6 +282,11 @@ local function GetOptions()
 			toggleShow()
 		end,
 		args = {
+			header = {
+				type = "description",
+				name = L.battleResHeader,
+				order = 0,
+			},
 			showDisplay = {
 				type = "toggle",
 				name = colorize(L.showMonitor),
