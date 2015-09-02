@@ -874,7 +874,6 @@ function addon:OnDemoted()
 	if oRA3Disband then
 		oRA3Disband:Disable()
 	end
-	onShutdown("OnDemoted", groupStatus)
 end
 
 function addon:SetAllPointsToPanel(frame, aceguihacky)

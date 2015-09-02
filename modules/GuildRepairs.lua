@@ -7,6 +7,7 @@ local L = scope.locale
 -- GLOBALS: ChatTypeInfo DEFAULT_CHAT_FRAME
 
 local db = nil
+local processedRanks = {}
 
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local function GetOptions()
@@ -74,6 +75,7 @@ end
 
 function module:OnEnable()
 	oRA.RegisterCallback(self, "OnPromoted")
+	oRA.RegisterCallback(self, "OnDemoted")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	oRA.RegisterCallback(self, "OnConvertParty", "OnShutdown")
 	oRA.RegisterCallback(self, "OnShutdown")
@@ -83,11 +85,16 @@ end
 -- Ensure guild repairs
 --
 
-function module:OnPromoted(_, promoted)
+function module:OnPromoted()
 	self:OnGroupChanged(nil, oRA:GetGroupStatus(), oRA:GetGroupMembers())
 end
 
-local processedRanks = {}
+function module:OnDemoted()
+	if next(processedRanks) then
+		self:OnShutdown()
+	end
+end
+
 function module:OnGroupChanged(_, status, members)
 	if not db.ensureRepair or not IsGuildLeader() or status < 2 or (oRA:IsPromoted() or 0) < 2 then return end
 	if status == 3 then -- don't enable for LFR or BGs
