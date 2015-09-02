@@ -4,6 +4,7 @@ local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
+local LGIST = LibStub("LibGroupInSpecT-1.1")
 
 local L = scope.locale
 
@@ -382,6 +383,9 @@ function addon:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("CHAT_MSG_ADDON", "OnCommReceived")
+	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
+	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
 
 	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
 	self.RegisterCallback(addon, "OnShutdown", onShutdown)
@@ -439,6 +443,112 @@ end
 -----------------------------------------------------------------------
 -- Guild and group roster
 --
+
+do
+	local playerCache = {}
+
+	local function guidToUnit(guid)
+		local info = playerCache[guid]
+		if info and UnitGUID(info.unit) == guid then
+			return info.unit
+		end
+
+		local token = IsInRaid() and "raid%d" or "party%d"
+		for i = 1, GetNumGroupMembers() do
+			local unit = token:format(i)
+			if UnitGUID(unit) == guid then
+				return unit
+			end
+		end
+		if UnitGUID("player") == guid then
+			return "player"
+		end
+	end
+
+	function addon:OnGroupJoin()
+		for guid, info in next, playerCache do
+			-- check for stale entries
+			if guid ~= UnitGUID(info.name) then
+				self.callbacks:Fire("OnPlayerRemove", guid)
+				playerCache[guid] = nil
+			end
+		end
+		self:OnGroupChanged()
+		LGIST:Rescan() -- requeue previously inspected players
+	end
+
+	function addon:OnGroupChanged()
+		for _, player in next, groupMembers do
+			local guid = UnitGUID(player)
+			local _, class = UnitClass(player)
+			if guid and not playerCache[guid] and class then
+				local unit = guidToUnit(guid) or ""
+				playerCache[guid] = {
+					guid = guid,
+					unit = unit,
+					name = player,
+					class = class,
+					level = UnitLevel(player),
+					glyphs = {},
+					talents = {},
+				}
+				-- initial update with no inspect info
+				self.callbacks:Fire("OnPlayerUpdate", guid, unit, playerCache[guid])
+			end
+		end
+	end
+
+	function addon:GroupInSpecT_Update(_, guid, unit, info)
+		if not guid or not info.class then return end
+
+		if not playerCache[guid] then
+			playerCache[guid] = {
+				guid = guid,
+				unit = "",
+				glyphs = {},
+				talents = {},
+			}
+		end
+		local cache = playerCache[guid]
+		cache.name = info.name
+		cache.class = info.class
+		cache.level = UnitLevel(unit)
+		cache.unit = unit ~= "player" and unit or guidToUnit(guid) or ""
+
+		if info.global_spec_id and info.global_spec_id > 0 then
+			cache.spec = info.global_spec_id
+
+			wipe(cache.glyphs)
+			for spellId in next, info.glyphs do
+				cache.glyphs[spellId] = true
+			end
+			wipe(cache.talents)
+			for talentId, talentInfo in next, info.talents do
+				-- easier to look up by index than to try and check multiple talent spell ids
+				local index = 3 * (talentInfo.tier - 1) + talentInfo.column
+				cache.talents[index] = talentId
+			end
+		end
+		self.callbacks:Fire("OnPlayerUpdate", guid, unit, cache)
+	end
+
+	function addon:GroupInSpecT_Remove(_, guid)
+		self.callbacks:Fire("OnPlayerRemove", guid, playerCache[guid])
+		playerCache[guid] = nil
+	end
+
+	function addon:GroupInSpecT_InspectReady(_, guid, unit)
+		self.callbacks:Fire("OnPlayerInspect", guid, unit)
+	end
+
+	function addon:InspectGroup()
+		LGIST:Rescan()
+	end
+
+	function addon:GetPlayerInfo(guid)
+		return playerCache[guid]
+	end
+end
 
 do
 	local function isIndexedEqual(a, b)
@@ -533,6 +643,7 @@ do
 		end
 		if oldStatus ~= groupStatus or not isIndexedEqual(tmpGroup, groupMembers) then
 			copyToTable(tmpGroup, groupMembers)
+			self:OnGroupChanged()
 			self.callbacks:Fire("OnGroupChanged", groupStatus, groupMembers)
 		end
 		if not isIndexedEqual(tmpTanks, tanks) then
@@ -545,6 +656,7 @@ do
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
 			self.callbacks:Fire("OnStartup", groupStatus)
+			self:OnGroupJoin()
 		end
 		if oldStatus == INPARTY and groupStatus == INRAID then
 			self.callbacks:Fire("OnConvertRaid", groupStatus)

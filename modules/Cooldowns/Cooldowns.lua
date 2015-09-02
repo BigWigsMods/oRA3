@@ -6,10 +6,7 @@ local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
-local LGIST = LibStub("LibGroupInSpecT-1.1")
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
-
-oRA3CD = module
 
 -- GLOBALS: GameTooltip GameTooltip_Hide StaticPopup_Show StaticPopupDialogs tContains
 -- GLOBALS: GameFontHighlight GameFontHighlightLarge LE_PARTY_CATEGORY_INSTANCE FILTERS
@@ -589,19 +586,6 @@ for class, classSpells in next, spells do
 	end
 end
 
-
-local function guidToUnit(guid)
-	local token = IsInRaid and "raid%d" or "party%d"
-	for i = 1, GetNumGroupMembers() do
-		local unit = token:format(i)
-		if UnitGUID(unit) == guid then
-			return unit
-		end
-	end
-	if UnitGUID("player") == guid then
-		return "player"
-	end
-end
 
 function module:GetPlayerFromGUID(guid)
 	if infoCache[guid] then
@@ -1520,9 +1504,9 @@ function module:OnStartup(_, groupStatus)
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	self:OnGroupChanged(nil, groupStatus, oRA:GetGroupMembers())
 
-	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
-	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
-	LGIST:Rescan()
+	oRA.RegisterCallback(self, "OnPlayerUpdate")
+	oRA.RegisterCallback(self, "OnPlayerRemove")
+	oRA:InspectGroup()
 
 	--self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	--self:RegisterEvent("PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED")
@@ -1538,8 +1522,8 @@ function module:OnShutdown()
 
 	oRA.UnregisterCallback(self, "OnCommReceived")
 	oRA.UnregisterCallback(self, "OnGroupChanged")
-
-	LGIST.UnregisterAllCallbacks(self)
+	oRA.UnregisterCallback(self, "OnPlayerUpdate")
+	oRA.UnregisterCallback(self, "OnPlayerRemove")
 
 	--self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 	--self:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -1646,21 +1630,6 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 				callbacks:Fire("oRA3CD_UpdatePlayer", guid, player)
 				self:RegisterEvent("UNIT_HEALTH")
 			end
-			if not infoCache[guid] then
-				local _, class = UnitClass(player)
-				if class then
-					infoCache[guid] = {
-						guid = guid,
-						name = player,
-						class = class,
-						level = UnitLevel(player),
-						glyphs = {},
-						talents = {},
-						unit = "",
-					}
-					updateCooldownsByGUID(guid)
-				end
-			end
 		end
 	end
 
@@ -1669,61 +1638,33 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 	end
 end
 
-function module:GroupInSpecT_Update(_, guid, unit, info)
-	if not guid or not info.class then return end
+function module:OnPlayerUpdate(_, guid, unit, info)
+	for _, mods in next, cdModifiers do mods[guid] = nil end
+	for _, mods in next, chargeModifiers do mods[guid] = nil end
 
-	if not infoCache[guid] then
-		infoCache[guid] = {
-			guid = guid,
-			name = info.name,
-			class = info.class,
-			level = UnitLevel(unit),
-			glyphs = {},
-			talents = {},
-			unit = "",
-		}
-	end
-
-	if info.global_spec_id and info.global_spec_id > 0 then
-		local cache = infoCache[guid]
-		cache.level = UnitLevel(unit)
-		cache.spec = info.global_spec_id
-		cache.unit = unit ~= "player" and unit or guidToUnit(guid) or ""
-
-		for _, mods in next, cdModifiers do mods[guid] = nil end
-		for _, mods in next, chargeModifiers do mods[guid] = nil end
-
-		wipe(cache.glyphs)
-		for spellId in next, info.glyphs do
-			if glyphCooldowns[spellId] then
-				local spell, modifier = unpack(glyphCooldowns[spellId])
-				addMod(guid, spell, modifier)
-			end
-			cache.glyphs[spellId] = true
-		end
-
-		wipe(cache.talents)
-		for talentId, talentInfo in next, info.talents do
-			if talentCooldowns[talentId] then
-				talentCooldowns[talentId](cache)
-			end
-			-- easier to look up by index than to try and check multiple talent spell ids
-			local index = 3 * (talentInfo.tier - 1) + talentInfo.column
-			cache.talents[index] = true
-		end
-
-		-- handle perks (apply all perks to players at level 100)
-		if specCooldowns[cache.spec] then
-			specCooldowns[cache.spec](cache)
+	for spellId in next, info.glyphs do
+		if glyphCooldowns[spellId] then
+			local spell, modifier = unpack(glyphCooldowns[spellId])
+			addMod(guid, spell, modifier)
 		end
 	end
 
+	for talentIndex, talentId in next, info.talents do
+		if talentCooldowns[talentId] then
+			talentCooldowns[talentId](info)
+		end
+	end
+
+	-- handle perks (apply all perks to players at level 100)
+	if specCooldowns[info.spec] then
+		specCooldowns[info.spec](info)
+	end
+
+	infoCache[guid] = info
 	updateCooldownsByGUID(guid)
 end
 
-function module:GroupInSpecT_Remove(_, guid)
-	if not guid then return end
-
+function module:OnPlayerRemove(_, guid)
 	callbacks:Fire("oRA3CD_StopCooldown", guid)
 
 	-- purge info
@@ -2018,4 +1959,6 @@ do
 		end
 	end
 end
+
+oRA3CD = module -- set global
 
