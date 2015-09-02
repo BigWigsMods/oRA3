@@ -32,6 +32,7 @@ modules\RoleIcons.lua
 modules\ReadyCheck.lua
 modules\Durability.lua
 modules\Gear.lua
+modules\GuildRepairs.lua
 modules\Latency.lua
 modules\Zone.lua
 modules\Invite.lua

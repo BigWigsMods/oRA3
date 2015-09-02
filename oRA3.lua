@@ -86,9 +86,6 @@ local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
 local secureScrollhighs = {} -- clickable secure scroll highlights
 
--- guild repair functions
-local onGroupChanged, onShutdown = nil, nil
-
 local function actuallyDisband()
 	if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
 		SendChatMessage("<oRA3> ".. L.disbandingGroupChatMsg, IsInRaid() and "RAID" or "PARTY")
@@ -113,9 +110,6 @@ local defaults = {
 		showRoleIcons = true,
 		lastSelectedPanel = nil,
 		lastSelectedList = nil,
-		ensureRepair = false,
-		repairFlagStorage = {},
-		repairAmountStorage = {},
 		open = false,
 	},
 }
@@ -148,22 +142,6 @@ local function giveOptions()
 					order = 2,
 					width = "full",
 				},
-				ensureRepair = {
-					type = "toggle",
-					name = colorize(L.ensureRepair),
-					desc = L.ensureRepairDesc,
-					descStyle = "inline",
-					order = 3,
-					width = "full",
-					set = function(info, value)
-						db[info[#info]] = value
-						if not value then
-							onShutdown()
-						elseif groupStatus == 2 then
-							onGroupChanged(nil, groupStatus, groupMembers)
-						end
-					end,
-				},
 				showHelpTexts = {
 					type = "toggle",
 					name = colorize(L.showHelpTexts),
@@ -191,61 +169,6 @@ local function giveOptions()
 	end
 
 	return options
-end
-
------------------------------------------------------------------------
--- Ensure guild repairs
---
-
-do
-	local processedRanks = {}
-	function onGroupChanged(event, status, members)
-		local promoted = addon:IsPromoted() or 0
-		if not db.ensureRepair or not IsGuildLeader() or not IsInRaid() or promoted < 2 then return end
-		if status == 3 then -- don't enable for LFR or BGs
-			if next(processedRanks) then -- disable for premades
-				onShutdown(event, status)
-			end
-			return
-		end
-
-		local amount = math.floor(GetAverageItemLevel()) or 300 -- vhaarr am so smrt.. ?!
-		for _, name in next, members do
-			local rankIndex = guildMemberList[name]
-			if rankIndex and not processedRanks[rankIndex] then
-				processedRanks[rankIndex] = true
-				GuildControlSetRank(rankIndex)
-				local repair = select(15, GuildControlGetRankFlags())
-				if not repair then
-					db.repairFlagStorage[rankIndex] = true
-					GuildControlSetRankFlag(15, true)
-					local c = ChatTypeInfo["SYSTEM"]
-					DEFAULT_CHAT_FRAME:AddMessage(L.repairEnabled:format(guildRanks[rankIndex]), c.r, c.g, c.b)
-				end
-				local maxAmount = GetGuildBankWithdrawGoldLimit()
-				if not maxAmount or maxAmount == 0 then
-					db.repairAmountStorage[rankIndex] = true
-					SetGuildBankWithdrawGoldLimit(amount)
-				end
-			end
-		end
-	end
-
-	function onShutdown(event, status)
-		if not IsGuildLeader() then return end
-		for rankIndex in next, processedRanks do
-			GuildControlSetRank(rankIndex)
-			if db.repairFlagStorage[rankIndex] then
-				GuildControlSetRankFlag(15, false)
-			end
-			if db.repairAmountStorage[rankIndex] then
-				SetGuildBankWithdrawGoldLimit(0)
-			end
-		end
-		wipe(db.repairAmountStorage)
-		wipe(db.repairFlagStorage)
-		wipe(processedRanks)
-	end
 end
 
 -------------------------------------------------------------------------------
@@ -386,10 +309,6 @@ function addon:OnEnable()
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
 	--LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
-
-	self.RegisterCallback(addon, "OnGroupChanged", onGroupChanged)
-	self.RegisterCallback(addon, "OnShutdown", onShutdown)
-	--self.RegisterCallback(addon, "OnConvertParty", onShutdown)
 
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
@@ -602,6 +521,7 @@ do
 	function addon:GetGuildMembers() return guildMemberList end
 	function addon:IsGuildMember(name) return guildMemberList[name] end
 	function addon:GetGroupMembers() return groupMembers end
+	function addon:GetGroupStatus() return groupStatus end
 	function addon:GetClassMembers(class)
 		local tmp = {}
 		for i, unit in next, groupMembers do
@@ -948,7 +868,6 @@ function addon:OnPromoted(promoted)
 	if oRA3Disband and promoted > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 		oRA3Disband:Enable()
 	end
-	onGroupChanged("OnPromoted", groupStatus, groupMembers)
 end
 
 function addon:OnDemoted()
