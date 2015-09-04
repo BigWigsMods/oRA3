@@ -9,6 +9,12 @@ local L = scope.locale
 local db = nil
 local processedRanks = {}
 
+local function updateRepairs()
+	if next(processedRanks) then
+		module:OnShutdown()
+		module:OnGroupChanged(nil, oRA:GetGroupStatus(), oRA:GetGroupMembers())
+	end
+end
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local function GetOptions()
 	local options = {
@@ -23,14 +29,7 @@ local function GetOptions()
 				get = function() return db.ensureRepair end,
 				set = function(info, value)
 					db.ensureRepair = value
-					if not value then
-						module:OnShutdown()
-					else
-						local groupStatus = oRA:GetGroupStatus()
-						if groupStatus == 2 then
-							module:OnGroupChanged(nil, groupStatus, oRA:GetGroupMembers())
-						end
-					end
+					updateRepairs()
 				end,
 				order = 1,
 				width = "full",
@@ -40,7 +39,13 @@ local function GetOptions()
 				name = colorize(L.repairAmount),
 				desc = L.repairAmountDesc,
 				get = function() return tostring(db.amount) end,
-				set = function(info, value) db.amount = tonumber(value) or 500 end,
+				set = function(info, value)
+					local oldAmount = db.amount
+					db.amount = tonumber(value) or 500
+					if oldAmount ~= db.amount then
+						updateRepairs()
+					end
+				end,
 				order = 2,
 			}
 		}
