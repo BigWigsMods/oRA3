@@ -2,7 +2,6 @@
 local addonName, scope = ...
 local oRA3 = scope.addon
 local module = oRA3:NewModule("Rings")
-local oRA3CD = oRA3:GetModule("Cooldowns")
 local L = scope.locale
 
 local media = LibStub("LibSharedMedia-3.0")
@@ -14,56 +13,203 @@ local HideOverlayGlow = LibStub("LibButtonGlow-1.0").HideOverlayGlow
 local DEFAULT_SOUND = "Interface\\AddOns\\oRA3\\media\\twinkle.ogg"
 media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
 
+local db = nil
+
+--- Specialization to Ring Item
+-- 124634 Thorasus (dps-str)
+-- 124635 Nithramus (dps-int)
+-- 124636 Maalus (dps-agi)
+-- 124637 Santus (tank)
+-- 124638 Etheralus (healer)
+local specToRing = {
+	-- Death Knight
+	[250] = 124637, -- Blood
+	[251] = 124634, -- Frost
+	[252] = 124634, -- Unholy
+	-- Druid
+	[102] = 124635, -- Balance
+	[103] = 124636, -- Feral
+	[104] = 124637, -- Guardian
+	[105] = 124638, -- Restoration
+	-- Hunter
+	[253] = 124636, -- Beast Mastery
+	[254] = 124636, -- Marksmanship
+	[255] = 124636, -- Survival
+	-- Mage
+	[62] = 124635, -- Arcane
+	[63] = 124635, -- Fire
+	[64] = 124635, -- Frost
+	-- Monk
+	[268] = 124637, -- Brewmaster
+	[270] = 124638, -- Mistweaver
+	[269] = 124636, -- Windwalker
+	-- Paladin
+	[65] = 124638, -- Holy
+	[66] = 124637, -- Protection
+	[70] = 124634, -- Retribution
+	-- Priest
+	[256] = 124638, -- Discipline
+	[257] = 124638, -- Holy
+	[258] = 124635, -- Shadow
+	-- Rogue
+	[259] = 124636, -- Assassination
+	[260] = 124636, -- Combat
+	[261] = 124636, -- Subtlety
+	-- Shaman
+	[262] = 124635, -- Elemental
+	[263] = 124636, -- Enhancement
+	[264] = 124638, -- Restoration
+	-- Warlock
+	[265] = 124635, -- Affliction
+	[266] = 124635, -- Demonology
+	[267] = 124635, -- Destruction
+	-- Warrior
+	[71] = 124634, -- Arms
+	[72] = 124634, -- Fury
+	[73] = 124637, -- Protection
+}
+
+--- Ring Spell to Role
+local ringToRole = {
+	-- auras
+	[187616] = 3, -- Nithramus
+	[187617] = 1, -- Sanctus
+	[187618] = 2, -- Etheralus
+	[187619] = 3, -- Thorasus
+	[187620] = 3, -- Maalus
+	-- casts
+	[187611] = 3, -- Nithramus
+	[187612] = 2, -- Etheralus
+	[187613] = 1, -- Sanctus
+	[187614] = 3, -- Thorasus
+	[187615] = 3, -- Maalus
+}
+
 -- GLOBALS: InterfaceOptionsFrame_OpenToCategory
--- GLOBALS: COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID
 ---------------------------------------
 -- Icons
 
 local CreateIcon
 do
-	local function OnCooldownDone(self)
-		local f = self:GetParent()
-		if f.start then -- active finish
-			HideOverlayGlow(f)
+	local function OnShow(self)
+		HideOverlayGlow(self)
+		if self.start then
 			local t = GetTime()
-			if t < f.finish then
-				self:SetReverse(false)
-				self:SetCooldown(t, f.finish - t)
+			local remaining = self.finish - t
+			if self.cooldown:GetDrawEdge() or remaining < 1 then
+				self.start = nil
+				self.finish = nil
+				self.text:SetText(self.name)
 			else
-				f.text:SetText(f.name)
+				self.cooldown:SetReverse(false)
+				self.cooldown:SetDrawEdge(false)
+				self.cooldown:SetDrawSwipe(true)
+				self.cooldown:SetCooldown(t, remaining)
 			end
-			f.start = nil
-			f.finish = nil
-		else -- cd finish
-			f.text:SetText(f.name)
+		else
+			self.text:SetText(self.name)
+		end
+	end
+
+	local function OnCooldownDone(self)
+		OnShow(self:GetParent())
+	end
+
+	local function GetRingCooldown(id)
+		if not id then return end
+		for slot = 11, 12 do
+			if GetInventoryItemID("player", slot) == id then
+				return GetInventoryItemCooldown("player", slot)
+			end
 		end
 	end
 
 	local function Start(self, player)
-		self.text:SetText(oRA3.coloredNames[player])
-		self.start = GetTime()
-		self.finish = self.start + 120
-		self.cooldown:SetReverse(true)
-		self.cooldown:SetCooldown(self.start, 15)
-		ShowOverlayGlow(self)
+		local started = nil
+		local t = GetTime()
+		if self.start and t > self.finish then -- sanity check
+			self.start = nil
+			self.finish = nil
+		end
+		if not self.start then
+			self.text:SetText(oRA3.coloredNames[player])
+			self.start = t
+			self.finish = self.start + 120
+			started = true
+		end
 
-		if self:IsShown() and module.db.profile.sound then
-			local spec = GetSpecialization() or 0
-			if not module.db.profile.soundForMe or GetSpecializationRole(spec) == self.role then
-				local sound = media:Fetch("sound", module.db.profile.soundFile) or DEFAULT_SOUND
-				PlaySoundFile(sound, "master")
+		if self:IsShown() then
+			local tree = GetSpecialization() or 0
+			local role = GetSpecializationRole(tree)
+			local isMine = role == self.role
+
+			local spec = GetSpecializationInfo(tree)
+			local start = isMine and GetRingCooldown(specToRing[spec])
+			local triggered = not start or (start > 0 and abs(start-t) < 1) -- show glow if not equipped (start == nil)
+
+			-- prioritize keeping the displayed cd in sync with your ring
+			if isMine and triggered and start and self.start ~= start then
+				self.text:SetText(oRA3.coloredNames[player])
+				self.start = start
+				self.finish = self.start + 120
+				started = true
 			end
+			if started then
+				if isMine and not triggered then
+					-- no cd shown, activated but not in range, set on cd (edge only) without activation glow
+					self.cooldown:SetReverse(false)
+					self.cooldown:SetDrawEdge(true)
+					self.cooldown:SetDrawSwipe(false)
+					self.cooldown:SetCooldown(self.start, 120)
+				else
+					self.cooldown:SetReverse(true)
+					self.cooldown:SetDrawEdge(false)
+					self.cooldown:SetDrawSwipe(true)
+					self.cooldown:SetCooldown(self.start, 15)
+					ShowOverlayGlow(self)
+
+					if not db.soundForMe or isMine then
+						local sound = media:Fetch("sound", db.soundFile) or DEFAULT_SOUND
+						PlaySoundFile(sound, "master")
+					end
+				end
+			end
+		end
+	end
+
+	local function UpdateClicks(self)
+		local tree = GetSpecialization() or 0
+		local spec, _, _, _, _, role = GetSpecializationInfo(tree)
+
+		if role == self.role and db.clickable then
+			local itemName = GetItemInfo(specToRing[spec])
+			local text = ("/cast %s"):format(itemName)
+			if self:GetAttribute("macrotext") ~= text then
+				self:SetAttribute("macrotext", text)
+				self:EnableMouse(true)
+			end
+		elseif self:GetAttribute("macrotext") ~= nil then
+			self:SetAttribute("macrotext", nil)
+			self:EnableMouse(false)
 		end
 	end
 
 	function CreateIcon(role, parent, texture)
 		local name = _G[role]
-		local frameName = "oRA3RingsIcon"..name
-		local f = CreateFrame("Button", frameName, parent)
+		local frameName = "oRA3RingIcon"..name
+		local f = CreateFrame("Button", frameName, parent, "SecureActionButtonTemplate")
 		f:SetSize(64, 64)
-		f:SetScale(1)
 		f.name = name
 		f.role = role
+
+		f:EnableMouse(false)
+		f:RegisterForClicks("LeftButtonDown")
+		f:SetAttribute("type", "macro")
+		UpdateClicks(f)
+
+		f:SetScript("OnShow", OnShow)
+		f:SetScript("OnEvent", UpdateClicks)
+		f:RegisterEvent("PLAYER_TALENT_UPDATE")
 
 		local icon = f:CreateTexture(frameName.."Icon", "BACKGROUND")
 		icon:SetAllPoints()
@@ -71,11 +217,10 @@ do
 		f.icon = icon
 
 		local cooldown = CreateFrame("Cooldown", frameName.."Cooldown", f, "CooldownFrameTemplate")
-		cooldown:SetAllPoints()
-		cooldown:SetSwipeColor(1, 1, 1, 0.8)
 		cooldown:SetHideCountdownNumbers(false)
 		cooldown:SetDrawEdge(false)
 		cooldown:SetDrawSwipe(true)
+		cooldown:SetEdgeTexture("Interface\\AddOns\\oRA3\\media\\edge2") -- blizzard texture was too subtle
 		cooldown:SetScript("OnCooldownDone", OnCooldownDone)
 		f.cooldown = cooldown
 
@@ -88,16 +233,16 @@ do
 		text:SetShadowOffset(1, -1)
 		text:SetPoint("TOPLEFT", f, "BOTTOMLEFT")
 		text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT")
+		text:SetText(name)
 		f.text = text
 
 		f.Start = Start
+		f.UpdateClicks = UpdateClicks
 
 		-- Masque skinning
 		if module.group then
 			module.group:AddButton(f)
 		end
-
-		f.text:SetText(name)
 
 		return f
 	end
@@ -107,125 +252,202 @@ end
 -- Display
 
 local display = {
-	name = "Rings",
-	type = "Rings",
-	db = nil,
 	icons = {},
 }
 
+function display:Lock()
+	if not db.showDisplay then return end
+	if not self.frame then return end
+	local frame = self.frame
+	frame:EnableMouse(false)
+	frame:SetMovable(false)
+	frame:SetResizable(false)
+	frame:RegisterForDrag()
+	frame.bg:SetTexture(0, 0, 0, 0)
+	frame.header:Hide()
+end
+
+function display:Unlock()
+	if not db.showDisplay then return end
+	if not self.frame then return end
+	local frame = self.frame
+	frame:EnableMouse(true)
+	frame:SetMovable(true)
+	frame:SetResizable(true)
+	frame:RegisterForDrag("LeftButton")
+	frame.bg:SetTexture(0, 0, 0, 0.3)
+	frame.header:Show()
+end
+
 do
-	local rings = {
-		[187616] = 3, -- Nithramus (int dps)
-		[187617] = 1, -- Sanctus (tank)
-		[187618] = 2, -- Etheralus (healer)
-		[187619] = 3, -- Thorasus (str dps)
-		[187620] = 3, -- Maalus (agi dps)
-	}
-	local throttle = {}
 	local band = bit.band
-	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
+	local group = bit.bor(_G.COMBATLOG_OBJECT_AFFILIATION_MINE, _G.COMBATLOG_OBJECT_AFFILIATION_PARTY, _G.COMBATLOG_OBJECT_AFFILIATION_RAID)
 
 	local combatLogHandler = CreateFrame("Frame")
 	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, _, _, source, srcFlags, _, _, target, _, _, spellId, spellName)
-		if event == "SPELL_AURA_APPLIED" and rings[spellId] and band(srcFlags, group) ~= 0 then
-			local ring = rings[spellId]
-			local t = GetTime()
-			if t > (throttle[ring] or 0) then
-				throttle[ring] = t + 119
-				display.icons[ring]:Start(source)
+		if ringToRole[spellId] and band(srcFlags, group) ~= 0 then
+			local id = ringToRole[spellId]
+			local icon = display.icons[id]
+			if event == "SPELL_AURA_APPLIED" then
+				-- aura to determine when the effect actually happens
+				icon:Start(source)
+			elseif event == "SPELL_CAST_SUCCESS" and db.announce and IsInRaid() and not IsInGroup(2) then
+				-- announce on cast because it's easy and doesn't affect anything
+				local text = L.activatedRing:format(source:gsub("%-.+", ""), GetSpellLink(spellId), icon.name)
+				SendChatMessage(text, "RAID")
 			end
 		end
 	end)
 
-	function display:OnShow()
+	function display:Show()
+		if not db.showDisplay then return end
+		if not self.frame then return self:Setup() end
+		self.frame:Show()
+
 		combatLogHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:OnResize()
 	end
 
-	function display:OnHide()
+	function display:Hide()
+		if not self.frame then return end
+		self.frame:Hide()
+
 		combatLogHandler:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		for _, icon in next, self.icons do
 			icon.text:SetText(icon.name)
 		end
-		wipe(throttle)
 	end
 end
 
-function display:OnSetup(frame)
+function display:Setup()
+	if InCombatLockdown() then
+		module:RegisterEvent("PLAYER_REGEN_ENABLED")
+		return
+	end
+
+	local frame = CreateFrame("Frame", "oRA3RingsFrame", UIParent)
+	frame:SetScale(db.scale)
+	frame:SetFrameStrata("BACKGROUND")
+	frame:SetClampedToScreen(true)
+	frame:SetSize(64, 64)
+
 	tinsert(self.icons, CreateIcon("TANK", frame, "Interface\\Icons\\inv_60legendary_ring1b"))
 	tinsert(self.icons, CreateIcon("HEALER", frame, "Interface\\Icons\\inv_60legendary_ring1a"))
 	tinsert(self.icons, CreateIcon("DAMAGER", frame, "Interface\\Icons\\inv_60legendary_ring1c"))
 
-	frame:SetSize(200, 124)
-	frame.header:SetText(L.legendaryRings)
+	local bg = frame:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPoints(frame)
+	bg:SetTexture(0, 0, 0, 0.3)
+	frame.bg = bg
+
+	-- wish this didn't scale, but font strings don't have their own scale property to compensate D; oh well
+	local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	header:SetText(L.legendaryRings)
+	header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
+	frame.header = header
+
+	local help = frame:CreateFontString(nil, "HIGHLIGHT", "GameFontNormal")
+	help:SetText(L.rightClick)
+	help:SetWordWrap(true)
+	help:SetJustifyV("TOP")
+	help:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", -2, -4)
+	help:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 2, -4)
+	frame.help = help
+
+	frame:SetScript("OnDragStart", frame.StartMoving)
+	frame:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+		oRA3:SavePosition("oRA3RingsFrame", true)
+	end)
 	frame:SetScript("OnMouseDown", function(self, button)
 		if button == "RightButton" then
 			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
 			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
 		end
 	end)
+
+	self.frame = frame
+
+	oRA3:RestorePosition("oRA3RingsFrame")
+
+	if db.lockDisplay then
+		self:Lock()
+	else
+		self:Unlock()
+	end
+	if db.showDisplay then
+		self:Show()
+	else
+		self:Hide()
+	end
+
+	self:UpdateLayout()
 end
 
-function display:OnResize()
-	if not self:IsShown() then return end
+function display:UpdateLayout()
+	if not self.frame or not self.frame:IsShown() then return end
+	if db.clickable and InCombatLockdown() then
+		module:RegisterEvent("PLAYER_REGEN_ENABLED")
+		return
+	end
 
 	if module.group then
 		module.group:ReSkin()
 	end
 
-	local db = self.db
+	self.frame:SetScale(db.scale)
+	oRA3:RestorePosition("oRA3RingsFrame") -- don't move around when changing stuff, plz
 
 	local spacing = db.spacing
-	local scale = db.scale
-
 	local textHeight = db.showText and (db.fontSize * 1.025) or 0 -- just works! (instead of using fs:GetHeight)
-	local size = 64 * scale + spacing
-	local iconsPerRow = floor(self:GetWidth() / size)
-	local iconsPerColumn = floor(self:GetHeight() / (size + textHeight))
+	local growDown = db.direction == "VERTICAL"
 
-	display.frame:SetMinResize(max(size + 4, 20), max(size + textHeight + 4, 20))
-
-	local last, columnAnchor = nil, nil
-	local row, column = 1, 0
+	local left, right, top, bottom = nil, nil, nil, nil
+	local last = nil
 	for index = 1, #self.icons do
 		local frame = self.icons[index]
 		frame:ClearAllPoints()
+		frame:UpdateClicks()
 
-		frame:SetScale(scale)
 		frame.text:SetFont(media:Fetch("font", db.font), db.fontSize, db.fontOutline ~= "NONE" and db.fontOutline)
 		frame.text:SetShown(db.showText)
 		frame.cooldown:SetHideCountdownNumbers(not db.showCooldownText)
 
 		local showIcon = (index == 1 and db.showTank) or (index == 2 and db.showHealer) or (index == 3 and db.showDamager)
-		if showIcon then
-			column = column + 1
-			if column > iconsPerRow then
-				row = row + 1
-				column = 1
-			end
-		end
-
-		if row > iconsPerColumn or not showIcon then
+		if not showIcon then
 			frame:Hide()
 		else
 			if not last then
-				frame:SetPoint("TOPLEFT", display.frame, "TOPLEFT", 0, 0)
-				columnAnchor = frame
-			elseif column == 1 then
-				frame:SetPoint("TOP", columnAnchor, "BOTTOM", 0, -1 * (spacing + textHeight))
-				columnAnchor = frame
+				frame:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 2, -2)
+				top, left = frame:GetTop(), frame:GetLeft()
+			elseif growDown then
+				frame:SetPoint("TOP", last, "BOTTOM", 0, -1 * (spacing + textHeight))
 			else
 				frame:SetPoint("LEFT", last, "RIGHT", spacing, 0)
 			end
+			bottom, right = frame:GetBottom(), frame:GetRight()
 
 			last = frame
 			frame:Show()
 		end
 	end
+	if right then
+		self.frame:SetWidth(right - left + 4)
+		self.frame:SetHeight(top - bottom + textHeight + 4)
+	end
+end
+
+function module:PLAYER_REGEN_ENABLED()
+	if InCombatLockdown() then return end
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+
+	if not display.frame then
+		display:Setup()
+	else
+		display:UpdateLayout()
+	end
 end
 
 local function toggleShow()
-	local db = module.db.profile
 	if db.lockDisplay then
 		display:Lock()
 	else
@@ -236,7 +458,7 @@ local function toggleShow()
 	else
 		display:Hide()
 	end
-	display:OnResize()
+	display:UpdateLayout()
 end
 
 ---------------------------------------
@@ -247,12 +469,15 @@ local defaults = {
 		showDisplay = true,
 		lockDisplay = false,
 		showInRaid = true,
+		announce = false,
+		clickable = false,
 		showTank = true,
 		showHealer = true,
 		showDamager = true,
 		sound = true,
 		soundForMe = true,
 		soundFile = "oRA3: Twinkle",
+		direction = "HORIZONTAL",
 		scale = 1,
 		spacing = 2,
 		showText = true,
@@ -262,6 +487,7 @@ local defaults = {
 		fontOutline = "NONE"
 	}
 }
+
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local function GetOptions()
 	local skinList = {}
@@ -275,10 +501,10 @@ local function GetOptions()
 	local options = {
 		type = "group",
 		name = L.legendaryRings,
-		get = function(info) return module.db.profile[info[#info]] end,
+		get = function(info) return db[info[#info]] end,
 		set = function(info, value)
 			local key = info[#info]
-			module.db.profile[key] = value
+			db[key] = value
 			toggleShow()
 		end,
 		args = {
@@ -310,6 +536,22 @@ local function GetOptions()
 				descStyle = "inline",
 				width = "full",
 				order = 3,
+			},
+			announce = {
+				type = "toggle",
+				name = colorize(L.announce),
+				desc = L.announceDesc,
+				descStyle = "inline",
+				width = "full",
+				order = 4,
+			},
+			clickable = {
+				type = "toggle",
+				name = colorize(L.clickable),
+				desc = L.clickableDesc,
+				descStyle = "inline",
+				width = "full",
+				order = 4.5,
 			},
 			show = {
 				type = "group",
@@ -345,17 +587,17 @@ local function GetOptions()
 						name = colorize(ENABLE),
 						desc = L.soundDesc,
 						descStyle = "inline",
-						order = 1,
 						width = "full",
+						order = 1,
 					},
 					soundForMe = {
 						type = "toggle",
 						name = colorize(L.onlyMyRing),
 						desc = L.onlyMyRingDesc,
 						descStyle = "inline",
-						disabled = function() return not module.db.profile.sound end,
-						order = 2,
+						disabled = function() return not db.sound end,
 						width = "full",
+						order = 2,
 					},
 					soundFile = {
 						type = "select",
@@ -365,19 +607,19 @@ local function GetOptions()
 						get = function(info)
 							local key = info[#info]
 							for i, v in next, media:List("sound") do
-								if v == module.db.profile[key] then
+								if v == db[key] then
 										return i
 								end
 							end
 						end,
 						set = function(info, value)
 							local list = media:List("sound")
-							module.db.profile[info[#info]] = list[value]
+							db[info[#info]] = list[value]
 						end,
-						disabled = function() return not module.db.profile.sound end,
+						disabled = function() return not db.sound end,
 						width = "full",
 						order = 3,
-					}
+					},
 				}
 			},
 			display = {
@@ -389,25 +631,25 @@ local function GetOptions()
 					local key = info[#info]
 					if key == "font" then
 						for i, v in next, media:List("font") do
-							if v == module.db.profile[key] then return i end
+							if v == db[key] then return i end
 						end
 					end
-					return module.db.profile[key]
+					return db[key]
 				end,
 				set = function(info, value)
 					local key = info[#info]
 					if key == "font" then
 						local list = media:List("font")
-						module.db.profile[key] = list[value]
+						db[key] = list[value]
 					else
-						module.db.profile[key] = value
+						db[key] = value
 					end
-					display:OnResize()
+					display:UpdateLayout()
 				end,
 				args = {
 					skin = {
-						name = L.skin,
 						type = "select",
+						name = L.skin,
 						values = skinList,
 						get = function(info) return module.group.db.SkinID or "Blizzard" end,
 						set = function(info, value) module.group:SetOption("SkinID", value) end,
@@ -415,15 +657,22 @@ local function GetOptions()
 						width = "full",
 						order = 0,
 					},
+					direction = {
+						type = "select",
+						name = L.orientation,
+						values = { HORIZONTAL = L.horizontal, VERTICAL = L.vertical },
+						width = "full",
+						order = 0.5,
+					},
 					scale = {
-						name = L.scale,
 						type = "range", min = 0.1, softMax = 10, step = 0.1,
+						name = L.scale,
 						width = "full",
 						order = 1,
 					},
 					spacing = {
-						name = L.spacing,
 						type = "range", min = -10, softMax = 10, step = 1,
+						name = L.spacing,
 						width = "full",
 						order = 2,
 					},
@@ -449,7 +698,7 @@ local function GetOptions()
 						name = L.font,
 						values = media:List("font"),
 						itemControl = "DDI-Font",
-						disabled = function() return not module.db.profile.showText end,
+						disabled = function() return not db.showText end,
 						width = "full",
 						order = 6,
 					},
@@ -457,7 +706,7 @@ local function GetOptions()
 						type = "range",
 						name = L.fontSize,
 						min = 6, max = 24, step = 1,
-						disabled = function() return not module.db.profile.showText end,
+						disabled = function() return not db.showText end,
 						width = "full",
 						order = 7,
 					},
@@ -465,7 +714,7 @@ local function GetOptions()
 						type = "select",
 						name = L.outline,
 						values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
-						disabled = function() return not module.db.profile.showText end,
+						disabled = function() return not db.showText end,
 						width = "full",
 						order = 8,
 					},
@@ -477,24 +726,27 @@ local function GetOptions()
 end
 
 function module:OnProfileUpdate()
-	display.db = module.db.profile
+	db = module.db.profile
+	if oRA3.db.profile.positions.oRA3CooldownFrameRingsRings then
+		oRA3.db.profile.positions.oRA3CooldownFrameRingsRings = nil
+		db.lockDisplay = false
+	end
 	toggleShow()
 end
 
 function module:OnRegister()
 	self.db = oRA3.db:RegisterNamespace("Rings", defaults)
-	oRA3:RegisterModuleOptions("Rings", GetOptions, L.legendaryRings)
 	oRA3.RegisterCallback(self, "OnProfileUpdate")
+	oRA3:RegisterModuleOptions("Rings", GetOptions, L.legendaryRings)
+
 	oRA3.RegisterCallback(self, "OnStartup", toggleShow)
 	oRA3.RegisterCallback(self, "OnShutdown", toggleShow)
 	oRA3.RegisterCallback(self, "OnConvertRaid", toggleShow)
 	oRA3.RegisterCallback(self, "OnConvertParty", toggleShow)
 
 	if Masque then
-		module.group = Masque:Group("oRA3 Cooldowns", "Legendary Rings")
+		module.group = Masque:Group("oRA3", "Legendary Rings")
 	end
 
-	display.db = module.db.profile
-	oRA3CD:AddContainer(display)
-	display:Hide()
+	self:OnProfileUpdate()
 end

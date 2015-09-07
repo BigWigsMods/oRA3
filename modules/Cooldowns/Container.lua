@@ -4,8 +4,6 @@ local oRA3 = scope.addon
 local L = scope.locale
 local oRA3CD = oRA3:GetModule("Cooldowns")
 
--- GLOBALS: GameFontNormal UIParent
-
 ---------------------------------------
 -- Display
 
@@ -105,14 +103,12 @@ do
 			bg:SetTexture(0, 0, 0, 0.3)
 			frame.bg = bg
 
-			local header = frame:CreateFontString(nil, "OVERLAY")
-			header:SetFontObject(GameFontNormal)
+			local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 			header:SetText(("Cooldowns: %s"):format(self.name))
 			header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
 			frame.header = header
 
-			local help = frame:CreateFontString(nil, "HIGHLIGHT")
-			help:SetFontObject(GameFontNormal)
+			local help = frame:CreateFontString(nil, "HIGHLIGHT", "GameFontNormal")
 			help:SetText(L.rightClick)
 			--help:SetAllPoints(frame)
 			help:SetWordWrap(true)
