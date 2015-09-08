@@ -180,9 +180,10 @@ do
 	local function UpdateClicks(self)
 		local tree = GetSpecialization() or 0
 		local spec, _, _, _, _, role = GetSpecializationInfo(tree)
+		local ring = spec and specToRing[spec]
 
-		if role == self.role and db.clickable then
-			local itemName = GetItemInfo(specToRing[spec])
+		if role == self.role and db.clickable and ring then
+			local itemName = GetItemInfo(ring)
 			local text = ("/cast %s"):format(itemName)
 			if self:GetAttribute("macrotext") ~= text then
 				self:SetAttribute("macrotext", text)
