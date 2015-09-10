@@ -350,8 +350,7 @@ function display:Setup()
 	help:SetText(L.rightClick)
 	help:SetWordWrap(true)
 	help:SetJustifyV("TOP")
-	help:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", -2, -4)
-	help:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 2, -4)
+	help:SetPoint("TOP", frame, "BOTTOM", 0, -4)
 	frame.help = help
 
 	frame:SetScript("OnDragStart", frame.StartMoving)
@@ -666,7 +665,7 @@ local function GetOptions()
 						order = 0.5,
 					},
 					scale = {
-						type = "range", min = 0.1, softMax = 10, step = 0.1,
+						type = "range", min = 0.1, softMax = 10, step = 0.01,
 						name = L.scale,
 						width = "full",
 						order = 1,
