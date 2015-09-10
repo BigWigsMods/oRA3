@@ -44,19 +44,20 @@ function module:OnListSelected(event, list)
 	end
 end
 
-local function update(latencyHome, latencyWorld, player, channel)
-	if channel == "GUILD" then return end
+do
+	local function update(latencyHome, latencyWorld, player, channel)
+		if channel == "GUILD" then return end
 
-	local k = util.inTable(latency, player, 1)
-	if not k then
-		k = #latency + 1
-		latency[k] = { player }
+		local k = util.inTable(latency, player, 1)
+		if not k then
+			k = #latency + 1
+			latency[k] = { player }
+		end
+		latency[k][2] = latencyHome
+		latency[k][3] = latencyWorld
+
+		oRA:UpdateList(L.latency)
 	end
-	latency[k][2] = latencyHome
-	latency[k][3] = latencyWorld
-
-	oRA:UpdateList(L.latency)
+	LL:Register(module, update)
 end
-
-LL:Register(module, update)
 
