@@ -3,9 +3,34 @@ local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("ReadyCheck", "AceTimer-3.0")
 local L = scope.locale
+module.stripservers = true
+
+local _G = _G
+local min, max, ceil, floor = math.min, math.max, math.ceil, math.floor
+local concat, wipe, sort, tinsert = table.concat, table.wipe, table.sort, table.insert
+local tonumber, select, next, ipairs, print = tonumber, select, next, ipairs, print
+local UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible = UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible
+local GetSpellDescription, GetSpellInfo, GetRaidRosterInfo = GetSpellDescription, GetSpellInfo, GetRaidRosterInfo
+local GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers = GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers
+local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime
+local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
+local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
+
+-- GLOBALS: INLINE_TANK_ICON INLINE_HEALER_ICON INLINE_DAMAGER_ICON SPELL_FAILED_OUT_OF_RANGE SOUND_LABEL YES UNKNOWN
+-- GLOBALS: READY_CHECK READY_CHECK_FINISHED READY_CHECK_ALL_READY RAID_MEMBER_NOT_READY RAID_MEMBERS_AFK DISABLE
+-- GLOBALS: READY_CHECK_READY_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_WAITING_TEXTURE
+-- GLOBALS: GameTooltip GameTooltip_Hide GameFontNormal UIParent UISpecialFrames ChatTypeInfo
+-- GLOBALS: CreateFrame UnitClass SendChatMessage ChatFrame_GetMessageEventFilters
+-- GLOBALS: SlashCmdList SLASH_ORAREADYCHECK1 SLASH_ORAREADYCHECK2 SLASH_ORARAIDCHECK1 SLASH_ORARAIDCHECK2
+
+local consumables = oRA:GetModule("Consumables")
 
 local readycheck = {} -- table containing ready check results
 local frame -- will be filled with our GUI frame
+local showBuffFrame = false
+local availableBuffs = 0
+local list = {} -- temp table to concat from
+local lastUpdate = 0
 
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
@@ -19,6 +44,7 @@ local roleIcons = {
 }
 
 local readychecking = nil
+local clearchecking = nil
 
 local defaults = {
 	profile = {
@@ -27,9 +53,21 @@ local defaults = {
 		autohide = true,
 		hideReady = false,
 		hideOnCombat = true,
-		relayReady = false
+		relayReady = false,
+		showBuffs = 1,
+		showMissingMaxStat = false,
+		showMissingRunes = false,
 	}
 }
+local function reanchorBuffs(frame, value) -- don't show an empty space for runes if disabled
+	if value then
+		frame.FlaskBuff:SetPoint("RIGHT", frame.RuneBuff, "LEFT", 0, 0)
+		frame.RuneBuff:Show()
+	else
+		frame.FlaskBuff:SetPoint("RIGHT", frame.MissingBuffs, "LEFT", 0, 0)
+		frame.RuneBuff:Hide()
+	end
+end
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local options
 local function getOptions()
@@ -44,49 +82,103 @@ local function getOptions()
 					type = "toggle",
 					name = colorize(SOUND_LABEL),
 					desc = L.readyCheckSound,
-					width = "full",
 					descStyle = "inline",
+					width = "full",
 					order = 1,
 				},
 				gui = {
 					type = "toggle",
 					name = colorize(L.showWindow),
 					desc = L.showWindowDesc,
-					width = "full",
 					descStyle = "inline",
+					width = "full",
 					order = 2,
 				},
 				autohide = {
 					type = "toggle",
 					name = colorize(L.hideWhenDone),
 					desc = L.hideWhenDoneDesc,
-					width = "full",
 					descStyle = "inline",
+					width = "full",
 					order = 3,
 				},
 				hideOnCombat = {
 					type = "toggle",
 					name = colorize(L.hideInCombat),
 					desc = L.hideInCombatDesc,
-					width = "full",
 					descStyle = "inline",
+					width = "full",
 					order = 4,
 				},
 				hideReady = {
 					type = "toggle",
 					name = colorize(L.hideReadyPlayers),
 					desc = L.hideReadyPlayersDesc,
-					width = "full",
 					descStyle = "inline",
+					width = "full",
 					order = 5,
 				},
 				relayReady = {
 					type = "toggle",
 					name = colorize(L.printToRaid),
 					desc = L.printToRaidDesc,
-					order = 6,
 					descStyle = "inline",
 					width = "full",
+					order = 6,
+				},
+				sep = {
+					type = "description",
+					name = "",
+					order = 7,
+				},
+				consumables = {
+					type = "group",
+					name = L.consumables,
+					inline = true,
+					order = 10,
+					args = {
+						showBuffs = {
+							type = "select",
+							name = colorize(L.showBuffs),
+							desc = L.showBuffsDesc,
+							values = { [0] = DISABLE, [1] = L.showMissingBuffs, [2] = L.showCurrentBuffs },
+							--style = "radio",
+							get = function()
+								local value = module.db.profile.showBuffs
+								if value == false then value = 0 end
+								return value
+							end,
+							set = function(_, value)
+								if value == 0 then value = false end
+								module.db.profile.showBuffs = value
+							end,
+							order = 1,
+						},
+						showMissingRunes = {
+							type = "toggle",
+							name = colorize(L.showMissingRunes),
+							desc = L.showMissingRunesDesc,
+							descStyle = "inline",
+							set = function(info, value)
+								module.db.profile.showMissingRunes = value
+								for _, frame in next, topMemberFrames do reanchorBuffs(frame, value) end
+								for _, frame in next, bottomMemberFrames do reanchorBuffs(frame, value) end
+								lastUpdate = 0
+							end,
+							disabled = function() return not module.db.profile.showBuffs end,
+							width = "full",
+							order = 2,
+						},
+						showMissingMaxStat = {
+							type = "toggle",
+							name = colorize(L.showMissingMaxStat),
+							desc = L.showMissingMaxStatDesc,
+							descStyle = "inline",
+							disabled = function() return not module.db.profile.showBuffs end,
+							width = "full",
+							order = 3,
+						},
+					},
 				},
 			}
 		}
@@ -94,20 +186,108 @@ local function getOptions()
 	return options
 end
 
+
+local function Frame_Tooltip(self)
+	if self.name then
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+		local unit = self:GetParent().player
+		GameTooltip:SetUnitBuff(unit, self.name)
+		if self.tooltip then
+			GameTooltip:AddLine("\n"..self.tooltip)
+		end
+		GameTooltip:Show()
+	elseif self.tooltip then
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+		GameTooltip:AddLine(self.tooltip)
+		GameTooltip:Show()
+	end
+end
+
+local addBuffFrame
+do
+	local function SetSpell(self, id)
+		self.tooltip = nil
+		if id and id < 0 then id = -id end
+
+		local name, _, icon = GetSpellInfo(id or 0)
+		if not name then
+			self.name = nil
+			self.tooltip = self.defaultTooltip
+			self.icon:SetTexture(self.defaultIcon)
+			self.icon:SetDesaturated(true)
+			self.icon:SetVertexColor(1, 0.5, 0.5, 1) -- red
+			if self.text then
+				self.text:SetText("")
+			end
+			return
+		end
+
+		self.name = name
+		self.icon:SetTexture(icon)
+		self.icon:SetDesaturated(false)
+		self.icon:SetVertexColor(1, 1, 1, 1) -- restore color
+	end
+
+	function addBuffFrame(name, parent, tooltip, icon, ...)
+		local frame = CreateFrame("Frame", parent:GetName()..name, parent)
+		frame:SetWidth(12)
+		frame:SetHeight(12)
+		if select("#", ...) > 0 then
+			frame:SetPoint(...)
+		end
+
+		local texture = frame:CreateTexture(nil, "OVERLAY")
+		texture:SetAllPoints()
+		texture:SetTexture(icon)
+		texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		frame.icon = texture
+		frame.defaultIcon = icon
+		frame.defaultTooltip = tooltip
+
+		frame:EnableMouse(true)
+		frame:SetScript("OnEnter", Frame_Tooltip)
+		frame:SetScript("OnLeave", GameTooltip_Hide)
+		frame.SetSpell = SetSpell
+
+		return frame
+	end
+end
+
 local function addIconAndName(frame)
 	local rdc = frame:CreateTexture(nil, "OVERLAY")
-	frame.IconTexture = rdc
 	rdc:SetWidth(11)
 	rdc:SetHeight(11)
 	rdc:SetPoint("LEFT", frame)
+	frame.IconTexture = rdc
 
 	local rdt = frame:CreateFontString(nil, "OVERLAY")
-	frame.NameText = rdt
 	rdt:SetJustifyH("LEFT")
 	rdt:SetFontObject(GameFontNormal)
 	rdt:SetPoint("LEFT", rdc, "RIGHT", 3)
 	rdt:SetHeight(14)
 	rdt:SetWidth(120)
+	frame.NameText = rdt
+
+	-- out of range indicator
+	local oor = addBuffFrame("Range", frame, nil, "Interface\\TargetingFrame\\UI-PhasingIcon", "RIGHT", frame, "RIGHT", -6, 0)
+	oor.icon:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
+	oor.tooltip = SPELL_FAILED_OUT_OF_RANGE
+	frame.OutOfRange = oor
+
+	-- missing buffs
+	frame.MissingBuffs = addBuffFrame("Buffs", frame, nil, "Interface\\DialogFrame\\DialogIcon-AlertNew-16", "RIGHT", frame, "RIGHT", -6, 0)
+	frame.MissingBuffs.icon:SetTexCoord(0, 1, 0, 1)
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, "Interface\\Icons\\inv_misc_rune_12", "RIGHT", frame.MissingBuffs, "LEFT", 0, 0)
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, "Interface\\Icons\\trade_alchemy_dpotion_c22")
+	reanchorBuffs(frame, module.db.profile.showMissingRunes)
+
+	local food = addBuffFrame("Food", frame, L.noFood, "Interface\\Icons\\spell_misc_food", "RIGHT", frame.FlaskBuff, "LEFT", 0, 0)
+	local text = food:CreateFontString(nil, "OVERLAY")
+	text:SetPoint("BOTTOMRIGHT")
+	text:SetJustifyH("RIGHT")
+	text:SetFont("Fonts\\ARIALN.TTF", 8, "OUTLINE")
+	food.text = text
+	frame.FoodBuff = food
 
 	local bg = frame:CreateTexture(nil, "ARTWORK")
 	bg:SetTexture(1, 0, 0, 0.3)
@@ -117,11 +297,11 @@ local function addIconAndName(frame)
 end
 
 local function createTopFrame()
-	local f = CreateFrame("Frame", nil, frame)
-	table.insert(topMemberFrames, f)
-	local num = #topMemberFrames
+	local num = #topMemberFrames + 1
+	local f = CreateFrame("Frame", "oRA3ReadyCheckTopFrame"..num, frame)
+	topMemberFrames[num] = f
 	local xoff = num % 2 == 0 and 160 or 15
-	local yoff = 0 - ((math.floor(num / 2) + (num % 2)) * 14) - 17
+	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) - 17
 	f:SetWidth(150)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
@@ -130,11 +310,11 @@ local function createTopFrame()
 end
 
 local function createBottomFrame()
-	local f = CreateFrame("Frame", nil, frame)
-	table.insert(bottomMemberFrames, f)
-	local num = #bottomMemberFrames
+	local num = #bottomMemberFrames + 1
+	local f = CreateFrame("Frame", "oRA3ReadyCheckBottomFrame"..num, frame)
+	bottomMemberFrames[num] = f
 	local xoff = num % 2 == 0 and 152 or 7
-	local yoff = 0 - ((math.floor(num / 2) + (num % 2)) * 14) + 4
+	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) + 4
 	f:SetWidth(150)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff)
@@ -142,7 +322,15 @@ local function createBottomFrame()
 	return f
 end
 
-local function setMemberStatus(num, bottom, name, class)
+local function getStatValue(id)
+	local desc = GetSpellDescription(id)
+	if desc then
+		local value = tonumber(desc:match("(%d+)")) or 0
+		return value >= 75 and value or YES
+	end
+end
+
+local function setMemberStatus(num, bottom, name, class, update)
 	if not name or not class then return end
 	local f
 	if bottom then
@@ -150,41 +338,151 @@ local function setMemberStatus(num, bottom, name, class)
 	else
 		f = topMemberFrames[num] or createTopFrame()
 	end
+	f.player = name
+
+	local ready = true
+	if module.db.profile.showBuffs and showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
+		f.OutOfRange:Hide()
+		if update then
+			local food, flask, rune, buffs, numBuffs = consumables:CheckPlayer(name)
+			local showMissing = module.db.profile.showBuffs == 1
+			local onlyMax = module.db.profile.showMissingMaxStat
+			ready = food and flask and (not module.db.profile.showMissingRunes or rune) and true
+
+			if showMissing then
+				f.FoodBuff:SetShown(not food)
+				f.FlaskBuff:SetShown(not flask)
+				f.RuneBuff:SetShown(not rune)
+			else
+				f.FoodBuff:SetShown(food)
+				f.FlaskBuff:SetShown(flask)
+				f.RuneBuff:SetShown(rune)
+			end
+			f.MissingBuffs:Hide()
+
+			f.FoodBuff:SetSpell(food)
+			if food then
+				f.FoodBuff.text:SetText(getStatValue(food) or "")
+				if food < 0 then
+					f.FoodBuff:Show()
+					ready = false
+				elseif onlyMax and not consumables:IsBest(food) then
+					f.FoodBuff.tooltip = L.notBestBuff
+					ready = false
+					if showMissing then
+						f.FoodBuff:Show()
+					else
+						f.FoodBuff.icon:SetDesaturated(true)
+						f.FoodBuff.icon:SetVertexColor(1, 0.5, 0.5, 1) -- red
+					end
+				end
+			end
+
+			f.FlaskBuff:SetSpell(flask)
+			if flask and onlyMax and not consumables:IsBest(flask) then
+				f.FlaskBuff.tooltip = L.notBestBuff
+				ready = false
+				if showMissing then
+					f.FlaskBuff.icon:SetDesaturated(true)
+					f.FlaskBuff.icon:SetVertexColor(1, 1, 0.5, 1) -- yellow
+					f.FlaskBuff:Show()
+				else
+					f.FlaskBuff.icon:SetDesaturated(true)
+					f.FlaskBuff.icon:SetVertexColor(1, 0.5, 0.5, 1) -- red
+				end
+			end
+
+			f.RuneBuff:SetSpell(rune)
+			if not module.db.profile.showMissingRunes then
+				f.RuneBuff:Hide()
+			end
+
+			if buffs and numBuffs < availableBuffs then
+				wipe(list)
+				for k in next, buffs do
+					list[#list + 1] = k
+				end
+				sort(list)
+				f.MissingBuffs.tooltip = ("%s: %s"):format(L.missingBuffs, concat(list, ", "))
+				f.MissingBuffs:Show()
+			end
+		end
+	else
+		f.OutOfRange:SetShown(module.db.profile.showBuffs and showBuffFrame)
+		f.MissingBuffs:Hide()
+		f.FoodBuff:Hide()
+		f.FlaskBuff:Hide()
+		f.RuneBuff:Hide()
+	end
+
 	local color = oRA.classColors[class]
 	local cleanName = name:gsub("%-.+", "*")
 	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], cleanName)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
+	f:Show()
 
 	local status = readycheck[name]
-	if status == "ready" then
+	if not status then
+		if not UnitIsConnected(name) then
+			f:SetAlpha(0.5)
+		end
+		f.bg:Hide()
+		f.IconTexture:SetTexture(nil)
+	elseif status == "ready" then
 		f.bg:Hide()
 		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
-		if module.db.profile.hideReady then
+		if module.db.profile.hideReady and ready then
 			f:Hide()
 		end
 	elseif status == "notready" then
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
 	elseif status == "offline" then
-		f:SetAlpha(.5)
+		f:SetAlpha(0.5)
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
 	else
 		f.bg:Show()
 		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
 	end
-	f:Show()
 end
 
 local function updateWindow()
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
 	frame.bar:Hide()
+	frame.MissingGroupBuffs:Hide()
+
+	local promoted = oRA:IsPromoted()
+	frame.ready:SetDisabled(not promoted)
+	frame.check:SetDisabled(not promoted or IsInGroup(2))
+
+	-- buff check throttle
+	local update = nil
+	local t = GetTime()
+	if t-lastUpdate > 1 then
+		lastUpdate = t
+		update = true
+	end
+
+	local _, type, diff = GetInstanceInfo()
+	showBuffFrame = module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) -- in raid or challenge mode
+
+	local missingBuffs, numBuffs
+	if showBuffFrame then
+		_, _, _, missingBuffs, numBuffs, availableBuffs = consumables:CheckGroup()
+		-- the first and second return from GetRaidBuffInfo don't always agree
+		-- first doesn't take spec into account and second caps with group size
+		-- soooo just hide it if we have the most we can (according to the api)
+		-- if numBuffs == availableBuffs then
+		-- 	missingBuffs = nil
+		-- end
+		-- XXX actually, availableBuffs seems be lower a lot of the time
+	end
 
 	local height = 0
 	if IsInRaid() then
-		local _, _, diff = GetInstanceInfo()
 		local highgroup
 		if diff == 3 or diff == 5 then -- 10 man
 			highgroup = 3
@@ -203,39 +501,51 @@ local function updateWindow()
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
 			if subgroup < highgroup then
 				top = top + 1
-				setMemberStatus(top, false, name, class)
+				setMemberStatus(top, false, name, class, update)
 			else
 				bottom = bottom + 1
-				setMemberStatus(bottom, true, name, class)
+				setMemberStatus(bottom, true, name, class, update)
 			end
 		end
-		height = math.ceil(top / 2) * 14 + 43
+		height = ceil(top / 2) * 14 + 43
 
 		-- position the spacer
 		if bottom > 0 then
-			height = height + 14 + (math.ceil(bottom / 2) * 14)
-			local yoff = 0 - (math.ceil(top / 2) * 14) - 34
+			height = height + 14 + (ceil(bottom / 2) * 14)
+			local yoff = 0 - (ceil(top / 2) * 14) - 34
 			frame.bar:ClearAllPoints()
 			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
 			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
 			frame.bar:Show()
 		end
 	else
-		setMemberStatus(1, false, playerName, playerClass)
+		setMemberStatus(1, false, playerName, playerClass, update)
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = module:UnitName(unit)
 			local _, class = UnitClass(unit)
-			setMemberStatus(i+1, false, name, class)
+			setMemberStatus(i+1, false, name, class, update)
 		end
 	end
 
-	frame:SetHeight(math.max(height, 128))
+	frame:SetHeight(max(height, 128))
+
+	if missingBuffs and next(missingBuffs) then
+		wipe(list)
+		for k in next, missingBuffs do
+			list[#list + 1] = k
+		end
+		sort(list)
+		frame.MissingGroupBuffs:SetText(concat(list, ", "))
+		frame.MissingGroupBuffs:Show()
+	end
 end
 
 local function createWindow()
 	if frame then return end
 	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
+	frame:Hide()
+	tinsert(UISpecialFrames, "oRA3ReadyCheck") -- Close on ESC
 
 	local f = frame
 	f:SetWidth(320)
@@ -243,7 +553,7 @@ local function createWindow()
 	f:SetMovable(true)
 	f:EnableMouse(true)
 	f:SetClampedToScreen(true)
-	if not oRA3:RestorePosition("oRA3ReadyCheck") then
+	if not oRA:RestorePosition("oRA3ReadyCheck") then
 		f:ClearAllPoints()
 		f:SetPoint("CENTER", UIParent, 0, 180)
 	end
@@ -315,7 +625,7 @@ local function createWindow()
 	right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
 	right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
 
-	local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+	local close = CreateFrame("Button", "oRA3ReadyCheckCloseButton", f, "UIPanelCloseButton")
 	close:SetPoint("TOPRIGHT", 2, 1)
 	close:SetScript("OnClick", function(self, button) f:Hide() end)
 
@@ -323,10 +633,46 @@ local function createWindow()
 	title:SetFontObject(GameFontNormal)
 	title:SetPoint("TOPLEFT", 12, -8)
 	title:SetPoint("TOPRIGHT", -32, -8)
-	title:SetText(READY_CHECK)
+	title:SetText(L.raidCheck)
 	f.title = title
 
-	local titlebutton = CreateFrame("Button", nil, f)
+	local ready = CreateFrame("Button", "oRA3ReadyCheckReadyCheckButton", f)
+	ready:SetNormalTexture("Interface\\RAIDFRAME\\ReadyCheck-Ready")
+	ready:SetSize(12, 12)
+	ready:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -8)
+	ready.SetDisabled = function(self, value)
+		self:GetNormalTexture():SetDesaturated(value)
+		self.disabled = value
+	end
+	ready:SetScript("OnClick", function(self)
+		if not self.disabled then
+			DoReadyCheck()
+		end
+	end)
+	ready:SetScript("OnEnter", Frame_Tooltip)
+	ready:SetScript("OnLeave", GameTooltip_Hide)
+	ready.tooltip = READY_CHECK
+	f.ready = ready
+
+	local check = CreateFrame("Button", "oRA3ReadyCheckConsumableCheckButton", f)
+	check:SetNormalTexture("Interface\\RAIDFRAME\\ReadyCheck-Waiting")
+	check:SetSize(12, 12)
+	check:SetPoint("LEFT", ready, "RIGHT", 2, 0)
+	check.SetDisabled = function(self, value)
+		self:GetNormalTexture():SetDesaturated(value)
+		self.disabled = value
+	end
+	check:SetScript("OnClick", function(self)
+		if not self.disabled then
+			consumables:OutputResults(true)
+		end
+	end)
+	check:SetScript("OnEnter", Frame_Tooltip)
+	check:SetScript("OnLeave", GameTooltip_Hide)
+	check.tooltip = L.outputMissing
+	f.check = check
+
+	local titlebutton = CreateFrame("Button", "oRA3ReadyCheckTitle", f)
 	titlebutton:SetPoint("TOPLEFT", titlebg)
 	titlebutton:SetPoint("BOTTOMRIGHT", titlebg)
 	titlebutton:RegisterForDrag("LeftButton")
@@ -337,21 +683,40 @@ local function createWindow()
 	titlebutton:SetScript("OnDragStop", function()
 		f.moving = nil
 		f:StopMovingOrSizing()
-		oRA3:SavePosition("oRA3ReadyCheck")
+		oRA:SavePosition("oRA3ReadyCheck")
 	end)
 
-	local bar = CreateFrame("Button", nil, frame)
-	frame.bar = bar
-	bar:SetPoint("TOPLEFT", frame, 8, -150)
-	bar:SetPoint("TOPRIGHT", frame, -6, -150)
+	local bar = CreateFrame("Button", nil, f)
+	bar:SetPoint("TOPLEFT", f, 8, -150)
+	bar:SetPoint("TOPRIGHT", f, -6, -150)
 	bar:SetHeight(8)
+	f.bar = bar
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
+	-- missing buffs
+	local missingBuffs = CreateFrame("Frame", "oRA3ReadyCheckMissingGroupBuffs", f)
 
+	local text = missingBuffs:CreateFontString(nil, "OVERLAY")
+	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -2)
+	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, 2)
+	text:SetHeight(24)
+	text:SetFontObject(GameFontNormal)
+	text:SetJustifyV("TOP")
+	text:SetShadowColor(0, 0, 0, 1)
+	text:SetShadowOffset(1, -1)
+	text:SetWordWrap(true)
+
+	missingBuffs.SetText = function(_, message)
+		text:SetFormattedText("|TInterface\\DialogFrame\\DialogIcon-AlertNew-16:0|t %s: %s", L.missingBuffs, message)
+	end
+
+	f.MissingGroupBuffs = missingBuffs
+
+	-- updater
 	local animFader = f:CreateAnimationGroup()
 	animFader:SetLooping("NONE")
 
@@ -360,39 +725,50 @@ local function createWindow()
 	fader:SetStartDelay(2.5)
 	fader:SetDuration(1)
 	fader:SetScript("OnFinished", function(self) f:Hide() end)
+	f.animFader = animFader
 
 	local animUpdater = f:CreateAnimationGroup()
 	animUpdater:SetLooping("REPEAT")
 	animUpdater:SetScript("OnLoop", function(self)
+		updateWindow()
 		local timer = GetReadyCheckTimeLeft()
-		if timer > 0 then
+		if timer > 0.5 then
 			title:SetText(L.readyCheckSeconds:format(timer))
-		else
-			title:SetText(READY_CHECK_FINISHED)
-			self:Stop()
-			if module.db.profile.autohide then
-				animFader:Play()
-			end
+		elseif not readychecking and not next(readycheck) then
+			title:SetText(L.raidCheck)
 		end
 	end)
 
 	local timer = animUpdater:CreateAnimation()
 	timer:SetStartDelay(1)
 	timer:SetDuration(0.3)
+	f.animUpdater = animUpdater
 
 	f:SetScript("OnShow", function(self)
+		lastUpdate = 0
 		animFader:Stop()
-		title:SetText(READY_CHECK)
 		self:SetAlpha(1)
 		animUpdater:Play()
 		updateWindow()
-		module:RegisterEvent("GROUP_ROSTER_UPDATE", updateWindow) -- pick up group changes
 	end)
 	f:SetScript("OnHide", function(self)
-		module:UnregisterEvent("GROUP_ROSTER_UPDATE")
 		animUpdater:Stop()
 		animFader:Stop()
 	end)
+end
+
+local function showFrame()
+	if not readychecking and module.db.profile.showBuffs == 0 then
+		-- print("Showing buffs on the ready check frame is disabled!")
+		return
+	end
+
+	if createWindow then
+		createWindow()
+		createWindow = nil
+	end
+	frame:Hide()
+	frame:Show()
 end
 
 local function sysprint(msg)
@@ -409,7 +785,7 @@ local function sysprint(msg)
 	end
 
 	local info = ChatTypeInfo["SYSTEM"]
-	for i=1, NUM_CHAT_WINDOWS do
+	for i=1, 10 do
 		local frame = _G["ChatFrame"..i]
 		for _, msgType in ipairs(frame.messageTypeList) do
 			if msgType == "SYSTEM" then
@@ -435,6 +811,17 @@ function module:OnEnable()
 	SLASH_ORAREADYCHECK1 = "/rar"
 	SLASH_ORAREADYCHECK2 = "/raready"
 	SlashCmdList.ORAREADYCHECK = SlashCmdList.READYCHECK
+
+	SLASH_ORARAIDCHECK1 = "/rarc"
+	SLASH_ORARAIDCHECK2 = "/racheck"
+	SlashCmdList.ORARAIDCHECK = function()
+		local _, type, diff = GetInstanceInfo()
+		if module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) then -- in raid or challenge mode
+			showFrame()
+		else
+			sysprint(L.notInRaid)
+		end
+	end
 end
 
 function module:PLAYER_REGEN_DISABLED()
@@ -445,6 +832,7 @@ end
 function module:READY_CHECK(initiator, duration)
 	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master") end
 
+	self:CancelTimer(clearchecking)
 	self:CancelTimer(readychecking)
 	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
 
@@ -479,9 +867,8 @@ function module:READY_CHECK(initiator, duration)
 
 	-- show the readycheck result frame
 	if self.db.profile.gui then
-		createWindow()
-		frame:Hide()
-		frame:Show()
+		showFrame()
+		frame.title:SetText(READY_CHECK)
 	end
 end
 
@@ -507,12 +894,13 @@ end
 do
 	local noReply = {}
 	local notReady = {}
-	module.stripservers = true
 	function module:READY_CHECK_FINISHED(preempted)
 		if not readychecking or preempted then return end -- is a dungeon group ready check
 
 		self:CancelTimer(readychecking)
 		readychecking = nil
+		-- wipe so we can reuse the frame without showing checks (if appropriate)
+		clearchecking = self:ScheduleTimer(wipe, 10, readycheck) -- how long to show results?
 
 		wipe(noReply)
 		wipe(notReady)
@@ -528,7 +916,7 @@ do
 		end
 
 		local promoted = oRA:IsPromoted()
-		local send = self.db.profile.relayReady and promoted and promoted > 1 and IsInRaid() and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
+		local send = self.db.profile.relayReady and promoted and promoted > 1 and IsInRaid() and not IsInGroup(2)
 		if #noReply == 0 and #notReady == 0 then
 			if not promoted then
 				sysprint(READY_CHECK_ALL_READY)
@@ -537,7 +925,7 @@ do
 			end
 		else
 			if #noReply > 0 then
-				local afk = RAID_MEMBERS_AFK:format(table.concat(noReply, ", "))
+				local afk = RAID_MEMBERS_AFK:format(concat(noReply, ", "))
 				if not promoted then
 					sysprint(afk)
 				elseif send then
@@ -545,12 +933,20 @@ do
 				end
 			end
 			if #notReady > 0 then
-				local no = L.playersNotReady:format(table.concat(notReady, ", "))
+				local no = L.playersNotReady:format(concat(notReady, ", "))
 				if not promoted then
 					sysprint(no)
 				elseif send then
 					SendChatMessage(no, "RAID")
 				end
+			end
+		end
+
+		if self.db.profile.gui and frame then
+			frame.title:SetText(READY_CHECK_FINISHED)
+			if self.db.profile.autohide then
+				frame.animUpdater:Stop()
+				frame.animFader:Play()
 			end
 		end
 	end

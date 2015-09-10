@@ -1216,6 +1216,10 @@ function hideLists()
 		f:Hide()
 	end
 	contentFrame.listFrame:Hide()
+
+	if openedList then
+		addon.callbacks:Fire("OnListClosed", lists[openedList].name)
+	end
 	openedList = nil
 end
 

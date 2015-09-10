@@ -28,10 +28,12 @@ L.slashCommands = [[
 oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case you weren't around in the old CTRA days, here's a little reference. All of the slash commands have various shorthands and also longer, more descriptive alternatives in some cases, for convenience.
 
 |cff44ff44/racd|r - Opens cooldown settings.
+|cff44ff44/rabuffs|r - Opens the buff list and outputs results.
 |cff44ff44/radur|r - Opens the durability list.
 |cff44ff44/ragear|r - Opens the gear check list.
 |cff44ff44/ralag|r - Opens the latency list.
 |cff44ff44/razone|r - Opens the zone list.
+|cff44ff44/racheck|r - Opens the raid check window.
 |cff44ff44/radisband|r - Instantly disbands the raid with no verification.
 |cff44ff44/raready|r - Performs a ready check.
 |cff44ff44/rainv|r - Invites the whole guild to your group.
@@ -65,6 +67,17 @@ L.hideInCombat = "Hide in combat"
 L.hideInCombatDesc = "Automatically hide the ready check window when you get in combat."
 L.printToRaid = "Relay ready check results to raid chat"
 L.printToRaidDesc = "If you are promoted, relay the results of ready checks to the raid chat, allowing raid members to see what the holdup is. Please make sure yourself that only one person has this enabled."
+L.outputMissing = "Output Missing"
+L.raidCheck = "Raid Check"
+L.showBuffs = "Show buffs"
+L.showBuffsDesc = "Show icons for food, flask, and rune buffs for each player and text below the ready check frame for missing raid buffs.\n\n|cffffff33Show missing buffs|r will only show icons if the player is missing buffs.\n\n|cffffff33Show current buffs|r will only show icons for buffs a player has."
+L.showMissingBuffs = "Show missing buffs"
+L.showCurrentBuffs = "Show current buffs"
+L.showMissingRunes = "Show Augment Runes"
+L.showMissingRunesDesc = "Include showing an icon for Augment Rune buffs."
+L.showMissingMaxStat = "Show lesser consumables as missing"
+L.showMissingMaxStatDesc = "Show icons for food and flask buffs with a different color to indicate it is not the highest stat value available."
+L.notInRaid = "You are not in a raid instance."
 
 -- Durability module
 L.durability = "Durability"
@@ -259,4 +272,35 @@ L.orientation = "Orientation"
 L.horizontal = "Horizontal"
 L.vertical = "Vertical"
 L.activatedRing = "%s activated %s (%s)"
+
+-- Consumables Module
+L.consumables = "Consumable Check"
+L.consumablesDesc = "Results will only show when promoted in a non-LFG instance group. You can also print the results of the check by opening the \"Checks - Buffs\" panel with /rabuffs."
+L.checkReadyCheck = "Check on ready check"
+L.checkReadyCheckDesc = "Check buffs when a ready check is performed."
+L.reportIfYou = "Report if started by you"
+L.reportAlways = "Report always"
+L.output = "Output"
+L.outputDesc = "Display results in group chat, otherwise results are printed to your default chat frame."
+L.self = "Self"
+L.group = "Group"
+L.whisperMissing = "Whisper missing"
+L.whisperMissingDesc = "Whisper players that are missing buffs."
+L.buffs = "Buffs"
+L.checkBuffs = "Check Buffs"
+L.raidBuffs = "Raid Buffs"
+L.missingBuffs = "Missing Buffs"
+L.checkBuffsDesc = "Include raid buffs when checking buffs."
+L.food = "Food"
+L.noFood = "Not Well Fed"
+L.checkFoodDesc = "Include food buffs when checking buffs."
+L.flask = "Flask"
+L.noFlask = "No Flask"
+L.flaskExpires = "Your flask is expiring in less than 10 minutes"
+L.checkFlaskDesc = "Include flasks when checking buffs."
+L.rune = "Rune"
+L.noRune = "No Augment Rune"
+L.checkRuneDesc = "Include augment runes when checking buffs."
+L.notBestBuff = "Not the highest stat consumable available"
+L.outOfRange = "Player out of range"
 
