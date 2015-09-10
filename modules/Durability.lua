@@ -22,6 +22,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	oRA.RegisterCallback(self, "OnListSelected")
 	oRA.RegisterCallback(self, "OnCommReceived")
 	oRA.RegisterCallback(self, "OnGroupChanged")
 
@@ -47,6 +48,12 @@ end
 function module:OnShutdown()
 	wipe(durability)
 	self:UnregisterAllEvents()
+end
+
+function module:OnListSelected(event, list)
+	if list == L.durability then
+		self:CheckDurability()
+	end
 end
 
 function module:CheckDurability()

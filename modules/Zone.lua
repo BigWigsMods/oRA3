@@ -153,13 +153,15 @@ function module:UpdateZoneList()
 			createTooltip = nil
 		end
 		addPlayer(UnitName("player"), GetRealZoneText())
-		for i = 1, MAX_PARTY_MEMBERS do
+		for i = 1, 5 do
 			if i < GetNumSubgroupMembers() + 1 then
 				local name = UnitName("party"..i)
 				local zone = GetZone("party"..i)
 				addPlayer(name, zone)
 			end
 		end
+	else
+		addPlayer(UnitName("player"), GetRealZoneText())
 	end
 end
 
