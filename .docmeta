@@ -1,0 +1,8 @@
+-
+  type: markdown
+  input-file: README.md
+  output-page: "Main"
+-
+  type: markdown
+  input-file: modules/Cooldowns/README.md
+  output-page: "Cooldowns API"

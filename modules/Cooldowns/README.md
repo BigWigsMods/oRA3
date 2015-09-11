@@ -1,4 +1,4 @@
-# oRA3 Cooldowns Developer Notes
+# Cooldowns API for Displays
 
 This is a quick overview of how to get a new display to work with oRA3.
 
@@ -11,7 +11,7 @@ On startup (ie, joining a group or opening settings) the roster is checked and c
 - `display.defaultDB`: optional, your table of default db values
 - `display.db`: set by oRA, table of db values
 - `display.spellDB`: set by oRA, lookup table of enabled spell ids
-- `display.filterDB`: set by oRA, table of db values
+- `display.filterDB`: set by oRA, table of filter db values
 
 db.showDisplay and db.lockDisplay are used to control the display (don't need to be included in defaultDB)
 
