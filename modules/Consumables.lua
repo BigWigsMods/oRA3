@@ -242,197 +242,6 @@ local raidBuffs = {
 	}
 }
 
---@debug@
-do
-	-- working on a more reliable method than GetRaidBuffInfo (which doesn't take spec into account)
-	local buffProviders = {
-		{ -- 1 Stats
-			{102, 9}, {103, 9}, {104, 9}, {105, 9}, -- Druid (+Versatility)
-			{268, 6}, {269, 6}, {270, 6}, -- Monk (BrM/WW +Crit)
-			65, 66, 70, -- Paladin
-		},
-		{ -- 2 Stamina
-			256, 257, 258, -- Priest
-			-265, -266, -267, -- Warlock
-			71, 72, 73, -- Warrior
-		},
-		{ -- 3 Attack Power
-			250, 251, 252, -- DK
-			253, 254, 255, -- Hunter
-			71, 72, 73, -- Warrior
-		},
-		{ -- 4 Haste
-			-258, -- Shadow Priest (+Multistrike)
-			-251, -252, -- Unholy/Frost DK (+Versatility)
-			-259, -260, -261, -- Rogue (+Multistrike)
-			-262, -263, -264, -- Shaman (+Mastery)
-		},
-		{ -- 5 Spell Power
-			{62, 6}, {63, 6}, {64, 6}, -- Mage (+Crit)
-			{265, 8}, {266, 8}, {267, 8}, -- Warlock (+Multistrike)
-		},
-		{ -- 6 Critical Strike
-			-103, -- Feral Druid
-			{268, 1}, {269, 1}, -- BrM/WW Monk (+Stats)
-			{62, 5}, {63, 5}, {64, 5}, -- Mage (+Spell Power)
-		},
-		{ -- 7 Mastery
-			-250, -- Blood DK
-			-102, -- Balance Druid
-			-262, -263, -264, -- Shaman (+Haste)
-			65, 66, 70, -- Paladin
-		},
-		{ -- 8 Multistrike
-			-269, -- WW Monk
-			-258, -- Shadow Priest (+Haste)
-			-259, -260, -261, -- Rogue
-			{265, 5}, {266, 5}, {267, 5}, -- Warlock (+Spell Power)
-		},
-		{ -- 9 Versatility
-			-70, -- Ret Paladin
-			-251, -252, -- Unholy/Frost DK (+Haste)
-			-71, -72, -- Arms/Fury Warrior
-			{102, 1}, {103, 1}, {104, 1}, {105, 1}, -- Druid (+Stats)
-		}
-	}
-
-	-- XXX DEBUG --[[
-	module.debug = true
-	local CLASS_NAMES = _G.LOCALIZED_CLASS_NAMES_MALE
-	local TESTPLAYERS = {
-		Wally = {class="WARRIOR",spec=73},
-		Kingkong = {class="DEATHKNIGHT",spec=250},
-
-		Ling = {class="MONK",spec=270},
-		Apenuts = {class="PALADIN",spec=65},
-		Python = {class="PRIEST",spec=256},
-
-		Foobar = {class="DRUID",spec=102},
-		Eric = {class="WARLOCK",spec=265},
-		Hicks = {class="MAGE",spec=62},
-		Dylan = {class="ROGUE",spec=260},
-		Purple = {class="HUNTER",spec=253},
-		Red = {class="HUNTER",spec=254},
-		Blue = {class="HUNTER",spec=255},
-		Tor = {class="SHAMAN",spec=263},
-	}
-	local TESTGROUP = {
-		"Wally", "Kingkong",
-		"Ling", "Apenuts", --"Python",
-		"Foobar", "Eric", "Hicks", "Purple", "Blue", --"Tor",
-	}
-	-- XXX DEBUG --]]
-
-	-- this should only be calculated each time the group roster changes
-	function module:GetRaidBuffInfo()
-		print("GetRaidBuffInfo")
-		-- record what we got
-		local complete = true
-		local specs = {}
-		local hunters = 0
-		local members = self.debug and TESTGROUP or oRA:GetGroupMembers()
-		for _, player in next, members do
-			local info = self.debug and TESTPLAYERS[player] or oRA:GetPlayerInfo(player)
-			if info.spec then
-				specs[info.spec] = (specs[info.spec] or 0) + 1
-			else
-				complete = false
-			end
-			if info.class == "HUNTER" then
-				hunters = hunters + 1
-			end
-		end
-
-		-- order buffs by number of players that can provide it (ascending)
-		local providers, sorted = {}, {}
-		for index = 1, #buffProviders do
-			providers[index] = 0
-			sorted[index] = index
-			for _, spec in next, buffProviders[index] do
-				if type(spec) == "table" then spec = spec[1] end
-				if specs[spec] then
-					providers[index] = providers[index] or 0 + 1
-				end
-			end
-		end
-		sort(sorted, function(a, b)
-			return providers[a] < providers[b]
-		end)
-
-		-- figure out what we need
-		local mask, count = 0, 0
-		for _, index in ipairs(sorted) do
-			print("checking", _G["RAID_BUFF_"..index])
-			local bit = 2^(index - 1)
-			if band(mask, bit) ~= bit then
-				local buff = buffProviders[index]
-				local found = false
-				-- check for passive buffs first
-				for _, spec in next, buff do
-					-- negative spec = aura provider, doesn't count against pool
-					if type(spec) == "number" and spec < 0 and specs[-spec] then
-						local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(-spec)
-						print("  found", specName, CLASS_NAMES[class], "(passive)")
-						found = true
-						break
-					end
-				end
-				-- check if we have a player to cover it, preferring specs we have multiple of
-				if not found then
-					local f, s = nil, nil
-					for i, spec in next, buff do
-						if type(spec) == "table" then spec = spec[1] end
-						local n = specs[spec]
-						if n and (not s or n > specs[s]) then
-							s = spec
-							f = i
-						end
-					end
-					if f then
-						found = true
-						local spec = buff[f]
-						-- some buffs provide multiple things, account for that
-						if type(spec) == "table" then
-							local also = spec[2]
-							spec = spec[1]
-							mask = bor(mask, 2^(also - 1))
-							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
-							print("  found", specName, CLASS_NAMES[class], "+", _G["RAID_BUFF_"..also])
-						else
-							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
-							print("  found", specName, CLASS_NAMES[class])
-						end
-						specs[spec] = specs[spec] - 1
-						if specs[spec] == 0 then
-							specs[spec] = nil
-						end
-					end
-				end
-				-- do we have a hunter to cover the buff?
-				if not found and hunters > 0 then
-					found = true
-					hunters = hunters - 1
-					print("  found (Hunter)")
-				end
-				-- count it
-				if found then
-					mask = bor(mask, bit)
-					count = count + 1
-				else
-					print("  not found")
-				end
-			else -- already added
-				print("  already provided")
-				count = count + 1
-			end
-		end
-		print("done", mask, count)
-		return mask, count
-	end
-	_G.ORARBI = module.GetRaidBuffInfo
-end
---@end-debug@
-
 ---------------------------------------
 -- Options
 
@@ -734,29 +543,22 @@ end
 -- Player Check
 
 do
-	local prev = 0
-	local buffs = {}
 	function module:CheckPlayer(player)
-		-- local cache = playerBuffs[player]
-		-- local t = GetTime()
-		-- if t-prev < PLAYER_CHECK_THROTTLE then
-		-- 	if cache then
-		-- 		local food, flask, rune, buffs, numBuffs = unpack(cache)
-		-- 		return food, flask, rune, next(buffs) and buffs or false, numBuffs
-		-- 	end
-		-- 	return
-		-- end
-		-- prev = t
-
-		-- if not cache then
-		-- 	playerBuffs[player] = {}
-		-- 	cache = playerBuffs[player]
-		-- end
+		local cache = playerBuffs[player]
+		local t = GetTime()
+		if cache[6] and t-cache[6] < PLAYER_CHECK_THROTTLE then
+			local food, flask, rune, buffs, numBuffs = unpack(cache)
+			return food, flask, rune, next(buffs) and buffs or false, numBuffs
+		end
+		if not cache then
+			playerBuffs[player] = {}
+			cache = playerBuffs[player]
+		end
 
 		local flask = getFlask(player)
 		local food = getFood(player)
 		local rune = getRune(player)
-		-- local buffs = cache[4] or {}
+		local buffs = cache[4] or {}
 		wipe(buffs)
 
 		local numBuffs = 0
@@ -781,11 +583,12 @@ do
 			bit = lshift(bit, 1)
 		end
 
-		-- cache[1] = food
-		-- cache[2] = flask
-		-- cache[3] = rune
-		-- cache[4] = buffs
-		-- cache[5] = numBuffs
+		cache[1] = food
+		cache[2] = flask
+		cache[3] = rune
+		cache[4] = buffs
+		cache[5] = numBuffs
+		cache[6] = t
 
 		return food, flask, rune, next(buffs) and buffs or false, numBuffs
 	end
@@ -873,3 +676,196 @@ do
 		return missingFood, missingFlasks, missingRunes, missingBuffs, numRaidBuffs, numAvailableBuffs
 	end
 end
+
+--@do-not-package@
+do
+	-- working on a more reliable method than GetRaidBuffInfo (which doesn't take spec into account)
+	local buffProviders = {
+		{ -- 1 Stats
+			{102, 9}, {103, 9}, {104, 9}, {105, 9}, -- Druid (+Versatility)
+			{268, 6}, {269, 6}, {270, 6}, -- Monk (BrM/WW +Crit)
+			65, 66, 70, -- Paladin
+		},
+		{ -- 2 Stamina
+			256, 257, 258, -- Priest
+			-265, -266, -267, -- Warlock
+			71, 72, 73, -- Warrior
+		},
+		{ -- 3 Attack Power
+			250, 251, 252, -- DK
+			253, 254, 255, -- Hunter
+			71, 72, 73, -- Warrior
+		},
+		{ -- 4 Haste
+			-258, -- Shadow Priest (+Multistrike)
+			-251, -252, -- Unholy/Frost DK (+Versatility)
+			-259, -260, -261, -- Rogue (+Multistrike)
+			-262, -263, -264, -- Shaman (+Mastery)
+		},
+		{ -- 5 Spell Power
+			{62, 6}, {63, 6}, {64, 6}, -- Mage (+Crit)
+			{265, 8}, {266, 8}, {267, 8}, -- Warlock (+Multistrike)
+		},
+		{ -- 6 Critical Strike
+			-103, -- Feral Druid
+			{268, 1}, {269, 1}, -- BrM/WW Monk (+Stats)
+			{62, 5}, {63, 5}, {64, 5}, -- Mage (+Spell Power)
+		},
+		{ -- 7 Mastery
+			-250, -- Blood DK
+			-102, -- Balance Druid
+			-262, -263, -264, -- Shaman (+Haste)
+			65, 66, 70, -- Paladin
+		},
+		{ -- 8 Multistrike
+			-269, -- WW Monk
+			-258, -- Shadow Priest (+Haste)
+			-259, -260, -261, -- Rogue
+			{265, 5}, {266, 5}, {267, 5}, -- Warlock (+Spell Power)
+		},
+		{ -- 9 Versatility
+			-70, -- Ret Paladin
+			-251, -252, -- Unholy/Frost DK (+Haste)
+			-71, -72, -- Arms/Fury Warrior
+			{102, 1}, {103, 1}, {104, 1}, {105, 1}, -- Druid (+Stats)
+		}
+	}
+
+	-- XXX DEBUG --[[
+	module.debug = true
+	local CLASS_NAMES = _G.LOCALIZED_CLASS_NAMES_MALE
+	local TESTPLAYERS = {
+		Wally = {class="WARRIOR",spec=73},
+		Kingkong = {class="DEATHKNIGHT",spec=250},
+
+		Ling = {class="MONK",spec=270},
+		Apenuts = {class="PALADIN",spec=65},
+		Python = {class="PRIEST",spec=256},
+
+		Foobar = {class="DRUID",spec=102},
+		Eric = {class="WARLOCK",spec=265},
+		Hicks = {class="MAGE",spec=62},
+		Dylan = {class="ROGUE",spec=260},
+		Purple = {class="HUNTER",spec=253},
+		Red = {class="HUNTER",spec=254},
+		Blue = {class="HUNTER",spec=255},
+		Tor = {class="SHAMAN",spec=263},
+	}
+	local TESTGROUP = {
+		"Wally", "Kingkong",
+		"Ling", "Apenuts", --"Python",
+		"Foobar", "Eric", "Hicks", "Purple", "Blue", --"Tor",
+	}
+	-- XXX DEBUG --]]
+
+	-- this should only be calculated each time the group roster changes
+	local function getRaidBuffInfo()
+		print("GetRaidBuffInfo")
+		-- record what we got
+		local complete = true
+		local specs = {}
+		local hunters = 0
+		local members = module.debug and TESTGROUP or oRA:GetGroupMembers()
+		for _, player in next, members do
+			local info = module.debug and TESTPLAYERS[player] or oRA:GetPlayerInfo(player)
+			if info.spec then
+				specs[info.spec] = (specs[info.spec] or 0) + 1
+			else
+				complete = false
+			end
+			if info.class == "HUNTER" then
+				hunters = hunters + 1
+			end
+		end
+
+		-- order buffs by number of players that can provide it (ascending)
+		local providers, sorted = {}, {}
+		for index = 1, #buffProviders do
+			providers[index] = 0
+			sorted[index] = index
+			for _, spec in next, buffProviders[index] do
+				if type(spec) == "table" then spec = spec[1] end
+				if specs[spec] then
+					providers[index] = providers[index] or 0 + 1
+				end
+			end
+		end
+		sort(sorted, function(a, b)
+			return providers[a] < providers[b]
+		end)
+
+		-- figure out what we need
+		local mask, count = 0, 0
+		for _, index in ipairs(sorted) do
+			print("checking", _G["RAID_BUFF_"..index])
+			local bit = 2^(index - 1)
+			if band(mask, bit) ~= bit then
+				local buff = buffProviders[index]
+				local found = false
+				-- check for passive buffs first
+				for _, spec in next, buff do
+					-- negative spec = aura provider, doesn't count against pool
+					if type(spec) == "number" and spec < 0 and specs[-spec] then
+						local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(-spec)
+						print("  found", specName, CLASS_NAMES[class], "(passive)")
+						found = true
+						break
+					end
+				end
+				-- check if we have a player to cover it, preferring specs we have multiple of
+				if not found then
+					local f, s = nil, nil
+					for i, spec in next, buff do
+						if type(spec) == "table" then spec = spec[1] end
+						local n = specs[spec]
+						if n and (not s or n > specs[s]) then
+							s = spec
+							f = i
+						end
+					end
+					if f then
+						found = true
+						local spec = buff[f]
+						-- some buffs provide multiple things, account for that
+						if type(spec) == "table" then
+							local also = spec[2]
+							spec = spec[1]
+							mask = bor(mask, 2^(also - 1))
+							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
+							print("  found", specName, CLASS_NAMES[class], "+", _G["RAID_BUFF_"..also])
+						else
+							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
+							print("  found", specName, CLASS_NAMES[class])
+						end
+						specs[spec] = specs[spec] - 1
+						if specs[spec] == 0 then
+							specs[spec] = nil
+						end
+					end
+				end
+				-- do we have a hunter to cover the buff?
+				if not found and hunters > 0 then
+					found = true
+					hunters = hunters - 1
+					print("  found (Hunter)")
+				end
+				-- count it
+				if found then
+					mask = bor(mask, bit)
+					count = count + 1
+				else
+					print("  not found")
+				end
+			else -- already added
+				print("  already provided")
+				count = count + 1
+			end
+		end
+		print("done", mask, count)
+		return mask, count
+	end
+	_G.ORARBI = getRaidBuffInfo
+	_G.SLASH_ORARBI = "/rarbi"
+	SlashCmdList.ORARBI = getRaidBuffInfo
+end
+--@end-do-not-package@
