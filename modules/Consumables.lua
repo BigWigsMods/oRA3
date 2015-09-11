@@ -546,7 +546,7 @@ do
 	function module:CheckPlayer(player)
 		local cache = playerBuffs[player]
 		local t = GetTime()
-		if cache[6] and t-cache[6] < PLAYER_CHECK_THROTTLE then
+		if cache and t-cache[6] < PLAYER_CHECK_THROTTLE then
 			local food, flask, rune, buffs, numBuffs = unpack(cache)
 			return food, flask, rune, next(buffs) and buffs or false, numBuffs
 		end
@@ -732,7 +732,6 @@ do
 	}
 
 	-- XXX DEBUG --[[
-	module.debug = true
 	local CLASS_NAMES = _G.LOCALIZED_CLASS_NAMES_MALE
 	local TESTPLAYERS = {
 		Wally = {class="WARRIOR",spec=73},
@@ -761,17 +760,23 @@ do
 	-- this should only be calculated each time the group roster changes
 	local function getRaidBuffInfo()
 		print("GetRaidBuffInfo")
+		local test = not IsInGroup()
 		-- record what we got
 		local complete = true
 		local specs = {}
 		local hunters = 0
-		local members = module.debug and TESTGROUP or oRA:GetGroupMembers()
+		print("scanning roster")
+		local members = test and TESTGROUP or oRA:GetGroupMembers()
 		for _, player in next, members do
-			local info = module.debug and TESTPLAYERS[player] or oRA:GetPlayerInfo(player)
+			local guid = UnitGUID(player)
+			local info = test and TESTPLAYERS[player] or oRA:GetPlayerInfo(guid)
 			if info.spec then
 				specs[info.spec] = (specs[info.spec] or 0) + 1
+				local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(info.spec)
+				print("  +", player, specName, CLASS_NAMES[class])
 			else
 				complete = false
+				print("  ?", player)
 			end
 			if info.class == "HUNTER" then
 				hunters = hunters + 1
@@ -865,7 +870,5 @@ do
 		return mask, count
 	end
 	_G.ORARBI = getRaidBuffInfo
-	_G.SLASH_ORARBI = "/rarbi"
-	SlashCmdList.ORARBI = getRaidBuffInfo
 end
 --@end-do-not-package@
