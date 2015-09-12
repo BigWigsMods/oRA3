@@ -120,6 +120,24 @@ local function getOptions()
 					name = L.battleResHeader,
 					order = 0,
 				},
+				toggle = {
+					type = "execute",
+					name = L.toggleMonitor,
+					func = function()
+						if not brez then
+							createFrame()
+							createFrame = nil
+							brez:Hide()
+						end
+						if not brez:IsShown() then
+							toggleLock()
+							brez:Show()
+						else
+							brez:Hide()
+						end
+					end,
+					order = 0.5,
+				},
 				showDisplay = {
 					type = "toggle",
 					name = colorize(L.showMonitor),

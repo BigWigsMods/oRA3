@@ -517,6 +517,18 @@ local function GetOptions()
 				name = L.battleResHeader,
 				order = 0,
 			},
+			toggle = {
+				type = "execute",
+				name = L.toggleMonitor,
+				func = function()
+					if not display.frame or not display.frame:IsShown() then
+						display:Show()
+					else
+						display:Hide()
+					end
+				end,
+				order = 0.5,
+			},
 			showDisplay = {
 				type = "toggle",
 				name = colorize(L.showMonitor),
