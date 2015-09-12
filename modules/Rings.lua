@@ -325,8 +325,11 @@ function display:Setup()
 		return
 	end
 
+	local padding = 10
+
 	local frame = CreateFrame("Frame", "oRA3RingsFrame", UIParent)
 	frame:SetScale(db.scale)
+	frame:SetHitRectInsets(-padding, -padding, -padding, -padding)
 	frame:SetFrameStrata("BACKGROUND")
 	frame:SetClampedToScreen(true)
 	frame:SetSize(64, 64)
@@ -336,21 +339,22 @@ function display:Setup()
 	tinsert(self.icons, CreateIcon("DAMAGER", frame, "Interface\\Icons\\inv_60legendary_ring1c"))
 
 	local bg = frame:CreateTexture(nil, "BACKGROUND")
-	bg:SetAllPoints(frame)
+	bg:SetPoint("TOPLEFT", frame, -padding, padding)
+	bg:SetPoint("BOTTOMRIGHT", frame, padding, -padding)
 	bg:SetTexture(0, 0, 0, 0.3)
 	frame.bg = bg
 
 	-- wish this didn't scale, but font strings don't have their own scale property to compensate D; oh well
 	local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	header:SetText(L.legendaryRings)
-	header:SetPoint("BOTTOM", frame, "TOP", 0, 4)
+	header:SetPoint("BOTTOM", bg, "TOP", 0, 2)
 	frame.header = header
 
 	local help = frame:CreateFontString(nil, "HIGHLIGHT", "GameFontNormal")
 	help:SetText(L.rightClick)
 	help:SetWordWrap(true)
 	help:SetJustifyV("TOP")
-	help:SetPoint("TOP", frame, "BOTTOM", 0, -4)
+	help:SetPoint("TOP", bg, "BOTTOM", 0, -2)
 	frame.help = help
 
 	frame:SetScript("OnDragStart", frame.StartMoving)
@@ -417,7 +421,7 @@ function display:UpdateLayout()
 			frame:Hide()
 		else
 			if not last then
-				frame:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 2, -2)
+				frame:SetPoint("TOPLEFT")
 				top, left = frame:GetTop(), frame:GetLeft()
 			elseif growDown then
 				frame:SetPoint("TOP", last, "BOTTOM", 0, -1 * (spacing + textHeight))
@@ -431,8 +435,8 @@ function display:UpdateLayout()
 		end
 	end
 	if right then
-		self.frame:SetWidth(right - left + 4)
-		self.frame:SetHeight(top - bottom + textHeight + 4)
+		self.frame:SetWidth(right - left)
+		self.frame:SetHeight(top - bottom + textHeight)
 	end
 end
 
@@ -727,10 +731,24 @@ end
 
 function module:OnProfileUpdate()
 	db = module.db.profile
+
 	if oRA3.db.profile.positions.oRA3CooldownFrameRingsRings then
+		local old = oRA3.db.profile.positions.oRA3CooldownFrameRingsRings
+
+		oRA3.db.profile.positions.oRA3RingsFrame = {
+			PosX = old.PosX,
+			PosY = old.PosY,
+		}
+
+		-- if you had any icons wrap, set it vertical
+		local size = 64 * db.scale + db.spacing
+		if floor(old.Width / size) < 3 then
+			db.direction = "VERTICAL"
+		end
+
 		oRA3.db.profile.positions.oRA3CooldownFrameRingsRings = nil
-		db.lockDisplay = false
 	end
+
 	toggleShow()
 end
 
