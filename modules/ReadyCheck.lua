@@ -26,6 +26,8 @@ local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
 local consumables = oRA:GetModule("Consumables")
 
 local readycheck = {} -- table containing ready check results
+local readygroup = {}
+local highgroup = 9
 local frame -- will be filled with our GUI frame
 local showBuffFrame = false
 local availableBuffs = 0
@@ -54,6 +56,7 @@ local defaults = {
 		hideReady = false,
 		hideOnCombat = true,
 		relayReady = false,
+		readyByGroup = true,
 		showBuffs = 1,
 		showMissingMaxStat = false,
 		showMissingRunes = false,
@@ -126,10 +129,18 @@ local function getOptions()
 					width = "full",
 					order = 6,
 				},
+				readyByGroup ={
+					type = "toggle",
+					name = colorize(L.readyByGroup),
+					desc = L.readyByGroupDesc,
+					descStyle = "inline",
+					width = "full",
+					order = 7,
+				},
 				sep = {
 					type = "description",
 					name = "",
-					order = 7,
+					order = 9,
 				},
 				consumables = {
 					type = "group",
@@ -483,18 +494,7 @@ local function updateWindow()
 
 	local height = 0
 	if IsInRaid() then
-		local highgroup
-		if diff == 3 or diff == 5 then -- 10 man
-			highgroup = 3
-		elseif diff == 4 or diff == 6 or diff == 7 then -- 25 man
-			highgroup = 6
-		elseif diff == 16 then -- 20 man
-			highgroup = 5
-		elseif diff == 14 or diff == 15 then
-			highgroup = 7
-		else -- 40 man
-			highgroup = 9
-		end
+
 
 		local bottom, top = 0, 0
 		for i = 1, GetNumGroupMembers() do
@@ -732,7 +732,7 @@ local function createWindow()
 	animUpdater:SetScript("OnLoop", function(self)
 		updateWindow()
 		local timer = GetReadyCheckTimeLeft()
-		if timer > 0.5 then
+		if readychecking and timer > 0.5 then
 			title:SetFormattedText("oRA: %s", L.readyCheckSeconds:format(timer))
 		elseif not readychecking and not next(readycheck) then
 			title:SetFormattedText("oRA: %s", L.raidCheck)
@@ -820,6 +820,7 @@ function module:OnRegister()
 end
 
 function module:OnEnable()
+	oRA.RegisterCallback(self, "OnGroupChanged")
 	-- Ready Check Events
 	self:RegisterEvent("READY_CHECK")
 	self:RegisterEvent("READY_CHECK_CONFIRM")
@@ -843,8 +844,38 @@ function module:OnEnable()
 end
 
 function module:PLAYER_REGEN_DISABLED()
-	if not self.db.profile.hideOnCombat or not frame then return end
-	frame:Hide()
+	if self.db.profile.hideOnCombat and frame and frame:IsShown() then
+		frame:Hide()
+	end
+end
+
+local function checkReady()
+	for name in next, readygroup do
+		if readycheck[name] ~= "ready" then
+			return
+		end
+	end
+	module:READY_CHECK_FINISHED()
+end
+
+function module:OnGroupChanged()
+	if not readychecking or not IsInRaid() or not self.db.profile.readyByGroup then return end
+
+	local update = nil
+	for i = 1, GetNumGroupMembers() do
+		local name, _, group = GetRaidRosterInfo(i)
+		if group < highgroup and not readygroup[name] then
+			readygroup[name] = true
+			update = true
+		elseif readygroup[name] then
+			readygroup[name] = nil
+			update = true
+		end
+	end
+
+	if update then
+		checkReady()
+	end
 end
 
 function module:READY_CHECK(initiator, duration)
@@ -855,15 +886,32 @@ function module:READY_CHECK(initiator, duration)
 	readychecking = self:ScheduleTimer("READY_CHECK_FINISHED", duration+1) -- for preempted finishes (READY_CHECK_FINISHED fires before READY_CHECK)
 
 	wipe(readycheck)
+	wipe(readygroup)
 	local promoted = oRA:IsPromoted()
-	-- fill with default "No Response" and set the initiator "Ready"
+	-- fill with "waiting" and set the initiator to "ready"
 	if IsInRaid() then
+		local _, _, diff = GetInstanceInfo()
+		if diff == 3 or diff == 5 then -- 10 man
+			highgroup = 3
+		elseif diff == 4 or diff == 6 or diff == 7 then -- 25 man
+			highgroup = 6
+		elseif diff == 16 then -- 20 man (mythic)
+			highgroup = 5
+		elseif diff == 14 or diff == 15 then -- 30 man (flex)
+			highgroup = 7
+		else -- 40 man
+			highgroup = 9
+		end
+
 		for i = 1, GetNumGroupMembers() do
-			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+			local name, _, group, _, _, _, _, online = GetRaidRosterInfo(i)
 			if name then -- Can be nil when performed whilst logging on
 				local status = not online and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
-				if status == "offline" or status == "notready" then
+				if group < highgroup then
+					readygroup[name] = true
+				end
+				if (status == "offline" or status == "notready") or (not self.db.profile.readyByGroup or readygroup[name]) then
 					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
@@ -876,6 +924,7 @@ function module:READY_CHECK(initiator, duration)
 			if name and name ~= UNKNOWN then
 				local status = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
+				readygroup[name] = true
 				if status == "offline" or status == "notready" then
 					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
@@ -900,10 +949,12 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 		readycheck[name] = "ready"
 	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
 		readycheck[name] = "notready"
-		sysprint(RAID_MEMBER_NOT_READY:format(name))
+		if not self.db.profile.readyByGroup or readygroup[name] then
+			sysprint(RAID_MEMBER_NOT_READY:format(name))
+		end
 	end
-	if self.db.profile.showWindow and frame then
-		updateWindow()
+	if self.db.profile.readyByGroup then
+		checkReady()
 	end
 end
 
@@ -911,7 +962,7 @@ do
 	local noReply = {}
 	local notReady = {}
 	function module:READY_CHECK_FINISHED(preempted)
-		if not readychecking or preempted then return end -- is a dungeon group ready check
+		if not readychecking or preempted then return end -- is a dungeon group ready check (finish fires first)
 
 		self:CancelTimer(readychecking)
 		readychecking = nil
@@ -920,9 +971,11 @@ do
 
 		wipe(noReply)
 		wipe(notReady)
-		for name, ready in next, readycheck do
-			if module.stripservers then -- this is a hook for other addons to enable unambiguous character names
-				name = name:gsub("%-.*$", "")
+		local members = self.db.profile.readyByGroup and readygroup or readycheck
+		for name in next, members do
+			local ready = readycheck[name]
+			if self.stripservers then -- this is a hook for other addons to enable unambiguous character names
+				name = name:gsub("%-.+", "")
 			end
 			if ready == "waiting" or ready == "offline" then
 				noReply[#noReply + 1] = name
