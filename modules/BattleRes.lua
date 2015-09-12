@@ -136,6 +136,7 @@ local function getOptions()
 							brez:Hide()
 						end
 					end,
+					disabled = function() return not module.db.profile.showDisplay end,
 					order = 0.5,
 				},
 				showDisplay = {

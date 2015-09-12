@@ -527,6 +527,7 @@ local function GetOptions()
 						display:Hide()
 					end
 				end,
+				disabled = function() return not db.showDisplay end,
 				order = 0.5,
 			},
 			showDisplay = {
