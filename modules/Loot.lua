@@ -21,109 +21,103 @@ local defaults = {
 	}
 }
 
-local options
-local function getOptions()
-	if not options then
-		options = {
-			type = "group",
-			name = LOOT_METHOD,
-			get = function(info)
-				local cat, key = info[#info-1], info[#info]
-				return db[cat][key]
-			end,
+local options = {
+	type = "group",
+	name = LOOT_METHOD,
+	get = function(info)
+		local cat, key = info[#info-1], info[#info]
+		return db[cat][key]
+	end,
+	set = function(info, value)
+		local cat, key = info[#info-1], info[#info]
+		db[cat][key] = value
+		module:SetLoot()
+	end,
+	disabled = function() return not db.enable end,
+	args = {
+		enable = {
+			type = "toggle",
+			name = L.autoLootMethod,
+			desc = L.autoLootMethodDesc,
+			get = function(info) return db.enable end,
 			set = function(info, value)
-				local cat, key = info[#info-1], info[#info]
-				db[cat][key] = value
+				db.enable = value
 				module:SetLoot()
 			end,
-			disabled = function() return not db.enable end,
+			disabled = false,
+			order = 1,
+			width = "full",
+		},
+		raid = {
+			order = 2,
+			type = "group",
+			name = RAID,
+			inline = true,
+			width = "full",
 			args = {
-				enable = {
-					type = "toggle",
-					name = L.autoLootMethod,
-					desc = L.autoLootMethodDesc,
-					get = function(info) return db.enable end,
-					set = function(info, value)
-						db.enable = value
-						module:SetLoot()
-					end,
-					disabled = false,
-					order = 1,
-					width = "full",
+				method = {
+					type = "select", name = LOOT_METHOD,
+					values = {
+						needbeforegreed = LOOT_NEED_BEFORE_GREED,
+						freeforall = LOOT_FREE_FOR_ALL,
+						roundrobin = LOOT_ROUND_ROBIN,
+						master = LOOT_MASTER_LOOTER,
+						group = LOOT_GROUP_LOOT,
+						personalloot = LOOT_PERSONAL_LOOT,
+					}
 				},
-				raid = {
-					order = 2,
-					type = "group",
-					name = RAID,
-					inline = true,
-					width = "full",
-					args = {
-						method = {
-							type = "select", name = LOOT_METHOD,
-							values = {
-								needbeforegreed = LOOT_NEED_BEFORE_GREED,
-								freeforall = LOOT_FREE_FOR_ALL,
-								roundrobin = LOOT_ROUND_ROBIN,
-								master = LOOT_MASTER_LOOTER,
-								group = LOOT_GROUP_LOOT,
-								personalloot = LOOT_PERSONAL_LOOT,
-							}
-						},
-						threshold = {
-							type = "select", name = LOOT_THRESHOLD,
-							values = {
-								[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
-								[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
-								[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
-								[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
-								[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
-							},
-						},
-						master = {
-							type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
-							arg = "master",
-						},
+				threshold = {
+					type = "select", name = LOOT_THRESHOLD,
+					values = {
+						[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
+						[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
+						[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
+						[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
+						[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
 					},
 				},
-				party = {
-					order = 3,
-					type = "group",
-					name = PARTY,
-					inline = true,
-					width = "full",
-					args = {
-						method = {
-							type = "select", name = LOOT_METHOD,
-							values = {
-								needbeforegreed = LOOT_NEED_BEFORE_GREED,
-								freeforall = LOOT_FREE_FOR_ALL,
-								roundrobin = LOOT_ROUND_ROBIN,
-								master = LOOT_MASTER_LOOTER,
-								group = LOOT_GROUP_LOOT,
-								personalloot = LOOT_PERSONAL_LOOT,
-							}
-						},
-						threshold = {
-							type = "select", name = LOOT_THRESHOLD,
-							values = {
-								[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
-								[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
-								[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
-								[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
-								[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
-							}
-						},
-						master = {
-							type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
-							arg = "master",
-						},
-					},
+				master = {
+					type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
+					arg = "master",
 				},
 			},
-		}
-	end
-	return options
-end
+		},
+		party = {
+			order = 3,
+			type = "group",
+			name = PARTY,
+			inline = true,
+			width = "full",
+			args = {
+				method = {
+					type = "select", name = LOOT_METHOD,
+					values = {
+						needbeforegreed = LOOT_NEED_BEFORE_GREED,
+						freeforall = LOOT_FREE_FOR_ALL,
+						roundrobin = LOOT_ROUND_ROBIN,
+						master = LOOT_MASTER_LOOTER,
+						group = LOOT_GROUP_LOOT,
+						personalloot = LOOT_PERSONAL_LOOT,
+					}
+				},
+				threshold = {
+					type = "select", name = LOOT_THRESHOLD,
+					values = {
+						[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
+						[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
+						[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
+						[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
+						[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
+					}
+				},
+				master = {
+					type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
+					arg = "master",
+				},
+			},
+		},
+	},
+}
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("Loot", defaults)
@@ -135,7 +129,7 @@ function module:OnRegister()
 		db = self.db.profile
 	end)
 
-	oRA:RegisterModuleOptions("Loot", getOptions, LOOT_METHOD)
+	oRA:RegisterModuleOptions("Loot", options)
 end
 
 do

@@ -16,42 +16,39 @@ local function updateRepairs()
 	end
 end
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local function GetOptions()
-	local options = {
-		type = "group",
-		name = L.guildRepairs,
-		args = {
-			ensureRepair = {
-				type = "toggle",
-				name = colorize(L.ensureRepair),
-				desc = L.ensureRepairDesc,
-				descStyle = "inline",
-				get = function() return db.ensureRepair end,
-				set = function(info, value)
-					db.ensureRepair = value
+local options = {
+	type = "group",
+	name = L.guildRepairs,
+	args = {
+		ensureRepair = {
+			type = "toggle",
+			name = colorize(L.ensureRepair),
+			desc = L.ensureRepairDesc,
+			descStyle = "inline",
+			get = function() return db.ensureRepair end,
+			set = function(info, value)
+				db.ensureRepair = value
+				updateRepairs()
+			end,
+			order = 1,
+			width = "full",
+		},
+		amount = {
+			type = "input",
+			name = colorize(L.repairAmount),
+			desc = L.repairAmountDesc,
+			get = function() return tostring(db.amount) end,
+			set = function(info, value)
+				local oldAmount = db.amount
+				db.amount = tonumber(value) or 500
+				if oldAmount ~= db.amount then
 					updateRepairs()
-				end,
-				order = 1,
-				width = "full",
-			},
-			amount = {
-				type = "input",
-				name = colorize(L.repairAmount),
-				desc = L.repairAmountDesc,
-				get = function() return tostring(db.amount) end,
-				set = function(info, value)
-					local oldAmount = db.amount
-					db.amount = tonumber(value) or 500
-					if oldAmount ~= db.amount then
-						updateRepairs()
-					end
-				end,
-				order = 2,
-			}
+				end
+			end,
+			order = 2,
 		}
 	}
-	return options
-end
+}
 
 function module:OnProfileUpdate()
 	db = self.db.profile
@@ -75,7 +72,7 @@ function module:OnRegister()
 	})
 	oRA.RegisterCallback(self, "OnProfileUpdate")
 	self:OnProfileUpdate()
-	oRA:RegisterModuleOptions("GuildRepairs", GetOptions, L.guildRepairs)
+	oRA:RegisterModuleOptions("GuildRepairs", options)
 end
 
 function module:OnEnable()

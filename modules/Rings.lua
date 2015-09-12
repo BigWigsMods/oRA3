@@ -85,7 +85,6 @@ local ringToRole = {
 	[187615] = 3, -- Maalus
 }
 
--- GLOBALS: InterfaceOptionsFrame_OpenToCategory
 ---------------------------------------
 -- Icons
 
@@ -364,8 +363,8 @@ function display:Setup()
 	end)
 	frame:SetScript("OnMouseDown", function(self, button)
 		if button == "RightButton" then
-			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
-			InterfaceOptionsFrame_OpenToCategory(L.legendaryRings)
+			LibStub("AceConfigDialog-3.0"):Open("oRA")
+			LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general", "Rings")
 		end
 	end)
 
@@ -493,254 +492,249 @@ local defaults = {
 }
 
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local function GetOptions()
-	local skinList = {}
-	if Masque then
-		local skins = Masque:GetSkins()
-		for id in next, skins do
-			skinList[id] = id
-		end
-	end
-
-	local options = {
-		type = "group",
-		name = L.legendaryRings,
-		get = function(info) return db[info[#info]] end,
-		set = function(info, value)
-			local key = info[#info]
-			db[key] = value
-			toggleShow()
-		end,
-		args = {
-			header = {
-				type = "description",
-				name = L.battleResHeader,
-				order = 0,
-			},
-			toggle = {
-				type = "execute",
-				name = L.toggleMonitor,
-				func = function()
-					if not display.frame or not display.frame:IsShown() then
-						display:Show()
-					else
-						display:Hide()
-					end
-				end,
-				disabled = function() return not db.showDisplay end,
-				order = 0.5,
-			},
-			showDisplay = {
-				type = "toggle",
-				name = colorize(L.showMonitor),
-				desc = L.battleResShowDesc,
-				descStyle = "inline",
-				width = "full",
-				order = 1,
-			},
-			lockDisplay = {
-				type = "toggle",
-				name = colorize(L.lockMonitor),
-				desc = L.battleResLockDesc,
-				descStyle = "inline",
-				width = "full",
-				order = 2,
-			},
-			showInRaid = {
-				type = "toggle",
-				name = colorize(L.onlyRaids),
-				desc = L.onlyRaidsDesc,
-				descStyle = "inline",
-				width = "full",
-				order = 3,
-			},
-			announce = {
-				type = "toggle",
-				name = colorize(L.announce),
-				desc = L.announceDesc,
-				descStyle = "inline",
-				width = "full",
-				order = 4,
-			},
-			clickable = {
-				type = "toggle",
-				name = colorize(L.clickable),
-				desc = L.clickableDesc,
-				descStyle = "inline",
-				width = "full",
-				order = 4.5,
-			},
-			show = {
-				type = "group",
-				name = L.showRings,
-				inline = true,
-				order = 5,
-				args = {
-					showTank = {
-						type = "toggle",
-						name = TANK,
-						order = 1,
-					},
-					showHealer = {
-						type = "toggle",
-						name = HEALER,
-						order = 2,
-					},
-					showDamager = {
-						type = "toggle",
-						name = DAMAGER,
-						order = 3,
-					},
-				}
-			},
-			sound = {
-				type = "group",
-				name = L.sound,
-				inline = true,
-				order = 6,
-				args = {
-					sound = {
-						type = "toggle",
-						name = colorize(ENABLE),
-						desc = L.soundDesc,
-						descStyle = "inline",
-						width = "full",
-						order = 1,
-					},
-					soundForMe = {
-						type = "toggle",
-						name = colorize(L.onlyMyRing),
-						desc = L.onlyMyRingDesc,
-						descStyle = "inline",
-						disabled = function() return not db.sound end,
-						width = "full",
-						order = 2,
-					},
-					soundFile = {
-						type = "select",
-						name = L.sound,
-						values = media:List("sound"),
-						itemControl = "DDI-Sound",
-						get = function(info)
-							local key = info[#info]
-							for i, v in next, media:List("sound") do
-								if v == db[key] then
-										return i
-								end
+local options = {
+	type = "group",
+	name = L.legendaryRings,
+	get = function(info) return db[info[#info]] end,
+	set = function(info, value)
+		local key = info[#info]
+		db[key] = value
+		toggleShow()
+	end,
+	args = {
+		header = {
+			type = "description",
+			name = L.battleResHeader,
+			order = 0,
+		},
+		toggle = {
+			type = "execute",
+			name = L.toggleMonitor,
+			func = function()
+				if not display.frame or not display.frame:IsShown() then
+					display:Show()
+				else
+					display:Hide()
+				end
+			end,
+			disabled = function() return not db.showDisplay end,
+			order = 0.5,
+		},
+		showDisplay = {
+			type = "toggle",
+			name = colorize(L.showMonitor),
+			desc = L.battleResShowDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 1,
+		},
+		lockDisplay = {
+			type = "toggle",
+			name = colorize(L.lockMonitor),
+			desc = L.battleResLockDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 2,
+		},
+		showInRaid = {
+			type = "toggle",
+			name = colorize(L.onlyRaids),
+			desc = L.onlyRaidsDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 3,
+		},
+		announce = {
+			type = "toggle",
+			name = colorize(L.announce),
+			desc = L.announceDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 4,
+		},
+		clickable = {
+			type = "toggle",
+			name = colorize(L.clickable),
+			desc = L.clickableDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 4.5,
+		},
+		show = {
+			type = "group",
+			name = L.showRings,
+			inline = true,
+			order = 5,
+			args = {
+				showTank = {
+					type = "toggle",
+					name = TANK,
+					order = 1,
+				},
+				showHealer = {
+					type = "toggle",
+					name = HEALER,
+					order = 2,
+				},
+				showDamager = {
+					type = "toggle",
+					name = DAMAGER,
+					order = 3,
+				},
+			}
+		},
+		sound = {
+			type = "group",
+			name = L.sound,
+			inline = true,
+			order = 6,
+			args = {
+				sound = {
+					type = "toggle",
+					name = colorize(ENABLE),
+					desc = L.soundDesc,
+					descStyle = "inline",
+					width = "full",
+					order = 1,
+				},
+				soundForMe = {
+					type = "toggle",
+					name = colorize(L.onlyMyRing),
+					desc = L.onlyMyRingDesc,
+					descStyle = "inline",
+					disabled = function() return not db.sound end,
+					width = "full",
+					order = 2,
+				},
+				soundFile = {
+					type = "select",
+					name = L.sound,
+					values = media:List("sound"),
+					itemControl = "DDI-Sound",
+					get = function(info)
+						local key = info[#info]
+						for i, v in next, media:List("sound") do
+							if v == db[key] then
+									return i
 							end
-						end,
-						set = function(info, value)
-							local list = media:List("sound")
-							db[info[#info]] = list[value]
-						end,
-						disabled = function() return not db.sound end,
-						width = "full",
-						order = 3,
-					},
-				}
-			},
-			display = {
-				type = "group",
-				name = L.displaySettings,
-				inline = true,
-				order = 9,
-				get = function(info)
-					local key = info[#info]
-					if key == "font" then
-						for i, v in next, media:List("font") do
-							if v == db[key] then return i end
 						end
+					end,
+					set = function(info, value)
+						local list = media:List("sound")
+						db[info[#info]] = list[value]
+					end,
+					disabled = function() return not db.sound end,
+					width = "full",
+					order = 3,
+				},
+			}
+		},
+		display = {
+			type = "group",
+			name = L.displaySettings,
+			inline = true,
+			order = 9,
+			get = function(info)
+				local key = info[#info]
+				if key == "font" then
+					for i, v in next, media:List("font") do
+						if v == db[key] then return i end
 					end
-					return db[key]
-				end,
-				set = function(info, value)
-					local key = info[#info]
-					if key == "font" then
-						local list = media:List("font")
-						db[key] = list[value]
-					else
-						db[key] = value
-					end
-					display:UpdateLayout()
-				end,
-				args = {
-					skin = {
-						type = "select",
-						name = L.skin,
-						values = skinList,
-						get = function(info) return module.group.db.SkinID or "Blizzard" end,
-						set = function(info, value) module.group:SetOption("SkinID", value) end,
-						hidden = not module.group,
-						width = "full",
-						order = 0,
-					},
-					direction = {
-						type = "select",
-						name = L.orientation,
-						values = { HORIZONTAL = L.horizontal, VERTICAL = L.vertical },
-						width = "full",
-						order = 0.5,
-					},
-					scale = {
-						type = "range", min = 0.1, softMax = 10, step = 0.01,
-						name = L.scale,
-						width = "full",
-						order = 1,
-					},
-					spacing = {
-						type = "range", min = -10, softMax = 10, step = 1,
-						name = L.spacing,
-						width = "full",
-						order = 2,
-					},
-					showText = {
-						type = "toggle",
-						name = colorize(L.showText),
-						desc = L.showTextDesc,
-						descStyle = "inline",
-						width = "full",
-						order = 4,
-					},
-					showCooldownText = {
-						type = "toggle",
-						name = colorize(L.showCooldownText),
-						desc = L.showCooldownTextDesc,
-						descStyle = "inline",
-						disabled = function() return not GetCVarBool("countdownForCooldowns") end, -- if the setting is off, SetHideCountdownNumbers does nothing
-						width = "full",
-						order = 5,
-					},
-					font = {
-						type = "select",
-						name = L.font,
-						values = media:List("font"),
-						itemControl = "DDI-Font",
-						disabled = function() return not db.showText end,
-						width = "full",
-						order = 6,
-					},
-					fontSize = {
-						type = "range",
-						name = L.fontSize,
-						min = 6, max = 24, step = 1,
-						disabled = function() return not db.showText end,
-						width = "full",
-						order = 7,
-					},
-					fontOutline = {
-						type = "select",
-						name = L.outline,
-						values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
-						disabled = function() return not db.showText end,
-						width = "full",
-						order = 8,
-					},
-				}
+				end
+				return db[key]
+			end,
+			set = function(info, value)
+				local key = info[#info]
+				if key == "font" then
+					local list = media:List("font")
+					db[key] = list[value]
+				else
+					db[key] = value
+				end
+				display:UpdateLayout()
+			end,
+			args = {
+				skin = {
+					type = "select",
+					name = L.skin,
+					values = function()
+						local skinList = {}
+						for id in next, Masque:GetSkins() do
+							skinList[id] = id
+						end
+						return skinList
+					end,
+					get = function(info) return module.group.db.SkinID or "Blizzard" end,
+					set = function(info, value) module.group:SetOption("SkinID", value) end,
+					hidden = function() return not module.group end,
+					width = "full",
+					order = 0,
+				},
+				direction = {
+					type = "select",
+					name = L.orientation,
+					values = { HORIZONTAL = L.horizontal, VERTICAL = L.vertical },
+					width = "full",
+					order = 0.5,
+				},
+				scale = {
+					type = "range", min = 0.1, softMax = 10, step = 0.01,
+					name = L.scale,
+					width = "full",
+					order = 1,
+				},
+				spacing = {
+					type = "range", min = -10, softMax = 10, step = 1,
+					name = L.spacing,
+					width = "full",
+					order = 2,
+				},
+				showText = {
+					type = "toggle",
+					name = colorize(L.showText),
+					desc = L.showTextDesc,
+					descStyle = "inline",
+					width = "full",
+					order = 4,
+				},
+				showCooldownText = {
+					type = "toggle",
+					name = colorize(L.showCooldownText),
+					desc = L.showCooldownTextDesc,
+					descStyle = "inline",
+					disabled = function() return not GetCVarBool("countdownForCooldowns") end, -- if the setting is off, SetHideCountdownNumbers does nothing
+					width = "full",
+					order = 5,
+				},
+				font = {
+					type = "select",
+					name = L.font,
+					values = media:List("font"),
+					itemControl = "DDI-Font",
+					disabled = function() return not db.showText end,
+					width = "full",
+					order = 6,
+				},
+				fontSize = {
+					type = "range",
+					name = L.fontSize,
+					min = 6, max = 24, step = 1,
+					disabled = function() return not db.showText end,
+					width = "full",
+					order = 7,
+				},
+				fontOutline = {
+					type = "select",
+					name = L.outline,
+					values = { NONE = NONE, OUTLINE = L.thin, THICKOUTLINE = L.thick },
+					disabled = function() return not db.showText end,
+					width = "full",
+					order = 8,
+				},
 			}
 		}
 	}
-	return options
-end
+}
 
 function module:OnProfileUpdate()
 	db = module.db.profile
@@ -768,7 +762,7 @@ end
 function module:OnRegister()
 	self.db = oRA3.db:RegisterNamespace("Rings", defaults)
 	oRA3.RegisterCallback(self, "OnProfileUpdate")
-	oRA3:RegisterModuleOptions("Rings", GetOptions, L.legendaryRings)
+	oRA3:RegisterModuleOptions("Rings", options)
 
 	oRA3.RegisterCallback(self, "OnStartup", toggleShow)
 	oRA3.RegisterCallback(self, "OnShutdown", toggleShow)

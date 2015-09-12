@@ -72,130 +72,124 @@ local function reanchorBuffs(frame, value) -- don't show an empty space for rune
 	end
 end
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local options
-local function getOptions()
-	if not options then
-		options = {
+local options = {
+	type = "group",
+	name = READY_CHECK,
+	get = function(k) return module.db.profile[k[#k]] end,
+	set = function(k, v) module.db.profile[k[#k]] = v end,
+	args = {
+		sound = {
+			type = "toggle",
+			name = colorize(SOUND_LABEL),
+			desc = L.readyCheckSound,
+			descStyle = "inline",
+			width = "full",
+			order = 1,
+		},
+		showWindow = {
+			type = "toggle",
+			name = colorize(L.showWindow),
+			desc = L.showWindowDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 2,
+		},
+		autohide = {
+			type = "toggle",
+			name = colorize(L.hideWhenDone),
+			desc = L.hideWhenDoneDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 3,
+		},
+		hideOnCombat = {
+			type = "toggle",
+			name = colorize(L.hideInCombat),
+			desc = L.hideInCombatDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 4,
+		},
+		hideReady = {
+			type = "toggle",
+			name = colorize(L.hideReadyPlayers),
+			desc = L.hideReadyPlayersDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 5,
+		},
+		relayReady = {
+			type = "toggle",
+			name = colorize(L.printToRaid),
+			desc = L.printToRaidDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 6,
+		},
+		readyByGroup ={
+			type = "toggle",
+			name = colorize(L.readyByGroup),
+			desc = L.readyByGroupDesc,
+			descStyle = "inline",
+			width = "full",
+			order = 7,
+		},
+		sep = {
+			type = "description",
+			name = "",
+			order = 9,
+		},
+		consumables = {
 			type = "group",
-			name = READY_CHECK,
-			get = function(k) return module.db.profile[k[#k]] end,
-			set = function(k, v) module.db.profile[k[#k]] = v end,
+			name = L.consumables,
+			inline = true,
+			order = 10,
 			args = {
-				sound = {
-					type = "toggle",
-					name = colorize(SOUND_LABEL),
-					desc = L.readyCheckSound,
-					descStyle = "inline",
-					width = "full",
+				showBuffs = {
+					type = "select",
+					name = colorize(L.showBuffs),
+					desc = L.showBuffsDesc,
+					values = { [0] = DISABLE, [1] = L.showMissingBuffs, [2] = L.showCurrentBuffs },
+					--style = "radio",
+					get = function()
+						local value = module.db.profile.showBuffs
+						if value == false then value = 0 end
+						return value
+					end,
+					set = function(_, value)
+						if value == 0 then value = false end
+						module.db.profile.showBuffs = value
+					end,
 					order = 1,
 				},
-				showWindow = {
+				showMissingRunes = {
 					type = "toggle",
-					name = colorize(L.showWindow),
-					desc = L.showWindowDesc,
+					name = colorize(L.showMissingRunes),
+					desc = L.showMissingRunesDesc,
 					descStyle = "inline",
+					set = function(info, value)
+						module.db.profile.showMissingRunes = value
+						for _, frame in next, topMemberFrames do reanchorBuffs(frame, value) end
+						for _, frame in next, bottomMemberFrames do reanchorBuffs(frame, value) end
+						lastUpdate = 0
+					end,
+					disabled = function() return not module.db.profile.showBuffs end,
 					width = "full",
 					order = 2,
 				},
-				autohide = {
+				showMissingMaxStat = {
 					type = "toggle",
-					name = colorize(L.hideWhenDone),
-					desc = L.hideWhenDoneDesc,
+					name = colorize(L.showMissingMaxStat),
+					desc = L.showMissingMaxStatDesc,
 					descStyle = "inline",
+					disabled = function() return not module.db.profile.showBuffs end,
 					width = "full",
 					order = 3,
 				},
-				hideOnCombat = {
-					type = "toggle",
-					name = colorize(L.hideInCombat),
-					desc = L.hideInCombatDesc,
-					descStyle = "inline",
-					width = "full",
-					order = 4,
-				},
-				hideReady = {
-					type = "toggle",
-					name = colorize(L.hideReadyPlayers),
-					desc = L.hideReadyPlayersDesc,
-					descStyle = "inline",
-					width = "full",
-					order = 5,
-				},
-				relayReady = {
-					type = "toggle",
-					name = colorize(L.printToRaid),
-					desc = L.printToRaidDesc,
-					descStyle = "inline",
-					width = "full",
-					order = 6,
-				},
-				readyByGroup ={
-					type = "toggle",
-					name = colorize(L.readyByGroup),
-					desc = L.readyByGroupDesc,
-					descStyle = "inline",
-					width = "full",
-					order = 7,
-				},
-				sep = {
-					type = "description",
-					name = "",
-					order = 9,
-				},
-				consumables = {
-					type = "group",
-					name = L.consumables,
-					inline = true,
-					order = 10,
-					args = {
-						showBuffs = {
-							type = "select",
-							name = colorize(L.showBuffs),
-							desc = L.showBuffsDesc,
-							values = { [0] = DISABLE, [1] = L.showMissingBuffs, [2] = L.showCurrentBuffs },
-							--style = "radio",
-							get = function()
-								local value = module.db.profile.showBuffs
-								if value == false then value = 0 end
-								return value
-							end,
-							set = function(_, value)
-								if value == 0 then value = false end
-								module.db.profile.showBuffs = value
-							end,
-							order = 1,
-						},
-						showMissingRunes = {
-							type = "toggle",
-							name = colorize(L.showMissingRunes),
-							desc = L.showMissingRunesDesc,
-							descStyle = "inline",
-							set = function(info, value)
-								module.db.profile.showMissingRunes = value
-								for _, frame in next, topMemberFrames do reanchorBuffs(frame, value) end
-								for _, frame in next, bottomMemberFrames do reanchorBuffs(frame, value) end
-								lastUpdate = 0
-							end,
-							disabled = function() return not module.db.profile.showBuffs end,
-							width = "full",
-							order = 2,
-						},
-						showMissingMaxStat = {
-							type = "toggle",
-							name = colorize(L.showMissingMaxStat),
-							desc = L.showMissingMaxStatDesc,
-							descStyle = "inline",
-							disabled = function() return not module.db.profile.showBuffs end,
-							width = "full",
-							order = 3,
-						},
-					},
-				},
-			}
-		}
-	end
-	return options
-end
+			},
+		},
+	}
+}
 
 
 local function Frame_Tooltip(self)
@@ -829,7 +823,7 @@ end
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
-	oRA:RegisterModuleOptions("ReadyCheck", getOptions, READY_CHECK)
+	oRA:RegisterModuleOptions("ReadyCheck", options)
 	self.db.profile.gui = nil -- XXX temp cleanup
 end
 

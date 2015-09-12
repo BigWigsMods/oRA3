@@ -8,7 +8,7 @@
 
 ## SavedVariables: oRA3DB
 
-## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibButtonGlow-1.0, ChatThrottleLib
+## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibButtonGlow-1.0, Masque, ChatThrottleLib
 ## X-Embeds: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibButtonGlow-1.0, ChatThrottleLib
 
 libs.xml

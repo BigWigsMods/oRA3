@@ -101,69 +101,63 @@ local defaults = {
 	}
 }
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local options
-local function getOptions()
-	if not options then
-		options = {
-			type = "group",
-			name = L.battleResTitle,
-			get = function(k) return module.db.profile[k[#k]] end,
-			set = function(k, v)
-				module.db.profile[k[#k]] = v
-				toggleLock()
-				toggleShow()
-				module:CheckOpen()
+local options = {
+	type = "group",
+	name = L.battleResTitle,
+	get = function(k) return module.db.profile[k[#k]] end,
+	set = function(k, v)
+		module.db.profile[k[#k]] = v
+		toggleLock()
+		toggleShow()
+		module:CheckOpen()
+	end,
+	args = {
+		header = {
+			type = "description",
+			name = L.battleResHeader,
+			order = 0,
+		},
+		toggle = {
+			type = "execute",
+			name = L.toggleMonitor,
+			func = function()
+				if not brez then
+					createFrame()
+					createFrame = nil
+					brez:Hide()
+				end
+				if not brez:IsShown() then
+					toggleLock()
+					brez:Show()
+				else
+					brez:Hide()
+				end
 			end,
-			args = {
-				header = {
-					type = "description",
-					name = L.battleResHeader,
-					order = 0,
-				},
-				toggle = {
-					type = "execute",
-					name = L.toggleMonitor,
-					func = function()
-						if not brez then
-							createFrame()
-							createFrame = nil
-							brez:Hide()
-						end
-						if not brez:IsShown() then
-							toggleLock()
-							brez:Show()
-						else
-							brez:Hide()
-						end
-					end,
-					disabled = function() return not module.db.profile.showDisplay end,
-					order = 0.5,
-				},
-				showDisplay = {
-					type = "toggle",
-					name = colorize(L.showMonitor),
-					desc = L.battleResShowDesc,
-					width = "full",
-					descStyle = "inline",
-					order = 1,
-				},
-				lock = {
-					type = "toggle",
-					name = colorize(L.lockMonitor),
-					desc = L.battleResLockDesc,
-					width = "full",
-					descStyle = "inline",
-					order = 2,
-				},
-			}
-		}
-	end
-	return options
-end
+			disabled = function() return not module.db.profile.showDisplay end,
+			order = 0.5,
+		},
+		showDisplay = {
+			type = "toggle",
+			name = colorize(L.showMonitor),
+			desc = L.battleResShowDesc,
+			width = "full",
+			descStyle = "inline",
+			order = 1,
+		},
+		lock = {
+			type = "toggle",
+			name = colorize(L.lockMonitor),
+			desc = L.battleResLockDesc,
+			width = "full",
+			descStyle = "inline",
+			order = 2,
+		},
+	}
+}
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("BattleRes", defaults)
-	oRA:RegisterModuleOptions("BattleRes", getOptions, L.battleResTitle)
+	oRA:RegisterModuleOptions("BattleRes", options)
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
 end

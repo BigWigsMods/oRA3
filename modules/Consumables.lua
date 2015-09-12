@@ -246,77 +246,73 @@ local raidBuffs = {
 -- Options
 
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
-local function GetOptions()
-	local db = module.db.profile
-	local options = {
-		type = "group",
-		name = L.consumables,
-		get = function(info) return db[info[#info]] end,
-		set = function(info, value) db[info[#info]] = value end,
-		args = {
-			desc = {
-				type = "description",
-				name = L.consumablesDesc,
-				order = 0,
-			},
-			checkReadyCheck = {
-				type = "select",
-				name = colorize(L.checkReadyCheck),
-				desc = L.checkReadyCheckDesc,
-				values = { DISABLE, L.reportIfYou, L.reportAlways },
-				order = 1,
-			},
-			output = {
-				type = "select",
-				name = colorize(L.output),
-				desc = L.outputDesc,
-				values = { DISABLE, L.self, L.group },
-				order = 2
-			},
-			whisper = {
-				type = "toggle",
-				name = colorize(L.whisperMissing),
-				desc = L.whisperMissingDesc,
-				descStyle = "inline",
-				order = 3,
-				width = "full",
-			},
-			checks = {
-				name = L.checkBuffs,
-				type = "group",
-				inline = true,
-				order = 4,
-				args = {
-					checkFood = {
-						type = "toggle",
-						name = L.food,
-						desc = L.checkFoodDesc,
-						order = 1,
-					},
-					checkFlask = {
-						type = "toggle",
-						name = L.flask,
-						desc = L.checkFlaskDesc,
-						order = 2,
-					},
-					checkRune = {
-						type = "toggle",
-						name = L.rune,
-						desc = L.checkRuneDesc,
-						order = 3,
-					},
-					checkBuffs = {
-						type = "toggle",
-						name = L.raidBuffs,
-						desc = L.checkBuffsDesc,
-						order = 4,
-					},
-				},
-			}, -- checks
+local options = {
+	type = "group",
+	name = L.consumables,
+	get = function(info) return module.db.profile[info[#info]] end,
+	set = function(info, value) module.db.profile[info[#info]] = value end,
+	args = {
+		desc = {
+			type = "description",
+			name = L.consumablesDesc,
+			order = 0,
 		},
-	}
-	return options
-end
+		checkReadyCheck = {
+			type = "select",
+			name = colorize(L.checkReadyCheck),
+			desc = L.checkReadyCheckDesc,
+			values = { DISABLE, L.reportIfYou, L.reportAlways },
+			order = 1,
+		},
+		output = {
+			type = "select",
+			name = colorize(L.output),
+			desc = L.outputDesc,
+			values = { DISABLE, L.self, L.group },
+			order = 2
+		},
+		whisper = {
+			type = "toggle",
+			name = colorize(L.whisperMissing),
+			desc = L.whisperMissingDesc,
+			descStyle = "inline",
+			order = 3,
+			width = "full",
+		},
+		checks = {
+			name = L.checkBuffs,
+			type = "group",
+			inline = true,
+			order = 4,
+			args = {
+				checkFood = {
+					type = "toggle",
+					name = L.food,
+					desc = L.checkFoodDesc,
+					order = 1,
+				},
+				checkFlask = {
+					type = "toggle",
+					name = L.flask,
+					desc = L.checkFlaskDesc,
+					order = 2,
+				},
+				checkRune = {
+					type = "toggle",
+					name = L.rune,
+					desc = L.checkRuneDesc,
+					order = 3,
+				},
+				checkBuffs = {
+					type = "toggle",
+					name = L.raidBuffs,
+					desc = L.checkBuffsDesc,
+					order = 4,
+				},
+			},
+		}, -- checks
+	},
+}
 
 ---------------------------------------
 -- Module
@@ -333,7 +329,7 @@ function module:OnRegister()
 			whisper = false,
 		}
 	})
-	oRA:RegisterModuleOptions("Consumables", GetOptions, L.consumables)
+	oRA:RegisterModuleOptions("Consumables", options)
 
 	oRA:RegisterList(
 		L.buffs,

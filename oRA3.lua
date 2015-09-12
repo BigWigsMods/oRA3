@@ -117,14 +117,16 @@ local defaults = {
 local showLists -- implemented down the file
 local hideLists -- implemented down the file
 local function colorize(input) return string.format("|cfffed000%s|r", input) end
-local options = nil
-local function giveOptions()
-	if not options then
-		options = {
-			name = addonName,
+local options = {
+	name = "oRA",
+	type = "group",
+	get = function(info) return db[info[#info]] end,
+	set = function(info, value) db[info[#info]] = value end,
+	args = {
+		general = {
+			order = 1,
 			type = "group",
-			get = function(info) return db[info[#info]] end,
-			set = function(info, value) db[info[#info]] = value end,
+			name = "oRA",
 			args = {
 				toggleWithRaid = {
 					type = "toggle",
@@ -164,12 +166,12 @@ local function giveOptions()
 						},
 					},
 				},
-			}
-		}
-	end
-
-	return options
-end
+			},
+		},
+	}
+}
+LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA", options, true)
+LibStub("AceConfigDialog-3.0"):SetDefaultSize("oRA", 860, 660)
 
 -------------------------------------------------------------------------------
 -- Event handling
@@ -222,12 +224,8 @@ end
 --
 
 function addon:OnInitialize()
-	if oRA3DB and oRA3DB.char then
-		oRA3DB.char = nil -- XXX temp cleanup from Difficulty module
-	end
-
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
-	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, addonName)
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA")
 
 	-- Comm register
 	RegisterAddonMessagePrefix("oRA")
@@ -246,13 +244,9 @@ function addon:OnInitialize()
 
 	self:RegisterPanel(L.checks, showLists, hideLists)
 
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, giveOptions, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
-
-	local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-	LibStub("LibDualSpec-1.0"):EnhanceOptions(profileOptions, self.db)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA3 Profile", profileOptions, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("oRA3 Profile", L.profile, addonName)
+	options.args.general.args.profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+	options.args.general.args.profileOptions.order = 1
+	LibStub("LibDualSpec-1.0"):EnhanceOptions(options.args.general.args.profileOptions, self.db)
 
 	local function OnRaidHide()
 		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
@@ -293,9 +287,8 @@ function addon:OnInitialize()
 	self.OnInitialize = nil
 end
 
-function addon:RegisterModuleOptions(name, optionTbl, displayName)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName..name, optionTbl, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName..name, displayName, addonName)
+function addon:RegisterModuleOptions(name, optionTbl)
+	options.args.general.args[name] = optionTbl
 end
 
 function addon:OnEnable()
@@ -313,8 +306,7 @@ function addon:OnEnable()
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
 	SlashCmdList.ORA = function()
-		InterfaceOptionsFrame_OpenToCategory(addonName)
-		InterfaceOptionsFrame_OpenToCategory(addonName)
+		LibStub("AceConfigDialog-3.0"):Open("oRA")
 	end
 
 	SLASH_ORADISBAND1 = "/radisband"
@@ -729,10 +721,7 @@ local function setupGUI()
 	options:SetDisabledFontObject(GameFontDisableSmall)
 	options:SetText(L.options)
 	options:SetPoint("TOPRIGHT", -40, -37)
-	options:SetScript("OnClick", function()
-		InterfaceOptionsFrame_OpenToCategory(addonName)
-		InterfaceOptionsFrame_OpenToCategory(addonName)
-	end)
+	options:SetScript("OnClick", SlashCmdList.ORA)
 
 	local function selectPanel(self)
 		PlaySound("igCharacterInfoTab")

@@ -1427,7 +1427,7 @@ function module:OnRegister()
 				order = 2,
 			},
 		}
-	}, L.cooldowns)
+	})
 
 	-- persist on reloads
 	spellsOnCooldown = self.db.global.spellsOnCooldown
