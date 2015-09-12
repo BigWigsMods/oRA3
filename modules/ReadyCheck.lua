@@ -49,7 +49,7 @@ local clearchecking = nil
 local defaults = {
 	profile = {
 		sound = true,
-		gui = true,
+		showWindow = true,
 		autohide = true,
 		hideReady = false,
 		hideOnCombat = true,
@@ -86,7 +86,7 @@ local function getOptions()
 					width = "full",
 					order = 1,
 				},
-				gui = {
+				showWindow = {
 					type = "toggle",
 					name = colorize(L.showWindow),
 					desc = L.showWindowDesc,
@@ -733,9 +733,9 @@ local function createWindow()
 		updateWindow()
 		local timer = GetReadyCheckTimeLeft()
 		if timer > 0.5 then
-			title:SetText(L.readyCheckSeconds:format(timer))
+			title:SetFormattedText("oRA: %s", L.readyCheckSeconds:format(timer))
 		elseif not readychecking and not next(readycheck) then
-			title:SetText(L.raidCheck)
+			title:SetFormattedText("oRA: %s", L.raidCheck)
 		end
 	end)
 
@@ -799,6 +799,7 @@ end
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
 	oRA:RegisterModuleOptions("ReadyCheck", getOptions, READY_CHECK)
+	self.db.profile.gui = nil -- XXX temp cleanup
 end
 
 function module:OnEnable()
@@ -866,7 +867,7 @@ function module:READY_CHECK(initiator, duration)
 	end
 
 	-- show the readycheck result frame
-	if self.db.profile.gui then
+	if self.db.profile.showWindow then
 		showFrame()
 		frame.title:SetText(READY_CHECK)
 	end
@@ -886,7 +887,7 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 			sysprint(RAID_MEMBER_NOT_READY:format(name))
 		end
 	end
-	if self.db.profile.gui and frame then
+	if self.db.profile.showWindow and frame then
 		updateWindow()
 	end
 end
@@ -942,7 +943,7 @@ do
 			end
 		end
 
-		if self.db.profile.gui and frame then
+		if self.db.profile.showWindow and frame then
 			frame.title:SetText(READY_CHECK_FINISHED)
 			if self.db.profile.autohide then
 				frame.animUpdater:Stop()
