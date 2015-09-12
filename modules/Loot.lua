@@ -21,6 +21,23 @@ local defaults = {
 	}
 }
 
+local methodValues = {
+	needbeforegreed = LOOT_NEED_BEFORE_GREED,
+	freeforall = LOOT_FREE_FOR_ALL,
+	roundrobin = LOOT_ROUND_ROBIN,
+	master = LOOT_MASTER_LOOTER,
+	group = LOOT_GROUP_LOOT,
+	personalloot = LOOT_PERSONAL_LOOT,
+}
+local thresholdValues = {
+	[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
+	[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
+	[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
+	[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
+	[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
+}
+
+local disabled = function() return not db.enable end
 local options = {
 	type = "group",
 	name = LOOT_METHOD,
@@ -33,7 +50,6 @@ local options = {
 		db[cat][key] = value
 		module:SetLoot()
 	end,
-	disabled = function() return not db.enable end,
 	args = {
 		enable = {
 			type = "toggle",
@@ -44,74 +60,55 @@ local options = {
 				db.enable = value
 				module:SetLoot()
 			end,
-			disabled = false,
-			order = 1,
 			width = "full",
+			order = 1,
 		},
 		raid = {
-			order = 2,
 			type = "group",
 			name = RAID,
 			inline = true,
-			width = "full",
+			disabled = disabled,
+			order = 2,
 			args = {
 				method = {
-					type = "select", name = LOOT_METHOD,
-					values = {
-						needbeforegreed = LOOT_NEED_BEFORE_GREED,
-						freeforall = LOOT_FREE_FOR_ALL,
-						roundrobin = LOOT_ROUND_ROBIN,
-						master = LOOT_MASTER_LOOTER,
-						group = LOOT_GROUP_LOOT,
-						personalloot = LOOT_PERSONAL_LOOT,
-					}
+					type = "select",
+					name = LOOT_METHOD,
+					values = methodValues,
 				},
 				threshold = {
-					type = "select", name = LOOT_THRESHOLD,
-					values = {
-						[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
-						[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
-						[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
-						[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
-						[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
-					},
+					type = "select",
+					name = LOOT_THRESHOLD,
+					values = thresholdValues,
 				},
 				master = {
-					type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
+					type = "input",
+					name = MASTER_LOOTER,
+					desc = L.makeLootMaster,
 					arg = "master",
 				},
 			},
 		},
 		party = {
-			order = 3,
 			type = "group",
 			name = PARTY,
 			inline = true,
-			width = "full",
+			disabled = disabled,
+			order = 3,
 			args = {
 				method = {
-					type = "select", name = LOOT_METHOD,
-					values = {
-						needbeforegreed = LOOT_NEED_BEFORE_GREED,
-						freeforall = LOOT_FREE_FOR_ALL,
-						roundrobin = LOOT_ROUND_ROBIN,
-						master = LOOT_MASTER_LOOTER,
-						group = LOOT_GROUP_LOOT,
-						personalloot = LOOT_PERSONAL_LOOT,
-					}
+					type = "select",
+					name = LOOT_METHOD,
+					values = methodValues,
 				},
 				threshold = {
-					type = "select", name = LOOT_THRESHOLD,
-					values = {
-						[2] = ITEM_QUALITY_COLORS[2].hex .. ITEM_QUALITY2_DESC,
-						[3] = ITEM_QUALITY_COLORS[3].hex .. ITEM_QUALITY3_DESC,
-						[4] = ITEM_QUALITY_COLORS[4].hex .. ITEM_QUALITY4_DESC,
-						[5] = ITEM_QUALITY_COLORS[5].hex .. ITEM_QUALITY5_DESC,
-						[6] = ITEM_QUALITY_COLORS[6].hex .. ITEM_QUALITY6_DESC,
-					}
+					type = "select",
+					name = LOOT_THRESHOLD,
+					values = thresholdValues,
 				},
 				master = {
-					type = "input", name = MASTER_LOOTER, desc = L.makeLootMaster,
+					type = "input",
+					name = MASTER_LOOTER,
+					desc = L.makeLootMaster,
 					arg = "master",
 				},
 			},
