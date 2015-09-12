@@ -580,6 +580,7 @@ local options = {
 				showDamager = {
 					type = "toggle",
 					name = DAMAGER,
+					width = "half",
 					order = 3,
 				},
 			}

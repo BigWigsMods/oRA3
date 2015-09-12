@@ -171,7 +171,7 @@ local options = {
 	}
 }
 LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA", options, true)
-LibStub("AceConfigDialog-3.0"):SetDefaultSize("oRA", 860, 660)
+LibStub("AceConfigDialog-3.0"):SetDefaultSize("oRA", 760, 600)
 
 -------------------------------------------------------------------------------
 -- Event handling
