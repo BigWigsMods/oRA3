@@ -504,7 +504,8 @@ local options = {
 	args = {
 		header = {
 			type = "description",
-			name = L.battleResHeader,
+			name = L.battleResHeader.."\n",
+			fontSize = "medium",
 			order = 0,
 		},
 		toggle = {

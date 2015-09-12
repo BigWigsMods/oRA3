@@ -775,8 +775,8 @@ do
 	}
 	local system = ChatTypeInfo.SYSTEM
 
-	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it tramatized Funkeh and now he can't stand to even look at it
-	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending other hooks)
+	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it traumatized Funkeh and now he can't stand to even look at it
+	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending on other hooks)
 	local hooks = {}
 	local function hookFunc(self, msg, r, g, b, id, ...)
 		if readychecking and id == system.id then

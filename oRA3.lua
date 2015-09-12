@@ -246,6 +246,7 @@ function addon:OnInitialize()
 
 	options.args.general.args.profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	options.args.general.args.profileOptions.order = 1
+	options.args.general.args.profileOptions.args.desc.fontSize = "medium"
 	LibStub("LibDualSpec-1.0"):EnhanceOptions(options.args.general.args.profileOptions, self.db)
 
 	local function OnRaidHide()

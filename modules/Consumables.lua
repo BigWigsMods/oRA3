@@ -254,7 +254,8 @@ local options = {
 	args = {
 		desc = {
 			type = "description",
-			name = L.consumablesDesc,
+			name = L.consumablesDesc.."\n",
+			fontSize = "medium",
 			order = 0,
 		},
 		checkReadyCheck = {
