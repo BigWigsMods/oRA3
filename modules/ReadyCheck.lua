@@ -20,7 +20,7 @@ local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
 -- GLOBALS: READY_CHECK READY_CHECK_FINISHED READY_CHECK_ALL_READY RAID_MEMBER_NOT_READY RAID_MEMBERS_AFK DISABLE
 -- GLOBALS: READY_CHECK_READY_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_WAITING_TEXTURE
 -- GLOBALS: GameTooltip GameTooltip_Hide GameFontNormal UIParent UISpecialFrames ChatTypeInfo
--- GLOBALS: CreateFrame UnitClass SendChatMessage ChatFrame_GetMessageEventFilters
+-- GLOBALS: CreateFrame UnitClass SendChatMessage ChatFrame_GetMessageEventFilters ChatFrame_AddMessageEventFilter
 -- GLOBALS: SlashCmdList SLASH_ORAREADYCHECK1 SLASH_ORAREADYCHECK2 SLASH_ORARAIDCHECK1 SLASH_ORARAIDCHECK2
 
 local consumables = oRA:GetModule("Consumables")
@@ -771,26 +771,43 @@ local function showFrame()
 	frame:Show()
 end
 
-local function sysprint(msg)
-	local filters = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM")
-	if filters then
-		for _, func in next, filters do
-			local filter, newMsg = func(nil, "CHAT_MSG_SYSTEM", msg)
-			if filter then
-				return true
-			elseif newMsg then
-				msg = newMsg
-			end
+local sysprint
+do
+	-- filter all the ready check messages and direct print our own
+	local messages = {
+		"^"..RAID_MEMBER_NOT_READY:gsub("%%s", "(.-)").."$", -- %s is not ready
+		"^"..RAID_MEMBERS_AFK:gsub("%%s", "(.-)").."$",      -- The following players are Away: %s
+		"^"..READY_CHECK_ALL_READY.."$",                     -- Everyone is Ready
+	}
+	local function filterFunc(_, _, msg)
+		for _, string in next, messages do
+			if msg:match(string) then return true end
 		end
 	end
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", filterFunc)
 
-	local info = ChatTypeInfo["SYSTEM"]
-	for i=1, 10 do
-		local frame = _G["ChatFrame"..i]
-		for _, msgType in ipairs(frame.messageTypeList) do
-			if msgType == "SYSTEM" then
-				frame:AddMessage(msg, info.r, info.g, info.b, info.id)
-				break
+	function sysprint(msg)
+		-- allow other addons to remove/modify the ready check messages via the filter system
+		local filters = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM")
+		if filters then
+			for _, func in next, filters do
+				local filter, newMsg = func(nil, "CHAT_MSG_SYSTEM", msg)
+				if filter and func ~= filterFunc then -- skip our filter
+					return true
+				elseif newMsg then
+					msg = newMsg
+				end
+			end
+		end
+
+		local info = ChatTypeInfo["SYSTEM"]
+		for i=1, 10 do
+			local frame = _G["ChatFrame"..i]
+			for _, msgType in ipairs(frame.messageTypeList) do
+				if msgType == "SYSTEM" then
+					frame:AddMessage(msg, info.r, info.g, info.b, info.id)
+					break
+				end
 			end
 		end
 	end
@@ -820,7 +837,7 @@ function module:OnEnable()
 		if module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) then -- in raid or challenge mode
 			showFrame()
 		else
-			sysprint(L.notInRaid)
+			print(("|cFFFFFF00%s|r"):format(L.notInRaid))
 		end
 	end
 end
@@ -846,7 +863,7 @@ function module:READY_CHECK(initiator, duration)
 			if name then -- Can be nil when performed whilst logging on
 				local status = not online and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
-				if not promoted and (status == "offline" or status == "notready") then
+				if status == "offline" or status == "notready" then
 					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
@@ -859,7 +876,7 @@ function module:READY_CHECK(initiator, duration)
 			if name and name ~= UNKNOWN then
 				local status = not UnitIsConnected(unit) and "offline" or GetReadyCheckStatus(name)
 				readycheck[name] = status
-				if not promoted and (status == "offline" or status == "notready") then
+				if status == "offline" or status == "notready" then
 					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
@@ -883,9 +900,7 @@ function module:READY_CHECK_CONFIRM(unit, ready)
 		readycheck[name] = "ready"
 	elseif readycheck[name] ~= "offline" then -- not ready, ignore offline
 		readycheck[name] = "notready"
-		if not oRA:IsPromoted() then
-			sysprint(RAID_MEMBER_NOT_READY:format(name))
-		end
+		sysprint(RAID_MEMBER_NOT_READY:format(name))
 	end
 	if self.db.profile.showWindow and frame then
 		updateWindow()
@@ -919,26 +934,23 @@ do
 		local promoted = oRA:IsPromoted()
 		local send = self.db.profile.relayReady and promoted and promoted > 1 and IsInRaid() and not IsInGroup(2)
 		if #noReply == 0 and #notReady == 0 then
-			if not promoted then
-				sysprint(READY_CHECK_ALL_READY)
-			elseif send then
+			sysprint(READY_CHECK_ALL_READY)
+			if send then
 				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
 		else
 			if #noReply > 0 then
-				local afk = RAID_MEMBERS_AFK:format(concat(noReply, ", "))
-				if not promoted then
-					sysprint(afk)
-				elseif send then
-					SendChatMessage(afk, "RAID")
+				local playersAway = RAID_MEMBERS_AFK:format(concat(noReply, ", "))
+				sysprint(playersAway)
+				if send then
+					SendChatMessage(playersAway, "RAID")
 				end
 			end
 			if #notReady > 0 then
-				local no = L.playersNotReady:format(concat(notReady, ", "))
-				if not promoted then
-					sysprint(no)
-				elseif send then
-					SendChatMessage(no, "RAID")
+				local playersNotReady = L.playersNotReady:format(concat(notReady, ", "))
+				sysprint(playersNotReady)
+				if send then
+					SendChatMessage(playersNotReady, "RAID")
 				end
 			end
 		end

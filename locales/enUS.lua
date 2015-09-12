@@ -50,7 +50,7 @@ L.repairAmount = "Repair Limit"
 L.repairAmountDesc = "The maximum amount of gold per player that is allowed for repairs."
 
 -- Ready Check module
-L.playersNotReady = "The following players are not ready: %s"
+L.playersNotReady = "The following players are Not Ready: %s"
 L.readyCheckSeconds = "Ready Check (%d seconds)"
 L.ready = "Ready"
 L.notReady = "Not Ready"
