@@ -226,16 +226,22 @@ local function getBattleNetToon(presenceId)
 	end
 end
 
-local function shouldInvite(msg, sender)
-	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then
-		return false
+local function checkKeywords(msg, ...)
+	for i = 1, select("#", ...) do
+		local keyword = select(i, ...):trim()
+		if msg == keyword then
+			return true
+		end
 	end
+end
+
+local function shouldInvite(msg, sender)
+	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then return false end
 
 	msg = msg:trim():lower()
-	local keyword = db.keyword and db.keyword:lower()
-	local guildkeyword = db.guildkeyword and db.guildkeyword:lower()
+	if msg == "" then return false end
 
-	return msg == keyword or (msg == guildkeyword and oRA:IsGuildMember(sender))
+	return (db.keyword and checkKeywords(msg, strsplit(";", db.keyword))) or (db.guildkeyword and oRA:IsGuildMember(sender) and checkKeywords(msg, strsplit(";", db.guildkeyword)))
 end
 
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
@@ -316,7 +322,12 @@ end
 local function saveKeyword(widget, event, value)
 	if type(value) == "string" and value:trim():len() < 2 then value = nil end
 	local key = widget:GetUserData("key")
-	if value then value = value:lower() end
+	if value then
+		value = value:lower():trim()
+		if value:sub(1, 1) == ";" then value = value:sub(2) end
+		if value:sub(-1) == ";" then value = value:sub(1, -2) end
+		value = value:trim()
+	end
 	db[key] = value
 	widget:SetText(value)
 end
@@ -372,7 +383,7 @@ function module:CreateFrame()
 	keyword:SetLabel(L.keyword)
 	keyword:SetText(db.keyword)
 	keyword:SetUserData("key", "keyword")
-	keyword:SetUserData("tooltip", L.keywordDesc)
+	keyword:SetUserData("tooltip", L.keywordDesc.."\n\n"..L.keywordMultiDesc)
 	keyword:SetCallback("OnEnter", onControlEnter)
 	keyword:SetCallback("OnLeave", GameTooltip_Hide)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
@@ -382,7 +393,7 @@ function module:CreateFrame()
 	guildonlykeyword:SetLabel(L.guildKeyword)
 	guildonlykeyword:SetText(db.guildkeyword)
 	guildonlykeyword:SetUserData("key", "guildkeyword")
-	guildonlykeyword:SetUserData("tooltip", L.guildKeywordDesc)
+	guildonlykeyword:SetUserData("tooltip", L.guildKeywordDesc.."\n\n"..L.keywordMultiDesc)
 	guildonlykeyword:SetCallback("OnEnter", onControlEnter)
 	guildonlykeyword:SetCallback("OnLeave", GameTooltip_Hide)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
