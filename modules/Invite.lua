@@ -8,7 +8,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 -- GLOBALS: BNET_CLIENT_WOW FULL_PLAYER_NAME LE_PARTY_CATEGORY_INSTANCE NUM_LE_LFG_CATEGORYS MAX_PLAYER_LEVEL_TABLE
 -- GLOBALS: GameFontHighlight PLAYER_DIFFICULTY1 PLAYER_DIFFICULTY2 PLAYER_DIFFICULTY6 RAID_DIFFICULTY
 -- GLOBALS: SlashCmdList SLASH_ORAINVITE_GUILD1 SLASH_ORAINVITE_GUILD2 SLASH_ORAINVITE_ZONE1 SLASH_ORAINVITE_ZONE2
--- GLOBALS: SLASH_ORAINVITE_RANK1 SLASH_ORAINVITE_RANK2
+-- GLOBALS: SLASH_ORAINVITE_RANK1 SLASH_ORAINVITE_RANK2 GameTooltip_Hide SetRaidDifficulties
 
 local frame = nil
 local db = nil
@@ -101,7 +101,7 @@ do
 	end
 end
 
-local function doGuildInvites(level, zone, rank)
+local function doGuildInvites(level, zone, rank, rankOnly)
 	for i = 1, GetNumGuildMembers() do
 		local name, _, rankIndex, unitLevel, _, unitZone, _, _, online = GetGuildRosterInfo(i)
 		if name and online then
@@ -111,7 +111,7 @@ local function doGuildInvites(level, zone, rank)
 					peopleToInvite[#peopleToInvite + 1] = name
 				elseif zone and zone == unitZone then
 					peopleToInvite[#peopleToInvite + 1] = name
-				elseif rank and rankIndex <= rank then
+				elseif rank and ((not rankOnly and rankIndex <= rank) or (rankOnly and rankIndex == rank)) then
 					peopleToInvite[#peopleToInvite + 1] = name
 				end
 			end
@@ -136,14 +136,18 @@ local function inviteZone()
 	module:ScheduleTimer(doGuildInvites, 10, nil, currentZone, nil)
 end
 
-local function inviteRank(rank, name)
+local function inviteRank(rank, name, only)
 	if not canInvite() then return end
 	GuildRoster()
 	GuildControlSetRank(rank)
 	local _, _, ochat = GuildControlGetRankFlags()
 	local channel = ochat and "OFFICER" or "GUILD"
-	SendChatMessage((L.invitePrintRank):format(name), channel)
-	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1)
+	if only then
+		SendChatMessage((L.invitePrintRankOnly):format(name), channel)
+	else
+		SendChatMessage((L.invitePrintRank):format(name), channel)
+	end
+	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1, only)
 end
 
 local function inviteRankCommand(input)
@@ -151,7 +155,7 @@ local function inviteRankCommand(input)
 	input = input:lower()
 	for index, rank in next, oRA:GetGuildRanks() do
 		if rank:lower():find(input, nil, true) then
-			inviteRank(index, rank)
+			inviteRank(index, rank, false)
 			return
 		end
 	end
@@ -266,14 +270,12 @@ function module:OnEnable()
 end
 
 local function onControlEnter(widget, event, value)
-	if not oRA.db.profile.showHelpTexts then return end
 	GameTooltip:ClearLines()
-	GameTooltip:SetOwner(widget.frame, "ANCHOR_CURSOR")
-	GameTooltip:AddLine(widget.text and widget.text:GetText() or widget.label:GetText())
+	GameTooltip:SetOwner(widget.frame, "ANCHOR_TOP")
+	GameTooltip:SetText(widget.text and widget.text:GetText() or widget.label:GetText())
 	GameTooltip:AddLine(widget:GetUserData("tooltip"), 1, 1, 1, 1)
 	GameTooltip:Show()
 end
-local function onControlLeave() GameTooltip:Hide() end
 
 local function updateRankButtons()
 	if not frame then return end
@@ -295,9 +297,9 @@ local function updateRankButtons()
 		button:SetUserData("tooltip", L.inviteGuildRankDesc:format(rankName))
 		button:SetUserData("rank", i)
 		button:SetCallback("OnEnter", onControlEnter)
-		button:SetCallback("OnLeave", onControlLeave)
+		button:SetCallback("OnLeave", GameTooltip_Hide)
 		button:SetCallback("OnClick", function()
-			inviteRank(i, rankName)
+			inviteRank(i, rankName, IsShiftKeyDown())
 		end)
 		button:SetRelativeWidth(0.33)
 		table.insert(rankButtons, button)
@@ -372,7 +374,7 @@ function module:CreateFrame()
 	keyword:SetUserData("key", "keyword")
 	keyword:SetUserData("tooltip", L.keywordDesc)
 	keyword:SetCallback("OnEnter", onControlEnter)
-	keyword:SetCallback("OnLeave", onControlLeave)
+	keyword:SetCallback("OnLeave", GameTooltip_Hide)
 	keyword:SetCallback("OnEnterPressed", saveKeyword)
 	keyword:SetRelativeWidth(0.5)
 
@@ -382,7 +384,7 @@ function module:CreateFrame()
 	guildonlykeyword:SetUserData("key", "guildkeyword")
 	guildonlykeyword:SetUserData("tooltip", L.guildKeywordDesc)
 	guildonlykeyword:SetCallback("OnEnter", onControlEnter)
-	guildonlykeyword:SetCallback("OnLeave", onControlLeave)
+	guildonlykeyword:SetCallback("OnLeave", GameTooltip_Hide)
 	guildonlykeyword:SetCallback("OnEnterPressed", saveKeyword)
 	guildonlykeyword:SetRelativeWidth(0.5)
 
@@ -398,7 +400,7 @@ function module:CreateFrame()
 		guild:SetText(L.inviteGuild)
 		guild:SetUserData("tooltip", L.inviteGuildDesc)
 		guild:SetCallback("OnEnter", onControlEnter)
-		guild:SetCallback("OnLeave", onControlLeave)
+		guild:SetCallback("OnLeave", GameTooltip_Hide)
 		guild:SetCallback("OnClick", inviteGuild)
 		guild:SetFullWidth(true)
 
@@ -406,7 +408,7 @@ function module:CreateFrame()
 		zone:SetText(L.inviteZone)
 		zone:SetUserData("tooltip", L.inviteZoneDesc)
 		zone:SetCallback("OnEnter", onControlEnter)
-		zone:SetCallback("OnLeave", onControlLeave)
+		zone:SetCallback("OnLeave", GameTooltip_Hide)
 		zone:SetCallback("OnClick", inviteZone)
 		zone:SetFullWidth(true)
 
