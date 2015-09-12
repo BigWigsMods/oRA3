@@ -775,16 +775,32 @@ local sysprint
 do
 	-- filter all the ready check messages and direct print our own
 	local messages = {
-		"^"..RAID_MEMBER_NOT_READY:gsub("%%s", "(.-)").."$", -- %s is not ready
-		"^"..RAID_MEMBERS_AFK:gsub("%%s", "(.-)").."$",      -- The following players are Away: %s
-		"^"..READY_CHECK_ALL_READY.."$",                     -- Everyone is Ready
+		RAID_MEMBER_NOT_READY:gsub("%%s", "(.-)"), -- %s is not ready
+		RAID_MEMBERS_AFK:gsub("%%s", "(.-)"),      -- The following players are Away: %s
+		READY_CHECK_ALL_READY,                     -- Everyone is Ready
 	}
-	local function filterFunc(_, _, msg)
-		for _, string in next, messages do
-			if msg:match(string) then return true end
+	local system = ChatTypeInfo.SYSTEM
+
+	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it tramatized Funkeh and now he can't stand to even look at it
+	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending other hooks)
+	local hooks = {}
+	local function hookFunc(self, msg, r, g, b, id, ...)
+		if readychecking and id == system.id then
+			for _, string in next, messages do
+				if msg:match(string) then return end
+			end
 		end
+		if id == "oRA" then
+			id = system.id
+		end
+		hooks[self](self, msg, r, g, b, id, ...)
 	end
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", filterFunc)
+
+	for i = 1, 10 do
+		local frame = _G["ChatFrame"..i]
+		hooks[frame] = frame.AddMessage
+		frame.AddMessage = hookFunc
+	end
 
 	function sysprint(msg)
 		-- allow other addons to remove/modify the ready check messages via the filter system
@@ -792,7 +808,7 @@ do
 		if filters then
 			for _, func in next, filters do
 				local filter, newMsg = func(nil, "CHAT_MSG_SYSTEM", msg)
-				if filter and func ~= filterFunc then -- skip our filter
+				if filter then
 					return true
 				elseif newMsg then
 					msg = newMsg
@@ -800,12 +816,10 @@ do
 			end
 		end
 
-		local info = ChatTypeInfo["SYSTEM"]
-		for i=1, 10 do
-			local frame = _G["ChatFrame"..i]
+		for frame in next, hooks do
 			for _, msgType in ipairs(frame.messageTypeList) do
 				if msgType == "SYSTEM" then
-					frame:AddMessage(msg, info.r, info.g, info.b, info.id)
+					frame:AddMessage(msg, system.r, system.g, system.b, "oRA")
 					break
 				end
 			end
