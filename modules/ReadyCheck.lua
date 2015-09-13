@@ -919,7 +919,7 @@ function module:READY_CHECK(initiator, duration)
 				if group < highgroup then
 					readygroup[name] = true
 				end
-				if (status == "offline" or status == "notready") or (not self.db.profile.readyByGroup or readygroup[name]) then
+				if (status == "offline" or status == "notready") and (not self.db.profile.readyByGroup or readygroup[name]) then
 					sysprint(RAID_MEMBER_NOT_READY:format(name))
 				end
 			end
