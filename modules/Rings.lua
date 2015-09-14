@@ -301,12 +301,26 @@ function display:Unlock()
 	frame.header:Show()
 end
 
+function display:Show()
+	if not db.showDisplay then return end
+	if not self.frame then return self:Setup() end
+	self.frame:Show()
+	self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+end
+
+function display:Hide()
+	if not self.frame then return end
+	self.frame:Hide()
+	self.frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	for _, icon in next, self.icons do
+		icon.text:SetText(icon.name)
+	end
+end
+
 do
 	local band = bit.band
 	local group = bit.bor(_G.COMBATLOG_OBJECT_AFFILIATION_MINE, _G.COMBATLOG_OBJECT_AFFILIATION_PARTY, _G.COMBATLOG_OBJECT_AFFILIATION_RAID)
-
-	local combatLogHandler = CreateFrame("Frame")
-	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, _, _, source, srcFlags, _, _, target, _, _, spellId, spellName)
+	local function combatLogHandler(self, _, _, event, _, _, source, srcFlags, _, _, target, _, _, spellId, spellName)
 		if ringToRole[spellId] and band(srcFlags, group) ~= 0 then
 			local id = ringToRole[spellId]
 			local icon = display.icons[id]
@@ -319,77 +333,60 @@ do
 				SendChatMessage(text, "RAID")
 			end
 		end
-	end)
-
-	function display:Show()
-		if not db.showDisplay then return end
-		if not self.frame then return self:Setup() end
-		self.frame:Show()
-
-		combatLogHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
 
-	function display:Hide()
-		if not self.frame then return end
-		self.frame:Hide()
+	function display:Setup()
+		local padding = 10
 
-		combatLogHandler:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		for _, icon in next, self.icons do
-			icon.text:SetText(icon.name)
-		end
+		local frame = CreateFrame("Frame", "oRA3RingsFrame", UIParent)
+		frame:SetScale(db.scale)
+		frame:SetHitRectInsets(-padding, -padding, -padding, -padding)
+		frame:SetFrameStrata("BACKGROUND")
+		frame:SetClampedToScreen(true)
+		frame:SetSize(64, 64)
+
+		tinsert(self.icons, CreateIcon("TANK", frame, "Interface\\Icons\\inv_60legendary_ring1b"))
+		tinsert(self.icons, CreateIcon("HEALER", frame, "Interface\\Icons\\inv_60legendary_ring1a"))
+		tinsert(self.icons, CreateIcon("DAMAGER", frame, "Interface\\Icons\\inv_60legendary_ring1c"))
+
+		local bg = frame:CreateTexture(nil, "BACKGROUND")
+		bg:SetPoint("TOPLEFT", frame, -padding, padding)
+		bg:SetPoint("BOTTOMRIGHT", frame, padding, -padding)
+		bg:SetTexture(0, 0, 0, 0.3)
+		frame.bg = bg
+
+		-- wish this didn't scale, but font strings don't have their own scale property to compensate D; oh well
+		local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		header:SetText(L.legendaryRings)
+		header:SetPoint("BOTTOM", bg, "TOP", 0, 2)
+		frame.header = header
+
+		local help = frame:CreateFontString(nil, "HIGHLIGHT", "GameFontNormal")
+		help:SetText(L.rightClick)
+		help:SetWordWrap(true)
+		help:SetJustifyV("TOP")
+		help:SetPoint("TOP", bg, "BOTTOM", 0, -2)
+		frame.help = help
+
+		frame:SetScript("OnEvent", combatLogHandler)
+		frame:SetScript("OnDragStart", frame.StartMoving)
+		frame:SetScript("OnDragStop", function(self)
+			self:StopMovingOrSizing()
+			oRA3:SavePosition("oRA3RingsFrame", true)
+		end)
+		frame:SetScript("OnMouseDown", function(self, button)
+			if button == "RightButton" then
+				LibStub("AceConfigDialog-3.0"):Open("oRA")
+				LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general", "Rings")
+			end
+		end)
+
+		self.frame = frame
+
+		oRA3:RestorePosition("oRA3RingsFrame")
+
+		toggleShow()
 	end
-end
-
-function display:Setup()
-	local padding = 10
-
-	local frame = CreateFrame("Frame", "oRA3RingsFrame", UIParent)
-	frame:SetScale(db.scale)
-	frame:SetHitRectInsets(-padding, -padding, -padding, -padding)
-	frame:SetFrameStrata("BACKGROUND")
-	frame:SetClampedToScreen(true)
-	frame:SetSize(64, 64)
-
-	tinsert(self.icons, CreateIcon("TANK", frame, "Interface\\Icons\\inv_60legendary_ring1b"))
-	tinsert(self.icons, CreateIcon("HEALER", frame, "Interface\\Icons\\inv_60legendary_ring1a"))
-	tinsert(self.icons, CreateIcon("DAMAGER", frame, "Interface\\Icons\\inv_60legendary_ring1c"))
-
-	local bg = frame:CreateTexture(nil, "BACKGROUND")
-	bg:SetPoint("TOPLEFT", frame, -padding, padding)
-	bg:SetPoint("BOTTOMRIGHT", frame, padding, -padding)
-	bg:SetTexture(0, 0, 0, 0.3)
-	frame.bg = bg
-
-	-- wish this didn't scale, but font strings don't have their own scale property to compensate D; oh well
-	local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	header:SetText(L.legendaryRings)
-	header:SetPoint("BOTTOM", bg, "TOP", 0, 2)
-	frame.header = header
-
-	local help = frame:CreateFontString(nil, "HIGHLIGHT", "GameFontNormal")
-	help:SetText(L.rightClick)
-	help:SetWordWrap(true)
-	help:SetJustifyV("TOP")
-	help:SetPoint("TOP", bg, "BOTTOM", 0, -2)
-	frame.help = help
-
-	frame:SetScript("OnDragStart", frame.StartMoving)
-	frame:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
-		oRA3:SavePosition("oRA3RingsFrame", true)
-	end)
-	frame:SetScript("OnMouseDown", function(self, button)
-		if button == "RightButton" then
-			LibStub("AceConfigDialog-3.0"):Open("oRA")
-			LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general", "Rings")
-		end
-	end)
-
-	self.frame = frame
-
-	oRA3:RestorePosition("oRA3RingsFrame")
-
-	toggleShow()
 end
 
 function display:UpdateLayout()

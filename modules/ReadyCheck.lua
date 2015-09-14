@@ -1019,6 +1019,7 @@ do
 		if self.db.profile.showWindow and frame then
 			frame.title:SetText(READY_CHECK_FINISHED)
 			if self.db.profile.autohide then
+				updateWindow()
 				frame.animUpdater:Stop()
 				frame.animFader:Play()
 			end
