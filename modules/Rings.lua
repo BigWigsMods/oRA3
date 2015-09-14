@@ -255,6 +255,28 @@ local display = {
 	icons = {},
 }
 
+local function shouldShow()
+	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid())
+end
+
+local function toggleShow()
+	if InCombatLockdown() then
+		module:RegisterEvent("PLAYER_REGEN_ENABLED")
+		return
+	end
+	if shouldShow() then
+		if db.lockDisplay then
+			display:Lock()
+		else
+			display:Unlock()
+		end
+		display:Show()
+		display:UpdateLayout()
+	else
+		display:Hide()
+	end
+end
+
 function display:Lock()
 	if not db.showDisplay then return end
 	if not self.frame then return end
@@ -319,11 +341,6 @@ do
 end
 
 function display:Setup()
-	if InCombatLockdown() then
-		module:RegisterEvent("PLAYER_REGEN_ENABLED")
-		return
-	end
-
 	local padding = 10
 
 	local frame = CreateFrame("Frame", "oRA3RingsFrame", UIParent)
@@ -372,18 +389,7 @@ function display:Setup()
 
 	oRA3:RestorePosition("oRA3RingsFrame")
 
-	if db.lockDisplay then
-		self:Lock()
-	else
-		self:Unlock()
-	end
-	if db.showDisplay then
-		self:Show()
-	else
-		self:Hide()
-	end
-
-	self:UpdateLayout()
+	toggleShow()
 end
 
 function display:UpdateLayout()
@@ -443,29 +449,7 @@ function module:PLAYER_REGEN_ENABLED()
 	if InCombatLockdown() then return end
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 
-	if not display.frame then
-		display:Setup()
-	else
-		display:UpdateLayout()
-	end
-end
-
-local function shouldShow()
-	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid())
-end
-
-local function toggleShow()
-	if db.lockDisplay then
-		display:Lock()
-	else
-		display:Unlock()
-	end
-	if shouldShow() then
-		display:Show()
-	else
-		display:Hide()
-	end
-	display:UpdateLayout()
+	toggleShow()
 end
 
 ---------------------------------------
@@ -516,6 +500,7 @@ local options = {
 			type = "execute",
 			name = L.toggleMonitor,
 			func = function()
+				if InCombatLockdown() then return end
 				if not display.frame or not display.frame:IsShown() then
 					display:Show()
 				else
