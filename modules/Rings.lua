@@ -450,13 +450,17 @@ function module:PLAYER_REGEN_ENABLED()
 	end
 end
 
+local function shouldShow()
+	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid())
+end
+
 local function toggleShow()
 	if db.lockDisplay then
 		display:Lock()
 	else
 		display:Unlock()
 	end
-	if db.showDisplay and IsInGroup() and (not db.showInRaid or IsInRaid()) then
+	if shouldShow() then
 		display:Show()
 	else
 		display:Hide()
@@ -518,7 +522,7 @@ local options = {
 					display:Hide()
 				end
 			end,
-			disabled = function() return not db.showDisplay end,
+			disabled = function() return not db.showDisplay or shouldShow() end,
 			order = 0.5,
 		},
 		showDisplay = {

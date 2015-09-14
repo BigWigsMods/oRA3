@@ -134,7 +134,10 @@ local options = {
 					brez:Hide()
 				end
 			end,
-			disabled = function() return not module.db.profile.showDisplay end,
+			disabled = function()
+				local inInstance, instanceType =  IsInInstance()
+				return not module.db.profile.showDisplay or (inInstance and instanceType == "raid")
+			end,
 			order = 0.5,
 		},
 		showDisplay = {
