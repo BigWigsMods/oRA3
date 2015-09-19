@@ -1,7 +1,7 @@
 
 local addonName, scope = ...
 local oRA3 = scope.addon
-local module = oRA3:NewModule("Rings")
+local module = oRA3:NewModule("Rings", "AceTimer-3.0")
 local L = scope.locale
 
 local media = LibStub("LibSharedMedia-3.0")
@@ -183,10 +183,15 @@ do
 
 		if role == self.role and db.clickable and ring then
 			local itemName = GetItemInfo(ring)
-			local text = ("/cast %s"):format(itemName)
-			if self:GetAttribute("macrotext") ~= text then
-				self:SetAttribute("macrotext", text)
-				self:EnableMouse(true)
+			if itemName then
+				local text = ("/cast %s"):format(itemName)
+				if self:GetAttribute("macrotext") ~= text then
+					self:SetAttribute("macrotext", text)
+					self:EnableMouse(true)
+				end
+			else
+				-- had itemName return nil on reload while shown, item cache miss?
+				module:ScheduleTimer(self.UpdateClicks, 5, self)
 			end
 		elseif self:GetAttribute("macrotext") ~= nil then
 			self:SetAttribute("macrotext", nil)
