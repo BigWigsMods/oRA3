@@ -72,6 +72,7 @@ do
 		spells[156079], -- Greater Draenic Intellect Flask
 		spells[156080], -- Greater Draenic Strength Flask
 		spells[156084], -- Greater Draenic Stamina Flask
+		--spells[176151], -- Whispers of Insanity (Oralius' Whispering Crystal)
 	}
 
 	function getFlask(player)
@@ -126,7 +127,11 @@ do
 		-- thanks blizzard for using the same id with a modifer for 75/100/125 food
 		local id, _, _, _, value = select(11, UnitBuff(player, wellFed))
 		if id then
-			return foods[id] and foods[id][value] or id -- return an id for the food with the proper stat value if necessary
+			if foods[id] and value then
+				-- return an id for the food with the proper stat value (also account for Pandaren)
+				return foods[id][value] or foods[id][value / 2] or id
+			end
+			return id
 		else -- should probably map food -> well fed buffs but bleeh
 			id = select(11, UnitBuff(player, eating))
 			if id then
