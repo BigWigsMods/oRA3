@@ -1432,6 +1432,11 @@ function module:OnRegister()
 	-- persist on reloads
 	spellsOnCooldown = self.db.global.spellsOnCooldown
 	chargeSpellsOnCooldown = self.db.global.chargeSpellsOnCooldown
+	if not self.db.global.lastTime or self.db.global.lastTime > GetTime() then -- probably restarted or crashed, trash times
+		wipe(spellsOnCooldown)
+		wipe(chargeSpellsOnCooldown)
+	end
+	self.db.global.lastTime = nil
 
 	-- convert db, a little awkward due to the "*" defaults
 	if not next(self.db.profile.displays) then
@@ -1585,6 +1590,7 @@ do
 				chargeSpellsOnCooldown[spellId] = nil
 			end
 		end
+		self.db.global.lastTime = t
 	end
 end
 
