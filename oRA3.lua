@@ -2,19 +2,23 @@
 local addonName, scope = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
+local L = scope.locale
+
+-- GLOBALS: oRA3 oRA3Frame RAID_CLASS_COLORS CUSTOM_CLASS_COLORS RaidFrame RaidInfoFrame
+-- GLOBALS: SlashCmdList SLASH_ORA1 SLASH_ORA2 SLASH_ORADISBAND1 BINDING_HEADER_oRA3 BINDING_NAME_TOGGLEORA3
+-- GLOBALS: GameFontNormal GameFontNormalSmall GameFontDisableSmall GameFontHighlightSmall
+-- GLOBALS: UIPanelWindows PanelTemplates_SetTab PanelTemplates_SetNumTabs PanelTemplates_UpdateTabs
+-- GLOBALS: FauxScrollFrame_Update FauxScrollFrame_Update FauxScrollFrame_OnVerticalScroll FauxScrollFrame_GetOffset
+-- GLOBALS: StaticPopupDialogs STATICPOPUP_NUMDIALOGS StaticPopup_Show
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")
-
-local L = scope.locale
 
 BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L.togglePane
 
 local classColors = setmetatable({UNKNOWN = {r = 0.8, g = 0.8, b = 0.8, colorStr = "ffcccccc"}}, {__index = function(self) return self.UNKNOWN end})
-for k, v in next, RAID_CLASS_COLORS do
-	classColors[k] = v
-end
+for k, v in next, RAID_CLASS_COLORS do classColors[k] = v end
 addon.classColors = classColors
 
 local _testUnits = {
@@ -377,7 +381,7 @@ do
 		end
 	end
 
-	function addon:OnGroupJoin()
+	function addon:OnGroupJoined()
 		for guid, info in next, playerCache do
 			-- check for stale entries
 			if guid ~= UnitGUID(info.name) then
@@ -529,7 +533,7 @@ do
 
 	function addon:GROUP_ROSTER_UPDATE()
 		local oldStatus = groupStatus
-		groupStatus = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and ININSTANCE or IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
+		groupStatus = IsInGroup(2) and ININSTANCE or IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
 		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
 			self:SendComm("RequestUpdate")
 		end
@@ -569,7 +573,7 @@ do
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
 			self.callbacks:Fire("OnStartup", groupStatus)
-			self:OnGroupJoin()
+			self:OnGroupJoined()
 		end
 		if oldStatus == INPARTY and groupStatus == INRAID then
 			self.callbacks:Fire("OnConvertRaid", groupStatus)
@@ -624,6 +628,8 @@ end
 -----------------------------------------------------------------------
 -- oRA3 main window
 --
+
+local oRA3Disband
 
 local function setupGUI()
 	local frame = oraFrame
@@ -706,13 +712,14 @@ local function setupGUI()
 			StaticPopup_Show("oRA3DisbandGroup")
 		end
 	end)
-	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(2) then
 		disband:Enable()
 	else
 		disband:Disable()
 	end
 	disband.tooltipText = L.disbandGroup
 	disband.newbieText = L.disbandGroupDesc
+	oRA3Disband = disband
 
 	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate")
 	options:SetWidth(115)
@@ -855,7 +862,7 @@ function addon:ToggleFrame(force)
 end
 
 function addon:OnPromoted(promoted)
-	if oRA3Disband and promoted > 1 and not IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+	if oRA3Disband and promoted > 1 and not IsInGroup(2) then
 		oRA3Disband:Enable()
 	end
 end
