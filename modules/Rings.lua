@@ -90,6 +90,15 @@ local ringToRole = {
 
 local CreateIcon
 do
+	local function GetRingCooldown(id)
+		if not id then return end
+		for slot = 11, 12 do
+			if GetInventoryItemID("player", slot) == id then
+				return GetInventoryItemCooldown("player", slot)
+			end
+		end
+	end
+
 	local function OnShow(self)
 		HideOverlayGlow(self)
 		if self.start then
@@ -107,20 +116,25 @@ do
 			end
 		else
 			self.text:SetText(self.name)
+			-- is your ring already on cooldown?
+			local tree = GetSpecialization() or 0
+			local spec, _, _, _, _, role = GetSpecializationInfo(tree)
+			if role == self.role then
+				local start, duration = GetRingCooldown(specToRing[spec])
+				if start and start > 0 then
+					self.cooldown:SetReverse(true)
+					self.cooldown:SetDrawEdge(false)
+					self.cooldown:SetDrawSwipe(true)
+					self.cooldown:SetCooldown(start, duration)
+					self.start = start
+					self.finish = self.start + duration
+				end
+			end
 		end
 	end
 
 	local function OnCooldownDone(self)
 		OnShow(self:GetParent())
-	end
-
-	local function GetRingCooldown(id)
-		if not id then return end
-		for slot = 11, 12 do
-			if GetInventoryItemID("player", slot) == id then
-				return GetInventoryItemCooldown("player", slot)
-			end
-		end
 	end
 
 	local function Start(self, player)
@@ -139,10 +153,9 @@ do
 
 		if self:IsShown() then
 			local tree = GetSpecialization() or 0
-			local role = GetSpecializationRole(tree)
+			local spec, _, _, _, _, role = GetSpecializationInfo(tree)
 			local isMine = role == self.role
 
-			local spec = GetSpecializationInfo(tree)
 			local start = isMine and GetRingCooldown(specToRing[spec])
 			local triggered = not start or (start > 0 and abs(start-t) < 1) -- show glow if not equipped (start == nil)
 
@@ -201,7 +214,7 @@ do
 
 	function CreateIcon(role, parent, texture)
 		local name = _G[role]
-		local frameName = "oRA3RingIcon"..name
+		local frameName = "oRA3RingsFrame"..name.."Button"
 		local f = CreateFrame("Button", frameName, parent, "SecureActionButtonTemplate")
 		f:SetSize(64, 64)
 		f.name = name
@@ -264,12 +277,12 @@ local function shouldShow()
 	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid())
 end
 
-local function toggleShow()
+local function toggleShow(force)
 	if InCombatLockdown() then
 		module:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return
 	end
-	if shouldShow() then
+	if shouldShow() or force then
 		if db.lockDisplay then
 			display:Lock()
 		else
@@ -503,8 +516,11 @@ local options = {
 			name = L.toggleMonitor,
 			func = function()
 				if InCombatLockdown() then return end
-				if not display.frame or not display.frame:IsShown() then
-					display:Show()
+				if not display.frame then
+					display:Setup()
+				end
+				if not display.frame:IsShown() then
+					toggleShow(true)
 				else
 					display:Hide()
 				end
@@ -757,14 +773,18 @@ function module:OnRegister()
 	oRA3.RegisterCallback(self, "OnProfileUpdate")
 	oRA3:RegisterModuleOptions("Rings", options)
 
-	oRA3.RegisterCallback(self, "OnStartup", toggleShow)
-	oRA3.RegisterCallback(self, "OnShutdown", toggleShow)
-	oRA3.RegisterCallback(self, "OnConvertRaid", toggleShow)
-	oRA3.RegisterCallback(self, "OnConvertParty", toggleShow)
+	oRA3.RegisterCallback(self, "OnStartup", "ToggleShow")
+	oRA3.RegisterCallback(self, "OnShutdown", "ToggleShow")
+	oRA3.RegisterCallback(self, "OnConvertRaid", "ToggleShow")
+	oRA3.RegisterCallback(self, "OnConvertParty", "ToggleShow")
 
 	if Masque then
 		module.group = Masque:Group("oRA3", "Legendary Rings")
 	end
 
 	self:OnProfileUpdate()
+end
+
+function module:ToggleShow()
+	toggleShow()
 end
