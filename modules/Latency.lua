@@ -42,6 +42,7 @@ end
 function module:OnListSelected(event, list)
 	if list == L.latency then
 		LL:RequestLatency()
+		self:SendComm("QueryLag") -- XXX compat
 	end
 end
 
@@ -63,7 +64,7 @@ do
 
 	-- XXX compat
 	function module:OnCommReceived(_, sender, prefix, latencyHome, latencyWorld)
-		if prefix == "RequestUpdate" then
+		if prefix == "QueryLag" then
 			local _, _, latencyHome, latencyWorld = GetNetStats()
 			self:SendComm("Lag", latencyHome, latencyWorld)
 		elseif prefix == "Lag" then
