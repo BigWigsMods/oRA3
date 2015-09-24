@@ -22,6 +22,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
+	oRA.RegisterCallback(self, "OnCommReceived") -- XXX compat
 	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORADURABILITY1 = "/radur"
@@ -58,5 +59,15 @@ do
 		oRA:UpdateList(L.durability)
 	end
 	LD:Register(module, update)
+
+	-- XXX compat
+	function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
+		if prefix == "RequestUpdate" then
+			local perc, broken = LD:GetDurability()
+			self:SendComm("Durability", perc, perc, broken)
+		elseif prefix == "Durability" then
+			update(perc, broken, sender)
+		end
+	end
 end
 

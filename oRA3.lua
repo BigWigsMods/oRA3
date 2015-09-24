@@ -534,9 +534,6 @@ do
 	function addon:GROUP_ROSTER_UPDATE()
 		local oldStatus = groupStatus
 		groupStatus = IsInGroup(2) and ININSTANCE or IsInRaid() and INRAID or IsInGroup() and INPARTY or UNGROUPED
-		if oldStatus ~= groupStatus and groupStatus ~= UNGROUPED then
-			self:SendComm("RequestUpdate")
-		end
 
 		wipe(tmpGroup)
 		wipe(tmpTanks)

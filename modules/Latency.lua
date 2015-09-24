@@ -21,6 +21,7 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
+	oRA.RegisterCallback(self, "OnCommReceived") -- XXX compat
 	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORALATENCY1 = "/ralag"
@@ -59,5 +60,15 @@ do
 		oRA:UpdateList(L.latency)
 	end
 	LL:Register(module, update)
+
+	-- XXX compat
+	function module:OnCommReceived(_, sender, prefix, latencyHome, latencyWorld)
+		if prefix == "RequestUpdate" then
+			local _, _, latencyHome, latencyWorld = GetNetStats()
+			self:SendComm("Lag", latencyHome, latencyWorld)
+		elseif prefix == "Lag" then
+			update(latencyHome, latencyWorld, sender)
+		end
+	end
 end
 
