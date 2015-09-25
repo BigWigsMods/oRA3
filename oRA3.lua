@@ -306,7 +306,7 @@ function addon:OnEnable()
 	self:RegisterEvent("CHAT_MSG_ADDON", "OnCommReceived")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
-	--LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
+	LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
 
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
