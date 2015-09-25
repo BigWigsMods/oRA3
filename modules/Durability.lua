@@ -43,6 +43,7 @@ end
 function module:OnListSelected(event, list)
 	if list == L.durability then
 		LD:RequestDurability()
+		self:SendComm("RequestUpdate") -- XXX compat
 	end
 end
 
@@ -53,7 +54,7 @@ do
 			durability[#durability + 1] = { player }
 			k = #durability
 		end
-		durability[k][2] = tonumber(percent)
+		durability[k][2] = floor(tonumber(percent))
 		durability[k][3] = tonumber(broken)
 
 		oRA:UpdateList(L.durability)
