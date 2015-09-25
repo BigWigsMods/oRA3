@@ -8,7 +8,7 @@ local module = oRA:NewModule("Gear")
 local L = scope.locale
 
 local gearTbl = {}
-local syncList = {}
+local syncList = {} -- ignore list for people we have syncs from
 
 function module:OnRegister()
 	oRA:RegisterList(
@@ -31,7 +31,14 @@ function module:OnRegister()
 	end
 end
 
-function module:OnGroupChanged()
+function module:OnGroupChanged(_, _, members)
+	for index = #gearTbl, 1, -1 do
+		local player = gearTbl[index][1]
+		if not inTable(members, player) then
+			tremove(gearTbl, index)
+			syncList[player] = nil
+		end
+	end
 	oRA:UpdateList(L.gear)
 end
 
@@ -53,9 +60,12 @@ do
 	end
 end
 
+-- we're just piggy-backing off Cooldowns (and any other inspect request)
+-- should probably handle requeueing people that give us incomplete info
+-- but odds are something will trigger it for us (eg, mouseover talent scanning)
 function module:OnPlayerInspect(_, guid, unit)
 	local player = self:UnitName(unit)
-	if not player or syncList[player] or not CheckInteractDistance(unit, 1) then return end -- ignore people we have syncs from
+	if not player or syncList[player] or not CheckInteractDistance(unit, 1) then return end
 	if inTable(gearTbl, player, 1) then return end
 
 	local enchants, gems, ilvl = self:ScanGear(unit, 1)

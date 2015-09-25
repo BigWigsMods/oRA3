@@ -4,7 +4,7 @@
 
 local addonName, scope = ...
 local oRA = scope.addon
-local util = oRA.util
+local inTable = oRA.util.inTable
 local module = oRA:NewModule("Latency")
 local L = scope.locale
 local LL = LibStub("LibLatency")
@@ -31,7 +31,13 @@ function module:OnRegister()
 	end
 end
 
-function module:OnGroupChanged()
+function module:OnGroupChanged(_, _, members)
+	for index = #latency, 1, -1 do
+		local player = latency[index][1]
+		if not inTable(members, player) then
+			tremove(latency, index)
+		end
+	end
 	oRA:UpdateList(L.latency)
 end
 
@@ -39,10 +45,18 @@ function module:OnShutdown()
 	wipe(latency)
 end
 
-function module:OnListSelected(event, list)
-	if list == L.latency then
-		LL:RequestLatency()
-		self:SendComm("QueryLag") -- XXX compat
+do
+	local prev = 0
+	function module:OnListSelected(_, list)
+		if list == L.latency then
+			LL:RequestLatency()
+			-- XXX compat
+			local t = GetTime()
+			if t-prev > 15 then
+				prev = t
+				self:SendComm("QueryLag")
+			end
+		end
 	end
 end
 
@@ -50,7 +64,7 @@ do
 	local function update(latencyHome, latencyWorld, player, channel)
 		if channel == "GUILD" then return end
 
-		local k = util.inTable(latency, player, 1)
+		local k = inTable(latency, player, 1)
 		if not k then
 			k = #latency + 1
 			latency[k] = { player }
