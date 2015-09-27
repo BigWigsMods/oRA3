@@ -280,9 +280,8 @@ L.activatedRing = "%s activated %s (%s)"
 
 -- Consumables Module
 L.consumables = "Consumable Check"
-L.consumablesDesc = "Results will only show when promoted in a non-LFG instance group. You can also print the results of the check by opening the \"Checks - Buffs\" panel with /rabuffs."
 L.checkReadyCheck = "Check on ready check"
-L.checkReadyCheckDesc = "Check buffs when a ready check is performed."
+L.checkReadyCheckDesc = "Check buffs when a ready check is performed when promoted in a non-LFG instance group."
 L.reportIfYou = "Report if started by you"
 L.reportAlways = "Report always"
 L.output = "Output"

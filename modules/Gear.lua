@@ -8,7 +8,7 @@ local module = oRA:NewModule("Gear")
 local L = scope.locale
 
 local gearTbl = {}
-local syncList = {} -- ignore list for people we have syncs from
+local syncList = {} -- list of people we have syncs from
 
 function module:OnRegister()
 	oRA:RegisterList(
@@ -195,7 +195,7 @@ do
 		if not isInspecting then
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = equipped
-		elseif averageItemLevel == 0 or missingSlots > 2 then -- tabard + off hand
+		elseif averageItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
 			-- try and filter out people still out of range
 			self:ScanGear(unit, count + 1)
 			return

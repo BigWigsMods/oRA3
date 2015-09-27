@@ -15,7 +15,7 @@ local GetTime, GetRaidBuffInfo, UnitIsDeadOrGhost = GetTime, GetRaidBuffInfo, Un
 
 -- GLOBALS: ChatThrottleLib ChatFrame_AddMessageEventFilter SendChatMessage
 -- GLOBALS: DISABLE YES NO NUM_LE_RAID_BUFF_TYPES LE_PARTY_CATEGORY_INSTANCE
--- GLOBALS: SlashCmdList, SLASH_ORABUFFS1 SLASH_ORABUFFS2 SLASH_ORABUFFS3
+-- GLOBALS: SlashCmdList, SLASH_ORABUFFS1 SLASH_ORABUFFS2 SLASH_ORABUFFS3 oRA3CheckButton
 
 local GROUP_CHECK_THROTTLE = 0.8
 local PLAYER_CHECK_THROTTLE = 0.3
@@ -257,12 +257,6 @@ local options = {
 	get = function(info) return module.db.profile[info[#info]] end,
 	set = function(info, value) module.db.profile[info[#info]] = value end,
 	args = {
-		desc = {
-			type = "description",
-			name = L.consumablesDesc.."\n",
-			fontSize = "medium",
-			order = 0,
-		},
 		checkReadyCheck = {
 			type = "select",
 			name = colorize(L.checkReadyCheck),
@@ -275,6 +269,12 @@ local options = {
 			name = colorize(L.output),
 			desc = L.outputDesc,
 			values = { DISABLE, L.self, L.group },
+			set = function(info, value)
+				module.db.profile.output = value
+				if oRA3CheckButton then
+					oRA3CheckButton:SetEnabled(value > 1 or module.db.profile.whisper)
+				end
+			end,
 			order = 2
 		},
 		whisper = {
@@ -282,6 +282,12 @@ local options = {
 			name = colorize(L.whisperMissing),
 			desc = L.whisperMissingDesc,
 			descStyle = "inline",
+			set = function(info, value)
+				module.db.profile.whisper = value
+				if oRA3CheckButton then
+					oRA3CheckButton:SetEnabled(module.db.profile.output > 1 or value)
+				end
+			end,
 			order = 3,
 			width = "full",
 		},
@@ -357,7 +363,6 @@ function module:OnRegister()
 	SLASH_ORABUFFS2 = "/rab"
 	SlashCmdList.ORABUFFS = function()
 		oRA:OpenToList(L.buffs)
-		self:OutputResults()
 	end
 end
 

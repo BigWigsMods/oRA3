@@ -4,7 +4,7 @@ local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
 local L = scope.locale
 
--- GLOBALS: oRA3 oRA3Frame RAID_CLASS_COLORS CUSTOM_CLASS_COLORS RaidFrame RaidInfoFrame
+-- GLOBALS: oRA3 oRA3Frame RAID_CLASS_COLORS CUSTOM_CLASS_COLORS RaidFrame RaidInfoFrame oRA3DisbandButton oRA3CheckButton
 -- GLOBALS: SlashCmdList SLASH_ORA1 SLASH_ORA2 SLASH_ORADISBAND1 BINDING_HEADER_oRA3 BINDING_NAME_TOGGLEORA3
 -- GLOBALS: GameFontNormal GameFontNormalSmall GameFontDisableSmall GameFontHighlightSmall
 -- GLOBALS: UIPanelWindows PanelTemplates_SetTab PanelTemplates_SetNumTabs PanelTemplates_UpdateTabs
@@ -567,8 +567,10 @@ do
 			self.callbacks:Fire("OnTanksChanged", tanks)
 		end
 		if groupStatus == UNGROUPED and oldStatus > groupStatus then
+			self:OnShutdown(groupStatus)
 			self.callbacks:Fire("OnShutdown", groupStatus)
 		elseif oldStatus == UNGROUPED and groupStatus > oldStatus then
+			self:OnStartup(groupStatus)
 			self.callbacks:Fire("OnStartup", groupStatus)
 			self:OnGroupJoined()
 		end
@@ -584,7 +586,7 @@ do
 				self:OnPromoted(playerPromoted)
 				self.callbacks:Fire("OnPromoted", playerPromoted)
 			else
-				self:OnDemoted()
+				self:OnDemoted(playerPromoted)
 				self.callbacks:Fire("OnDemoted", playerPromoted)
 			end
 		end
@@ -625,8 +627,6 @@ end
 -----------------------------------------------------------------------
 -- oRA3 main window
 --
-
-local oRA3Disband
 
 local function setupGUI()
 	local frame = oraFrame
@@ -674,16 +674,16 @@ local function setupGUI()
 	close:SetPoint("TOPRIGHT", -30, -8)
 
 	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	title:SetWidth(250)
+	title:SetWidth(256)
 	title:SetHeight(16)
-	title:SetPoint("TOP", 3, -16)
+	title:SetPoint("TOP", 4, -16)
 	frame.title = title
 
 	local drag = frame:CreateTitleRegion()
 	drag:SetAllPoints(title)
 
-	local disband = CreateFrame("Button", "oRA3Disband", frame, "UIPanelButtonTemplate")
-	disband:SetWidth(115)
+	local disband = CreateFrame("Button", "oRA3DisbandButton", frame, "UIPanelButtonTemplate")
+	disband:SetWidth(120)
 	disband:SetHeight(22)
 	disband:SetNormalFontObject(GameFontNormalSmall)
 	disband:SetHighlightFontObject(GameFontHighlightSmall)
@@ -716,17 +716,33 @@ local function setupGUI()
 	end
 	disband.tooltipText = L.disbandGroup
 	disband.newbieText = L.disbandGroupDesc
-	oRA3Disband = disband
 
-	local options = CreateFrame("Button", "oRA3Options", frame, "UIPanelButtonTemplate")
-	options:SetWidth(115)
-	options:SetHeight(22)
-	options:SetNormalFontObject(GameFontNormalSmall)
-	options:SetHighlightFontObject(GameFontHighlightSmall)
-	options:SetDisabledFontObject(GameFontDisableSmall)
-	options:SetText(L.options)
-	options:SetPoint("TOPRIGHT", -40, -37)
-	options:SetScript("OnClick", SlashCmdList.ORA)
+	local consumables = addon:GetModule("Consumables")
+	local check = CreateFrame("Button", "oRA3CheckButton", frame, "UIPanelButtonTemplate")
+	check:SetWidth(120)
+	check:SetHeight(22)
+	check:SetNormalFontObject(GameFontNormalSmall)
+	check:SetHighlightFontObject(GameFontHighlightSmall)
+	check:SetDisabledFontObject(GameFontDisableSmall)
+	check:SetText(L.consumables)
+	check:SetEnabled(IsInGroup() and (consumables.db.profile.output > 1 or consumables.db.profile.whisper))
+	check:SetPoint("TOPRIGHT", -40, -37)
+	check:SetScript("OnClick", function()
+		consumables:OutputResults(true)
+	end)
+	check.module = consumables
+
+	local options = CreateFrame("Button", "oRA3OptionsButton", frame)
+	options:SetNormalTexture("Interface\\Worldmap\\Gear_64")
+	options:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
+	options:SetHighlightTexture("Interface\\Worldmap\\Gear_64")
+	options:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
+	options:SetSize(16, 16)
+	options:SetPoint("RIGHT", title, "RIGHT")
+	options:SetScript("OnClick", function()
+		LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general")
+		LibStub("AceConfigDialog-3.0"):Open("oRA")
+	end)
 
 	local function selectPanel(self)
 		PlaySound("igCharacterInfoTab")
@@ -859,14 +875,26 @@ function addon:ToggleFrame(force)
 end
 
 function addon:OnPromoted(promoted)
-	if oRA3Disband and promoted > 1 and not IsInGroup(2) then
-		oRA3Disband:Enable()
+	if oRA3DisbandButton and promoted > 1 and not IsInGroup(2) then
+		oRA3DisbandButton:Enable()
 	end
 end
 
 function addon:OnDemoted()
-	if oRA3Disband then
-		oRA3Disband:Disable()
+	if oRA3DisbandButton then
+		oRA3DisbandButton:Disable()
+	end
+end
+
+function addon:OnStartup()
+	if oRA3CheckButton then
+		oRA3CheckButton:SetEnabled(oRA3CheckButton.module.db.profile.output > 1 or oRA3CheckButton.module.db.profile.whisper)
+	end
+end
+
+function addon:OnShutdown()
+	if oRA3CheckButton then
+		oRA3CheckButton:Disable()
 	end
 end
 
