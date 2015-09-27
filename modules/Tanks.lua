@@ -84,7 +84,7 @@ function module:OnPromoted(event, status)
 	end
 end
 
-function module:OnDemoted(event, status)
+function module:OnDemoted(event)
 	if not frame then return end
 	for k, v in next, top do
 		v.tank:Disable()

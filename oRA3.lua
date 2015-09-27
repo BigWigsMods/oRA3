@@ -586,8 +586,8 @@ do
 				self:OnPromoted(playerPromoted)
 				self.callbacks:Fire("OnPromoted", playerPromoted)
 			else
-				self:OnDemoted(playerPromoted)
-				self.callbacks:Fire("OnDemoted", playerPromoted)
+				self:OnDemoted()
+				self.callbacks:Fire("OnDemoted")
 			end
 		end
 	end
@@ -875,8 +875,8 @@ function addon:ToggleFrame(force)
 end
 
 function addon:OnPromoted(promoted)
-	if oRA3DisbandButton and promoted > 1 and not IsInGroup(2) then
-		oRA3DisbandButton:Enable()
+	if oRA3DisbandButton then
+		oRA3DisbandButton:SetEnabled(promoted > 1 and not IsInGroup(2))
 	end
 end
 
