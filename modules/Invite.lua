@@ -211,17 +211,17 @@ local function isInQueue()
 	end
 end
 
-local function getBattleNetToon(presenceId)
-	local friendIndex = BNGetFriendIndex(presenceId)
-	for i = 1, BNGetNumFriendToons(friendIndex) do
-		local _, toonName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, toonId = BNGetFriendToonInfo(friendIndex, i)
+local function getBattleNetCharacter(bnetIDAccount)
+	local friendIndex = BNGetFriendIndex(bnetIDAccount)
+	for i = 1, (BNGetNumFriendToons and BNGetNumFriendToons(friendIndex) or BNGetNumFriendGameAccounts(friendIndex)) do
+		local _, charName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, bnetIDGameAccount = BNGetFriendToonInfo and BNGetFriendToonInfo(friendIndex, i) or BNGetFriendGameAccountInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
 			if realmName ~= "" and realmName ~= playerRealm then
 				-- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
 				realmName = realmName:gsub("[%s%-]", "")
-				toonName = FULL_PLAYER_NAME:format(toonName, realmName)
+				charName = FULL_PLAYER_NAME:format(charName, realmName)
 			end
-			return toonName, toonId
+			return charName, bnetIDGameAccount
 		end
 	end
 end
@@ -244,12 +244,12 @@ local function shouldInvite(msg, sender)
 	return (db.keyword and checkKeywords(msg, strsplit(";", db.keyword))) or (db.guildkeyword and oRA:IsGuildMember(sender) and checkKeywords(msg, strsplit(";", db.guildkeyword)))
 end
 
-local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presenceId)
+local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount)
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
-	if presenceId > 0 then
+	if bnetIDAccount > 0 then
 		local id
-		sender, id = getBattleNetToon(presenceId)
+		sender, id = getBattleNetCharacter(bnetIDAccount)
 		if not id then return end
 	end
 	sender = Ambiguate(sender, "none")
@@ -257,8 +257,8 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, presence
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			local groupIsFull = ("<oRA3> %s"):format(L.invitePrintGroupIsFull)
-			if presenceId > 0 then
-				BNSendWhisper(presenceId, groupIsFull)
+			if bnetIDAccount > 0 then
+				BNSendWhisper(bnetIDAccount, groupIsFull)
 			else
 				SendChatMessage(groupIsFull, "WHISPER", nil, sender)
 			end
