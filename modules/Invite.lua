@@ -10,6 +10,10 @@ local AceGUI = LibStub("AceGUI-3.0")
 -- GLOBALS: SlashCmdList SLASH_ORAINVITE_GUILD1 SLASH_ORAINVITE_GUILD2 SLASH_ORAINVITE_ZONE1 SLASH_ORAINVITE_ZONE2
 -- GLOBALS: SLASH_ORAINVITE_RANK1 SLASH_ORAINVITE_RANK2 GameTooltip_Hide SetRaidDifficulties
 
+-- 6.2.4 compat
+local BNGetNumFriendGameAccounts = BNGetNumFriendGameAccounts or BNGetNumFriendToons
+local BNGetFriendGameAccountInfo = BNGetFriendGameAccountInfo or BNGetFriendToonInfo
+
 local frame = nil
 local db = nil
 local peopleToInvite = {}
@@ -213,8 +217,8 @@ end
 
 local function getBattleNetCharacter(bnetIDAccount)
 	local friendIndex = BNGetFriendIndex(bnetIDAccount)
-	for i = 1, (BNGetNumFriendToons and BNGetNumFriendToons(friendIndex) or BNGetNumFriendGameAccounts(friendIndex)) do
-		local _, charName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, bnetIDGameAccount = BNGetFriendToonInfo and BNGetFriendToonInfo(friendIndex, i) or BNGetFriendGameAccountInfo(friendIndex, i)
+	for i = 1, BNGetNumFriendGameAccounts(friendIndex) do
+		local _, charName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, bnetIDGameAccount = BNGetFriendGameAccountInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
 			if realmName ~= "" and realmName ~= playerRealm then
 				-- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
