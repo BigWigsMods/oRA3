@@ -873,12 +873,14 @@ function module:OnGroupChanged()
 	local update = nil
 	for i = 1, GetNumGroupMembers() do
 		local name, _, group = GetRaidRosterInfo(i)
-		if group < highgroup and not readygroup[name] then
-			readygroup[name] = true
-			update = true
-		elseif readygroup[name] then
-			readygroup[name] = nil
-			update = true
+		if name then
+			if group < highgroup and not readygroup[name] then
+				readygroup[name] = true
+				update = true
+			elseif readygroup[name] then
+				readygroup[name] = nil
+				update = true
+			end
 		end
 	end
 
