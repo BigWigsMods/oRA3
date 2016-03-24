@@ -165,6 +165,7 @@ local glyphCooldowns = {
 	[54925] = {96231, -5}, -- Rebuke, +5sec
 	[54939] = {633, -120}, -- Lay on Hands, +120sec
 	[146955] = {31821, 60}, -- Devotion Aura, -60sec
+	[162604] = {31842, 90}, -- Avenging Wrath, -90sec
 	-- Priest
 	[55678] = {6346, 60}, -- Fear Ward, -60sec
 	[55688] = {64044, 10}, -- Psychic Horror, -10sec
