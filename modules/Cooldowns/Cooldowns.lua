@@ -143,40 +143,51 @@ local specCooldowns = {
 }
 
 local glyphCooldowns = {
+	-- Deathknight
+	[58673] = {48792, 90}, -- Icebound Fortitude, -90sec (-50%)
+	[58686] = {47528, 1}, -- Mind Freeze, -1sec
+	[59332] = {77575, 60}, -- Outbreak, -60sec
+	[63331] = {77606, 30}, -- Dark Simulacrum, -30sec
+	-- Druid
+	[59219] = {1850, 60}, -- Dash, -60sec
+	[116216] = {106839, -5}, -- Skull Bash, +5sec
+	[114223] = {61336, 40}, -- Survival Instincts, -40sec
+	-- Hunter
+	-- Mage
+	[56368] = {11129, -45}, -- Combustion, +45sec (+100%)
+	[56376] = {122, 5}, -- Frost Nova, -5sec
+	[62210] = {12042, -90}, -- Arcane Power, +90sec (+100%)
+	[115703] = {2139, -4}, -- Counterspell, +4sec
+	[146659] = {1953, 0, 2}, -- Blink, 2 charges
+	-- Monk
+	[123391] = {115080, -120}, -- Touch of Death, +120sec
+	-- Paladin
+	[54925] = {96231, -5}, -- Rebuke, +5sec
+	[54939] = {633, -120}, -- Lay on Hands, +120sec
+	[146955] = {31821, 60}, -- Devotion Aura, -60sec
+	-- Priest
 	[55678] = {6346, 60}, -- Fear Ward, -60sec
+	[55688] = {64044, 10}, -- Psychic Horror, -10sec
 	[63229] = {47585, 15}, -- Dispersion, -15sec
+	-- Rogue
+	[56805] = {1766, -4}, -- Kick, +4sec
+	-- Shaman
+	[55441] = {8177, -20}, -- Grounding Totem, +20sec
+	[55451] = {57994, -3}, -- Wind Shear, +3sec
 	[55455] = {2894, 150}, -- Fire Elemental Totem, -150sec (-50%)
+	[58058] = {556, 300}, -- Astral Recall, -300sec
+	[63270] = {51490, 10}, -- Thunderstorm, -10sec
 	[63291] = {51514, 10}, -- Hex, -10sec
 	[159640] = {51533, 60}, -- Feral Spirit, -60sec
 	[159648] = {30823, 60}, -- Shamanistic Rage, -60sec
 	[159650] = {79206, 60}, -- Spiritwalker's Grace, -60sec
-	[63329] = {871, -120}, -- Shield Wall, +120sec
-	[63325] = {52174, 15}, -- Heroic Leap, -15sec
-	[55688] = {64044, 10}, -- Psychic Horror, -10sec
+	-- Warlock
 	[63309] = {48020, 4}, -- Demonic Circle: Teleport, -4sec
 	[146962] = {80240, -35}, -- Havoc, +35sec
-	[58058] = {556, 300}, -- Astral Recall, -300sec
-	[55441] = {8177, -20}, -- Grounding Totem, +20sec
-	[63270] = {51490, 10}, -- Thunderstorm, -10sec
+	-- Warrior
+	[63325] = {52174, 15}, -- Heroic Leap, -15sec
 	[63328] = {23920, 5}, -- Spell Reflection, -5sec
-	[59219] = {1850, 60}, -- Dash, -60sec
-	[58673] = {48792, 90}, -- Icebound Fortitude, -90sec (-50%)
-	[56368] = {11129, -45}, -- Combustion, +45sec (+100%)
-	[58686] = {47528, 1}, -- Mind Freeze, -1sec
-	[116216] = {106839, -5}, -- Skull Bash, +5sec
-	[114223] = {61336, 40}, -- Survival Instincts, -40sec
-	[56376] = {122, 5}, -- Frost Nova, -5sec
-	[146659] = {1953, 0, 2}, -- Blink, 2 charges
-	[62210] = {12042, -90}, -- Arcane Power, +90sec (+100%)
-	[115703] = {2139, -4}, -- Counterspell, +4sec
-	[54925] = {96231, -5}, -- Rebuke, +5sec
-	[56805] = {1766, -4}, -- Kick, +4sec
-	[55451] = {57994, -3}, -- Wind Shear, +3sec
-	[123391] = {115080, -120}, -- Touch of Death, +120sec
-	[63331] = {77606, 30}, -- Dark Simulacrum, -30sec
-	[59332] = {77575, 60}, -- Outbreak, -60sec
-	[54939] = {633, -120}, -- Lay on Hands, +120sec
-	[146955] = {31821, 60}, -- Devotion Aura, -60sec
+	[63329] = {871, -120}, -- Shield Wall, +120sec
 }
 
 -- { cd, level, spec id, talent index, glyph spell id }
