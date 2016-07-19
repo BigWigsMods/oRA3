@@ -6,8 +6,8 @@ local L = scope.locale
 module.stripservers = true
 
 local _G = _G
-local min, max, ceil, floor = math.min, math.max, math.ceil, math.floor
-local concat, wipe, sort, tinsert = table.concat, table.wipe, table.sort, table.insert
+local max, ceil, floor = math.max, math.ceil, math.floor
+local concat, wipe, tinsert = table.concat, table.wipe, table.insert
 local tonumber, select, next, ipairs, print = tonumber, select, next, ipairs, print
 local UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible = UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible
 local GetSpellDescription, GetSpellInfo, GetRaidRosterInfo = GetSpellDescription, GetSpellInfo, GetRaidRosterInfo
@@ -18,6 +18,7 @@ local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
 
 -- luacheck: globals ChatTypeInfo ChatFrame_GetMessageEventFilters GameFontNormal UISpecialFrames
 -- luacheck: globals READY_CHECK_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_WAITING_TEXTURE
+-- luacheck: globals GameTooltip_Hide
 
 local consumables = oRA:GetModule("Consumables")
 
@@ -26,8 +27,6 @@ local readygroup = {}
 local highgroup = 9
 local window -- will be filled with our GUI frame
 local showBuffFrame = false
-local availableBuffs = 0
-local list = {} -- temp table to concat from
 local lastUpdate = 0
 
 local playerName = UnitName("player")
@@ -58,15 +57,6 @@ local defaults = {
 		showMissingRunes = false,
 	}
 }
-local function reanchorBuffs(frame, value) -- don't show an empty space for runes if disabled
-	if value then
-		frame.FlaskBuff:SetPoint("RIGHT", frame.RuneBuff, "LEFT", 0, 0)
-		frame.RuneBuff:Show()
-	else
-		frame.FlaskBuff:SetPoint("RIGHT", frame.MissingBuffs, "LEFT", 0, 0)
-		frame.RuneBuff:Hide()
-	end
-end
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
 local options = {
 	type = "group",
@@ -165,8 +155,6 @@ local options = {
 					descStyle = "inline",
 					set = function(info, value)
 						module.db.profile.showMissingRunes = value
-						for _, frame in next, topMemberFrames do reanchorBuffs(frame, value) end
-						for _, frame in next, bottomMemberFrames do reanchorBuffs(frame, value) end
 						lastUpdate = 0
 					end,
 					disabled = function() return not module.db.profile.showBuffs end,
@@ -276,11 +264,8 @@ local function addIconAndName(frame)
 	frame.OutOfRange = oor
 
 	-- missing buffs
-	frame.MissingBuffs = addBuffFrame("Buffs", frame, nil, "Interface\\DialogFrame\\DialogIcon-AlertNew-16", "RIGHT", frame, "RIGHT", -6, 0)
-	frame.MissingBuffs.icon:SetTexCoord(0, 1, 0, 1)
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, "Interface\\Icons\\inv_misc_rune_12", "RIGHT", frame.MissingBuffs, "LEFT", 0, 0)
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, "Interface\\Icons\\inv_misc_rune_12", "RIGHT", frame.OutOfRange, "LEFT", 0, 0)
 	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, "Interface\\Icons\\trade_alchemy_dpotion_c22")
-	reanchorBuffs(frame, module.db.profile.showMissingRunes)
 
 	local food = addBuffFrame("Food", frame, L.noFood, "Interface\\Icons\\spell_misc_food", "RIGHT", frame.FlaskBuff, "LEFT", 0, 0)
 	local text = food:CreateFontString(nil, "OVERLAY")
@@ -345,7 +330,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 	if module.db.profile.showBuffs and showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
 		f.OutOfRange:Hide()
 		if update then
-			local food, flask, rune, buffs, numBuffs = consumables:CheckPlayer(name)
+			local food, flask, rune = consumables:CheckPlayer(name)
 			local showMissing = module.db.profile.showBuffs == 1
 			local onlyMax = module.db.profile.showMissingMaxStat
 			ready = food and flask and (not module.db.profile.showMissingRunes or rune) and true
@@ -359,7 +344,6 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.FlaskBuff:SetShown(flask)
 				f.RuneBuff:SetShown(rune)
 			end
-			f.MissingBuffs:Hide()
 
 			f.FoodBuff:SetSpell(food)
 			if food then
@@ -397,20 +381,9 @@ local function setMemberStatus(num, bottom, name, class, update)
 			if not module.db.profile.showMissingRunes then
 				f.RuneBuff:Hide()
 			end
-
-			if buffs and numBuffs < availableBuffs then
-				wipe(list)
-				for k in next, buffs do
-					list[#list + 1] = k
-				end
-				sort(list)
-				f.MissingBuffs.tooltip = ("%s: %s"):format(L.missingBuffs, concat(list, ", "))
-				f.MissingBuffs:Show()
-			end
 		end
 	else
 		f.OutOfRange:SetShown(module.db.profile.showBuffs and showBuffFrame)
-		f.MissingBuffs:Hide()
 		f.FoodBuff:Hide()
 		f.FlaskBuff:Hide()
 		f.RuneBuff:Hide()
@@ -453,7 +426,6 @@ local function updateWindow()
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
 	window.bar:Hide()
-	window.MissingGroupBuffs:Hide()
 
 	local promoted = oRA:IsPromoted()
 	window.ready:SetDisabled(not promoted)
@@ -470,22 +442,8 @@ local function updateWindow()
 	local _, type, diff = GetInstanceInfo()
 	showBuffFrame = module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) -- in raid or challenge mode
 
-	local missingBuffs, numBuffs
-	if showBuffFrame then
-		_, _, _, missingBuffs, numBuffs, availableBuffs = consumables:CheckGroup()
-		-- the first and second return from GetRaidBuffInfo don't always agree
-		-- first doesn't take spec into account and second caps with group size
-		-- soooo just hide it if we have the most we can (according to the api)
-		-- if numBuffs == availableBuffs then
-		-- 	missingBuffs = nil
-		-- end
-		-- XXX actually, availableBuffs seems be lower a lot of the time
-	end
-
 	local height = 0
 	if IsInRaid() then
-
-
 		local bottom, top = 0, 0
 		for i = 1, GetNumGroupMembers() do
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
@@ -519,16 +477,6 @@ local function updateWindow()
 	end
 
 	window:SetHeight(max(height, 128))
-
-	if missingBuffs and next(missingBuffs) then
-		wipe(list)
-		for k in next, missingBuffs do
-			list[#list + 1] = k
-		end
-		sort(list)
-		window.MissingGroupBuffs:SetText(concat(list, ", "))
-		window.MissingGroupBuffs:Show()
-	end
 end
 
 local function createWindow()
@@ -686,25 +634,6 @@ local function createWindow()
 	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
-
-	-- missing buffs
-	local missingBuffs = CreateFrame("Frame", "oRA3ReadyCheckMissingGroupBuffs", f)
-
-	local text = missingBuffs:CreateFontString(nil, "OVERLAY")
-	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -2)
-	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, 2)
-	text:SetHeight(24)
-	text:SetFontObject(GameFontNormal)
-	text:SetJustifyV("TOP")
-	text:SetShadowColor(0, 0, 0, 1)
-	text:SetShadowOffset(1, -1)
-	text:SetWordWrap(true)
-
-	missingBuffs.SetText = function(_, message)
-		text:SetFormattedText("|TInterface\\DialogFrame\\DialogIcon-AlertNew-16:0|t %s: %s", L.missingBuffs, message)
-	end
-
-	f.MissingGroupBuffs = missingBuffs
 
 	-- updater
 	local animFader = f:CreateAnimationGroup()
@@ -894,7 +823,7 @@ function module:READY_CHECK(initiator, duration)
 
 	wipe(readycheck)
 	wipe(readygroup)
-	local promoted = oRA:IsPromoted()
+	-- local promoted = oRA:IsPromoted()
 	-- fill with "waiting" and set the initiator to "ready"
 	if IsInRaid() then
 		local _, _, diff = GetInstanceInfo()

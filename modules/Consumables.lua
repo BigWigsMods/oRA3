@@ -4,14 +4,13 @@ local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
 local L = scope.locale
 
-local _G = _G
-local tonumber, print, next, ipairs, select, type = tonumber, print, next, ipairs, select, type
-local band, bor, lshift, format, max = bit.band, bit.bor, bit.lshift, string.format, math.max
+local tonumber, print, next, select = tonumber, print, next, select
+local format = string.format
 local tconcat, sort, wipe = table.concat, table.sort, table.wipe
-local GetSpellInfo, GetSpellTexture, GetSpellDescription = GetSpellInfo, GetSpellTexture, GetSpellDescription
+local GetSpellInfo, GetSpellDescription = GetSpellInfo, GetSpellDescription
 local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsInRaid, IsInInstance
 local UnitBuff, UnitName, UnitIsConnected, UnitIsVisible = UnitBuff, UnitName, UnitIsConnected, UnitIsVisible
-local GetTime, GetRaidBuffInfo, UnitIsDeadOrGhost = GetTime, GetRaidBuffInfo, UnitIsDeadOrGhost
+local GetTime, UnitIsDeadOrGhost = GetTime, UnitIsDeadOrGhost
 
 --luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter ChatThrottleLib
 
@@ -20,9 +19,7 @@ local PLAYER_CHECK_THROTTLE = 0.3
 
 local consumablesList = {}
 local playerBuffs = {}
-local auraBuffs = {}
-local missingFood, missingFlasks, missingRunes, missingBuffs = {}, {}, {}, {}
-local numRaidBuffs, numAvailableBuffs = 0, 0
+local missingFood, missingFlasks, missingRunes = {}, {}, {}
 
 local YES = ("|cff20ff20%s|r"):format(YES)
 local NO = ("|cffff2020%s|r"):format(NO)
@@ -30,7 +27,7 @@ local NO = ("|cffff2020%s|r"):format(NO)
 local spells = setmetatable({}, {
 	__index = function(t, k)
 		if k == nil then return end
-		local name, _, texture = GetSpellInfo(k)
+		local name = GetSpellInfo(k)
 		if not name then
 			print("oRA3: Invalid spell id", k)
 			name = "" -- only print once
@@ -140,111 +137,6 @@ do
 	end
 end
 
-local raidBuffs = {
-	{ -- Stats
-		1126,   -- Mark of the Wild
-		20217,  -- Blessing of Kings
-		115921, -- Legacy of the Emperor
-		116781, -- Legacy of the White Tiger
-		69378,  -- Blessing of Forgotten Kings (Leatherworking)
-		159988, -- Bark of the Wild (pet)
-		160017, -- Blessing of Kongs (pet)
-		90363,  -- Embrace of the Shale Spider (pet)
-		160077, -- Strength of the Earth (pet)
-		160206, -- Lone Wolf: Power of the Primates
-	},
-	{ -- Stamina
-		21562,  -- Power Word: Fortitude
-		469,    -- Commanding Shout
-		166928, -- Blood Pact
-		111922, -- Fortitude (Inscription)
-		50256,  -- Invigorating Roar (pet)
-		90364,  -- Qiraji Fortitude (pet)
-		160003, -- Savage Vigor (pet)
-		160014, -- Sturdiness (pet)
-		160199, -- Lone Wolf: Fortitude of the Bear
-	},
-	{ -- Attack Power
-		6673,  -- Battle Shout
-		57330, -- Horn of Winter
-		19506, -- Trueshot Aura
-	},
-	{ -- Haste
-		55610,  -- Unholy Aura
-		49868,  -- Mind Quickening
-		113742, -- Swiftblade's Cunning
-		116956, -- Grace of Air
-		128432, -- Cackling Howl (pet)
-		135678, -- Energizing Spores (pet)
-		160003, -- Savage Vigor (pet)
-		160074, -- Speed of the Swarm (pet)
-		160203, -- Lone Wolf: Haste of the Hyena
-	},
-	{ -- Spell Power
-		1459,   -- Arcane Brilliance
-		61316,  -- Dalaran Brilliance
-		109773, -- Dark Intent
-		90364,  -- Qiraji Fortitude (pet)
-		128433, -- Serpent's Cunning (pet)
-		126309, -- Still Water (pet)
-		160205, -- Lone Wolf: Wisdom of the Serpent
-	},
-	{ -- Critical Strike
-		1459,   -- Arcane Brilliance
-		61316,  -- Dalaran Brilliance
-		17007,  -- Leader of the Pack
-		116781, -- Legacy of the White Tiger
-		97229,  -- Bellowing Roar (pet)
-		90363,  -- Embrace of the Shale Spider (pet)
-		126373, -- Fearless Roar (pet)
-		24604,  -- Furious Howl (pet)
-		90309,  -- Terrifying Roar (pet)
-		126309, -- Still Water (pet)
-		128997, -- Spirit Beast Blessing (pet)
-		160052, -- Strength of the Pack (pet)
-		160200, -- Lone Wolf: Ferocity of the Raptor
-	},
-	{ -- Mastery
-		19740,  -- Blessing of Might
-		116956, -- Grace of Air
-		24907,  -- Moonkin Aura
-		155522, -- Power of the Grave
-		160039, -- Keen Senses (pet)
-		160073, -- Plainswalking (pet)
-		93435,  -- Roar of Courage (pet)
-		128997, -- Spirit Beast Blessing (pet)
-		160198, -- Lone Wolf: Grace of the Cat
-	},
-	{ -- Multistrike
-		49868,  -- Mind Quickening
-		109773, -- Dark Intent
-		113742, -- Swiftblade's Cunning
-		166916, -- Windflurry
-		24844,  -- Breath of the Winds (pet)
-		58604,  -- Double Bite (pet)
-		159736, -- Duality (pet)
-		54644,  -- Frost Breath (pet)
-		50519,  -- Sonic Focus (pet)
-		34889,  -- Spry Attacks (pet)
-		57386,  -- Wild Strength (pet)
-		172968, -- Lone Wolf: Quickness of the Dragonhawk
-	},
-	{ -- Versatility
-		1126,   -- Mark of the Wild
-		55610,  -- Unholy Aura
-		167187, -- Sanctity Aura
-		167188, -- Inspiring Presence
-		50518,  -- Chitinous Armor (pet)
-		160045, -- Defensive Quills (pet)
-		173035, -- Grace (pet)
-		35290,  -- Indomitable (pet)
-		159735, -- Tenacity (pet)
-		160077, -- Strength of the Earth (pet)
-		57386,  -- Wild Strength (pet)
-		172967, -- Lone Wolf: Versatility of the Ravager
-	}
-}
-
 ---------------------------------------
 -- Options
 
@@ -313,12 +205,6 @@ local options = {
 					desc = L.checkRuneDesc,
 					order = 3,
 				},
-				checkBuffs = {
-					type = "toggle",
-					name = L.raidBuffs,
-					desc = L.checkBuffsDesc,
-					order = 4,
-				},
 			},
 		}, -- checks
 	},
@@ -333,7 +219,6 @@ function module:OnRegister()
 			checkFood = true,
 			checkFlask = true,
 			checkRune = false,
-			checkBuffs = true,
 			output = 1, -- 1 = disabled
 			checkReadyCheck = 2, -- 2 = started by you
 			whisper = false,
@@ -347,63 +232,16 @@ function module:OnRegister()
 		L.name,
 		L.food,
 		L.flask,
-		L.rune,
-		L.raidBuffs
+		L.rune
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
-	oRA.RegisterCallback(self, "OnListSelected")
-	oRA.RegisterCallback(self, "OnListClosed")
-	oRA.RegisterCallback(self, "OnGroupChanged", "UpdateList")
 
 	SLASH_ORABUFFS1 = "/rabuffs"
 	SLASH_ORABUFFS2 = "/rab"
 	SlashCmdList.ORABUFFS = function()
 		oRA:OpenToList(L.buffs)
-	end
-end
-
-do
-	local function sortList(a, b)
-		local a_buffs = (a[2] == NO and 0 or 1) + (a[3] == NO and 0 or 1) + (a[4] == NO and 0 or 1) + tonumber(a[5]:match("^%d"))
-		local b_buffs = (b[2] == NO and 0 or 1) + (b[3] == NO and 0 or 1) + (b[4] == NO and 0 or 1) + tonumber(b[5]:match("^%d"))
-		if a_buffs < b_buffs then
-			return true
-		elseif a_buffs > b_buffs then
-			return false
-		elseif a[1] < b[1] then
-			return true
-		end
-		return false
-	end
-
-	function module:UpdateList()
-		self:CheckGroup()
-		sort(consumablesList, sortList)
-		oRA:UpdateList(L.buffs)
-	end
-end
-
-do
-	local updater = nil
-	function module:OnListSelected(_, list)
-		if list == L.buffs then
-			if not updater then
-				updater = self:ScheduleRepeatingTimer("UpdateList", 1)
-				self:UpdateList()
-			end
-		elseif updater then
-			self:CancelTimer(updater)
-			updater = nil
-		end
-	end
-
-	function module:OnListClosed(_, list)
-		if updater then
-			self:CancelTimer(updater)
-			updater = nil
-		end
 	end
 end
 
@@ -417,9 +255,6 @@ function module:OnShutdown()
 	wipe(missingFlasks)
 	wipe(missingFood)
 	wipe(missingRunes)
-	wipe(missingBuffs)
-	wipe(auraBuffs)
-	numRaidBuffs, numAvailableBuffs = 0, 0
 end
 
 function module:READY_CHECK(sender)
@@ -493,7 +328,7 @@ do
 			if not oRA:IsPromoted() or oRA:IsPromoted() == 1 then return end
 		end
 
-		local noFood, noFlasks, noRunes, noBuff = self:CheckGroup()
+		local noFood, noFlasks, noRunes = self:CheckGroup()
 
 		local db = self.db.profile
 		if db.whisper then
@@ -511,7 +346,7 @@ do
 						warnings[#warnings + 1] = L.noFlask
 					else
 						local flask = getFlask(player)
-						local _, _, _, _, _, duration, expires = UnitBuff(player, spells[flask])
+						local _, _, _, _, _, _, expires = UnitBuff(player, spells[flask])
 						local remaining = expires and (expires - t) or 0
 						if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
 							whisper(player, L.flaskExpires)
@@ -538,65 +373,34 @@ do
 		if db.checkRune then
 			out(L.noRune, noRunes)
 		end
-		if db.checkBuffs then
-			out(L.missingBuffs, noBuff)
-		end
 	end
 end
 
 -------------------
 -- Player Check
 
-do
-	function module:CheckPlayer(player)
-		local cache = playerBuffs[player]
-		local t = GetTime()
-		if cache and t-cache[6] < PLAYER_CHECK_THROTTLE then
-			local food, flask, rune, buffs, numBuffs = unpack(cache)
-			return food, flask, rune, next(buffs) and buffs or false, numBuffs
-		end
-		if not cache then
-			playerBuffs[player] = {}
-			cache = playerBuffs[player]
-		end
-
-		local flask = getFlask(player)
-		local food = getFood(player)
-		local rune = getRune(player)
-		local buffs = cache[4] or {}
-		wipe(buffs)
-
-		local numBuffs = 0
-		local mask, bit = GetRaidBuffInfo(), 1
-		for i = 1, NUM_LE_RAID_BUFF_TYPES do
-			local found = nil
-			for _, spellId in next, raidBuffs[i] do
-				local name, _, _, _, _, duration = UnitBuff(player, spells[spellId])
-				if name then
-					numBuffs = numBuffs + 1
-					found = true
-					if duration == 0 then
-						auraBuffs[i] = true
-					end
-					break
-				end
-			end
-			if band(mask, bit) ~= 0 and not found then
-				local key = _G[("RAID_BUFF_%d"):format(i)]
-				buffs[key] = i
-			end
-			bit = lshift(bit, 1)
-		end
-
-		cache[1] = food
-		cache[2] = flask
-		cache[3] = rune
-		cache[4] = buffs
-		cache[5] = numBuffs
-		cache[6] = t
-
-		return food, flask, rune, next(buffs) and buffs or false, numBuffs
+function module:CheckPlayer(player)
+	local cache = playerBuffs[player]
+	local t = GetTime()
+	if cache and t-cache[4] < PLAYER_CHECK_THROTTLE then
+		local food, flask, rune = unpack(cache)
+		return food, flask, rune
 	end
+	if not cache then
+		playerBuffs[player] = {}
+		cache = playerBuffs[player]
+	end
+
+	local flask = getFlask(player)
+	local food = getFood(player)
+	local rune = getRune(player)
+
+	cache[1] = food
+	cache[2] = flask
+	cache[3] = rune
+	cache[4] = t
+
+	return food, flask, rune
 end
 
 -------------------
@@ -616,7 +420,7 @@ do
 	function module:CheckGroup()
 		local t = GetTime()
 		if t-prev < GROUP_CHECK_THROTTLE then
-			return missingFood, missingFlasks, missingRunes, missingBuffs, numRaidBuffs, numAvailableBuffs
+			return missingFood, missingFlasks, missingRunes
 		end
 		prev = t
 
@@ -624,23 +428,18 @@ do
 		wipe(missingFlasks)
 		wipe(missingFood)
 		wipe(missingRunes)
-		wipe(missingBuffs)
-		wipe(auraBuffs)
 
-		numRaidBuffs = 0
-		numAvailableBuffs = select(2, GetRaidBuffInfo())
 		local groupMembers = oRA:GetGroupMembers()
 		if not groupMembers[1] then groupMembers[1] = UnitName("player") end
 		for _, player in next, groupMembers do
 			if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and UnitIsVisible(player) then
-				local food, flask, rune, buffs, numBuffs = self:CheckPlayer(player)
+				local food, flask, rune = self:CheckPlayer(player)
 
 				consumablesList[#consumablesList + 1] = {
 					player:gsub("%-.*", ""),
 					food and (getStatValue(food) or spells[161715]) or NO, -- 161715 = Eating
 					flask and (getStatValue(flask) or YES) or NO,
 					rune and YES or NO,
-					("%d/%d"):format(numBuffs, max(numBuffs, numAvailableBuffs)),
 				}
 
 				if not food then
@@ -654,226 +453,9 @@ do
 				if not rune then
 					missingRunes[player] = true
 				end
-
-				if numRaidBuffs < numBuffs then
-					numRaidBuffs = numBuffs
-				end
-				if buffs then
-					for k, i in next, buffs do
-						missingBuffs[k] = i
-					end
-				end
 			end
 		end
 
-		-- filter out aura buffs for players that are out of range
-		if next(missingBuffs) then
-			for k in next, auraBuffs do
-				local key = _G[("RAID_BUFF_%d"):format(k)]
-				missingBuffs[key] = nil
-			end
-		end
-
-		if numAvailableBuffs < numRaidBuffs then
-			numAvailableBuffs = numRaidBuffs
-		end
-
-		return missingFood, missingFlasks, missingRunes, missingBuffs, numRaidBuffs, numAvailableBuffs
+		return missingFood, missingFlasks, missingRunes
 	end
 end
-
---@do-not-package@
-do
-	-- working on a more reliable method than GetRaidBuffInfo (which doesn't take spec into account)
-	local buffProviders = {
-		{ -- 1 Stats
-			{102, 9}, {103, 9}, {104, 9}, {105, 9}, -- Druid (+Versatility)
-			{268, 6}, {269, 6}, {270, 6}, -- Monk (BrM/WW +Crit)
-			65, 66, 70, -- Paladin
-		},
-		{ -- 2 Stamina
-			256, 257, 258, -- Priest
-			-265, -266, -267, -- Warlock
-			71, 72, 73, -- Warrior
-		},
-		{ -- 3 Attack Power
-			250, 251, 252, -- DK
-			253, 254, 255, -- Hunter
-			71, 72, 73, -- Warrior
-		},
-		{ -- 4 Haste
-			-258, -- Shadow Priest (+Multistrike)
-			-251, -252, -- Unholy/Frost DK (+Versatility)
-			-259, -260, -261, -- Rogue (+Multistrike)
-			-262, -263, -264, -- Shaman (+Mastery)
-		},
-		{ -- 5 Spell Power
-			{62, 6}, {63, 6}, {64, 6}, -- Mage (+Crit)
-			{265, 8}, {266, 8}, {267, 8}, -- Warlock (+Multistrike)
-		},
-		{ -- 6 Critical Strike
-			-103, -- Feral Druid
-			{268, 1}, {269, 1}, -- BrM/WW Monk (+Stats)
-			{62, 5}, {63, 5}, {64, 5}, -- Mage (+Spell Power)
-		},
-		{ -- 7 Mastery
-			-250, -- Blood DK
-			-102, -- Balance Druid
-			-262, -263, -264, -- Shaman (+Haste)
-			65, 66, 70, -- Paladin
-		},
-		{ -- 8 Multistrike
-			-269, -- WW Monk
-			-258, -- Shadow Priest (+Haste)
-			-259, -260, -261, -- Rogue
-			{265, 5}, {266, 5}, {267, 5}, -- Warlock (+Spell Power)
-		},
-		{ -- 9 Versatility
-			-70, -- Ret Paladin
-			-251, -252, -- Unholy/Frost DK (+Haste)
-			-71, -72, -- Arms/Fury Warrior
-			{102, 1}, {103, 1}, {104, 1}, {105, 1}, -- Druid (+Stats)
-		}
-	}
-
-	-- XXX DEBUG --[[
-	local CLASS_NAMES = _G.LOCALIZED_CLASS_NAMES_MALE
-	local TESTPLAYERS = {
-		Wally = {class="WARRIOR",spec=73},
-		Kingkong = {class="DEATHKNIGHT",spec=250},
-
-		Ling = {class="MONK",spec=270},
-		Apenuts = {class="PALADIN",spec=65},
-		Python = {class="PRIEST",spec=256},
-
-		Foobar = {class="DRUID",spec=102},
-		Eric = {class="WARLOCK",spec=265},
-		Hicks = {class="MAGE",spec=62},
-		Dylan = {class="ROGUE",spec=260},
-		Purple = {class="HUNTER",spec=253},
-		Red = {class="HUNTER",spec=254},
-		Blue = {class="HUNTER",spec=255},
-		Tor = {class="SHAMAN",spec=263},
-	}
-	local TESTGROUP = {
-		"Wally", "Kingkong",
-		"Ling", "Apenuts", --"Python",
-		"Foobar", "Eric", "Hicks", "Purple", "Blue", --"Tor",
-	}
-	-- XXX DEBUG --]]
-
-	-- this should only be calculated each time the group roster changes
-	local function getRaidBuffInfo()
-		print("GetRaidBuffInfo")
-		local test = not IsInGroup()
-		-- record what we got
-		local complete = true
-		local specs = {}
-		local hunters = 0
-		print("scanning roster")
-		local members = test and TESTGROUP or oRA:GetGroupMembers()
-		for _, player in next, members do
-			local guid = UnitGUID(player)
-			local info = test and TESTPLAYERS[player] or oRA:GetPlayerInfo(guid)
-			if info.spec then
-				specs[info.spec] = (specs[info.spec] or 0) + 1
-				local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(info.spec)
-				print("  +", player, specName, CLASS_NAMES[class])
-			else
-				complete = false
-				print("  ?", player)
-			end
-			if info.class == "HUNTER" then
-				hunters = hunters + 1
-			end
-		end
-
-		-- order buffs by number of players that can provide it (ascending)
-		local providers, sorted = {}, {}
-		for index = 1, #buffProviders do
-			providers[index] = 0
-			sorted[index] = index
-			for _, spec in next, buffProviders[index] do
-				if type(spec) == "table" then spec = spec[1] end
-				if specs[spec] then
-					providers[index] = providers[index] or 0 + 1
-				end
-			end
-		end
-		sort(sorted, function(a, b)
-			return providers[a] < providers[b]
-		end)
-
-		-- figure out what we need
-		local mask, count = 0, 0
-		for _, index in ipairs(sorted) do
-			print("checking", _G["RAID_BUFF_"..index])
-			local bit = 2^(index - 1)
-			if band(mask, bit) ~= bit then
-				local buff = buffProviders[index]
-				local found = false
-				-- check for passive buffs first
-				for _, spec in next, buff do
-					-- negative spec = aura provider, doesn't count against pool
-					if type(spec) == "number" and spec < 0 and specs[-spec] then
-						local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(-spec)
-						print("  found", specName, CLASS_NAMES[class], "(passive)")
-						found = true
-						break
-					end
-				end
-				-- check if we have a player to cover it, preferring specs we have multiple of
-				if not found then
-					local f, s = nil, nil
-					for i, spec in next, buff do
-						if type(spec) == "table" then spec = spec[1] end
-						local n = specs[spec]
-						if n and (not s or n > specs[s]) then
-							s = spec
-							f = i
-						end
-					end
-					if f then
-						found = true
-						local spec = buff[f]
-						-- some buffs provide multiple things, account for that
-						if type(spec) == "table" then
-							local also = spec[2]
-							spec = spec[1]
-							mask = bor(mask, 2^(also - 1))
-							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
-							print("  found", specName, CLASS_NAMES[class], "+", _G["RAID_BUFF_"..also])
-						else
-							local _, specName, _, _, _, _, class = _G.GetSpecializationInfoByID(spec)
-							print("  found", specName, CLASS_NAMES[class])
-						end
-						specs[spec] = specs[spec] - 1
-						if specs[spec] == 0 then
-							specs[spec] = nil
-						end
-					end
-				end
-				-- do we have a hunter to cover the buff?
-				if not found and hunters > 0 then
-					found = true
-					hunters = hunters - 1
-					print("  found (Hunter)")
-				end
-				-- count it
-				if found then
-					mask = bor(mask, bit)
-					count = count + 1
-				else
-					print("  not found")
-				end
-			else -- already added
-				print("  already provided")
-				count = count + 1
-			end
-		end
-		print("done", mask, count)
-		return mask, count
-	end
-	_G.ORARBI = getRaidBuffInfo
-end
---@end-do-not-package@
