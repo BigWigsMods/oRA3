@@ -207,17 +207,17 @@ local function OnLeave(self)
 end
 
 local function createButton(parent, template)
-	local frame = CreateFrame("Button", nil, parent, template)
-	frame:SetWidth(16)
-	frame:SetHeight(16)
-	frame:SetScript("OnLeave", OnLeave)
-	frame:SetScript("OnEnter", OnEnter)
-	frame:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+	local button = CreateFrame("Button", nil, parent, template)
+	button:SetWidth(16)
+	button:SetHeight(16)
+	button:SetScript("OnLeave", OnLeave)
+	button:SetScript("OnEnter", OnEnter)
+	button:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
 
-	local image = frame:CreateTexture(nil, "BACKGROUND")
-	frame.icon = image
-	image:SetAllPoints(frame)
-	return frame
+	local image = button:CreateTexture(nil, "BACKGROUND")
+	button.icon = image
+	image:SetAllPoints(button)
+	return button
 end
 
 local function topScrollDeleteClick(self)
@@ -269,7 +269,7 @@ local function topScrollSaveClick(self)
 		PlaySound("igMainMenuOptionCheckBoxOn")
 		namedPersistent[value] = true
 		wipe(module.db.persistentTanks)
-		for k, v in next, allIndexedTanks do
+		for _, v in next, allIndexedTanks do
 			if namedPersistent[v] then
 				module.db.persistentTanks[#module.db.persistentTanks + 1] = v
 			end
@@ -290,7 +290,7 @@ local function topScrollUpClick(self)
 		allIndexedTanks[k - 1] = temp
 	end
 	wipe(module.db.persistentTanks)
-	for k, v in next, allIndexedTanks do
+	for _, v in next, allIndexedTanks do
 		if namedPersistent[v] then
 			module.db.persistentTanks[#module.db.persistentTanks + 1] = v
 		end

@@ -1623,7 +1623,7 @@ function module:OnCommReceived(_, sender, prefix, cd)
 		local guid = UnitGUID(sender)
 		if self:GetRemainingCooldown(guid, spellId) == 0 then
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
-			local cd = tonumber(cd)
+			cd = tonumber(cd)
 			spellsOnCooldown[spellId][guid] = GetTime() + cd
 			callbacks:Fire("oRA3CD_StartCooldown", guid, sender, "SHAMAN", spellId, cd)
 		end
@@ -1785,7 +1785,7 @@ do
 						scratch[srcGUID] = nil
 
 						-- reduce remaining cd (should be ~40s) by half of the remaining absorb % (so 100% left would reduce the cd by 50%, or 20s)
-						local cd = cd - (min(amount / maxAbsorb, 1) * 0.5 * cd)
+						cd = cd - (min(amount / maxAbsorb, 1) * 0.5 * cd)
 						resetCooldown(srcGUID, source, 48707, cd)
 					end
 				end
@@ -1971,5 +1971,4 @@ do
 	end
 end
 
-oRA3CD = module -- set global
-
+_G.oRA3CD = module -- set global

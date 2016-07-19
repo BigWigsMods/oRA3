@@ -111,11 +111,11 @@ function module:UPDATE_FACTION()
 		local name,_,_,_,_,_,_,_,isHeader,isCollapsed = GetFactionInfo(i)
 		if isHeader == 1 then
 			if isCollapsed == 1 then
-				local NumFactions = GetNumFactions()
+				local numFactions = GetNumFactions()
 				ExpandFactionHeader(i)
-				NumFactions = GetNumFactions() - NumFactions
-				for j = i+1, i+NumFactions do
-					local name = GetFactionInfo(j)
+				numFactions = GetNumFactions() - numFactions
+				for j = i + 1, i + numFactions do
+					name = GetFactionInfo(j)
 					factionList[name] = true
 				end
 				CollapseFactionHeader(i)

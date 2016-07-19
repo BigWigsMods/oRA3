@@ -24,7 +24,7 @@ local consumables = oRA:GetModule("Consumables")
 local readycheck = {} -- table containing ready check results
 local readygroup = {}
 local highgroup = 9
-local frame -- will be filled with our GUI frame
+local window -- will be filled with our GUI frame
 local showBuffFrame = false
 local availableBuffs = 0
 local list = {} -- temp table to concat from
@@ -299,26 +299,26 @@ end
 
 local function createTopFrame()
 	local num = #topMemberFrames + 1
-	local f = CreateFrame("Frame", "oRA3ReadyCheckTopFrame"..num, frame)
+	local f = CreateFrame("Frame", "oRA3ReadyCheckTopFrame"..num, window)
 	topMemberFrames[num] = f
 	local xoff = num % 2 == 0 and 160 or 15
 	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) - 17
 	f:SetWidth(150)
 	f:SetHeight(14)
-	f:SetPoint("TOPLEFT", frame, "TOPLEFT", xoff, yoff)
+	f:SetPoint("TOPLEFT", window, "TOPLEFT", xoff, yoff)
 	addIconAndName(f)
 	return f
 end
 
 local function createBottomFrame()
 	local num = #bottomMemberFrames + 1
-	local f = CreateFrame("Frame", "oRA3ReadyCheckBottomFrame"..num, frame)
+	local f = CreateFrame("Frame", "oRA3ReadyCheckBottomFrame"..num, window)
 	bottomMemberFrames[num] = f
 	local xoff = num % 2 == 0 and 152 or 7
 	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) + 4
 	f:SetWidth(150)
 	f:SetHeight(14)
-	f:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xoff, yoff)
+	f:SetPoint("TOPLEFT", window.bar, "TOPLEFT", xoff, yoff)
 	addIconAndName(f)
 	return f
 end
@@ -452,12 +452,12 @@ end
 local function updateWindow()
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
-	frame.bar:Hide()
-	frame.MissingGroupBuffs:Hide()
+	window.bar:Hide()
+	window.MissingGroupBuffs:Hide()
 
 	local promoted = oRA:IsPromoted()
-	frame.ready:SetDisabled(not promoted)
-	frame.check:SetDisabled(not promoted or IsInGroup(2))
+	window.ready:SetDisabled(not promoted)
+	window.check:SetDisabled(not promoted or IsInGroup(2))
 
 	-- buff check throttle
 	local update = nil
@@ -503,10 +503,10 @@ local function updateWindow()
 		if bottom > 0 then
 			height = height + 14 + (ceil(bottom / 2) * 14)
 			local yoff = 0 - (ceil(top / 2) * 14) - 34
-			frame.bar:ClearAllPoints()
-			frame.bar:SetPoint("TOPLEFT", frame, 8, yoff)
-			frame.bar:SetPoint("TOPRIGHT", frame, -6, yoff)
-			frame.bar:Show()
+			window.bar:ClearAllPoints()
+			window.bar:SetPoint("TOPLEFT", window, 8, yoff)
+			window.bar:SetPoint("TOPRIGHT", window, -6, yoff)
+			window.bar:Show()
 		end
 	else
 		setMemberStatus(1, false, playerName, playerClass, update)
@@ -518,7 +518,7 @@ local function updateWindow()
 		end
 	end
 
-	frame:SetHeight(max(height, 128))
+	window:SetHeight(max(height, 128))
 
 	if missingBuffs and next(missingBuffs) then
 		wipe(list)
@@ -526,18 +526,18 @@ local function updateWindow()
 			list[#list + 1] = k
 		end
 		sort(list)
-		frame.MissingGroupBuffs:SetText(concat(list, ", "))
-		frame.MissingGroupBuffs:Show()
+		window.MissingGroupBuffs:SetText(concat(list, ", "))
+		window.MissingGroupBuffs:Show()
 	end
 end
 
 local function createWindow()
-	if frame then return end
-	frame = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
-	frame:Hide()
+	if window then return end
+	window = CreateFrame("Frame", "oRA3ReadyCheck", UIParent)
+	window:Hide()
 	tinsert(UISpecialFrames, "oRA3ReadyCheck") -- Close on ESC
 
-	local f = frame
+	local f = window
 	f:SetWidth(320)
 	f:SetHeight(300)
 	f:SetMovable(true)
@@ -758,8 +758,8 @@ local function showFrame()
 		createWindow()
 		createWindow = nil
 	end
-	frame:Hide()
-	frame:Show()
+	window:Hide()
+	window:Show()
 end
 
 local sysprint
@@ -849,8 +849,8 @@ function module:OnEnable()
 end
 
 function module:PLAYER_REGEN_DISABLED()
-	if self.db.profile.hideOnCombat and frame and frame:IsShown() then
-		frame:Hide()
+	if self.db.profile.hideOnCombat and window and window:IsShown() then
+		window:Hide()
 	end
 end
 
@@ -942,7 +942,7 @@ function module:READY_CHECK(initiator, duration)
 	-- show the readycheck result frame
 	if self.db.profile.showWindow then
 		showFrame()
-		frame.title:SetText(READY_CHECK)
+		window.title:SetText(READY_CHECK)
 	end
 end
 
@@ -1015,12 +1015,12 @@ do
 			end
 		end
 
-		if self.db.profile.showWindow and frame then
-			frame.title:SetText(READY_CHECK_FINISHED)
+		if self.db.profile.showWindow and window then
+			window.title:SetText(READY_CHECK_FINISHED)
 			if self.db.profile.autohide then
 				updateWindow()
-				frame.animUpdater:Stop()
-				frame.animFader:Play()
+				window.animUpdater:Stop()
+				window.animFader:Play()
 			end
 		end
 	end

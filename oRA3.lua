@@ -730,14 +730,14 @@ local function setupGUI()
 	end)
 	check.module = consumables
 
-	local options = CreateFrame("Button", "oRA3OptionsButton", frame)
-	options:SetNormalTexture("Interface\\Worldmap\\Gear_64")
-	options:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
-	options:SetHighlightTexture("Interface\\Worldmap\\Gear_64")
-	options:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
-	options:SetSize(16, 16)
-	options:SetPoint("RIGHT", title, "RIGHT")
-	options:SetScript("OnClick", function()
+	local opt = CreateFrame("Button", "oRA3OptionsButton", frame)
+	opt:SetNormalTexture("Interface\\Worldmap\\Gear_64")
+	opt:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
+	opt:SetHighlightTexture("Interface\\Worldmap\\Gear_64")
+	opt:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
+	opt:SetSize(16, 16)
+	opt:SetPoint("RIGHT", title, "RIGHT")
+	opt:SetScript("OnClick", function()
 		LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general")
 		LibStub("AceConfigDialog-3.0"):Open("oRA")
 	end)
@@ -1178,15 +1178,15 @@ local function createScrollHeader()
 
 	local entries = {}
 	for i = 1, 19 do
-		local text = addon:CreateScrollEntry(f)
+		local entry = addon:CreateScrollEntry(f)
 		if i == 1 then
-			text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0)
-			text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
+			entry:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 8, 0)
+			entry:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -4, 0)
 		else
-			text:SetPoint("TOPLEFT", entries[i - 1], "BOTTOMLEFT")
-			text:SetPoint("TOPRIGHT", entries[i - 1], "BOTTOMRIGHT")
+			entry:SetPoint("TOPLEFT", entries[i - 1], "BOTTOMLEFT")
+			entry:SetPoint("TOPRIGHT", entries[i - 1], "BOTTOMRIGHT")
 		end
-		entries[i] = text
+		entries[i] = entry
 	end
 	f.entries = entries
 end
@@ -1273,5 +1273,4 @@ function addon:PLAYER_REGEN_DISABLED()
 	end
 end
 
-oRA3 = addon -- Set global
-
+_G.oRA3 = addon -- Set global

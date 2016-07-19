@@ -493,7 +493,7 @@ do
 			if not oRA:IsPromoted() or oRA:IsPromoted() == 1 then return end
 		end
 
-		local missingFood, missingFlasks, missingRunes, missingBuffs = self:CheckGroup()
+		local noFood, noFlasks, noRunes, noBuff = self:CheckGroup()
 
 		local db = self.db.profile
 		if db.whisper then
@@ -502,12 +502,12 @@ do
 			for _, player in next, oRA:GetGroupMembers() do
 				wipe(warnings)
 
-				if db.checkFood and missingFood[player] then
+				if db.checkFood and noFood[player] then
 					warnings[#warnings + 1] = L.noFood
 				end
 
 				if db.checkFlask then
-					if missingFlasks[player] then
+					if noFlasks[player] then
 						warnings[#warnings + 1] = L.noFlask
 					else
 						local flask = getFlask(player)
@@ -519,7 +519,7 @@ do
 					end
 				end
 
-				if db.checkRune and missingRunes[player] then
+				if db.checkRune and noRunes[player] then
 					warnings[#warnings + 1] = L.noRune
 				end
 
@@ -530,16 +530,16 @@ do
 		end
 
 		if db.checkFood then
-			out(L.noFood, missingFood)
+			out(L.noFood, noFood)
 		end
 		if db.checkFlask then
-			out(L.noFlask, missingFlasks)
+			out(L.noFlask, noFlasks)
 		end
 		if db.checkRune then
-			out(L.noRune, missingRunes)
+			out(L.noRune, noRunes)
 		end
 		if db.checkBuffs then
-			out(L.missingBuffs, missingBuffs)
+			out(L.missingBuffs, noBuff)
 		end
 	end
 end
