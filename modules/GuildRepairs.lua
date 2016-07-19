@@ -4,7 +4,7 @@ local oRA = scope.addon
 local module = oRA:NewModule("GuildRepairs")
 local L = scope.locale
 
--- GLOBALS: ChatTypeInfo DEFAULT_CHAT_FRAME
+-- luacheck: globals ChatTypeInfo DEFAULT_CHAT_FRAME
 
 local db = nil
 local processedRanks = {}
@@ -144,4 +144,3 @@ function module:OnShutdown()
 	wipe(db.repairFlagStorage)
 	wipe(processedRanks)
 end
-

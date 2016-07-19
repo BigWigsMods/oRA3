@@ -5,6 +5,8 @@ local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = scope.locale
 local coloredNames = oRA.coloredNames
 
+--luacheck: globals GameFontNormal
+
 local resAmount = 0
 local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
 local theDead = {}
@@ -308,4 +310,3 @@ do
 		end
 	end
 end
-

@@ -5,14 +5,7 @@ local module = oRA:NewModule("Invite", "AceTimer-3.0")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
--- GLOBALS: BNET_CLIENT_WOW FULL_PLAYER_NAME LE_PARTY_CATEGORY_INSTANCE NUM_LE_LFG_CATEGORYS MAX_PLAYER_LEVEL_TABLE
--- GLOBALS: GameFontHighlight PLAYER_DIFFICULTY1 PLAYER_DIFFICULTY2 PLAYER_DIFFICULTY6 RAID_DIFFICULTY
--- GLOBALS: SlashCmdList SLASH_ORAINVITE_GUILD1 SLASH_ORAINVITE_GUILD2 SLASH_ORAINVITE_ZONE1 SLASH_ORAINVITE_ZONE2
--- GLOBALS: SLASH_ORAINVITE_RANK1 SLASH_ORAINVITE_RANK2 GameTooltip_Hide SetRaidDifficulties
-
--- 6.2.4 compat
-local BNGetNumFriendGameAccounts = BNGetNumFriendGameAccounts or BNGetNumFriendToons
-local BNGetFriendGameAccountInfo = BNGetFriendGameAccountInfo or BNGetFriendToonInfo
+-- luacheck: globals BNET_CLIENT_WOW PLAYER_DIFFICULTY6 GameFontHighlight SetRaidDifficulties
 
 local frame = nil
 local db = nil
@@ -454,4 +447,3 @@ function module:CreateFrame()
 	-- updateRankButtons will ResumeLayout and DoLayout
 	updateRankButtons()
 end
-

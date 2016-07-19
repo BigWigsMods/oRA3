@@ -8,14 +8,7 @@ local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
 
--- GLOBALS: GameTooltip GameTooltip_Hide StaticPopup_Show StaticPopupDialogs tContains
--- GLOBALS: GameFontHighlight GameFontHighlightLarge LE_PARTY_CATEGORY_INSTANCE FILTERS
--- GLOBALS: CANCEL DISPLAY ENABLE GRAY_FONT_COLOR_CODE HIGHLIGHT_FONT_COLOR_CODE
--- GLOBALS: LOCK LOCALIZED_CLASS_NAMES_MALE NONE OKAY SPELLS SETTINGS TYPE YES
--- GLOBALS: COMBATLOG_OBJECT_AFFILIATION_MINE COMBATLOG_OBJECT_AFFILIATION_PARTY COMBATLOG_OBJECT_AFFILIATION_RAID
--- GLOBALS: COMBATLOG_OBJECT_TYPE_GUARDIAN COMBATLOG_OBJECT_TYPE_PET
--- GLOBALS: ARENA BATTLEGROUND DAMAGER HEALER INSTANCE PARTY RAID ROLE TANK RAID_GROUPS GROUP_NUMBER
--- GLOBALS: oRA3CD SLASH_ORACOOLDOWN1 SLASH_ORACOOLDOWN2 SlashCmdList
+-- luacheck: globals GameFontHighlight GameFontHighlightLarge
 
 --------------------------------------------------------------------------------
 -- Locals

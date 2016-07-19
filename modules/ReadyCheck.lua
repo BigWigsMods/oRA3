@@ -16,12 +16,8 @@ local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus,
 local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
 local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
 
--- GLOBALS: INLINE_TANK_ICON INLINE_HEALER_ICON INLINE_DAMAGER_ICON SPELL_FAILED_OUT_OF_RANGE SOUND_LABEL YES UNKNOWN
--- GLOBALS: READY_CHECK READY_CHECK_FINISHED READY_CHECK_ALL_READY RAID_MEMBER_NOT_READY RAID_MEMBERS_AFK DISABLE
--- GLOBALS: READY_CHECK_READY_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_WAITING_TEXTURE
--- GLOBALS: GameTooltip GameTooltip_Hide GameFontNormal UIParent UISpecialFrames ChatTypeInfo
--- GLOBALS: CreateFrame UnitClass SendChatMessage ChatFrame_GetMessageEventFilters ChatFrame_AddMessageEventFilter
--- GLOBALS: SlashCmdList SLASH_ORAREADYCHECK1 SLASH_ORAREADYCHECK2 SLASH_ORARAIDCHECK1 SLASH_ORARAIDCHECK2
+-- luacheck: globals ChatTypeInfo ChatFrame_GetMessageEventFilters GameFontNormal UISpecialFrames
+-- luacheck: globals READY_CHECK_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_WAITING_TEXTURE
 
 local consumables = oRA:GetModule("Consumables")
 
@@ -1029,4 +1025,3 @@ do
 		end
 	end
 end
-

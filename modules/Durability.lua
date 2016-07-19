@@ -79,11 +79,10 @@ do
 	-- XXX compat
 	function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
 		if prefix == "RequestUpdate" then
-			local perc, broken = LD:GetDurability()
+			local perc, broken = LD:GetDurability() -- luacheck: ignore
 			self:SendComm("Durability", perc, perc, broken)
 		elseif prefix == "Durability" then
 			update(perc, broken, sender)
 		end
 	end
 end
-

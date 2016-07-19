@@ -79,11 +79,10 @@ do
 	-- XXX compat
 	function module:OnCommReceived(_, sender, prefix, latencyHome, latencyWorld)
 		if prefix == "QueryLag" then
-			local _, _, latencyHome, latencyWorld = GetNetStats()
+			local _, _, latencyHome, latencyWorld = GetNetStats() -- luacheck: ignore
 			self:SendComm("Lag", latencyHome, latencyWorld)
 		elseif prefix == "Lag" then
 			update(latencyHome, latencyWorld, sender)
 		end
 	end
 end
-

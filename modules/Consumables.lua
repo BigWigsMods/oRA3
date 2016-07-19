@@ -13,9 +13,7 @@ local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsI
 local UnitBuff, UnitName, UnitIsConnected, UnitIsVisible = UnitBuff, UnitName, UnitIsConnected, UnitIsVisible
 local GetTime, GetRaidBuffInfo, UnitIsDeadOrGhost = GetTime, GetRaidBuffInfo, UnitIsDeadOrGhost
 
--- GLOBALS: ChatThrottleLib ChatFrame_AddMessageEventFilter SendChatMessage
--- GLOBALS: DISABLE YES NO NUM_LE_RAID_BUFF_TYPES LE_PARTY_CATEGORY_INSTANCE
--- GLOBALS: SlashCmdList, SLASH_ORABUFFS1 SLASH_ORABUFFS2 SLASH_ORABUFFS3 oRA3CheckButton
+--luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter ChatThrottleLib
 
 local GROUP_CHECK_THROTTLE = 0.8
 local PLAYER_CHECK_THROTTLE = 0.3

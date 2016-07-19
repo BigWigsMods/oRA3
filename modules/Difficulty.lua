@@ -46,4 +46,3 @@ function module:OnShutdown()
 		end
 	end
 end
-

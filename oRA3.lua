@@ -4,12 +4,10 @@ local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
 local L = scope.locale
 
--- GLOBALS: oRA3 oRA3Frame RAID_CLASS_COLORS CUSTOM_CLASS_COLORS RaidFrame RaidInfoFrame oRA3DisbandButton oRA3CheckButton
--- GLOBALS: SlashCmdList SLASH_ORA1 SLASH_ORA2 SLASH_ORADISBAND1 BINDING_HEADER_oRA3 BINDING_NAME_TOGGLEORA3
--- GLOBALS: GameFontNormal GameFontNormalSmall GameFontDisableSmall GameFontHighlightSmall
--- GLOBALS: UIPanelWindows PanelTemplates_SetTab PanelTemplates_SetNumTabs PanelTemplates_UpdateTabs
--- GLOBALS: FauxScrollFrame_Update FauxScrollFrame_Update FauxScrollFrame_OnVerticalScroll FauxScrollFrame_GetOffset
--- GLOBALS: StaticPopupDialogs STATICPOPUP_NUMDIALOGS StaticPopup_Show
+-- luacheck: globals RaidFrame RaidInfoFrame GameFontNormalSmall GameFontHighlightSmall GameFontDisableSmall
+-- luacheck: globals oRA3Frame oRA3DisbandButton oRA3CheckButton
+-- luacheck: globals PanelTemplates_SetNumTabs PanelTemplates_SetTab PanelTemplates_UpdateTabs
+-- luacheck: globals FauxScrollFrame_OnVerticalScroll FauxScrollFrame_Update FauxScrollFrame_GetOffset
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")

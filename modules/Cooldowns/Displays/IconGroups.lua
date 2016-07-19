@@ -9,8 +9,6 @@ local classColors = oRA3.classColors
 
 local Masque = LibStub("Masque", true)
 
--- GLOBALS: GameTooltip GameTooltip_Hide READY
-
 ---------------------------------------
 -- Icon factory
 
@@ -640,4 +638,3 @@ local function New(name)
 end
 
 oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.iconGroupDisplay, L.iconGroupDisplayDesc, DISPLAY_VERSION, New, GetOptions)
-

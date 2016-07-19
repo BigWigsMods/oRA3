@@ -387,7 +387,7 @@ end
 
 do
 	-- Tukui
-	local C = Tukui and Tukui[2]
+	local C = Tukui and Tukui[2] -- luacheck: ignore
 	local backdrop = {
 		bgFile = "Interface\\Buttons\\WHITE8X8",
 		edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -469,7 +469,7 @@ end
 
 do
 	-- ElvUI
-	local E = ElvUI and ElvUI[1]
+	local E = ElvUI and ElvUI[1] -- luacheck: ignore
 	local backdropBorder = {
 		bgFile = "Interface\\Buttons\\WHITE8X8",
 		edgeFile = "Interface\\Buttons\\WHITE8X8",

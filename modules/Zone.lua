@@ -5,6 +5,8 @@ local util = oRA.util
 local module = oRA:NewModule("Zone")
 local L = scope.locale
 
+-- luacheck: globals GameFontNormal
+
 local zones = {}
 local factionList = {}
 local tip = nil
@@ -164,4 +166,3 @@ function module:UpdateZoneList()
 		addPlayer(UnitName("player"), GetRealZoneText())
 	end
 end
-

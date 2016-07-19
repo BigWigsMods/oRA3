@@ -3,6 +3,8 @@ local addonName, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("RoleIcons")
 
+-- luacheck: globals NUM_RAID_GROUPS RaidFrame
+
 local countIcons -- frame containing the totals by role
 
 local updateIcons
@@ -135,4 +137,3 @@ function module:ADDON_LOADED(name)
 		hooksecurefunc("RaidGroupFrame_Update", updateIcons)
 	end
 end
-

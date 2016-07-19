@@ -17,8 +17,6 @@ local barStyles = oRA3CD:GetBarStyles()
 
 local After = C_Timer.After
 
--- GLOBALS: C_Timer DEFAULT NONE UNKNOWN UIParent
-
 ---------------------------------------
 -- Display
 
@@ -821,4 +819,3 @@ local function New(name)
 end
 
 oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.barDisplay, L.barDisplayDesc, DISPLAY_VERSION, New, GetOptions)
-

@@ -10,8 +10,6 @@ local classColors = oRA3.classColors
 local media = LibStub("LibSharedMedia-3.0")
 local Masque = LibStub("Masque", true)
 
--- GLOBALS: C_Timer NONE
-
 ---------------------------------------
 -- Icon factory
 
@@ -728,4 +726,3 @@ local function New(name)
 end
 
 oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.iconDisplay, L.iconDisplayDesc, DISPLAY_VERSION, New, GetOptions)
-

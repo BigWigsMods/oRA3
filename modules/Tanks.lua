@@ -6,6 +6,9 @@ local module = oRA:NewModule("Tanks")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
+-- luacheck: globals READY_CHECK_READY_TEXTURE FauxScrollFrame_Update
+-- luacheck: globals FauxScrollFrame_OnVerticalScroll FauxScrollFrame_GetOffset
+
 local frame = nil
 local indexedTanks = {} -- table containing the final tank list
 local namedTanks = {} -- table containing current active tanks by name
@@ -608,4 +611,3 @@ end
 function oRA:GetSortedTanks()
 	return indexedTanks
 end
-

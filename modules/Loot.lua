@@ -4,6 +4,8 @@ local oRA = scope.addon
 local module = oRA:NewModule("Loot", "AceTimer-3.0")
 local L = scope.locale
 
+-- luacheck: globals ITEM_QUALITY_COLORS
+
 local db
 local defaults = {
 	profile = {

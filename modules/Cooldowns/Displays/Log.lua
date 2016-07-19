@@ -9,7 +9,7 @@ local oRA3CD = oRA3:GetModule("Cooldowns")
 
 local media = LibStub("LibSharedMedia-3.0")
 
--- GLOBALS: ChatFontNormal GameTooltip GameTooltip_Hide
+-- luacheck: globals ChatFontNormal
 
 ---------------------------------------
 -- Display
@@ -226,4 +226,3 @@ local function New(name)
 end
 
 oRA3CD:RegisterDisplayType(DISPLAY_TYPE, L.logDisplay, L.logDisplayDesc, DISPLAY_VERSION, New, GetOptions)
-

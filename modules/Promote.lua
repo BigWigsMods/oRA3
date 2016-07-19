@@ -9,6 +9,8 @@ local module = oRA:NewModule("Promote", "AceTimer-3.0")
 local L = scope.locale
 local AceGUI = LibStub("AceGUI-3.0")
 
+-- luacheck: globals GameFontHighlight
+
 --------------------------------------------------------------------------------
 -- Locals
 --
@@ -310,4 +312,3 @@ function module:OnGuildRanksUpdate(_, guildRanks)
 		end
 	end
 end
-
