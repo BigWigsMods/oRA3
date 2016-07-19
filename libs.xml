@@ -23,4 +23,5 @@
 <Script file="libs\ChatThrottleLib\ChatThrottleLib.lua"/>
 <!--@end-no-lib-strip@-->
 
+<Script file="libs\LibGroupInSpecT-1.1.lua"/>
 </Ui>
