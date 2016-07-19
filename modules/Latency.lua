@@ -21,7 +21,6 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
-	oRA.RegisterCallback(self, "OnCommReceived") -- XXX compat
 	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORALATENCY1 = "/ralag"
@@ -45,18 +44,9 @@ function module:OnShutdown()
 	wipe(latency)
 end
 
-do
-	local prev = 0
-	function module:OnListSelected(_, list)
-		if list == L.latency then
-			LL:RequestLatency()
-			-- XXX compat
-			local t = GetTime()
-			if t-prev > 15 then
-				prev = t
-				self:SendComm("QueryLag")
-			end
-		end
+function module:OnListSelected(_, list)
+	if list == L.latency then
+		LL:RequestLatency()
 	end
 end
 
@@ -75,14 +65,4 @@ do
 		oRA:UpdateList(L.latency)
 	end
 	LL:Register(module, update)
-
-	-- XXX compat
-	function module:OnCommReceived(_, sender, prefix, latencyHome, latencyWorld)
-		if prefix == "QueryLag" then
-			local _, _, latencyHome, latencyWorld = GetNetStats() -- luacheck: ignore
-			self:SendComm("Lag", latencyHome, latencyWorld)
-		elseif prefix == "Lag" then
-			update(latencyHome, latencyWorld, sender)
-		end
-	end
 end

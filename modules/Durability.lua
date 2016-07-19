@@ -22,7 +22,6 @@ function module:OnRegister()
 	)
 	oRA.RegisterCallback(self, "OnShutdown")
 	oRA.RegisterCallback(self, "OnListSelected")
-	oRA.RegisterCallback(self, "OnCommReceived") -- XXX compat
 	oRA.RegisterCallback(self, "OnGroupChanged")
 
 	SLASH_ORADURABILITY1 = "/radur"
@@ -47,18 +46,9 @@ function module:OnShutdown()
 	wipe(durability)
 end
 
-do
-	local prev = 0
-	function module:OnListSelected(_, list)
-		if list == L.durability then
-			LD:RequestDurability()
-			-- XXX compat
-			local t = GetTime()
-			if t-prev > 15 then
-				prev = t
-				self:SendComm("RequestUpdate")
-			end
-		end
+function module:OnListSelected(_, list)
+	if list == L.durability then
+		LD:RequestDurability()
 	end
 end
 
@@ -75,14 +65,4 @@ do
 		oRA:UpdateList(L.durability)
 	end
 	LD:Register(module, update)
-
-	-- XXX compat
-	function module:OnCommReceived(_, sender, prefix, perc, minimum, broken)
-		if prefix == "RequestUpdate" then
-			local perc, broken = LD:GetDurability() -- luacheck: ignore
-			self:SendComm("Durability", perc, perc, broken)
-		elseif prefix == "Durability" then
-			update(perc, broken, sender)
-		end
-	end
 end
