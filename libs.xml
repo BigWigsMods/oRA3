@@ -18,7 +18,7 @@
 <Include file="libs\LibDurability\LibDurability.xml"/>
 <Include file="libs\LibDDI-1.0\lib.xml"/>
 <Script file="libs\LibDualSpec-1.0\LibDualSpec-1.0.lua"/>
-<Include file="libs\LibGroupInSpecT-1.1\lib.xml"/>
+<!--<Include file="libs\LibGroupInSpecT-1.1\lib.xml"/>-->
 <Include file="libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua"/>
 <Script file="libs\ChatThrottleLib\ChatThrottleLib.lua"/>
 <!--@end-no-lib-strip@-->
