@@ -544,6 +544,8 @@ for class, classSpells in next, spells do
 		end
 	end
 end
+module.classLookup = classLookup
+module.allSpells = allSpells
 
 
 function module:GetPlayerFromGUID(guid)
@@ -1437,6 +1439,15 @@ function module:OnRegister()
 		self:ScheduleTimer(function()
 			print("oRA3 Cooldowns has been redesigned and now supports multiple displays and different formats! You can open the options panel with /racd and move it around by dragging the title bar.")
 		end, 9)
+	end
+
+	-- remove unused spells from the db
+	for displayName, dspells in next, self.db.profile.spells do
+		for spell in next, dspells do
+			if not classLookup[spell] then
+				dspells[spell] = nil
+			end
+		end
 	end
 
 	for displayName, db in next, self.db.profile.displays do
