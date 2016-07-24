@@ -31,7 +31,7 @@ local function createFrame()
 	local bg = brez:CreateTexture(nil, "PARENT")
 	bg:SetAllPoints(brez)
 	bg:SetBlendMode("BLEND")
-	bg:SetTexture(0, 0, 0, 0.3)
+	bg:SetColorTexture(0, 0, 0, 0.3)
 	brez.background = bg
 
 	local header = brez:CreateFontString(nil, "OVERLAY", "GameFontNormal")

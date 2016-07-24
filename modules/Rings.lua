@@ -303,7 +303,7 @@ function display:Lock()
 	frame:SetMovable(false)
 	frame:SetResizable(false)
 	frame:RegisterForDrag()
-	frame.bg:SetTexture(0, 0, 0, 0)
+	frame.bg:SetColorTexture(0, 0, 0, 0)
 	frame.header:Hide()
 end
 
@@ -315,7 +315,7 @@ function display:Unlock()
 	frame:SetMovable(true)
 	frame:SetResizable(true)
 	frame:RegisterForDrag("LeftButton")
-	frame.bg:SetTexture(0, 0, 0, 0.3)
+	frame.bg:SetColorTexture(0, 0, 0, 0.3)
 	frame.header:Show()
 end
 
@@ -370,7 +370,7 @@ do
 		local bg = frame:CreateTexture(nil, "BACKGROUND")
 		bg:SetPoint("TOPLEFT", frame, -padding, padding)
 		bg:SetPoint("BOTTOMRIGHT", frame, padding, -padding)
-		bg:SetTexture(0, 0, 0, 0.3)
+		bg:SetColorTexture(0, 0, 0, 0.3)
 		frame.bg = bg
 
 		-- wish this didn't scale, but font strings don't have their own scale property to compensate D; oh well

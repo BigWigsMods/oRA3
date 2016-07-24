@@ -19,7 +19,7 @@ function container:Lock()
 	frame:RegisterForDrag()
 	frame.drag:Hide()
 	frame.header:Hide()
-	frame.bg:SetTexture(0, 0, 0, 0)
+	frame.bg:SetColorTexture(0, 0, 0, 0)
 	self.db.lockDisplay = true
 	if self.OnLock then
 		self:OnLock()
@@ -34,7 +34,7 @@ function container:Unlock()
 	frame:SetMovable(true)
 	frame:SetResizable(true)
 	frame:RegisterForDrag("LeftButton")
-	frame.bg:SetTexture(0, 0, 0, 0.3)
+	frame.bg:SetColorTexture(0, 0, 0, 0.3)
 	frame.drag:Show()
 	frame.header:Show()
 	self.db.lockDisplay = false
@@ -100,7 +100,7 @@ do
 			local bg = frame:CreateTexture(nil, "BACKGROUND")
 			bg:SetAllPoints(frame)
 			bg:SetBlendMode("BLEND")
-			bg:SetTexture(0, 0, 0, 0.3)
+			bg:SetColorTexture(0, 0, 0, 0.3)
 			frame.bg = bg
 
 			local header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")

@@ -276,7 +276,7 @@ local function addIconAndName(frame)
 	frame.FoodBuff = food
 
 	local bg = frame:CreateTexture(nil, "ARTWORK")
-	bg:SetTexture(1, 0, 0, 0.3)
+	bg:SetColorTexture(1, 0, 0, 0.3)
 	bg:SetAllPoints(rdt)
 	frame.bg = bg
 	bg:Hide()
