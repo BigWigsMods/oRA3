@@ -2,13 +2,13 @@
 -- Setup
 --
 
-local addonName, scope = ...
+local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
 
--- luacheck: globals GameFontHighlight GameFontHighlightLarge
+-- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide
 
 --------------------------------------------------------------------------------
 -- Locals
@@ -38,153 +38,9 @@ local function addMod(guid, spell, modifier, charges)
 end
 
 local talentCooldowns = {
-	[19364] = function(info) -- Crouching Tiger, Hidden Chimera
-		addMod(info.guid, 781, 10) -- Disengage
-		addMod(info.guid, 19263, 60) -- Deterrence
-	end,
-	[17591] = function(info) -- Unbreakable Spirit
-		addMod(info.guid, 642, 150) -- Divine Shield
-		addMod(info.guid, 498, 30) -- Divine Protection
-		local divinity = cdModifiers[633] and cdModifiers[633][info.guid] -- relies on glyphs being set first
-		addMod(info.guid, 633, divinity and 360 or 300) -- Lay on Hands, (-50%) -300sec / -360sec with Glyph of Divinity
-	end,
-	[17593] = function(info) -- Clemency
-		if info.spec == 66 then -- Protection
-			addMod(info.guid, 1038, 0, 2)  -- Hand of Salvation
-		end
-		addMod(info.guid, 1022, 0, 2)  -- Hand of Protection
-		addMod(info.guid, 1044, 0, 2)  -- Hand of Freedom
-		addMod(info.guid, 6940, 0, 2)  -- Hand of Sacrifice
-	end,
-	[15775] = function(info) -- Juggernaut
-		addMod(info.guid, 100, 8) -- Charge
-	end,
-	[16035] = function(info) -- Double Time
-		addMod(info.guid, 100, 0, 2) -- Charge
-	end,
-	[19296] = function(info) -- Archimonde's Darkness
-		if info.spec == 265 then -- Affliction
-			addMod(info.guid, 113860, 0, 2) -- Dark Soul: Misery
-		elseif info.spec == 266 then -- Demonology
-			addMod(info.guid, 113861, 0, 2) -- Dark Soul: Knowledge
-		elseif info.spec == 267 then -- Destruction
-			addMod(info.guid, 113858, 0, 2) -- Dark Soul: Instability
-		end
-	end,
 }
 
-local specCooldowns = {
-	[250] = function(info) -- Blood Death Knight
-		if info.level >= 100 then
-			addMod(info.guid, 49576, 5) -- Death Grip
-			addMod(info.guid, 48982, 10) -- Rune Tap
-		end
-	end,
-	[255] = function(info) -- Survival Hunter
-		if info.level >= 100 then
-			-- -9.9s (33% of 30s) on traps
-			addMod(info.guid, 1499, 9.9) -- Freezing Trap
-			addMod(info.guid, 13813, 9.9) -- Explosive Trap
-			addMod(info.guid, 13809, 9.9) -- Ice Trap
-			if info.glyphs[159470] then
-				addMod(info.guid, 34600, 9.9) -- Snake Trap
-			end
-		end
-	end,
-	[62] = function(info) -- Arcane Mage
-		if info.level >= 100 then
-			addMod(info.guid, 12051, 30) -- Evocation
-		end
-	end,
-	[63] = function(info) -- Fire Mage
-		if info.level >= 100 then
-			addMod(info.guid, 2120, 12) -- Flamestrike
-		end
-	end,
-	[268] = function(info) -- Brewmaster Monk
-		if info.level >= 100 then
-			addMod(info.guid, 115295, 0, 2) -- Guard
-			--addMod(info.guid, 101643, 35) -- Transcendence
-		end
-	end,
-	[270] = function(info) -- Mistweaver Monk
-		if info.level >= 100 then
-			addMod(info.guid, 116849, 20) -- Life Cocoon
-			--addMod(info.guid, 101643, 35) -- Transcendence
-		end
-	end,
-	[70] = function(info) -- Retribution Paladin
-		if info.level >= 100 then
-			addMod(info.guid, 6940, 30) -- Hand of Sacrifice
-		end
-	end,
-	[261] = function(info) -- Subtlety Rogue
-		if info.level >= 100 then
-			addMod(info.guid, 1856, 30) -- Vanish
-		end
-	end,
-	[267] = function(info) -- Destruction Warlock
-		if info.level >= 100 then
-			addMod(info.guid, 80240, 5) -- Havoc
-		end
-	end,
-
-	-- Unused perk mods:
-	-- 269 Windwalker Monk: Transcendence -35s
-	-- 257 Holy Priest: Chakras -20s
-	-- 264 Restoration Shaman: Riptide -1s
-}
-
-local glyphCooldowns = {
-	-- Deathknight
-	[58673] = {48792, 90}, -- Icebound Fortitude, -90sec (-50%)
-	[58686] = {47528, 1}, -- Mind Freeze, -1sec
-	[59332] = {77575, 60}, -- Outbreak, -60sec
-	[63331] = {77606, 30}, -- Dark Simulacrum, -30sec
-	-- Druid
-	[59219] = {1850, 60}, -- Dash, -60sec
-	[116216] = {106839, -5}, -- Skull Bash, +5sec
-	[114223] = {61336, 40}, -- Survival Instincts, -40sec
-	-- Hunter
-	-- Mage
-	[56368] = {11129, -45}, -- Combustion, +45sec (+100%)
-	[56376] = {122, 5}, -- Frost Nova, -5sec
-	[62210] = {12042, -90}, -- Arcane Power, +90sec (+100%)
-	[115703] = {2139, -4}, -- Counterspell, +4sec
-	[146659] = {1953, 0, 2}, -- Blink, 2 charges
-	-- Monk
-	[123391] = {115080, -120}, -- Touch of Death, +120sec
-	-- Paladin
-	[54925] = {96231, -5}, -- Rebuke, +5sec
-	[54939] = {633, -120}, -- Lay on Hands, +120sec
-	[146955] = {31821, 60}, -- Devotion Aura, -60sec
-	[162604] = {31842, 90}, -- Avenging Wrath, -90sec
-	-- Priest
-	[55678] = {6346, 60}, -- Fear Ward, -60sec
-	[55688] = {64044, 10}, -- Psychic Horror, -10sec
-	[63229] = {47585, 15}, -- Dispersion, -15sec
-	-- Rogue
-	[56805] = {1766, -4}, -- Kick, +4sec
-	-- Shaman
-	[55441] = {8177, -20}, -- Grounding Totem, +20sec
-	[55451] = {57994, -3}, -- Wind Shear, +3sec
-	[55455] = {2894, 150}, -- Fire Elemental Totem, -150sec (-50%)
-	[58058] = {556, 300}, -- Astral Recall, -300sec
-	[63270] = {51490, 10}, -- Thunderstorm, -10sec
-	[63291] = {51514, 10}, -- Hex, -10sec
-	[159640] = {51533, 60}, -- Feral Spirit, -60sec
-	[159648] = {30823, 60}, -- Shamanistic Rage, -60sec
-	[159650] = {79206, 60}, -- Spiritwalker's Grace, -60sec
-	-- Warlock
-	[63309] = {48020, 4}, -- Demonic Circle: Teleport, -4sec
-	[146962] = {80240, -35}, -- Havoc, +35sec
-	-- Warrior
-	[63325] = {52174, 15}, -- Heroic Leap, -15sec
-	[63328] = {23920, 5}, -- Spell Reflection, -5sec
-	[63329] = {871, -120}, -- Shield Wall, +120sec
-}
-
--- { cd, level, spec id, talent index, glyph spell id }
+-- { cd, level, spec id, talent index }
 local spells = {
 	DEATHKNIGHT = {
 		[49576] = {25, 55}, -- Death Grip
@@ -482,20 +338,6 @@ local combatResSpells = {
 }
 
 local chargeSpells = {
-	-- these will always return the charge info with GetSpellCharges
-	[78674] = 3, -- Starsurge (3 charges)
-	[19263] = 2, -- Deterrence (2 charges)
-	[157980] = 2, -- Supernova (2 charges)
-	[157981] = 2, -- Blast Wave (2 charges)
-	[157997] = 2, -- Ice Nova (2 charges)
-	-- nil without glyph or talent
-	--[1953] = 2, -- Blink (2 charges with glyph)
-	--[115295] = 2, -- Guard (2 charges with perk)
-	--[6940] = 2, -- Hand of Sacrifice (2 charges with talent)
-	--[113860] = 2, -- Dark Soul: Misery (2 charges with talent)
-	--[113861] = 2, -- Dark Soul: Knowledge (2 charges with talent)
-	--[113858] = 2, -- Dark Soul: Instability (2 charges with talent)
-	--[100] = 2, -- Charge (2 charges with talent)
 }
 
 local mergeSpells = {}
@@ -531,10 +373,9 @@ function module:IsSpellUsable(guid, spellId)
 	local data = spells[info.class][spellId]
 	if not data then return false end
 
-	local _, level, spec, talent, glyph = unpack(data)
+	local _, level, spec, talent = unpack(data)
 	local usable = (info.level >= level) and
 		(not talent or ((talent > 0 and info.talents[talent]) or (talent < 0 and not info.talents[-talent]))) and -- handle talents replacing spells (negative talent index)
-		(not glyph or info.glyphs[glyph]) and
 		(not spec or spec == info.spec or (type(spec) == "table" and tContains(spec, info.spec)))
 
 	return usable
@@ -1580,22 +1421,10 @@ function module:OnPlayerUpdate(_, guid, unit, info)
 	for _, mods in next, cdModifiers do mods[guid] = nil end
 	for _, mods in next, chargeModifiers do mods[guid] = nil end
 
-	for spellId in next, info.glyphs do
-		if glyphCooldowns[spellId] then
-			local spell, modifier = unpack(glyphCooldowns[spellId])
-			addMod(guid, spell, modifier)
-		end
-	end
-
 	for talentIndex, talentId in next, info.talents do
 		if talentCooldowns[talentId] then
 			talentCooldowns[talentId](info)
 		end
-	end
-
-	-- handle perks (apply all perks to players at level 100)
-	if specCooldowns[info.spec] then
-		specCooldowns[info.spec](info)
 	end
 
 	infoCache[guid] = info
@@ -1682,54 +1511,6 @@ do
 	combatLogHandler.userdata = {}
 	local scratch = combatLogHandler.userdata
 	local specialEvents = {
-		SPELL_CAST_SUCCESS = {
-			[11958] = function(srcGUID, source) -- Cold Snap
-				local spec = infoCache[srcGUID] and infoCache[srcGUID].spec
-				if not spec then return end
-
-				-- reset Ice Block, Presence of Mind, Dragon's Breath, Cone of Cold, Frost Nova
-				resetCooldown(srcGUID, source, 45438) -- Ice Block
-				if spec == 62 then resetCooldown(srcGUID, source, 12043) end  -- Presence of Mind
-				if spec == 63 then resetCooldown(srcGUID, source, 31661) end  -- Dragon's Breath
-				if spec == 64 then resetCooldown(srcGUID, source, 120) end  -- Cone of Cold
-				if module:IsSpellUsable(srcGUID, 122) then resetCooldown(srcGUID, source, 122) end -- Frost Nova
-			end,
-		},
-		SPELL_AURA_APPLIED = {
-			[48707] = function(srcGUID, source, _, amount) -- Anti-Magic Shell
-				local info = infoCache[srcGUID]
-				if info and info.glyphs[146648] and amount > 0 then -- Glyph of Regenerative Magic
-					scratch[srcGUID] = amount
-				end
-			end,
-		},
-		SPELL_AURA_REMOVED = {
-			[48707] = function(srcGUID, source, _, amount) -- Anti-Magic Shell
-				if amount > 0 and scratch[srcGUID] then
-					local cd = module:GetRemainingCooldown(srcGUID, 48707)
-					if cd < 41 then
-						local maxAbsorb = scratch[srcGUID]
-						scratch[srcGUID] = nil
-
-						-- reduce remaining cd (should be ~40s) by half of the remaining absorb % (so 100% left would reduce the cd by 50%, or 20s)
-						cd = cd - (min(amount / maxAbsorb, 1) * 0.5 * cd)
-						resetCooldown(srcGUID, source, 48707, cd)
-					end
-				end
-			end,
-			[31850] = function(srcGUID, source) -- Ardent Defender
-				local info = infoCache[srcGUID]
-				if info and info.glyphs[159548] and not scratch[srcGUID] then -- 159548 = Glyph of Ardent Defender
-					resetCooldown(srcGUID, source, 31850, 50) -- reset to 60s (less the 10s it was active)
-				end
-				scratch[srcGUID] = nil
-			end,
-		},
-		SPELL_HEAL = {
-			[66235] = function(srcGUID, source) -- Ardent Defender (life saving heal)
-				scratch[srcGUID] = true
-			end,
-		},
 	}
 
 	local inEncounter = nil
