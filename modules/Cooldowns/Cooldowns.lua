@@ -38,90 +38,230 @@ local function addMod(guid, spell, modifier, charges)
 end
 
 local talentCooldowns = {
+	-- Death Knight
+	[19227] = function(info) -- Blood: Tightening Grasp
+		addMod(info.guid, 108199, 60) -- Gorefiend's Grasp
+	end,
+	[22024] = function(info) -- Unholy: All Will Serve
+		addMod(info.guid, 46584, 60) -- Raise Dead
+	end,
+	[22022] = function(info) -- Lingering Apparition
+		addMod(info.guid, 212552, 15) -- Wraith Walk
+	end,
+	-- Druid
+	[22424] = function(info) -- Guardian: Guttural Roars
+		addMod(info.guid, 106898, 60) -- Stampeding Roar
+	end,
+	[22422] = function(info) -- Guardian: Survival of the Fittest
+		addMod(info.guid, 22812, 20) -- Barkskin
+		addMod(info.guid, 61336, 60) -- Survival Instincts
+	end,
+	[18569] = function(info) -- Resto: Prosperity
+		addMod(info.guid, 18562, 5, 2) -- Swiftmend
+	end,
+	[21713] = function(info) -- Resto: Inner Peace
+		addMod(info.guid, 740, 60) -- Tranquility
+	end,
+	[21651] = function(info) -- Resto: Stonebark
+		addMod(info.guid, 102342, 30) -- Ironbark
+	end,
+	-- Hunter
+	[19361] = function(info) -- Survival: Improved Traps
+		addMod(info.guid, 187650, 4.5) -- Freezing Trap (15%)
+		addMod(info.guid, 187698, 15) -- Tar Trap (50%)
+		addMod(info.guid, 191433, 15) -- Explosve Trap (50%)
+	end,
+	-- Mage
+	[16025] = function(info) -- Cold Snap
+		addMod(info.guid, 45438, 0, 2) -- Ice Block
+	end,
+	[22471] = function(info) -- Ice Ward
+		addMod(info.guid, 122, 0, 2)
+	end,
+	-- Paladin
+	[17567] = function(info) -- Holy: Unbreakable Spirit (-30%)
+		addMod(info.guid, 642, 100) -- Divine Shield
+		addMod(info.guid, 498, 20) -- Divine Protection
+		addMod(info.guid, 633, 200) -- Lay on Hands
+	end,
+	[22433] = function(info) -- Protection: Blessing of Spellwarding
+		-- Replaces Blessing of Protection. Set a fake talent so we can
+		-- hide BoP for Protection, but leave the other specs alone.
+		info.talents[100] = true
+	end,
+	-- Priest
+	[22487] = function(info) -- Shadow: Mind Bomb
+		-- Hacky hack hack
+		info.talents[100] = true
+	end,
+	[22094] = function(info) -- Disc/Shadow: Psychic Voice
+		addMod(info.guid, 8122, 30)
+	end,
+	[21718] = function(info) -- Shadow: Power Infusion
+		-- Actually 16, but we need it to be 14.
+		info.talents[14] = true
+	end,
+	[21720] = function(info) -- Shadow: Mendbender
+		-- Actually 18, but we need it to be 12.
+		info.talents[12] = true
+	end,
+	-- Shaman
+	[22492] = function(info) -- Resto: Graceful Spirit
+		addMod(info.guid, 79206, 60) -- Spiritwalker's Grace
+	end,
+	[22139] = function(info) -- Elemental: Ancestral Guidance
+		-- Actually 5, but we need it to be 11.
+		info.talents[11] = true
+	end,
+	-- Warlock
+	[21182] = function(info) -- Grimoire of Supremacy
+		addMod(info.guid, 1122, 180) -- Summon Infernal
+		addMod(info.guid, 18540, 180) -- Summon Doomguard
+	end,
+	-- Warrior
+	[22409] = function(info) -- Arms/Fury: Double Time
+		addMod(info.guid, 100, 3, 2) -- Charge
+	end,
+	[22627] = function(info) -- Bounding Stride
+		addMod(info.guid, 52174, 15) -- Heroic Leap
+	end,
+	[15760] = function(info) -- Protection: Shockwave
+		-- Protection has the talent in a different tier than Arms/Fury
+		-- Fortunately, the talent ids are different and we don't use
+		-- this talent index.
+		info.talents[4] = true
+	end,
+	[15759] = function(info) -- Protection: Storm Bolt
+		-- Actually 2, but we need it to be 5.
+		info.talents[5] = true
+	end,
 }
 
 -- { cd, level, spec id, talent index }
 local spells = {
 	DEATHKNIGHT = {
+		[221562] = {45, 55, 250}, -- Asphyxiate
 		[49576] = {25, 55}, -- Death Grip
-		[46584] = {60, 56}, -- Raise Dead
-		[115989] = {90, 56, nil, 3}, -- Unholy Blight
-		[47528] = {15, 57}, -- Mind Freeze
-		[49039] = {120, 57, nil, 4}, -- Lichborne
-		[51052] = {120, 57, nil, 5}, -- Anti-Magic Zone
-		[47476] = {60, 58, nil, -9}, -- Strangulate
-		[108194] = {30, 58, nil, 9}, -- Asphyxiate
-		[43265] = {30, 60, nil, -20}, -- Death and Decay
-		[48792] = {180, 62}, -- Icebound Fortitude
-		[48707] = {45, 68}, -- Anti-Magic Shell
-		[51271] = {60, 68, 251}, -- Pillar of Frost
+		[46584] = {60, 55, 252}, -- Raise Dead
+		[48707] = {60, 57}, -- Anti-Magic Shell
+		[43265] = {30, 56, {250, 252}}, -- Death and Decay
+		[49028] = {180, 57, 250}, -- Dancing Rune Weapon
+		[47568] = {180, 57, 251, -8}, -- Empower Rune Weapon
+		[51271] = {60, 57, 251}, -- Pillar of Frost
+		[196770] = {20, 57, 251}, -- Remorseless Winder
+		[55233] = {90, 57, 250}, -- Vampiric Blood
+		[212552] = {60, 60}, -- Wraith Walk
+		[47528] = {15, 62}, -- Mind Freeze
+		[108199] = {180, 64, 250}, -- Gorefiend's Grasp
+		[48792] = {180, 65, {251, 252}}, -- Icebound Fortitude
 		[61999] = {600, 72}, -- Raise Ally
-		[49028] = {90, 74, 250}, -- Dancing Rune Weapon
-		[49206] = {180, 74, 252}, -- Summon Gargoyle
-		[48743] = {120, 75, nil, 13}, -- Death Pact
-		[47568] = {300, 76}, -- Empower Rune Weapon
-		[55233] = {60, 76, 250}, -- Vampiric Blood
-		[42650] = {600, 80}, -- Army of the Dead
-		[77575] = {60, 81}, -- Outbreak
-		[77606] = {60, 85}, -- Dark Simulacrum
-		[108199] = {60, 90, nil, 16}, -- Gorefiend's Grasp
-		[108201] = {120, 90, nil, 18}, -- Desecrated Ground
-		[152280] = {30, 100, nil, 20}, -- Defile
+		[63560] = {60, 74, 252}, -- Dark Transformation
+		[49206] = {180, 75, 252}, -- Summon Gargoyle
+		[42650] = {600, 82, 252}, -- Army of the Dead
+
+		[206931] = {30, 56, 250, 3}, -- Blooddrinker
+		[207317] = {10, 57, 252, 4}, -- Epidemic (3 charges)
+		[57330] = {30, 57, 251, 6}, -- Horn of Winter
+		[221699] = {60, 58, 250, 8}, -- Blood Tap (2 charges)
+		[207127] = {180, 58, 251, 8}, -- Hungering Rune Weapon
+		[108194] = {45, 60, 252, 11}, -- Asphyxiate
+		[207319] = {60, 75, 252, 14}, -- Corpse Shield
+		[194679] = {25, 90, 250, 17}, -- Rune Tap (2 charges)
+		[194844] = {60, 100, 250, 19}, -- Bonestorm
+		[207349] = {180, 100, 252, 19}, -- Dark Arbiter
+		[206977] = {120, 100, 250, 20}, -- Blood Mirror
+		[152279] = {120, 100, 251, 20}, -- Breath of Sindragosa
+		[152280] = {30, 100, 252, 20}, -- Defile
+		[194913] = {15, 100, 251, 21}, -- Glacial Advance
+		[130736] = {45, 100, 252, 21}, -- Soul Reaper
 	},
 	DRUID = {
-		[18562] = {15, 10, 105}, -- Swiftmend
-		[5217]  = {30, 10, 103}, -- Tiger's Fury
-		[78674] = {30, 12, 102}, -- Starsurge (3 charges)
-		[102280] = {30, 15, nil, 2}, -- Displacer Beast
-		[16979] = {15, 15, nil, 3}, -- Wild Charge (Bear)
-		[49376] = {15, 15, nil, 3}, -- Wild Charge (Cat)
-		[102383] = {15, 15, nil, 3}, -- Wild Charge (Moonkin)
-		[102416] = {15, 15, nil, 3}, -- Wild Charge (Aquatic)
-		[102417] = {15, 15, nil, 3}, -- Wild Charge (Travel)
+		[5217]  = {30, 12, 103}, -- Tiger's Fury
+		[18562] = {30, 12, 105}, -- Swiftmend
 		[1850]  = {180, 24}, -- Dash
-		[78675] = {60, 28, 102}, -- Solar Beam
-		[108238] = {120, 30, nil, 5}, -- Renewel
-		[102351] = {30, 30, nil, 6}, -- Cenarion Ward
-		[22812] = {60, 44, {102, 104, 105}}, -- Barkskin
-		[102359] = {30, 45, nil, 8}, -- Mass Entanglement
-		[132469] = {30, 45, nil, 9}, -- Typhoon
-		[61391] = 132469, -- Typhoon (actual event)
 		[20484] = {600, 56}, -- Rebirth
-		[61336] = {180, 56, {103, 104}}, -- Survival Instincts
-		[33891] = {180, 60, 105, 11}, -- Incarnation: Tree of Life
-		[102543] = {180, 60, 103, 11}, -- Incarnation: King of the Jungle
-		[102558] = {180, 60, 104, 11}, -- Incarnation: Son of Ursoc
-		[102560] = {180, 60, 102, 11}, -- Incarnation: Chosen of Elune
-		[102342] = {60, 64, 105}, -- Ironbark
+		[78675] = {60, 28, 102}, -- Solar Beam
+		[99] = {30, 28, 104}, -- Incapacitating Roar
+		[22812] = {60, 36, {102, 104, 105}}, -- Barkskin
+		[61336] = {180, 40, {103, 104}}, -- Survival Instincts (2 charges)
+		[106951] = {180, 48, 103, -14}, -- Berserk
+		[102793] = {60, 48, 105}, -- Ursol's Vortex
+		[29166] = {180, 50, {102, 105}}, -- Innervate
+		[22842] = {24, 50, 104}, -- Frenzied Regeneration (2 charges)
+		[102342] = {90, 52, 105}, -- Ironbark
+		[194223] = {180, 64, 102, -14}, -- Celestial Alignment
 		[106839] = {15, 64, {103, 104}}, -- Skull Bash
-		[740]   = {180, 74, 105}, -- Tranquility
-		[99] = {30, 75, nil, 13}, -- Incapacitating Roar
-		[102793] = {60, 75, nil, 14}, -- Ursol's Vortex
-		[5211] = {50, 75, nil, 15}, -- Mighty Bash
-		[77761] = {120, 84}, -- Stampeding Roar, Bear
-		[77764] = 77761, -- Spampeding Roar, Cat
-		[106898] = 77761, -- Spampeding Roar, Misc
-		[124974] = {90, 90, nil, 18}, -- Nature's Vigil
-		[155835] = {100, 30, 104, 21}, -- Bristling Fur
+		[740]   = {180, 72, 105}, -- Tranquility
+		[106898] = {120, 83, {103, 104}}, -- Stampeding Roar
+
+		[205636] = {60, 15, 102, 1}, -- Force of Nature
+		[202425] = {45, 15, 102, 2}, -- Warrior of Elune
+		[155835] = {40, 15, 104, 2}, -- Bristling Fur
+		[102351] = {30, 15, 105, 2}, -- Cenarion Ward
+		[108238] = {120, 30, {102, 103, 105}, 4}, -- Renewel
+		[102280] = {30, 30, nil, 5}, -- Displacer Beast
+		[132302] = {15, 30, nil, 6}, -- Wild Charge
+		[16979] = 132302, -- Wild Charge (Bear)
+		[49376] = 132302, -- Wild Charge (Cat)
+		[102383] = 132302, -- Wild Charge (Moonkin)
+		[102416] = 132302, -- Wild Charge (Aquatic)
+		[102417] = 132302, -- Wild Charge (Travel)
+		-- XXX 45 talents add spells exclusive to other specs...WHATDO?!
+		[5211] = {50, 60, nil, 10}, -- Mighty Bash
+		[102359] = {30, 60, nil, 11}, -- Mass Entanglement
+		[132469] = {30, 60, nil, 12}, -- Typhoon
+		[61391] = 132469, -- Typhoon (actual event)
+		[102560] = {180, 75, 102, 14}, -- Incarnation: Chosen of Elune
+		[102543] = {180, 75, 103, 14}, -- Incarnation: King of the Jungle
+		[102558] = {180, 75, 104, 14}, -- Incarnation: Guardian of Ursoc
+		[33891]  = {180, 75, 105, 14}, -- Incarnation: Tree of Life
+		[202359] = {80, 90, 102, 17}, -- Astral Communion
+		[202360] = {15, 90, 102, 18}, -- Blessing of the Ancients
+		[202060] = {45, 90, 103, 18}, -- Elune's Guidance
+		[202770] = {90, 100, 102, 19}, -- Fury of Elune
+		[204066] = {90, 100, 104, 20}, -- Lunar Beam
+		[197721] = {60, 100, 105, 21}, -- Flourish
 	},
 	HUNTER = {
-		[781]   = {20, 14}, -- Disengage
-		[147362] = {24, 22}, -- Counter Shot
-		[109248] = {45, 30, nil, 4}, -- Binding Shot
-		[19386] = {45, 30, nil, 5}, -- Wyvern Sting
-		[19577] = {60, 30, nil, 6}, -- Intimidation
+		[136] = {10, 1}, -- Mend Pet
+		[186257] = {180, 5}, -- Aspect of the Cheetah
+		[781] = {20, 14, {253, 254}}, -- Disengage
+		[193530] = {120, 18, 253}, -- Aspect of the Wild
+		[186387] = {30, 22, 254}, -- Bursting Shot
+		[190925] = {20, 22, 255}, -- Harpoon
+		[147362] = {24, 24, {253, 254}}, -- Counter Shot
+		[187707] = {15, 24, 255}, -- Muzzle
+		[187650] = {30, 28, 255, -12}, -- Freezing Trap
 		[5384]  = {30, 32}, -- Feign Death
-		[13813] = {30, 38}, -- Explosive Trap
-		[19574] = {60, 40, 253}, -- Bestial Wrath
-		[34477] = {30, 42}, -- Misdirection
-		[109304] = {120, 45, nil, 7}, -- Exhilaration
-		[13809] = {30, 46}, -- Ice Trap
-		[3045]  = {120, 54, 254}, -- Rapid Fire
-		[120679] = {30, 60, nil, 11}, -- Dire Beast
-		[53271] = {45, 74}, -- Master's Call
-		[131894] = {60, 75, nil, 13}, -- A Murder of Crow
-		[19263] = {180, 78}, -- Deterrence (2 charges)
-		[120360] = {20, 90, nil, 18}, -- Barrage
+		[109304] = {120, 36, {253, 255}}, -- Exhilaration
+		[1543] = {20, 38}, -- Flare
+		[61648] = {180, 40}, -- Aspect of the Chameleon
+		[19574] = {90, 40, 253}, -- Bestial Wrath
+		[193526] = {180, 40, 254}, -- Trueshot
+		[34477] = {30, 42, {253, 254}}, -- Misdirection
+		[187698] = {30, 42, 255}, -- Tar Trap
+		[186289] = {120, 44, 255}, -- Aspect of the Eagle
+		[191433] = {30, 48, 255}, -- Explosive Trap
+		[186265] = {180, 50}, -- Aspect of the Turtle
+
+		[206505] = {60, 30, 255, 4}, -- A Murder of Crows
+		-- [194599] = {15, 30, 254, 5}, -- Black Arrow
+		[201078] = {90, 30, 255, 6}, -- Snake Hunter
+		[212431] = {30, 60, 254, 10}, -- Explosive Shot
+		[194277] = {15, 60, 255, 10}, -- Caltrops
+		[206817] = {30, 60, 254, 11}, -- Sentinel (2 charges)
+		[162488] = {60, 60, 255, 12}, -- Steel Trap
+		[109248] = {45, 75, {253, 254}, 10}, -- Binding Shot
+		[191241] = {30, 75, 255, 10}, -- Sticky Bomb
+		[19386] = {45, 75, {253, 254}, 11}, -- Wyvern Sting
+		[19577] = {60, 75, 253, 12}, -- Intimidation
+		[191241] = {60, 75, {254, 255}, 15}, -- Camouflage
+		[131894] = {60, 90, {253, 254}, 16}, -- A Murder of Crows
+		[120360] = {20, 90, {253, 254}, 17}, -- Barrage
+		[194855] = {30, 90, 255, 17}, -- Dragonsfire Grenade
+		[194386] = {90, 90, {253, 254}, 18}, -- Volley
+		[201430] = {180, 100, 253, 19}, -- Stampede
+		[194407] = {60, 100, 255, 19}, -- Splitting Cobra
 		-- Pet
 		[90355]  = {360, 20}, -- Ancient Hysteria
 		[160452] = {360, 20}, -- Netherwinds
@@ -130,201 +270,229 @@ local spells = {
 		[159931] = {600, 20}, -- Gift of Chi-Ji
 	},
 	MAGE = {
-		[122]   = {30, 3, nil, -15}, -- Frost Nova
-		[1953]  = {15, 7}, -- Blink
-		[2139]  = {24, 8}, -- Counterspell
+		[122]   = {30, 3, nil}, -- Frost Nova
+		[1953]  = {15, 7, nil, -4}, -- Blink
 		[31687] = {60, 10, 64}, -- Summon Water Elemental
-		[45438] = {300, 15, nil, -1}, -- Ice Block
-		[157913] = {45, 15, nil, 1}, -- Evanesce
-		[108843] = {25, 15, nil, 2}, -- Blazing Speed
-		[108839] = {20, 15, nil, 3}, -- Ice Floes
-		[120]   = {12, 28, {62, 64}}, -- Cone of Cold
-		[108978] = {90, 30, nil, 4}, -- Alter Time
-		[11426] = {25, 30, nil, 6}, -- Ice Barrier
-		[12472] = {180, 36, 64}, -- Icy Veins
-		[12051] = {120, 40}, -- Evocation
-		[2120] = {12, 44, 63}, -- Flamestrike
-		[113724] = {45, 45, nil, 7}, -- Ring of Frost
-		[66]    = {300, 56, nil, -10}, -- Invisibility
-		[110959] = {90, 60, nil, 10}, -- Greater Invisibility
-		[11958] = {180, 60, nil, 12}, -- Cold Snap
-		[84714] = {60, 62, 64}, -- Frozen Orb -- XXX Perk reduces CD from Blizzard damage
-		[12042] = {90, 62, 62}, -- Arcane Power
+		[11426] = {25, 16}, -- Ice Barrier
+		[195676] = {30, 24, 62}, -- Displacement
 		[31661] = {20, 62, 63}, -- Dragon's Breath
-		[157980] = {25, 75, 62, 15}, -- Supernova (2 charges)
-		[157981] = {25, 75, 63, 15}, -- Blast Wave (2 charges)
-		[157997] = {25, 75, 64, 15}, -- Ice Nova (2 charges)
-		[80353] = {300, 84}, -- Time Warp
-		[55342]  = {120, 90, nil, 16}, -- Mirror Image
-		[152087]  = {90, 100, nil, 20}, -- Prismatic Crystal
-		[153626]  = {15, 100, 62, 21}, -- Arcane Orb
-		[153561]  = {45, 100, 63, 21}, -- Meteor
-		[153561]  = {30, 100, 64, 21}, -- Comet Storm
+		[45438] = {300, 26, nil}, -- Ice Block
+		[135029] = {25, 32, 64}, -- Water Jet
+		[190319] = {120, 28, 63}, -- Combustion
+		[2139]  = {24, 34}, -- Counterspell
+		[120]   = {12, 36, 64}, -- Cone of Cold
+		[12051] = {120, 40, 62}, -- Evocation
+		[12472] = {180, 40, 64}, -- Icy Veins
+		[12042] = {90, 44, 62}, -- Arcane Power
+		[110959] = {120, 50, 62}, -- Greater Invisibility
+		[66]    = {300, 50, {63, 64}}, -- Invisibility
+		[80353] = {300, 65}, -- Time Warp
+		[84714] = {60, 83, 64}, -- Frozen Orb
+
+		[205021] = {60, 15, 64, 1}, -- Ray of Frost
+		[205025] = {60, 15, 62, 2}, -- Presence of Mind
+		[212653] = {15, 30, nil, 4}, -- Shimmer
+		[55342]  = {120, 45, nil, 7}, -- Mirror Image
+		[116011] = {120, 45, nil, 8}, -- Rune of Power (2 charges)
+		[157980] = {25, 60, 62, 10}, -- Supernova
+		[157981] = {25, 60, 63, 10}, -- Blast Wave
+		[157997] = {25, 60, 64, 10}, -- Ice Nova
+		[205032] = {40, 60, 62, 11}, -- Charged Up
+		[205029] = {40, 60, 63, 11}, -- Flame On
+		[205030] = {30, 60, 64, 11}, -- Frozen Touch
+		[108839] = {20, 60, nil, 13}, -- Ice Floes (3 charges)
+		[113724] = {45, 60, nil, 14}, -- Ring of Frost
+		[44457]  = {12, 90, 63, 16}, -- Living Bomb
+		[198929] = {9, 90, 63, 20}, -- Cinderstorm
+		[153626] = {20, 100, 62, 21}, -- Arcane Orb
+		[153561] = {45, 100, 63, 21}, -- Meteor
+		[153561] = {30, 100, 64, 21}, -- Comet Storm
 	},
 	MONK = {
-		[116841] = {30, 15, nil, 2}, -- Tiger's Lust
-		[101545] = {25, 18, 269}, -- Flying Serpent Kick
+		[101545] = {25, 10, 269}, -- Flying Serpent Kick
 		[122470] = {90, 22, 269}, -- Touch of Karma
-		[115080] = {90, 22}, -- Touch of Death
-		[115203] = {180, 24}, -- Fortifying Brew
-		[115098] = {15, 30, nil, 4}, -- Chi Wave
-		[124081] = {15, 10, nil, 5}, -- Zen Sphere
-		[123986] = {15, 30, nil, 6}, -- Chi Burst
-		[116705] = {15, 32}, -- Spear Hand Strike
-		[115078] = {15, 44}, -- Paralysis
-		[115399] = {15, 45, nil, 9}, -- Chi Brew
-		[116849] = {120, 50, 270}, -- Life Cocoon
+		[115203] = {420, 24, 268}, -- Fortifying Brew
+		[115080] = {120, 24, 269}, -- Touch of Death
+		[116849] = {180, 28, 270}, -- Life Cocoon
+		[116705] = {15, 32, {268, 269}}, -- Spear Hand Strike
+		[115078] = {15, 48}, -- Paralysis
+		[116680] = {30, 54, 270}, -- Thunder Focus Tea
+		[115176] = {300, 65, 268}, -- Zen Meditation
+		[115310] = {180, 65, 270}, -- Revival
+
+		[197945] = {20, 15, 270, 3}, -- Mistwalk (2 charges)
+		[116841] = {30, 30, nil, 5}, -- Tiger's Lust
+		[115288] = {60, 45, 269, 7}, -- Energizing Elixir
+		[115399] = {90, 45, 269, 8}, -- Black Ox Brew
 		[116844] = {45, 60, nil, 10}, -- Ring of Peace
+		[198898] = {30, 60, 270, 11}, -- Song of Chi-Ji
 		[119381] = {45, 60, nil, 12}, -- Leg Sweep
-		[116680] = {45, 66, 270}, -- Thunder Focus Tea
-		[122278] = {90, 75, nil, 14}, -- Dampen Harm
-		[122783] = {90, 75, nil, 15}, -- Diffuse Magic
-		[115310] = {180, 78, 270}, -- Revival
-		[115176] = {180, 82, {268, 269}}, -- Zen Meditation
-		[123904] = {180, 90, nil, 17}, -- Invoke Xuen, the White Tiger
-		[152173] = {90, 100, {268, 269}}, -- Serenity
-		[152175] = {45, 100, 269}, -- Hurricane Strike
+		[122783] = {120, 75, nil, 14}, -- Diffuse Magic
+		[122278] = {120, 75, nil, 15}, -- Dampen Harm
+		[132578] = {180, 90, 268, 17}, -- Invoke Niuzao, the Black Ox
+		[123904] = {180, 90, 269, 17}, -- Invoke Xuen, the White Tiger
+		[198664] = {180, 90, 270, 17}, -- Invoke Chi-Ji, the Red Crane
+		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
-		[853]   = {60, 7, nil, -4}, -- Hammer of Justice
+		[853] = {60, 5}, -- Hammer of Justice
 		[31935] = {15, 10, 66}, -- Avenger's Shield
-		[85499] = {45, 15, nil, 1}, -- Speed of Light
-		[633]   = {600, 16}, -- Lay on Hands
-		[642]   = {300, 18}, -- Divine Shield
-		[498]   = {60, 26}, -- Divine Protection
-		[20066]  = {15, 30, nil, 5}, -- Repentance
-		[115750] = {120, 30, nil, 6}, -- Blinding Light
-		[96231] = {15, 36}, -- Rebuke
-		[1022]  = {300, 48}, -- Hand of Protection
-		[1044]  = {25, 52}, -- Hand of Freedom
-		[31821] = {180, 60, 65}, -- Devotion Aura
-		[31850] = {180, 70, 66}, -- Ardent Defender
-		[31842] = {180, 72, 65}, -- Avenging Wrath (Holy)
-		[31884] = {120, 72, 70}, -- Avenging Wrath (Ret)
-		[86659] = {180, 75, 66}, -- Guardian of Ancient Kings (Prot)
-		[105809] = {120, 75, nil, 13}, -- Holy Avenger
-		[6940]  = {120, 80}, -- Hand of Sacrifice
-		[114165] = {20, 90, nil, 16}, -- Holy Prism
-		[114158] = {60, 90, nil, 17}, -- Light's Hammer
-		[152262] = {30, 100, {66, 70}, 20}, -- Seraphim
+		[642] = {300, 18}, -- Divine Shield
+		[633] = {600, 22}, -- Lay on Hands
+		[1044] = {25, 52}, -- Blessing of Freedom
+		[498] = {60, 26, {65, 66}}, -- Divine Protection
+		[96231] = {15, 36, {66, 70}}, -- Rebuke
+		[1022] = {300, 48, nil, -100}, -- Blessing of Protection (-100 for Spellwarding check)
+		[6940] = {150, 56, {65, 66}}, -- Blessing of Sacrifice
+		[31821] = {180, 65, 65}, -- Aura Mastery
+		[31850] = {120, 65, 66}, -- Ardent Defender
+		[31842] = {120, 72, 65}, -- Avenging Wrath (Holy)
+		[31884] = {120, 72, {65, 70}}, -- Avenging Wrath (Prot/Ret)
+		[86659] = {300, 83, 66}, -- Guardian of Ancient Kings
+
+		[114158] = {60, 15, 65, 2}, -- Light's Hammer
+		[20066] = {15, 45, nil, 8}, -- Repentance
+		[115750] = {90, 30, nil, 9}, -- Blinding Light
+		[204018] = {180, 60, 66, 10}, -- Blessing of Spellwarding
+		[204013] = {60, 60, 66, 11}, -- Blessing of Salvation
+		[105809] = {120, 75, 65, 14}, -- Holy Avenger
+		[114165] = {20, 75, 65, 15}, -- Holy Prism
+		[205191] = {60, 75, 70, 14}, -- Eye for an Eye
+		[204150] = {300, 90, 66, 16}, -- Aegis of Light
+		[152262] = {30, 100, 66, 20}, -- Seraphim
 	},
 	PRIEST = {
-		[88625] = {30, 10, 257}, -- Holy Word: Chastise
-		[19236] = {120, 15, nil, 1}, -- Desperate Prayer
-		[112833] = {30, 15, nil, 2}, -- Spectral Guise
-		[586]   = {30, 24}, -- Fade
-		[34433] = {180, 42, nil, -8}, -- Shadowfiend
-		[123040] = {60, 45, nil, 8}, -- Mindbender
-		[15487] = {45, 52, {256, 258}}, -- Silence
-		[33206] = {180, 58, 256}, -- Pain Suppression
-		[47585] = {120, 60, 258}, -- Dispersion
-		[8122]  = {45, 60, nil, 11}, -- Psychic Scream
-		[62618] = {180, 70, 256}, -- Power Word: Barrier
-		[47788] = {180, 70, 257}, -- Guardian Spirit
-		[10060] = {120, 75, nil, 14}, -- Power Infusion
-		[109964] = {60, 75, 256, 15}, -- Spirit Shell
-		[64843] = {180, 78, 257}, -- Divine Hymn
-		[64044] = {120, 74, 258}, -- Psychic Horror
-		[15286] = {180, 78, 258}, -- Vampiric Embrace
-		[73325] = {90, 84}, -- Leap of Faith
+		[8122]  = {60, 12, {256, 258}, -100}, -- Psychic Scream (-100 for Psychic Voice check)
+		[586]   = {30, 38}, -- Fade
+		[32375] = {15, 72}, -- Mass Dispel
+		[34433] = {180, 40, {256, 258}, -12}, -- Shadowfiend
+		[47536] = {120, 50, 256}, -- Rapture
+		[15487] = {45, 50, 258}, -- Silence
+		[47788] = {240, 54, 257}, -- Guardian Spirit
+		[33206] = {240, 56, 256}, -- Pain Suppression
+		[47585] = {120, 58, 258}, -- Dispersion
+		[62618] = {180, 65, 256}, -- Power Word: Barrier
+		[15286] = {180, 65, 258}, -- Vampiric Embrace
+		[64843] = {180, 76, 257}, -- Divine Hymn
+		[73325] = {90, 83, {256, 257}}, -- Leap of Faith
+
+		[19236] = {90, 30, 257, 6}, -- Desperate Prayer
+		[204263] = {60, 45, {256, 257}, 7}, -- Shining Force
+		[205369] = {30, 45, 258, 7}, -- Mind Bomb
+		[123040] = {60, 60, {256, 258}, 12}, -- Mindbender (Disc: 60, Shadow: 90)
+		[64901] = {360, 60, 257, 12}, -- Hymn of Hope
+		[10060] = {120, 75, nil, 14}, -- Power Infusion (Disc: 75, Shadow: 90)
+		[200174] = 123040, -- Mindbender (Shadow)
 		[120517] = {40, 90, {256, 257}, 18}, -- Halo
+		[200183] = {180, 100, 257, 19}, -- Apotheosis
+
 	},
 	ROGUE = {
-		[5277]  = {120, 8}, -- Evasion
-		[1766]  = {15, 18}, -- Kick
-		[1776]  = {10, 22}, -- Gouge
-		[1725]  = {30, 28}, -- Distract
-		[74001] = {120, 30, nil, 6}, -- Combat Readiness
-		[1856]  = {120, 34}, -- Vanish
-		[2094]  = {120, 38}, -- Blind
-		[408]   = {20, 40}, -- Kidney Shot
-		[13750] = {180, 40, 260}, -- Adrenaline Rush
+		[5277]  = {120, 8, {259, 261}}, -- Evasion
+		[36554] = {30, 13, 261}, -- Shadowstep
+		[185311] = {30, 14}, -- Crimson Vial
+		[1766] = {15, 18}, -- Kick
+		[1776]  = {10, 22, 260}, -- Gouge
+		[2983] = {60, 26}, -- Sprint
+		[1725] = {30, 28}, -- Distract
+		[1856] = {120, 32}, -- Vanish
+		[2094] = {120, 38, {260, 261}}, -- Blind
+		[408] = {20, 40, {259, 261}}, -- Kidney Shot
 		[31224] = {60, 58}, -- Cloak of Shadows
-		[36554] = {20, 60, nil, 11}, -- Shadowstep
-		[57934] = {30, 78}, -- Tricks of the Trade
-		[79140] = {120, 80, 259}, -- Vendetta
-		[51690] = {120, 80, 260}, -- Killing Spree
-		[51690] = {120, 80, 260}, -- Killing Spree
-		[76577] = {180, 85}, -- Smoke
-		[137619] = {60, 90, nil, 17}, -- Marked for Death
-		[137619] = {120, 100, nil, 20}, -- Shadow Reflection
-		[137619] = {20, 100, nil, 21}, -- Shadow Reflection
+		[57934] = {30, 64}, -- Tricks of the Trade
+		[79140] = {120, 72, 259}, -- Vendetta
+		[13750] = {180, 72, 260}, -- Adrenaline Rush
+		[121471] = {180, 72, 261}, -- Shadow Blades
+
+		[195457] = {30, 30, 260, 4}, -- Grappling Hook
+		[185767] = {60, 90, 260, 16}, -- Cannonball Barrage
+		[200806] = {45, 90, 259, 18}, -- Exsanguinate
+		[51690] = {120, 90, 260, 18}, -- Killing Spree
+		[137619] = {60, 100, nil, 20}, -- Marked for Death
 	},
 	SHAMAN = {
-		[51490] = {45, 10, 262}, -- Thunderstorm
-		[108270] = {60, 15, nil, 2}, -- Stone Bulwark Totem
-		[108271] = {90, 15, nil, 3}, -- Astral Shift
-		[57994] = {12, 16}, -- Wind Shear
-		[2484]  = {30, 26, nil, -5}, -- Earthbind Totem
-		[51485] = {30, 30, nil, 5}, -- Earthgrab Totem
-		[108273] = {60, 30, nil, 6}, -- Windwalk Totem
+		[51514] = {39, 42, nil, -9}, -- Hex
+		[108271] = {90, 44}, -- Astral Shift
+		[51490] = {45, 16, 262}, -- Thunderstorm
+		[57994] = {12, 22}, -- Wind Shear
 		[20608] = {1800, 32}, -- Reincarnation
 		[21169] = 20608, -- Reincarnation (Resurrection)
-		[108285] = {180, 45, nil, 7}, -- Call of the ELements
-		[51533] = {120, 60, 263}, -- Feral Spirit
-		[16166] = {120, 60, nil, 10}, -- Elemental Mastery
-		[108280] = {180, 65, 264}, -- Healing Tide Totem
-		[UnitFactionGroup("player") == "Horde" and 2825 or 32182] = {300, 70}, -- Bloodlust/Heroism
-		[98008] = {180, 70, 264}, -- Spirit Link Totem
-		[51514] = {45, 75}, -- Hex
-		[108281] = {120, 75, nil, 14}, -- Ancestral Guidance
-		[79206] = {120, 85, {262, 264}}, -- Spiritwalker's Grace
-		[114049] = {180, 87}, -- Ascendance (old id, but keeping it for compat as the master option for the 3 merged spells)
+		[198067] = {300, 48, 262, -16}, -- Fire Elemental
+		[51533] = {120, 48, 263}, -- Feral Spirit
+		[108280] = {180, 54, 264}, -- Healing Tide Totem
+		[98008] = {180, 62, 264}, -- Spirit Link Totem
+		[UnitFactionGroup("player") == "Horde" and 2825 or 32182] = {300, 65}, -- Bloodlust/Heroism
+		[198103] = {120, 72, 262}, -- Earth Elemental
+		[58875] = {60, 72, 262}, -- Spirit Walk
+		[79206] = {120, 72, 264}, -- Spiritwalker's Grace
+
+		[201898] = {45, 15, 263, 1}, -- Windsong
+		[192063] = {15, 30, {262, 264}, 4}, -- Gust of Wind
+		[108281] = {120, 30, {262, 264}, 5}, -- Ancestral Guidance (Ele: 30, Resto: 60)
+		[196884] = {30, 30, 263, 5}, -- Feral Lunge
+		[192077] = {120, 30, nil, 6}, -- Wind Rush Totem
+		[192058] = {45, 45, nil, 7}, -- Lightning Surge Totem
+		[51485] = {30, 45, nil, 8}, -- Earthgrab Totem
+		[196932] = {30, 45, nil, 9}, -- Voodoo Totem
+		[207399] = {300, 75, 264, 13}, -- Ancestral Protection Totem
+		[198838] = {60, 75, 264, 14}, -- Earthen Shield Totem
+		[16166] = {120, 90, 262, 16}, -- Elemental Mastery
+		[192249] = {300, 90, 262, 17}, -- Storm Elemental
+		[157153] = {30, 90, 264, 17}, -- Cloudburst Totem
+		[197214] = {40, 90, 263, 18}, -- Sundering
+		[114049] = {180, 100, nil, 19}, -- Ascendance (old id, but keeping it for compat as the master option for the 3 merged spells)
 		[114050] = 114049, -- Ascendance (Elemental)
 		[114051] = 114049, -- Ascendance (Enhancement)
 		[114052] = 114049, -- Ascendance (Restoration)
-		[157153] = {30, 100, 264, 19}, -- Cloudburst Totem
 	},
 	WARLOCK = {
-		[108359] = {120, 15, nil, 1}, -- Dark Regeneration
 		[20707] = {600, 18}, -- Soulstone
 		[95750] = 20707, -- Soulstone Resurrection (combat)
-		[5484]  = {40, 30, nil, 4}, -- Howl of Terror -- XXX CD reduced when player is damaged
-		[6789]  = {45, 30, nil, 5}, -- Mortal Coil
-		[30283] = {30, 30, nil, 6}, -- Shadowfury
-		[80240] = {20, 36, 267}, -- Havoc
-		[698]   = {120, 42}, -- Ritual of Summoning
-		[108416] = {60, 45, nil, 8}, -- Sacrificial Pact
-		[1122]  = {600, 49, nil, -21}, -- Summon Infernal
-		[18540] = {600, 58, nil, -21}, -- Summon Doomguard
-		[104773] = {180, 64}, -- Unending Resolve
-		[29858] = {120, 66}, -- Soulshatter
-		[29893] = {120, 68}, -- Create Soulwell
-		[108501] = {120, 75, nil, 14}, -- Grimoire of Service
-		[48020] = {30, 76}, -- Demonic Circle: Teleport
-		[152108] = {60, 100, nil, 20}, -- Cataclysm
+		[1122]  = {180, 50}, -- Summon Infernal
+		[18540] = {180, 58}, -- Summon Doomguard
+		[104773] = {180, 62}, -- Unending Resolve
+		[29893] = {120, 65}, -- Create Soulwell
+		[698]   = {120, 72}, -- Ritual of Summoning
+
+		[152108] = {45, 30, 267, 5}, -- Cataclysm
+		[6789]  = {45, 45, nil, 8}, -- Mortal Coil
+		[5484]  = {40, 45, 265, 9}, -- Howl of Terror
+		[30283] = {30, 45, {266, 267}, 9}, -- Shadowfury
+		[196098] = {120, 60, nil, 12}, -- Soul Harvest
+		[48020] = {30, 75, nil, 13}, -- Demonic Circle: Teleport
+		[108416] = {60, 75, nil, 15}, -- Dark Pact
 		-- Pet
 		[19647]  = {24, 50}, -- Felhunter Spell Lock (Normal, originates from pet)
 		[119910] = 19647, -- Felhunter Spell Lock (via Command Demon, originates from player)
-		[132409] = 19647, -- Felhunter Sacrifice, Spell Lock
-		[119911] = 19647, -- Observer Optical Blast (via Command Demon, originates from player)
 		[115781] = 19647, -- Observer Optical Blast (Normal, originates from pet)
+		[119911] = 19647, -- Observer Optical Blast (via Command Demon, originates from player)
 		[171140] = 19647, -- Doomguard Shadow Lock (via Command Demon, originates from player)
-		[171139] = 19647, -- Doomguard Sacrifice, Shadow Lock
 	},
 	WARRIOR = {
 		[100]   = {20, 3}, -- Charge
+		[184364] = {120, 12, 72}, -- Enraged Regeneration
 		[6552]  = {15, 24}, -- Pummel
-		[12975] = {180, 38, 73}, -- Last Stand
-		[871]   = {120, 48, 73}, -- Shield Wall
-		[5246]  = {90, 52}, -- Intimidating Shout
-		[18499]  = {30, 54}, -- Berserk Rage
-		[118038]  = {120, 56, {71, 72}}, -- Die by the Sword
-		[107570] = {30, 60, nil, 10}, -- Storm Bolt
-		[118000] = {60, 60, nil, 12}, -- Dragon Roar
-		[46968] = {40, 60, nil, 11}, -- Shockwave -- XXX -20s if hits 3 targets
-		[23920] = {25, 66, nil, -13}, -- Spell Reflection
-		[3411]  = {30, 72, nil, -14}, -- Intervene
-		[114028] = {30, 75, nil, 13}, -- Mass Spell Reflection
-		[114030] = {120, 75, nil, 15}, -- Vigilance
-		[97462] = {180, 83, {71, 72}}, -- Rallying Cry
-		[52174]  = {45, 85}, -- Heroic Leap
-		[1719]  = {180, 87, {71, 72}}, -- Recklessness
-		[107574] = {180, 90, nil, 16}, -- Avatar
-		[12292] = {60, 90, nil, 17}, -- Bloodbath
-		[46924] = {60, 90, nil, 18}, -- Bladestorm
-		[152277] = {60, 100, nil, 20}, -- Ravager
-		[176289] = {45, 100, {71, 72}, 21}, -- Seigebreaker
+		[52174]  = {45, 26}, -- Heroic Leap
+		[12975] = {90, 36, 73}, -- Last Stand
+		[18499]  = {60, 40}, -- Berserk Rage
+		[871]   = {240, 48, 73}, -- Shield Wall
+		[118038]  = {180, 50, 71}, -- Die by the Sword
+		[1160] = {90, 50, 73}, -- Demoralizing Shout
+		[1719] = {60, 60}, -- Battle Cry
+		[23920] = {25, 65, 73}, -- Spell Reflection
+		[5246]  = {90, 70, {71, 72}}, -- Intimidating Shout
+		[198304] = {15, 72, 73}, -- Intercept
+		[227847] = {90, 75, 71, -21}, -- Bladestorm
+		[97462] = {180, 83, {71, 72}}, -- Commanding Shout
+
+		[46968] = {40, 30, nil, 4}, -- Shockwave -- XXX -20s if hits 3 targets
+		[107570] = {30, 30, nil, 5}, -- Storm Bolt
+		[107574] = {90, 45, nil, 9}, -- Avatar
+		[12292] = {30, 90, 72, 16}, -- Bloodbath
+		[46924] = {90, 100, 72, 19}, -- Bladestorm
+		[152277] = {60, 100, {71, 73}, 21}, -- Ravager
+		[228920] = 152277, -- Ravager (Prot)
+		[118000] = {25, 100, 72, 21}, -- Dragon Roar
 	},
 }
 
@@ -338,6 +506,23 @@ local combatResSpells = {
 }
 
 local chargeSpells = {
+	-- Death Knight
+	[207317] = 2, -- Epidemic
+	[221699] = 2, -- Blood Tap
+	[194679] = 2, -- Rune Tap
+	-- Druid
+	[61336] = 2, -- Survival Instincts
+	[22842] = 2, -- Frenzied Regeneration
+	-- Hunter
+	[206817] = 2, -- Sentinel
+	-- Mage
+	[212653] = 2, -- Shimmer
+	[116011] = 2, -- Rune of Power
+	[108839] = 3, -- Ice Floes
+	-- Monk
+	[197945] = 2, -- Mistwalk
+	-- Warrior
+	[198304] = 2, -- Intercept
 }
 
 local mergeSpells = {}
