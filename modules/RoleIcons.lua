@@ -18,7 +18,7 @@ do
 
 		local texture = icon:CreateTexture(nil, "ARTWORK")
 		texture:SetAllPoints()
-		texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
+		texture:SetTexture(337497) --"Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"
 		icon.texture = texture
 
 		icon:Hide()
@@ -102,7 +102,7 @@ do
 			frame:SetSize(30, 30)
 
 			local texture = frame:CreateTexture(nil, "OVERLAY")
-			texture:SetTexture([[Interface\LFGFrame\UI-LFG-ICON-ROLES]])
+			texture:SetTexture(337499) --Interface\\LFGFrame\\UI-LFG-ICON-ROLES
 			texture:SetTexCoord(GetTexCoordsForRole(role))
 			texture:SetAllPoints()
 			frame.texture = texture

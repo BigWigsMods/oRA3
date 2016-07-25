@@ -320,7 +320,7 @@ function module:CreateFrame()
 	centerBar:SetHeight(8)
 
 	local texture = centerBar:CreateTexture(nil, "BORDER")
-	texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	texture:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 	texture:SetAllPoints(centerBar)
 	texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 
@@ -331,7 +331,7 @@ function module:CreateFrame()
 		topBar:SetPoint("TOPRIGHT", frame, 5, -42)
 		topBar:SetHeight(8)
 		texture = topBar:CreateTexture(nil, "BORDER")
-		texture:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+		texture:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 		texture:SetAllPoints(topBar)
 		texture:SetTexCoord(0.29296875, 1, 0, 0.25)
 	end
@@ -359,7 +359,7 @@ function module:CreateFrame()
 		helpButton:SetWidth(24)
 		helpButton:SetHeight(24)
 		helpButton:SetPoint("TOPRIGHT", -4, -8)
-		helpButton.icon:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+		helpButton.icon:SetTexture(132048) --"Interface\\GossipFrame\\ActiveQuestIcon"
 		helpButton.tooltipTitle = L.whatIsThis
 		helpButton.tooltipText = L.tankHelp
 	end
@@ -369,7 +369,7 @@ function module:CreateFrame()
 	for i = 1, 10 do
 		local t = CreateFrame("Button", nil, frame)
 		t:SetHeight(16)
-		t:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+		t:SetHighlightTexture(131128) --"Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar"
 		t:SetScript("OnClick", topScrollUpClick)
 		t:SetScript("OnLeave", OnLeave)
 		t:SetScript("OnEnter", OnEnter)
@@ -402,7 +402,7 @@ function module:CreateFrame()
 
 		local delete = createButton(t)
 		delete:SetPoint("TOPRIGHT", t)
-		delete.icon:SetTexture("Interface\\RaidFrame\\ReadyCheck-NotReady")
+		delete.icon:SetTexture(136813) --"Interface\\RaidFrame\\ReadyCheck-NotReady"
 		delete:SetScript("OnClick", topScrollDeleteClick)
 		delete.tooltipTitle = L.Remove
 		delete.tooltipText = L.deleteButtonHelp
@@ -439,7 +439,7 @@ function module:CreateFrame()
 
 		local save = createButton(t)
 		save:SetPoint("TOPRIGHT", tank, "TOPLEFT", -2, 0)
-		save.icon:SetTexture(READY_CHECK_READY_TEXTURE)
+		save.icon:SetTexture(136814) -- "Interface\\RaidFrame\\ReadyCheck-Ready"
 		save:SetScript("OnClick", topScrollSaveClick)
 		save.tooltipTitle = L.Save
 		save.tooltipText = L.saveButtonHelp

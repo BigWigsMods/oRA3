@@ -402,23 +402,23 @@ local function setMemberStatus(num, bottom, name, class, update)
 			f:SetAlpha(0.5)
 		end
 		f.bg:Hide()
-		f.IconTexture:SetTexture(nil)
+		f.IconTexture:SetTexture()
 	elseif status == "ready" then
 		f.bg:Hide()
-		f.IconTexture:SetTexture(READY_CHECK_READY_TEXTURE)
+		f.IconTexture:SetTexture(136814) --Interface\\RaidFrame\\ReadyCheck-Ready
 		if module.db.profile.hideReady and ready then
 			f:Hide()
 		end
 	elseif status == "notready" then
 		f.bg:Show()
-		f.IconTexture:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
+		f.IconTexture:SetTexture(136813) --Interface\\RaidFrame\\ReadyCheck-NotReady
 	elseif status == "offline" then
 		f:SetAlpha(0.5)
 		f.bg:Show()
-		f.IconTexture:SetTexture(READY_CHECK_AFK_TEXTURE)
+		f.IconTexture:SetTexture(136813) --Interface\\RaidFrame\\ReadyCheck-NotReady
 	else
 		f.bg:Show()
-		f.IconTexture:SetTexture(READY_CHECK_WAITING_TEXTURE)
+		f.IconTexture:SetTexture(136815) -- Interface\\RaidFrame\\ReadyCheck-Waiting
 	end
 end
 
@@ -497,67 +497,67 @@ local function createWindow()
 	end
 
 	local titlebg = f:CreateTexture(nil, "BACKGROUND")
-	titlebg:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]])
+	titlebg:SetTexture(251966) --[[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]]
 	titlebg:SetPoint("TOPLEFT", 9, -6)
 	titlebg:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -28, -24)
 
 	local dialogbg = f:CreateTexture(nil, "BACKGROUND")
-	dialogbg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
+	dialogbg:SetTexture(137056) --[[Interface\Tooltips\UI-Tooltip-Background]]
 	dialogbg:SetPoint("TOPLEFT", 8, -24)
 	dialogbg:SetPoint("BOTTOMRIGHT", -6, 8)
 	dialogbg:SetVertexColor(0, 0, 0, .75)
 
 	local topleft = f:CreateTexture(nil, "BORDER")
-	topleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	topleft:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	topleft:SetWidth(64)
 	topleft:SetHeight(64)
 	topleft:SetPoint("TOPLEFT")
 	topleft:SetTexCoord(0.501953125, 0.625, 0, 1)
 
 	local topright = f:CreateTexture(nil, "BORDER")
-	topright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	topright:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	topright:SetWidth(64)
 	topright:SetHeight(64)
 	topright:SetPoint("TOPRIGHT")
 	topright:SetTexCoord(0.625, 0.75, 0, 1)
 
 	local top = f:CreateTexture(nil, "BORDER")
-	top:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	top:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	top:SetHeight(64)
 	top:SetPoint("TOPLEFT", topleft, "TOPRIGHT")
 	top:SetPoint("TOPRIGHT", topright, "TOPLEFT")
 	top:SetTexCoord(0.25, 0.369140625, 0, 1)
 
 	local bottomleft = f:CreateTexture(nil, "BORDER")
-	bottomleft:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottomleft:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	bottomleft:SetWidth(64)
 	bottomleft:SetHeight(64)
 	bottomleft:SetPoint("BOTTOMLEFT")
 	bottomleft:SetTexCoord(0.751953125, 0.875, 0, 1)
 
 	local bottomright = f:CreateTexture(nil, "BORDER")
-	bottomright:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottomright:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	bottomright:SetWidth(64)
 	bottomright:SetHeight(64)
 	bottomright:SetPoint("BOTTOMRIGHT")
 	bottomright:SetTexCoord(0.875, 1, 0, 1)
 
 	local bottom = f:CreateTexture(nil, "BORDER")
-	bottom:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	bottom:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	bottom:SetHeight(64)
 	bottom:SetPoint("BOTTOMLEFT", bottomleft, "BOTTOMRIGHT")
 	bottom:SetPoint("BOTTOMRIGHT", bottomright, "BOTTOMLEFT")
 	bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
 
 	local left = f:CreateTexture(nil, "BORDER")
-	left:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	left:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	left:SetWidth(64)
 	left:SetPoint("TOPLEFT", topleft, "BOTTOMLEFT")
 	left:SetPoint("BOTTOMLEFT", bottomleft, "TOPLEFT")
 	left:SetTexCoord(0.001953125, 0.125, 0, 1)
 
 	local right = f:CreateTexture(nil, "BORDER")
-	right:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-Border]])
+	right:SetTexture(251963) --[[Interface\PaperDollInfoFrame\UI-GearManager-Border]]
 	right:SetWidth(64)
 	right:SetPoint("TOPRIGHT", topright, "BOTTOMRIGHT")
 	right:SetPoint("BOTTOMRIGHT", bottomright, "TOPRIGHT")
@@ -631,7 +631,7 @@ local function createWindow()
 	f.bar = bar
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
-	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 

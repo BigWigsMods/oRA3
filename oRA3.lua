@@ -639,7 +639,7 @@ local function setupGUI()
 	frame:EnableMouse(true)
 
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
-	topleft:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
+	topleft:SetTexture(136558) --"Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 	topleft:SetWidth(256)
 	topleft:SetHeight(256)
 	topleft:SetPoint("TOPLEFT")
@@ -651,19 +651,19 @@ local function setupGUI()
 	SetPortraitToTexture(toplefticon, "Interface\\WorldMap\\Gear_64Grey")
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
-	topright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
+	topright:SetTexture(136559) --"Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 	topright:SetWidth(128)
 	topright:SetHeight(256)
 	topright:SetPoint("TOPRIGHT")
 
 	local botleft = frame:CreateTexture(nil, "ARTWORK")
-	botleft:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
+	botleft:SetTexture(136556) --"Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft"
 	botleft:SetWidth(256)
 	botleft:SetHeight(256)
 	botleft:SetPoint("BOTTOMLEFT")
 
 	local botright = frame:CreateTexture(nil, "ARTWORK")
-	botright:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomRight")
+	botright:SetTexture(136557) --"Interface\\PaperDollInfoFrame\\UI-Character-General-BottomRight"
 	botright:SetWidth(128)
 	botright:SetHeight(256)
 	botright:SetPoint("BOTTOMRIGHT")
@@ -796,7 +796,7 @@ local function setupGUI()
 	bar:SetHeight(8)
 
 	local barmiddle = bar:CreateTexture(nil, "BORDER")
-	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
@@ -811,7 +811,7 @@ local function setupGUI()
 	bar:SetHeight(8)
 
 	barmiddle = bar:CreateTexture(nil, "BORDER")
-	barmiddle:SetTexture("Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar")
+	barmiddle:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
 
