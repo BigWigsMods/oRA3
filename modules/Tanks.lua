@@ -212,7 +212,7 @@ local function createButton(parent, template)
 	button:SetHeight(16)
 	button:SetScript("OnLeave", OnLeave)
 	button:SetScript("OnEnter", OnEnter)
-	button:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+	button:SetHighlightTexture(131128) --"Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar"
 
 	local image = button:CreateTexture(nil, "BACKGROUND")
 	button.icon = image
@@ -451,7 +451,7 @@ function module:CreateFrame()
 	for i = 1, 9 do
 		local b = CreateFrame("Button", nil, frame)
 		b:SetHeight(16)
-		b:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+		b:SetHighlightTexture(131128) --"Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar"
 		b:SetScript("OnClick", bottomScrollClick)
 		if i == 1 then
 			b:SetPoint("TOPLEFT", frame.bottomscroll, 0, 1)

@@ -648,7 +648,7 @@ local function setupGUI()
 	toplefticon:SetWidth(60)
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
-	SetPortraitToTexture(toplefticon, "Interface\\WorldMap\\Gear_64Grey")
+	SetPortraitToTexture(toplefticon, 311226) --"Interface\\WorldMap\\Gear_64Grey"
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture(136559) --"Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
@@ -731,9 +731,9 @@ local function setupGUI()
 	check.module = consumables
 
 	local opt = CreateFrame("Button", "oRA3OptionsButton", frame)
-	opt:SetNormalTexture("Interface\\Worldmap\\Gear_64")
+	opt:SetNormalTexture(311225) --"Interface\\Worldmap\\Gear_64"
 	opt:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
-	opt:SetHighlightTexture("Interface\\Worldmap\\Gear_64")
+	opt:SetHighlightTexture(311225) --"Interface\\Worldmap\\Gear_64"
 	opt:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
 	opt:SetSize(16, 16)
 	opt:SetPoint("RIGHT", title, "RIGHT")
@@ -1144,7 +1144,7 @@ local function createHighlights( secure )
 		end
 		list[i]:SetWidth(contentFrame.scrollFrame:GetWidth())
 		list[i]:SetHeight(16)
-		list[i]:SetHighlightTexture("Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar")
+		list[i]:SetHighlightTexture(131128) --"Interface\\FriendsFrame\\UI-FriendsFrame-HighlightBar"
 		list[i].isSecure = secure
 		list[i]:Hide()
 	end

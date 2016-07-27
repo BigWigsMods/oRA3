@@ -258,16 +258,16 @@ local function addIconAndName(frame)
 	frame.NameText = rdt
 
 	-- out of range indicator
-	local oor = addBuffFrame("Range", frame, nil, "Interface\\TargetingFrame\\UI-PhasingIcon", "RIGHT", frame, "RIGHT", -6, 0)
+	local oor = addBuffFrame("Range", frame, nil, 446212, "RIGHT", frame, "RIGHT", -6, 0) -- 446212="Interface\\TargetingFrame\\UI-PhasingIcon"
 	oor.icon:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
 	oor.tooltip = SPELL_FAILED_OUT_OF_RANGE
 	frame.OutOfRange = oor
 
 	-- missing buffs
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, "Interface\\Icons\\inv_misc_rune_12", "RIGHT", frame.OutOfRange, "LEFT", 0, 0)
-	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, "Interface\\Icons\\trade_alchemy_dpotion_c22")
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame.OutOfRange, "LEFT", 0, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
 
-	local food = addBuffFrame("Food", frame, L.noFood, "Interface\\Icons\\spell_misc_food", "RIGHT", frame.FlaskBuff, "LEFT", 0, 0)
+	local food = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame.FlaskBuff, "LEFT", 0, 0) -- 136000="Interface\\Icons\\spell_misc_food"
 	local text = food:CreateFontString(nil, "OVERLAY")
 	text:SetPoint("BOTTOMRIGHT")
 	text:SetJustifyH("RIGHT")
@@ -575,7 +575,7 @@ local function createWindow()
 	f.title = title
 
 	local ready = CreateFrame("Button", "oRA3ReadyCheckReadyCheckButton", f)
-	ready:SetNormalTexture("Interface\\RAIDFRAME\\ReadyCheck-Ready")
+	ready:SetNormalTexture(136814) --"Interface\\RAIDFRAME\\ReadyCheck-Ready"
 	ready:SetSize(12, 12)
 	ready:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -8)
 	ready.SetDisabled = function(self, value)
@@ -593,7 +593,7 @@ local function createWindow()
 	f.ready = ready
 
 	local check = CreateFrame("Button", "oRA3ReadyCheckConsumableCheckButton", f)
-	check:SetNormalTexture("Interface\\RAIDFRAME\\ReadyCheck-Waiting")
+	check:SetNormalTexture(136815) --"Interface\\RAIDFRAME\\ReadyCheck-Waiting"
 	check:SetSize(12, 12)
 	check:SetPoint("LEFT", ready, "RIGHT", 2, 0)
 	check.SetDisabled = function(self, value)
