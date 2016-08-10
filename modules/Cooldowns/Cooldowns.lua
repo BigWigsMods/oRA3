@@ -147,9 +147,9 @@ local spells = {
 		[43265] = {30, 56, {250, 252}}, -- Death and Decay
 		[49028] = {180, 57, 250}, -- Dancing Rune Weapon
 		[47568] = {180, 57, 251, -8}, -- Empower Rune Weapon
-		[51271] = {60, 57, 251}, -- Pillar of Frost
+		[51271] = {60, 57, 251}, -- Pillar of Frost XXX (7) Your Frost Strike, Frostscythe, and Obliterate critical strikes reduce the remaining cooldown  by 1 sec.
 		[196770] = {20, 57, 251}, -- Remorseless Winder
-		[55233] = {90, 57, 250}, -- Vampiric Blood
+		[55233] = {90, 57, 250}, -- Vampiric Blood XXX (11) Spending Runic Power will decrease the remaining cooldown by 2 sec per 10 Runic Power.
 		[212552] = {60, 60}, -- Wraith Walk
 		[47528] = {15, 62}, -- Mind Freeze
 		[108199] = {180, 64, 250}, -- Gorefiend's Grasp
@@ -162,7 +162,7 @@ local spells = {
 		[206931] = {30, 56, 250, 3}, -- Blooddrinker
 		[207317] = {10, 57, 252, 4}, -- Epidemic (3 charges)
 		[57330] = {30, 57, 251, 6}, -- Horn of Winter
-		[221699] = {60, 58, 250, 8}, -- Blood Tap (2 charges)
+		[221699] = {60, 58, 250, 8}, -- Blood Tap (2 charges) XXX Recharge time reduced by 1 sec whenever a Bone Shield charge is consumed.
 		[207127] = {180, 58, 251, 8}, -- Hungering Rune Weapon
 		[108194] = {45, 60, 252, 11}, -- Asphyxiate
 		[207319] = {60, 75, 252, 14}, -- Corpse Shield
@@ -175,8 +175,10 @@ local spells = {
 		[194913] = {15, 100, 251, 21}, -- Glacial Advance
 		[130736] = {45, 100, 252, 21}, -- Soul Reaper
 	},
+	DEMONHUNTER = {
+	},
 	DRUID = {
-		[5217]  = {30, 12, 103}, -- Tiger's Fury
+		[5217]  = {30, 12, 103}, -- Tiger's Fury XXX (1) The cooldown resets when a target dies with one of your Bleed effects active.
 		[18562] = {30, 12, 105}, -- Swiftmend
 		[1850]  = {180, 24}, -- Dash
 		[20484] = {600, 56}, -- Rebirth
@@ -225,15 +227,15 @@ local spells = {
 	HUNTER = {
 		[136] = {10, 1}, -- Mend Pet
 		[186257] = {180, 5}, -- Aspect of the Cheetah
-		[781] = {20, 14, {253, 254}}, -- Disengage
+		[781] = {20, 14, {253, 254}}, -- Disengage XXX (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
 		[193530] = {120, 18, 253}, -- Aspect of the Wild
 		[186387] = {30, 22, 254}, -- Bursting Shot
-		[190925] = {20, 22, 255}, -- Harpoon
+		[190925] = {20, 22, 255}, -- Harpoon XXX (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
 		[147362] = {24, 24, {253, 254}}, -- Counter Shot
 		[187707] = {15, 24, 255}, -- Muzzle
 		[187650] = {30, 28, 255, -12}, -- Freezing Trap
 		[5384]  = {30, 32}, -- Feign Death
-		[109304] = {120, 36, {253, 255}}, -- Exhilaration
+		[109304] = {120, 36, {253, 255}}, -- Exhilaration XXX (marks) After you kill a target, the remaining cooldown is reduced by 30 sec.
 		[1543] = {20, 38}, -- Flare
 		[61648] = {180, 40}, -- Aspect of the Chameleon
 		[19574] = {90, 40, 253}, -- Bestial Wrath
@@ -244,8 +246,8 @@ local spells = {
 		[191433] = {30, 48, 255}, -- Explosive Trap
 		[186265] = {180, 50}, -- Aspect of the Turtle
 
-		[206505] = {60, 30, 255, 4}, -- A Murder of Crows
-		-- [194599] = {15, 30, 254, 5}, -- Black Arrow
+		[206505] = {60, 30, 255, 4}, -- A Murder of Crows XXX If the target dies while under attack, the cooldown is reset.
+		-- [194599] = {15, 30, 254, 5}, -- Black Arrow XXX When you kill an enemy, the remaining cooldown will reset.
 		[201078] = {90, 30, 255, 6}, -- Snake Hunter
 		[212431] = {30, 60, 254, 10}, -- Explosive Shot
 		[194277] = {15, 60, 255, 10}, -- Caltrops
@@ -256,7 +258,7 @@ local spells = {
 		[19386] = {45, 75, {253, 254}, 11}, -- Wyvern Sting
 		[19577] = {60, 75, 253, 12}, -- Intimidation
 		[191241] = {60, 75, {254, 255}, 15}, -- Camouflage
-		[131894] = {60, 90, {253, 254}, 16}, -- A Murder of Crows
+		[131894] = {60, 90, {253, 254}, 16}, -- A Murder of Crows XXX If the target dies while under attack, the cooldown is reset.
 		[120360] = {20, 90, {253, 254}, 17}, -- Barrage
 		[194855] = {30, 90, 255, 17}, -- Dragonsfire Grenade
 		[194386] = {90, 90, {253, 254}, 18}, -- Volley
@@ -335,8 +337,8 @@ local spells = {
 		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
-		[853] = {60, 5}, -- Hammer of Justice
-		[31935] = {15, 10, 66}, -- Avenger's Shield
+		[853] = {60, 5}, -- Hammer of Justice XXX (7) Holy Power spenders (ret)/Judgement reduce the remaining cooldown by 8 sec.
+		[31935] = {15, 10, 66}, -- Avenger's Shield XXX When you avoid a melee attack or use Hammer of the Righteous, you have a 15% chance to reset the remaining cooldown.
 		[642] = {300, 18}, -- Divine Shield
 		[633] = {600, 22}, -- Lay on Hands
 		[1044] = {25, 52}, -- Blessing of Freedom
@@ -368,7 +370,7 @@ local spells = {
 		[34433] = {180, 40, {256, 258}, -12}, -- Shadowfiend
 		[47536] = {120, 50, 256}, -- Rapture
 		[15487] = {45, 50, 258}, -- Silence
-		[47788] = {240, 54, 257}, -- Guardian Spirit
+		[47788] = {240, 54, 257}, -- Guardian Spirit XXX (11) When Guardian Spirit expires without saving the target from death, reduce its remaining cooldown to 120 seconds.
 		[33206] = {240, 56, 256}, -- Pain Suppression
 		[47585] = {120, 58, 258}, -- Dispersion
 		[62618] = {180, 65, 256}, -- Power Word: Barrier
@@ -408,7 +410,7 @@ local spells = {
 		[185767] = {60, 90, 260, 16}, -- Cannonball Barrage
 		[200806] = {45, 90, 259, 18}, -- Exsanguinate
 		[51690] = {120, 90, 260, 18}, -- Killing Spree
-		[137619] = {60, 100, nil, 20}, -- Marked for Death
+		[137619] = {60, 100, nil, 20}, -- Marked for Death XXX Cooldown reset if the target dies within 1 min.
 	},
 	SHAMAN = {
 		[51514] = {39, 42, nil, -9}, -- Hex
@@ -489,6 +491,7 @@ local spells = {
 		[107570] = {30, 30, nil, 5}, -- Storm Bolt
 		[107574] = {90, 45, nil, 9}, -- Avatar
 		[12292] = {30, 90, 72, 16}, -- Bloodbath
+		-- XXX (19) Anger Management: Every 10 Rage you spend reduces the remaining cooldown on Battle Cry, Last Stand, and Shield Wall by 1 sec.
 		[46924] = {90, 100, 72, 19}, -- Bladestorm
 		[152277] = {60, 100, {71, 73}, 21}, -- Ravager
 		[228920] = 152277, -- Ravager (Prot)
@@ -1689,7 +1692,7 @@ do
 	local function resetCooldown(guid, player, spellId, duration, charges)
 		local class = classLookup[spellId]
 		callbacks:Fire("oRA3CD_StopCooldown", guid, spellId)
-		if duration then
+		if duration and duration > 0 then
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
 			spellsOnCooldown[spellId][guid] = GetTime() + duration
 			callbacks:Fire("oRA3CD_StartCooldown", guid, player, class, spellId, duration)
@@ -1766,16 +1769,9 @@ do
 		end
 
 		-- Special cooldown conditions
-		if event == "SPELL_DISPEL" then
-			local extraSpellId = ...
-			if extraSpellId == 3674 then -- Black Arrow
-				resetCooldown(destGUID, destName, extraSpellId)
-			end
-		else
-			local func = specialEvents[event] and specialEvents[event][spellId]
-			if func then
-				func(srcGUID, source, ...)
-			end
+		local func = specialEvents[event] and specialEvents[event][spellId]
+		if func then
+			func(srcGUID, source, spellId, ...)
 		end
 	end)
 
