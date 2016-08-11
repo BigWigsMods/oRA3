@@ -219,6 +219,8 @@ do
 		f:SetSize(64, 64)
 		f.name = name
 		f.role = role
+		f.Start = Start
+		f.UpdateClicks = UpdateClicks
 
 		f:EnableMouse(false)
 		f:RegisterForClicks("LeftButtonDown")
@@ -253,9 +255,6 @@ do
 		text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT")
 		text:SetText(name)
 		f.text = text
-
-		f.Start = Start
-		f.UpdateClicks = UpdateClicks
 
 		-- Masque skinning
 		if module.group then
