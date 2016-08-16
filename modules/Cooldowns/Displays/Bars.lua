@@ -304,7 +304,7 @@ end
 ---------------------------------------
 -- Callbacks
 
-function prototype:TestCooldown(player, class, spellId, duration)
+function prototype:TestCooldown(player, class, spellId, remaining)
 	if not self.db.showDisplay then return end
 	self:Setup()
 
@@ -322,7 +322,7 @@ function prototype:TestCooldown(player, class, spellId, duration)
 	bar:Set("ora3cd:ready", nil)
 	bar:Set("ora3cd:testunit", true)
 
-	bar:SetDuration(duration)
+	bar:SetDuration(remaining)
 	bar.fill = self.db.barFill -- don't flash
 	bar.paused = nil
 	bar:Start()
@@ -330,7 +330,7 @@ function prototype:TestCooldown(player, class, spellId, duration)
 	self:RearrangeBars()
 end
 
-function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duration)
+function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, remaining)
 	if not self.db.showDisplay then return end
 	if not self.spellDB[spellId] or not oRA3CD:CheckFilter(self, player) then return end
 	self:Setup()
@@ -338,6 +338,7 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duratio
 	local bar = self:GetBar(guid, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
+	local duration = oRA3CD:GetCooldown(guid, spellId)
 	local spell, _, icon = GetSpellInfo(spellId)
 	bar:Set("ora3cd:guid", guid)
 	bar:Set("ora3cd:player", player)
@@ -348,10 +349,10 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duratio
 	bar:Set("ora3cd:display", self)
 	bar:Set("ora3cd:ready", nil)
 
-	bar:SetDuration(duration)
+	bar:SetDuration(remaining)
 	bar.fill = self.db.barFill -- don't flash
 	bar.paused = nil
-	bar:Start()
+	bar:Start(duration)
 	self:RestyleBar(bar)
 	self:RearrangeBars()
 end
@@ -387,7 +388,7 @@ function prototype:CooldownReady(guid, player, class, spellId)
 	self:RearrangeBars()
 end
 
-function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, duration, charges, maxCharges)
+function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, remaining, charges, maxCharges)
 	if not self.db.showDisplay then return end
 
 	local bar = self:GetBar(guid, spellId)

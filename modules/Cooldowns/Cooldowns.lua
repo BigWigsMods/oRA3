@@ -1689,13 +1689,13 @@ do
 		return pet, guid
 	end
 
-	local function resetCooldown(guid, player, spellId, duration, charges)
+	local function resetCooldown(guid, player, spellId, remaining, charges)
 		local class = classLookup[spellId]
 		callbacks:Fire("oRA3CD_StopCooldown", guid, spellId)
-		if duration and duration > 0 then
+		if remaining and remaining > 0 then
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
-			spellsOnCooldown[spellId][guid] = GetTime() + duration
-			callbacks:Fire("oRA3CD_StartCooldown", guid, player, class, spellId, duration)
+			spellsOnCooldown[spellId][guid] = GetTime() + remaining
+			callbacks:Fire("oRA3CD_StartCooldown", guid, player, class, spellId, remaining)
 		else
 			if spellsOnCooldown[spellId] and spellsOnCooldown[spellId][guid] then
 				spellsOnCooldown[spellId][guid] = nil

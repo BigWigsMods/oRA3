@@ -52,20 +52,13 @@ do
 		self.text:SetText(value)
 	end
 
-	function prototype:GetRemaining()
-		return self.finish and (self.finish - GetTime()) or 0
-	end
-
-	function prototype:Start(duration)
+	function prototype:Start(remaining, duration)
 		self.chargeCooldown:SetCooldown(0, 0)
-		if duration == 0 then -- :Stop() without the destruction
-			self.start = nil
-			self.finish = nil
+		if remaining == 0 then -- :Stop() without the destruction
 			self.cooldown:SetCooldown(0, 0)
 		else
-			self.start = GetTime()
-			self.finish = self.start + duration
-			self.cooldown:SetCooldown(self.start, duration)
+			local start = GetTime() - (duration - remaining)
+			self.cooldown:SetCooldown(start, duration)
 		end
 	end
 
@@ -73,8 +66,6 @@ do
 		callbacks:Fire("IconProvider_Stop", self)
 
 		if self.userdata then wipe(self.userdata) end
-		self.start = nil
-		self.finish = nil
 		self.cooldown:SetCooldown(0, 0)
 		self.chargeCooldown:SetCooldown(0, 0)
 		self:SetCount("")
@@ -357,7 +348,7 @@ end
 ---------------------------------------
 -- Icons
 
-function prototype:TestCooldown(player, class, spellId, duration)
+function prototype:TestCooldown(player, class, spellId, remaining)
 	if not self.db.showDisplay then return end
 	self:Setup()
 
@@ -376,11 +367,11 @@ function prototype:TestCooldown(player, class, spellId, duration)
 
 	frame:SetIcon(icon)
 	frame:SetText(player)
-	frame:Start(duration)
+	frame:Start(remaining, remaining)
 	self:UpdateLayout()
 end
 
-function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duration)
+function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, remaining)
 	if not self.db.showDisplay then return end
 	if not self.spellDB[spellId] or not oRA3CD:CheckFilter(self, player) then return end
 	self:Setup()
@@ -388,6 +379,7 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duratio
 	local frame = self:GetCD(guid, spellId) or IconProvider:New(self)
 	self.icons[frame] = true
 
+	local duration = oRA3CD:GetCooldown(guid, spellId)
 	local spell, _, icon = GetSpellInfo(spellId)
 	frame:Set("ora3cd:guid", guid)
 	frame:Set("ora3cd:player", player)
@@ -399,7 +391,7 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, duratio
 
 	frame:SetIcon(icon)
 	frame:SetText(player)
-	frame:Start(duration)
+	frame:Start(remaining, duration)
 	self:UpdateLayout()
 end
 
@@ -432,7 +424,7 @@ function prototype:CooldownReady(guid, player, class, spellId)
 	self:UpdateLayout()
 end
 
-function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, duration, charges, maxCharges)
+function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, remaining, charges, maxCharges)
 	if not self.db.showDisplay then return end
 
 	local frame = self:GetCD(guid, spellId)
@@ -441,7 +433,9 @@ function prototype:oRA3CD_UpdateCharges(_, guid, player, class, spellId, duratio
 	frame:Set("ora3cd:ready", charges > 0)
 	frame:SetCount(charges)
 	if 0 < charges and charges < maxCharges then
-		frame.chargeCooldown:SetCooldown(GetTime(), duration)
+		local duration = oRA3CD:GetCooldown(guid, spellId)
+		local start = GetTime() - (duration - remaining)
+		frame.chargeCooldown:SetCooldown(start, duration)
 	end
 end
 

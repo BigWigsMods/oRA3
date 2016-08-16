@@ -47,19 +47,12 @@ do
 		end
 	end
 
-	function prototype:GetRemaining()
-		return self.finish and (self.finish - GetTime()) or 0
-	end
-
-	function prototype:Start(duration)
-		self.start = GetTime()
-		self.finish = self.start + duration
-		self.cooldown:SetCooldown(self.start, duration)
+	function prototype:Start(remaining, duration)
+		local start = GetTime() - (duration - remaining)
+		self.cooldown:SetCooldown(start, duration)
 	end
 
 	function prototype:Stop()
-		self.start = nil
-		self.finish = nil
 		self.cooldown:SetCooldown(0, 0)
 	end
 
@@ -363,7 +356,8 @@ function prototype:Update(icon)
 
 	if available == 0 then
 		if cd then
-			icon:Start(cd)
+			local duration = oRA3CD.allSpells[spellId][1] -- use the base cd
+			icon:Start(cd, duration)
 		end
 		icon.icon:SetDesaturated(not cd)
 	else
@@ -385,7 +379,7 @@ end
 -- Callbacks
 
 --[[
-function prototype:TestCooldown(player, class, spellId, duration)
+function prototype:TestCooldown(player, class, spellId, remaining)
 	if not self.db.showDisplay then return end
 	self:Setup()
 
@@ -402,7 +396,7 @@ function prototype:TestCooldown(player, class, spellId, duration)
 	frame:Set("ora3cd:testunit", true)
 
 	frame:SetIcon(icon)
-	frame:SetDuration(duration)
+	frame:SetDuration(remaining)
 	frame:Start()
 	self:UpdateLayout()
 end
