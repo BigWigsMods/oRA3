@@ -473,8 +473,21 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		end
 
 	end)
-end
 
+	-- Codex handling
+	function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, _, spellId)
+		if spellId == 227564 then -- XXX 226234 for Tranquil Mind (100+)
+			local srcName, srcGUID, srcRaidFlags = self:UnitName(unit), UnitGUID(unit), 0
+			local icon = GetRaidTargetIndex(unit)
+			if icon then
+				srcRaidFlags = _G["COMBATLOG_OBJECT_RAIDTARGET" .. icon]
+			end
+			local srcOutput = ("%s|cff40ff40%s|r"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID))
+			local spellOutput = module.db.profile.spellLink and GetSpellLink(spellId) or ("|cff71d5ff%s|r"):format(spellName)
+			self:Codex(srcOutput, nil, spellOutput)
+		end
+	end
+end
 
 ---------------------------------------
 -- Spell handlers
@@ -582,6 +595,10 @@ function module:Summon(srcOutput, _, spellOutput)
 	self:Spam("summon", L["%s is casting %s"]:format(srcOutput, spellOutput))
 end
 
+function module:Codex(srcOutput, _, spellOutput)
+	self:Spam("codex", L["%s used %s"]:format(srcOutput, spellOutput))
+end
+
 do
 	--- Soulstone
 	-- Kind of convoluted x.x When someone losses a Soulstone buff, :Soulstone
@@ -651,6 +668,7 @@ function module:OnRegister()
 			feast = true,
 			summon = true,
 			resurrect = false,
+			codex = true,
 
 			output = "self",
 			separateOutputs = false,
@@ -730,12 +748,14 @@ function module:CheckEnable()
 		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 		self:RegisterEvent("GROUP_ROSTER_UPDATE", UpdatePets)
 		self:RegisterEvent("UNIT_PET")
+		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		combatLogHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		UpdatePets()
 	else
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		self:UnregisterEvent("GROUP_ROSTER_UPDATE")
 		self:UnregisterEvent("UNIT_PET")
+		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		combatLogHandler:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
 end
@@ -985,6 +1005,7 @@ function GetOptions()
 					portal = createAlertSettings("portal", L["Portals"], L["Report when a Mage opens a portal."], 3),
 					summon = createAlertSettings("summon", L["Rituals"], L["Report when a player needs assistance summoning an object."], 4),
 					resurrect = createAlertSettings("resurrect", L["Resurrections"], L["Report resurrections."], 5),
+					codex = createAlertSettings("codex", L["Codex"], L["Report when a player uses a Codex of the Tranquil Mind."], 6),
 				},
 			},
 
