@@ -28,6 +28,7 @@ oRA3.lua
 modulePrototype.lua
 
 # module order in options
+modules\Alerts.lua
 modules\BattleRes.lua
 modules\Consumables.lua
 modules\Cooldowns\module.xml
@@ -45,4 +46,3 @@ modules\Promote.lua
 modules\RoleIcons.lua
 modules\Tanks.lua
 modules\Zone.lua
-
