@@ -172,8 +172,26 @@ local options = {
 		},
 	}
 }
-LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA", options, true)
-LibStub("AceConfigDialog-3.0"):SetDefaultSize("oRA", 760, 600)
+
+local GetOptions
+do
+	local registy = {}
+	function addon:RegisterModuleOptions(name, opts)
+			if type(opts) == "function" then
+				registy[name] = opts
+			else
+				options.args.general.args[name] = opts
+			end
+	end
+	function GetOptions()
+		for name, opts in next, registy do
+			options.args.general.args[name] = opts()
+		end
+		return options
+	end
+end
+LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("oRA", GetOptions, true)
+LibStub("AceConfigDialog-3.0"):SetDefaultSize("oRA", 770, 600)
 
 -------------------------------------------------------------------------------
 -- Event handling
@@ -288,10 +306,6 @@ function addon:OnInitialize()
 	db = self.db.profile
 
 	self.OnInitialize = nil
-end
-
-function addon:RegisterModuleOptions(name, optionTbl)
-	options.args.general.args[name] = optionTbl
 end
 
 function addon:OnEnable()
