@@ -2,14 +2,15 @@
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Version: @project-revision@
-## Author: Funkydude, Nebula169
+## Author: Funkydude, Nebula
 
 ## X-Credits: Cladhaire, Ammo, Rabbit
+## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
+## X-Curse-Project-ID: ora3
+## X-WoWI-ID: 14635
 
 ## SavedVariables: oRA3DB
-
 ## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibDurability, LibButtonGlow-1.0, Masque, ChatThrottleLib
-## X-Embeds: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibDurability, LibButtonGlow-1.0, ChatThrottleLib
 
 libs.xml
 
