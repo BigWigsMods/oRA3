@@ -20,5 +20,6 @@ externals:
     libs/LibButtonGlow-1.0: git://git.wowace.com/wow/libbuttonglow-1-0/mainline.git
 
 ignore:
+  - .travis.yml
   - README.md
   - modules/Cooldowns/README.md

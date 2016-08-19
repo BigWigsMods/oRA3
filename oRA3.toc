@@ -1,6 +1,16 @@
 ## Interface: 70000
 ## Title: oRA3
 ## Notes: Raid and Party Assist
+## Notes-zhCN: Raid and Party Assist
+## Notes-zhTW: Raid and Party Assist
+## Notes-deDE: Raid and Party Assist
+## Notes-frFR: Raid and Party Assist
+## Notes-itIT: Raid and Party Assist
+## Notes-koKR: Raid and Party Assist
+## Notes-ruRU: Raid and Party Assist
+## Notes-ptBR: Raid and Party Assist
+## Notes-esES: Raid and Party Assist
+## Notes-esMX: Raid and Party Assist
 ## Version: @project-revision@
 ## Author: Funkydude, Nebula
 

@@ -11,6 +11,5 @@ oRA3 is the 3rd iteration of oRA, it features the following:
  - Intelligent ready check window that will display a divider bar between groups report based on instance difficulty.
  - Automatically set loot settings when starting a party or raid.
 
-Remember to [file a ticket](http://www.wowace.com/addons/ora3/tickets/) if you find a problem or want to request a feature.
-
-You can also [help us with translations](http://www.wowace.com/addons/ora3/localization/).
+## Download
+https://mods.curse.com/addons/wow/ora3
