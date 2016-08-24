@@ -9,6 +9,7 @@ local L = setmetatable({}, { -- XXX update locale!
 		return k
 	end,
 })
+local classColors = oRA.classColors
 
 local combatLogHandler = CreateFrame("Frame")
 local GetOptions
@@ -468,8 +469,20 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			end
 
 			-- format output strings
-			local srcOutput = ("%s|cff40ff40%s|r"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID))
-			local dstOutput = ("%s|cffff4040%s|r"):format(getIconString(dstRaidFlags), getName(dstName, dstGUID))
+			local srcColor = "ff40ff40"
+			local dstColor = "ffff4040"
+			if module.db.profile.classColor then
+				local _, class = UnitClass(srcName or "")
+				if class then
+					srcColor = classColors[class].colorStr
+				end
+				_, class = UnitClass(dstName or "")
+				if class then
+					dstColor = classColors[class].colorStr
+				end
+			end
+			local srcOutput = ("%s|c%s%s|r"):format(getIconString(srcRaidFlags), srcColor, getName(srcName, srcGUID, srcFlags))
+			local dstOutput = ("%s|c%s%s|r"):format(getIconString(dstRaidFlags), dstColor, getName(dstName, dstGUID, dstFlags))
 			local spellOutput = module.db.profile.spellLink and GetSpellLink(spellId) or ("|cff71d5ff%s|r"):format(spellName)
 			local extraSpellOuput
 			if tonumber(extraSpellId) then -- kind of hacky, pretty print the extra spell for interrupts/breaks/dispels
@@ -691,8 +704,9 @@ function module:OnRegister()
 			enableForRaid = true,
 			enableForLFG = false,
 
-			playerLink = false,
 			spellLink = true,
+			playerLink = false,
+			classColor = false,
 			icons = true,
 			groupOnly = true,
 			disableForLFG = true,
@@ -951,11 +965,17 @@ function GetOptions()
 						name = L["Use Spell Links"],
 						desc = L["Display spell names as clickable spell links."],
 						type = "toggle",
-						order = 40,
+						order = 39,
 					},
 					playerLink = {
 						name = L["Use Player Links"],
 						desc = L["Display player names as clickable player links."],
+						type = "toggle",
+						order = 40,
+					},
+					classColor = {
+						name = L["Use Class Colors"],
+						desc = L["Use class colored names for people in your group instead of using source/target colors."],
 						type = "toggle",
 						order = 41,
 					},
