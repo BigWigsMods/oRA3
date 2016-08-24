@@ -84,34 +84,13 @@ local talentCooldowns = {
 		addMod(info.guid, 498, 20) -- Divine Protection
 		addMod(info.guid, 633, 200) -- Lay on Hands
 	end,
-	[22433] = function(info) -- Protection: Blessing of Spellwarding
-		-- Replaces Blessing of Protection. Set a fake talent so we can
-		-- hide BoP for Protection, but leave the other specs alone.
-		info.talents[100] = true
-	end,
 	-- Priest
-	[22487] = function(info) -- Shadow: Mind Bomb
-		-- Hacky hack hack
-		info.talents[100] = true
-	end,
 	[22094] = function(info) -- Disc/Shadow: Psychic Voice
 		addMod(info.guid, 8122, 30)
-	end,
-	[21718] = function(info) -- Shadow: Power Infusion
-		-- Actually 16, but we need it to be 14.
-		info.talents[14] = true
-	end,
-	[21720] = function(info) -- Shadow: Mendbender
-		-- Actually 18, but we need it to be 12.
-		info.talents[12] = true
 	end,
 	-- Shaman
 	[22492] = function(info) -- Resto: Graceful Spirit
 		addMod(info.guid, 79206, 60) -- Spiritwalker's Grace
-	end,
-	[22139] = function(info) -- Elemental: Ancestral Guidance
-		-- Actually 5, but we need it to be 11.
-		info.talents[11] = true
 	end,
 	-- Warlock
 	[21182] = function(info) -- Grimoire of Supremacy
@@ -125,19 +104,12 @@ local talentCooldowns = {
 	[22627] = function(info) -- Bounding Stride
 		addMod(info.guid, 52174, 15) -- Heroic Leap
 	end,
-	[15760] = function(info) -- Protection: Shockwave
-		-- Protection has the talent in a different tier than Arms/Fury
-		-- Fortunately, the talent ids are different and we don't use
-		-- this talent index.
-		info.talents[4] = true
-	end,
-	[15759] = function(info) -- Protection: Storm Bolt
-		-- Actually 2, but we need it to be 5.
-		info.talents[5] = true
-	end,
 }
 
 -- { cd, level, spec id, talent index }
+-- spec id can be a table of specs
+-- talent index can be negative to indicate a talent replaces the spell
+--   and can be a hash of spec=index for talents in different locations
 local spells = {
 	DEATHKNIGHT = {
 		[221562] = {45, 55, 250}, -- Asphyxiate
@@ -247,7 +219,6 @@ local spells = {
 		[186265] = {180, 50}, -- Aspect of the Turtle
 
 		[206505] = {60, 30, 255, 4}, -- A Murder of Crows XXX If the target dies while under attack, the cooldown is reset.
-		-- [194599] = {15, 30, 254, 5}, -- Black Arrow XXX When you kill an enemy, the remaining cooldown will reset.
 		[201078] = {90, 30, 255, 6}, -- Snake Hunter
 		[212431] = {30, 60, 254, 10}, -- Explosive Shot
 		[194277] = {15, 60, 255, 10}, -- Caltrops
@@ -344,7 +315,7 @@ local spells = {
 		[1044] = {25, 52}, -- Blessing of Freedom
 		[498] = {60, 26, {65, 66}}, -- Divine Protection
 		[96231] = {15, 36, {66, 70}}, -- Rebuke
-		[1022] = {300, 48, nil, -100}, -- Blessing of Protection (-100 for Spellwarding check)
+		[1022] = {300, 48, nil, {[66]=-10}}, -- Blessing of Protection
 		[6940] = {150, 56, {65, 66}}, -- Blessing of Sacrifice
 		[31821] = {180, 65, 65}, -- Aura Mastery
 		[31850] = {120, 65, 66}, -- Ardent Defender
@@ -356,7 +327,6 @@ local spells = {
 		[20066] = {15, 45, nil, 8}, -- Repentance
 		[115750] = {90, 30, nil, 9}, -- Blinding Light
 		[204018] = {180, 60, 66, 10}, -- Blessing of Spellwarding
-		[204013] = {60, 60, 66, 11}, -- Blessing of Salvation
 		[105809] = {120, 75, 65, 14}, -- Holy Avenger
 		[114165] = {20, 75, 65, 15}, -- Holy Prism
 		[205191] = {60, 75, 70, 14}, -- Eye for an Eye
@@ -364,10 +334,10 @@ local spells = {
 		[152262] = {30, 100, 66, 20}, -- Seraphim
 	},
 	PRIEST = {
-		[8122]  = {60, 12, {256, 258}, -100}, -- Psychic Scream (-100 for Psychic Voice check)
+		[8122]  = {60, 12, {256, 258}, {[258]=-7}}, -- Psychic Scream
 		[586]   = {30, 38}, -- Fade
 		[32375] = {15, 72}, -- Mass Dispel
-		[34433] = {180, 40, {256, 258}, -12}, -- Shadowfiend
+		[34433] = {180, 40, {256, 258}, {[256]=-12,[258]=-18}}, -- Shadowfiend
 		[47536] = {120, 50, 256}, -- Rapture
 		[15487] = {45, 50, 258}, -- Silence
 		[47788] = {240, 54, 257}, -- Guardian Spirit XXX (11) When Guardian Spirit expires without saving the target from death, reduce its remaining cooldown to 120 seconds.
@@ -381,10 +351,10 @@ local spells = {
 		[19236] = {90, 30, 257, 6}, -- Desperate Prayer
 		[204263] = {60, 45, {256, 257}, 7}, -- Shining Force
 		[205369] = {30, 45, 258, 7}, -- Mind Bomb
-		[123040] = {60, 60, {256, 258}, 12}, -- Mindbender (Disc: 60, Shadow: 90)
-		[64901] = {360, 60, 257, 12}, -- Hymn of Hope
-		[10060] = {120, 75, nil, 14}, -- Power Infusion (Disc: 75, Shadow: 90)
+		[123040] = {60, 60, {256, 258}, {[256]=12,[258]=18}}, -- Mindbender (Disc: 60, Shadow: 90)
 		[200174] = 123040, -- Mindbender (Shadow)
+		[64901] = {360, 60, 257, 12}, -- Hymn of Hope
+		[10060] = {120, 75, {256, 258}, {[256]=14,[258]=16}}, -- Power Infusion (Disc: 75, Shadow: 90)
 		[120517] = {40, 90, {256, 257}, 18}, -- Halo
 		[200183] = {180, 100, 257, 19}, -- Apotheosis
 
@@ -430,7 +400,7 @@ local spells = {
 
 		[201898] = {45, 15, 263, 1}, -- Windsong
 		[192063] = {15, 30, {262, 264}, 4}, -- Gust of Wind
-		[108281] = {120, 30, {262, 264}, 5}, -- Ancestral Guidance (Ele: 30, Resto: 60)
+		[108281] = {120, 30, {262, 264}, {[262]=5, [264]=11}}, -- Ancestral Guidance (Ele: 30, Resto: 60)
 		[196884] = {30, 30, 263, 5}, -- Feral Lunge
 		[192077] = {120, 30, nil, 6}, -- Wind Rush Totem
 		[192058] = {45, 45, nil, 7}, -- Lightning Surge Totem
@@ -465,10 +435,9 @@ local spells = {
 		[108416] = {60, 75, nil, 15}, -- Dark Pact
 		-- Pet
 		[19647]  = {24, 50}, -- Felhunter Spell Lock (Normal, originates from pet)
-		[119910] = 19647, -- Felhunter Spell Lock (via Command Demon, originates from player)
-		[115781] = 19647, -- Observer Optical Blast (Normal, originates from pet)
-		[119911] = 19647, -- Observer Optical Blast (via Command Demon, originates from player)
-		[171140] = 19647, -- Doomguard Shadow Lock (via Command Demon, originates from player)
+		[119910] = 19647,    -- Felhunter Spell Lock (via Command Demon, originates from player)
+		[171138] = 19647,    -- Doomguard Shadow Lock (Normal, originates from pet)
+		[171140] = 19647,    -- Doomguard Shadow Lock (via Command Demon, originates from player)
 	},
 	WARRIOR = {
 		[100]   = {20, 3}, -- Charge
@@ -487,8 +456,8 @@ local spells = {
 		[227847] = {90, 75, 71, -21}, -- Bladestorm
 		[97462] = {180, 83, {71, 72}}, -- Commanding Shout
 
-		[46968] = {40, 30, nil, 4}, -- Shockwave -- XXX -20s if hits 3 targets
-		[107570] = {30, 30, nil, 5}, -- Storm Bolt
+		[46968] = {40, 30, nil, {[71]=4,[72]=4,[73]=1}}, -- Shockwave -- XXX -20s if hits 3 targets
+		[107570] = {30, 30, nil, {[71]=5,[72]=5,[73]=2}}, -- Storm Bolt
 		[107574] = {90, 45, nil, 9}, -- Avatar
 		[12292] = {30, 90, 72, 16}, -- Bloodbath
 		-- XXX (19) Anger Management: Every 10 Rage you spend reduces the remaining cooldown on Battle Cry, Last Stand, and Shield Wall by 1 sec.
@@ -564,6 +533,13 @@ function module:IsSpellUsable(guid, spellId)
 	if not data then return false end
 
 	local _, level, spec, talent = unpack(data)
+	if type(talent) == "table" then
+		talent = talent[info.spec]
+		-- we already matched the spec, so just decide based on talent
+		if talent ~= nil then
+			spec = nil
+		end
+	end
 	local usable = (info.level >= level) and
 		(not talent or ((talent > 0 and info.talents[talent]) or (talent < 0 and not info.talents[-talent]))) and -- handle talents replacing spells (negative talent index)
 		(not spec or spec == info.spec or (type(spec) == "table" and tContains(spec, info.spec)))
