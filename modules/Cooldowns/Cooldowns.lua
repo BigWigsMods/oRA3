@@ -48,6 +48,15 @@ local talentCooldowns = {
 	[22022] = function(info) -- Lingering Apparition
 		addMod(info.guid, 212552, 15) -- Wraith Walk
 	end,
+	-- Demon Hunter
+	[21870] = function(info) -- Unleashed Power
+		addMod(info.guid, 179057, 20) -- Chaos Nova
+	end,
+	-- Demon Hunter
+	[22511] = function(info) -- Quickened Sigils
+		addMod(info.guid, 202137, 12) -- Sigil of Silence
+		addMod(info.guid, 207684, 12) -- Sigil of Misery
+	end,
 	-- Druid
 	[22424] = function(info) -- Guardian: Guttural Roars
 		addMod(info.guid, 106898, 60) -- Stampeding Roar
@@ -148,6 +157,22 @@ local spells = {
 		[130736] = {45, 100, 252, 21}, -- Soul Reaper
 	},
 	DEMONHUNTER = {
+		-- [198589] = {60, 1, 577, -10}, -- Blur XXX No SPELL_CAST_SUCCESS
+		[183752] = {15, 1}, -- Consume Magic
+		[179057] = {60, 1, 577}, -- Chaos Nova
+		[196718] = {180, 1, 577}, -- Darkness
+		[218256] = {20, 100, 581}, -- Empower Wards
+		[204021] = {60, 1, 581}, -- Fiery Brand
+		[200166] = {300, 1, 577}, -- Metamorphosis (Havoc)
+		[187827] = {180, 1, 581}, -- Metamorphosis (Vengeance)
+		[207684] = {60, 100, 581}, -- Sigil of Misery
+		[202137] = {60, 100, 581}, -- Sigil of Silence
+
+		[211881] = {35, 102, nil, {[577]=14,[581]=9}}, -- Fel Eruption, 106 Havoc / 102 Vengeance
+		[196555] = {90, 104, 577, 0000}, -- Netherwalk
+		[202138] = {120, 106, 581, 14}, -- Sigil of Chains
+		[207810] = {120, 110, 581, 20}, -- Nether Bond
+		[227225] = {20, 110, 581, 21}, -- Soul Barrier
 	},
 	DRUID = {
 		[5217]  = {30, 12, 103}, -- Tiger's Fury XXX (1) The cooldown resets when a target dies with one of your Bleed effects active.
@@ -357,7 +382,6 @@ local spells = {
 		[10060] = {120, 75, {256, 258}, {[256]=14,[258]=16}}, -- Power Infusion (Disc: 75, Shadow: 90)
 		[120517] = {40, 90, {256, 257}, 18}, -- Halo
 		[200183] = {180, 100, 257, 19}, -- Apotheosis
-
 	},
 	ROGUE = {
 		[5277]  = {120, 8, {259, 261}}, -- Evasion
@@ -1684,8 +1708,17 @@ do
 	end
 
 	combatLogHandler.userdata = {}
-	local scratch = combatLogHandler.userdata
+	-- local scratch = combatLogHandler.userdata
 	local specialEvents = {
+		SPELL_CAST_SUCCESS = {
+			[200166] = function(srcGUID, source) -- Metamorphosis (Havoc)
+				local info = infoCache[srcGUID]
+				if info and info.talents[18] then -- Demon Reborn
+					resetCooldown(srcGUID, source, 179057) -- Chaos Nova
+					resetCooldown(srcGUID, source, 198589) -- Blur
+				end
+			end,
+		}
 	}
 
 	local inEncounter = nil
