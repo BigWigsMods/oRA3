@@ -373,12 +373,13 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		return ""
 	end
 
-	local function getName(name, guid)
+	local FILTER_FRIENDLY_PLAYERS = bit_bor(COMBATLOG_OBJECT_TYPE_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY)
+	local function getName(name, guid, flags)
 		local petOwner = petOwnerMap[guid]
 		if petOwner then
 			petOwner = module.db.profile.playerLink and ("|Hplayer:%s|h[%s]|h"):format(petOwner, petOwner:gsub("%-.*", "")) or petOwner:gsub("%-.*", "")
 			return L["%s's %s"]:format(petOwner, name or UNKNOWN)
-		elseif name and UnitIsPlayer(name) then
+		elseif name and bit_band(flags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
 			return module.db.profile.playerLink and ("|Hplayer:%s|h[%s]|h"):format(name, name:gsub("%-.*", "")) or name:gsub("%-.*", "")
 		end
 		return name or UNKNOWN
@@ -446,7 +447,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 				return
 			elseif handler == "Interrupt" then
 				-- ignore players getting interrupted
-				if bit_band(dstFlags, FILTER_GROUP) ~= 0 then
+				if bit_band(dstFlags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
 					return
 				end
 			elseif handler == "InterruptCast" then -- not casting alert
