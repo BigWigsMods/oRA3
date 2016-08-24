@@ -705,8 +705,8 @@ function module:OnRegister()
 			enableForLFG = false,
 
 			spellLink = true,
-			playerLink = false,
-			classColor = false,
+			playerLink = true,
+			classColor = true,
 			icons = true,
 			groupOnly = true,
 			disableForLFG = true,
