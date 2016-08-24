@@ -122,6 +122,12 @@ combatLogMap.SPELL_CREATE = {
 }
 combatLogMap.SPELL_RESURRECT = {
 	["*"] = "Resurrect",
+	-- Mass Resurrection
+	[212056] = false, -- Absolution (Paladin)
+	[212048] = false, -- Ancestral Vision (Shaman)
+	[212036] = false, -- Mass Resurrection (Priest)
+	[212051] = false, -- Reawaken (Monk)
+	[212040] = false, -- Revitalize (Druid)
 	-- Combat Res
 	[20484] = "CombatResurrect",  -- Rebirth (Druid)
 	[61999] = "CombatResurrect",  -- Raise Ally (Death Knight)
@@ -424,7 +430,10 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		end
 
 		local e = combatLogMap[event]
-		local handler = e and (e[spellId] or e["*"])
+		if not e then return end
+
+		local handler = e[spellId]
+		if handler == nil then handler = e["*"] end
 		if handler and (not module.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
 			-- special cases
 			if handler == "AssignOwner" then
