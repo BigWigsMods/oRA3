@@ -1004,6 +1004,12 @@ function GetOptions()
 						type = "toggle",
 						order = 45,
 					},
+					clickNote = {
+						name = "\n"..L["Tip: Shift-click \"oRA3\" in chat to copy the line into the chat edit box so you can easily send the message to your group!"],
+						type = "description",
+						fontSize = "medium",
+						order = 60,
+					},
 
 				},
 			},
