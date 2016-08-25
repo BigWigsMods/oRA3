@@ -11,7 +11,7 @@
 ## Notes-ptBR: Raid and Party Assist
 ## Notes-esES: Raid and Party Assist
 ## Notes-esMX: Raid and Party Assist
-## Version: @project-revision@
+## Version: @project-version@
 ## Author: Funkydude, Nebula
 
 ## X-Credits: Cladhaire, Ammo, Rabbit
