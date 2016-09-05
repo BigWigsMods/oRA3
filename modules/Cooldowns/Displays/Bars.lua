@@ -705,7 +705,7 @@ local function GetOptions(self, db)
 			barLabelFontSize = {
 				type = "range",
 				name = L.fontSize,
-				min = 6, max = 24, step = 1,
+				softMax = 72, max = 200, min = 1, step = 1,
 				disabled = function() return not db.barShowUnit and not db.barShowSpell end,
 				order = 24,
 				width = "full",
@@ -759,7 +759,7 @@ local function GetOptions(self, db)
 			barDurationFontSize = {
 				type = "range",
 				name = L.fontSize,
-				min = 6, max = 24, step = 1,
+				softMax = 72, max = 200, min = 1, step = 1,
 				disabled = function() return not db.barShowDuration end,
 				order = 34,
 				width = "full",

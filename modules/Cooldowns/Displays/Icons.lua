@@ -658,7 +658,7 @@ local function GetOptions(self, db)
 			fontSize = {
 				type = "range",
 				name = L.fontSize,
-				min = 6, max = 24, step = 1,
+				softMax = 72, max = 200, min = 1, step = 1,
 				order = 14,
 				width = "full",
 				disabled = function() return not db.showText end,
