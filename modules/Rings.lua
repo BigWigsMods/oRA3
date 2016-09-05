@@ -1,5 +1,5 @@
 
-local addonName, scope = ...
+local _, scope = ...
 local oRA3 = scope.addon
 local module = oRA3:NewModule("Rings", "AceTimer-3.0")
 local L = scope.locale
@@ -15,12 +15,15 @@ media:Register("sound", "oRA3: Twinkle", DEFAULT_SOUND)
 
 local db = nil
 
---- Specialization to Ring Item
--- 124634 Thorasus (dps-str)
--- 124635 Nithramus (dps-int)
--- 124636 Maalus (dps-agi)
--- 124637 Santus (tank)
--- 124638 Etheralus (healer)
+local ringIds = {
+	[124634] = true, -- Thorasus (dps-str)
+	[124635] = true, -- Nithramus (dps-int)
+	[124636] = true, -- Maalus (dps-agi)
+	[124637] = true, -- Santus (tank)
+	[124638] = true, -- Etheralus (healer)
+}
+
+-- Specialization to Ring Item
 local specToRing = {
 	-- Death Knight
 	[250] = 124637, -- Blood
@@ -69,7 +72,7 @@ local specToRing = {
 	[73] = 124637, -- Protection
 }
 
---- Ring Spell to Role
+-- Ring Spell to Role
 local ringToRole = {
 	-- auras
 	[187616] = 3, -- Nithramus
@@ -273,7 +276,9 @@ local display = {
 }
 
 local function shouldShow()
-	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid())
+	local level = UnitLevel("player")
+	local equipped = ringIds[GetInventoryItemID("player", INVSLOT_FINGER1)] or ringIds[GetInventoryItemID("player", INVSLOT_FINGER2)]
+	return db.showDisplay and IsInGroup() and not UnitInBattleground("player") and (not db.showInRaid or IsInRaid()) and (level < 101 or equipped)
 end
 
 local function toggleShow(force)
