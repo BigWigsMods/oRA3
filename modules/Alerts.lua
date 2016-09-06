@@ -32,7 +32,6 @@ local outputValues = { -- channel list
 }
 local outputValuesWithChannels = {} -- channel list with custom channels mixed in
 
-local FULL_PLAYER_NAME = _G.FULL_PLAYER_NAME
 local UNKNOWN = ("(%s)"):format(_G.UNKNOWN)
 local soulstoneList = {}
 
@@ -351,11 +350,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	function module:UNIT_PET(unit)
 		local pet = UnitGUID(unit .. "pet")
 		if pet then
-			local name, server = UnitName(unit)
-			if server and server ~= "" then
-				name = FULL_PLAYER_NAME:format(name, server)
-			end
-			petOwnerMap[pet] = name
+			petOwnerMap[pet] = self:UnitName(unit)
 		end
 	end
 
