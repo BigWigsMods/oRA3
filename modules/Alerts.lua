@@ -238,8 +238,8 @@ function module:Spam(key, msg)
 	local isInstanceGroup = IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 
 	local chatMsg = msg:gsub("|Hicon:%d+:dest|h|TInterface.TargetingFrame.UI%-RaidTargetingIcon_(%d).blp:0|t|h", "{rt%1}") -- replace icon textures
-	chatMsg = chatMsg:gsub("|Hplayer:.-|h%[(.-)%]|h", "%1") -- remove player links
-	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x([^%|].-)|r", "%1") -- remove color
+	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1") -- remove color
+	chatMsg = chatMsg:gsub("|Hplayer:.-|h(.-)|h", "%1") -- remove player links
 
 	if not IsInGroup() then
 		fallback = true
@@ -337,6 +337,15 @@ do
 end
 
 
+local function getClassColor(name)
+	if name and module.db.profile.classColor then
+		local _, class = UnitClass(name)
+		if class then
+			return classColors[class].colorStr
+		end
+	end
+end
+
 local UpdatePets
 do -- COMBAT_LOG_EVENT_UNFILTERED
 	function module:UNIT_PET(unit)
@@ -375,15 +384,15 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	end
 
 	local FILTER_FRIENDLY_PLAYERS = bit_bor(COMBATLOG_OBJECT_TYPE_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY)
-	local function getName(name, guid, flags)
+	local function getName(name, guid, flags, color)
 		local petOwner = petOwnerMap[guid]
 		if petOwner then
-			petOwner = ("|Hplayer:%s|h%s|h"):format(petOwner, petOwner:gsub("%-.*", ""))
+			petOwner = ("|Hplayer:%s|h|c%s%s|r|h"):format(petOwner, getClassColor(petOwner) or color, petOwner:gsub("%-.*", ""))
 			return L["%s's %s"]:format(petOwner, name or UNKNOWN)
 		elseif name and bit_band(flags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
-			return ("|Hplayer:%s|h%s|h"):format(name, name:gsub("%-.*", ""))
+			return ("|Hplayer:%s|h|c%s%s|r|h"):format(name, getClassColor(name) or color, name:gsub("%-.*", ""))
 		end
-		return name or UNKNOWN
+		return ("|c%s%s|r"):format(color, name or UNKNOWN)
 	end
 
 	local extraUnits = {"target", "focus", "focustarget", "mouseover", "boss1", "boss2", "boss3", "boss4", "boss5"}
@@ -469,20 +478,8 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			end
 
 			-- format output strings
-			local srcColor = "ff40ff40"
-			local dstColor = "ffff4040"
-			if module.db.profile.classColor then
-				local _, class = UnitClass(srcName or "")
-				if class then
-					srcColor = classColors[class].colorStr
-				end
-				_, class = UnitClass(dstName or "")
-				if class then
-					dstColor = classColors[class].colorStr
-				end
-			end
-			local srcOutput = ("%s|c%s%s|r"):format(getIconString(srcRaidFlags), srcColor, getName(srcName, srcGUID, srcFlags))
-			local dstOutput = ("%s|c%s%s|r"):format(getIconString(dstRaidFlags), dstColor, getName(dstName, dstGUID, dstFlags))
+			local srcOutput = ("%s%s"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID, srcFlags, "ff40ff40"))
+			local dstOutput = ("%s%s"):format(getIconString(dstRaidFlags), getName(dstName, dstGUID, dstFlags, "ffff4040"))
 			local spellOutput = GetSpellLink(spellId)
 			local extraSpellOuput
 			if tonumber(extraSpellId) then -- kind of hacky, pretty print the extra spell for interrupts/breaks/dispels
@@ -654,7 +651,7 @@ do
 					soulstoneList[name] = nil
 				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not UnitBuff(name, feignDeath) and not UnitBuff(name, spiritOfRedemption) then
 					soulstoneList[name] = nil
-					name = ("|Hplayer:%s|h%s|h"):format(name, name:gsub("%-.*", ""))
+					name = ("|Hplayer:%s|h|c%s%s|r|h"):format(name, getClassColor(name) or "ff40ff40", name:gsub("%-.*", ""))
 					local srcOutput = ("|cff40ff40%s|r"):format(name)
 					module:Spam("combatRes", L["%s used %s"]:format(srcOutput, soulstone))
 				end
