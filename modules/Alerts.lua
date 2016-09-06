@@ -38,9 +38,8 @@ local soulstoneList = {}
 local combatLogMap = {}
 combatLogMap.SPELL_CAST_START = {
 	-- Feasts
-	[160740] = "Feast", -- Feast of Blood (+75)
-	[160914] = "Feast", -- Feast of the Waters (+75)
 	[175215] = "Feast", -- Savage Feast (+100)
+	[201351] = "Feast", -- Hearty Feast (+150)
 }
 combatLogMap.SPELL_CAST_SUCCESS = {
 	-- Repair Bots
