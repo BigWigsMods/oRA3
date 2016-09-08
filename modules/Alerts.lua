@@ -236,8 +236,8 @@ function module:Spam(key, msg)
 	local isInstanceGroup = IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 
 	local chatMsg = msg:gsub("|Hicon:%d+:dest|h|TInterface.TargetingFrame.UI%-RaidTargetingIcon_(%d).blp:0|t|h", "{rt%1}") -- replace icon textures
-	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1") -- remove color
 	chatMsg = chatMsg:gsub("|Hplayer:.-|h(.-)|h", "%1") -- remove player links
+	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1") -- remove color
 
 	if not IsInGroup() then
 		fallback = true
@@ -381,10 +381,10 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	local function getName(name, guid, flags, color)
 		local petOwner = petOwnerMap[guid]
 		if petOwner then
-			petOwner = ("|Hplayer:%s|h|c%s%s|r|h"):format(petOwner, getClassColor(petOwner) or color, petOwner:gsub("%-.*", ""))
+			petOwner = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(petOwner) or color, petOwner, petOwner:gsub("%-.*", ""))
 			return L["%s's %s"]:format(petOwner, name or UNKNOWN)
 		elseif name and bit_band(flags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
-			return ("|Hplayer:%s|h|c%s%s|r|h"):format(name, getClassColor(name) or color, name:gsub("%-.*", ""))
+			return ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or color, name, name:gsub("%-.*", ""))
 		end
 		return ("|c%s%s|r"):format(color, name or UNKNOWN)
 	end
@@ -645,7 +645,7 @@ do
 					soulstoneList[name] = nil
 				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not UnitBuff(name, feignDeath) and not UnitBuff(name, spiritOfRedemption) then
 					soulstoneList[name] = nil
-					name = ("|Hplayer:%s|h|c%s%s|r|h"):format(name, getClassColor(name) or "ff40ff40", name:gsub("%-.*", ""))
+					name = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
 					local srcOutput = ("|cff40ff40%s|r"):format(name)
 					module:Spam("combatRes", L["%s used %s"]:format(srcOutput, soulstone))
 				end
