@@ -7,6 +7,7 @@ local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
+local LibDialog = LibStub("LibDialog-1.0")
 
 -- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide
 
@@ -793,68 +794,61 @@ do
 		showPane()
 	end
 
-	StaticPopupDialogs["ORA3_COOLDOWNS_NEW"] = {
+	-- StaticPopupDialogs
+
+	LibDialog:Register("ORA3_COOLDOWNS_NEW", { -- data: copy_current_display
 		text = L.popupNewDisplay,
-		button1 = OKAY,
-		button2 = CANCEL,
-		OnAccept = function(self)
-			local name = self.editBox:GetText()
-			if activeDisplays[name] then
-				StaticPopup_Show("ORA3_COOLDOWNS_ERROR_NAME", name, nil, self.data)
-				return
-			end
-			createDisplay(name, self.data)
-		end,
-		OnCancel = function(self) showPane() end,
-		OnShow = function(self) self.editBox:SetFocus() end,
-		EditBoxOnEnterPressed = function(editBox)
-			local self = editBox:GetParent()
-			local name = editBox:GetText():trim()
-			self:Hide()
-			if activeDisplays[name] then
-				StaticPopup_Show("ORA3_COOLDOWNS_ERROR_NAME", name, nil, self.data)
-				return
-			end
-			createDisplay(name, self.data)
-		end,
-		EditBoxOnEscapePressed = function(editBox)
-			editBox:GetParent():Hide()
+		buttons = {
+			{
+				text = OKAY,
+				on_click = function(self, data)
+					local name = self.editboxes[1]:GetText():trim()
+					if activeDisplays[name] then
+						LibDialog:Spawn("ORA3_COOLDOWNS_ERROR_NAME", {name, data})
+						return
+					end
+					createDisplay(name, data)
+				end,
+			},
+			{ text = CANCEL, },
+		},
+		editboxes = {
+			{ auto_focus = true, },
+		},
+		on_show = function(self, data) showPane() end,
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
+
+	LibDialog:Register("ORA3_COOLDOWNS_ERROR_NAME", { -- data: {invalid_display_name, copy_current_display}
+		icon = [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]],
+		buttons = {
+			{ text = OKAY, on_click = function(self, data) LibDialog:Spawn("ORA3_COOLDOWNS_NEW", data[2]) end, },
+			{ text = CANCEL, },
+		},
+		on_show = function(self, data)
 			showPane()
+			self.text:SetFormattedText(L.popupNameError, data[1])
 		end,
-		timeout = 0,
-		hideOnEscape = 1,
-		exclusive = 1,
-		whileDead = 1,
-		hasEditBox = 1,
-		preferredIndex = 3,
-	}
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
-	StaticPopupDialogs["ORA3_COOLDOWNS_ERROR_NAME"] = {
-		text = L.popupNameError,
-		button1 = OKAY,
-		button2 = CANCEL,
-		OnAccept = function(self) StaticPopup_Show("ORA3_COOLDOWNS_NEW", nil, nil, self.data) end,
-		OnCancel = function(self) showPane() end,
-		timeout = 0,
-		hideOnEscape = 1,
-		whileDead = 1,
-		exclusive = 1,
-		showAlert = 1,
-		preferredIndex = 3,
-	}
-
-	StaticPopupDialogs["ORA3_COOLDOWNS_DELETE"] = {
-		text = L.popupDeleteDisplay,
-		button1 = YES,
-		button2 = CANCEL,
-		OnAccept = function(self) deleteDisplay(self.data) end,
-		OnCancel = function(self) showPane() end,
-		timeout = 0,
-		hideOnEscape = 1,
-		whileDead = 1,
-		exclusive = 1,
-		preferredIndex = 3,
-	}
+	LibDialog:Register("ORA3_COOLDOWNS_DELETE", { -- data: display_name
+		buttons = {
+			{ text = YES, on_click = function(self, data) deleteDisplay(data) end, },
+			{ text = CANCEL, },
+		},
+		on_show = function(self, data)
+			showPane()
+			self.text:SetFormattedText(L.popupDeleteDisplay, data)
+		end,
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
 	-- Utility
 
@@ -1189,11 +1183,11 @@ do
 
 	local function onDisplayChanged(widget, event, value)
 		if value == "__new" then
-			StaticPopup_Show("ORA3_COOLDOWNS_NEW")
+			LibDialog:Spawn("ORA3_COOLDOWNS_NEW")
 		elseif value == "__newcopy" then
-			StaticPopup_Show("ORA3_COOLDOWNS_NEW", nil, nil, true)
+			LibDialog:Spawn("ORA3_COOLDOWNS_NEW", true)
 		elseif value == "__delete" then
-			StaticPopup_Show("ORA3_COOLDOWNS_DELETE", CURRENT_DISPLAY, nil, CURRENT_DISPLAY)
+			LibDialog:Spawn("ORA3_COOLDOWNS_DELETE", CURRENT_DISPLAY)
 		else
 			CURRENT_DISPLAY = value
 			showPane()
