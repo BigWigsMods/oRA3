@@ -7,7 +7,7 @@ local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
-local LibDialog = LibStub("LibDialog-1.0", true)
+local LibDialog = LibStub("LibDialog-1.0")
 
 -- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide
 
@@ -796,61 +796,59 @@ do
 
 	-- StaticPopupDialogs
 
-	if LibDialog then
-		LibDialog:Register("ORA3_COOLDOWNS_NEW", { -- data: copy_current_display
-			text = L.popupNewDisplay,
-			buttons = {
-				{
-					text = OKAY,
-					on_click = function(self, data)
-						local name = self.editboxes[1]:GetText():trim()
-						if activeDisplays[name] then
-							LibDialog:Spawn("ORA3_COOLDOWNS_ERROR_NAME", {name, data})
-							return
-						end
-						createDisplay(name, data)
-					end,
-				},
-				{ text = CANCEL, },
+	LibDialog:Register("ORA3_COOLDOWNS_NEW", { -- data: copy_current_display
+		text = L.popupNewDisplay,
+		buttons = {
+			{
+				text = OKAY,
+				on_click = function(self, data)
+					local name = self.editboxes[1]:GetText():trim()
+					if activeDisplays[name] then
+						LibDialog:Spawn("ORA3_COOLDOWNS_ERROR_NAME", {name, data})
+						return
+					end
+					createDisplay(name, data)
+				end,
 			},
-			editboxes = {
-				{ auto_focus = true, },
-			},
-			on_show = function(self, data) showPane() end,
-			no_close_button = true,
-			hide_on_escape = true,
-			show_while_dead = true,
-		})
+			{ text = CANCEL, },
+		},
+		editboxes = {
+			{ auto_focus = true, },
+		},
+		on_show = function(self, data) showPane() end,
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
-		LibDialog:Register("ORA3_COOLDOWNS_ERROR_NAME", { -- data: {invalid_display_name, copy_current_display}
-			icon = [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]],
-			buttons = {
-				{ text = OKAY, on_click = function(self, data) LibDialog:Spawn("ORA3_COOLDOWNS_NEW", data[2]) end, },
-				{ text = CANCEL, },
-			},
-			on_show = function(self, data)
-				showPane()
-				self.text:SetFormattedText(L.popupNameError, data[1])
-			end,
-			no_close_button = true,
-			hide_on_escape = true,
-			show_while_dead = true,
-		})
+	LibDialog:Register("ORA3_COOLDOWNS_ERROR_NAME", { -- data: {invalid_display_name, copy_current_display}
+		icon = [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]],
+		buttons = {
+			{ text = OKAY, on_click = function(self, data) LibDialog:Spawn("ORA3_COOLDOWNS_NEW", data[2]) end, },
+			{ text = CANCEL, },
+		},
+		on_show = function(self, data)
+			showPane()
+			self.text:SetFormattedText(L.popupNameError, data[1])
+		end,
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
-		LibDialog:Register("ORA3_COOLDOWNS_DELETE", { -- data: display_name
-			buttons = {
-				{ text = YES, on_click = function(self, data) deleteDisplay(data) end, },
-				{ text = CANCEL, },
-			},
-			on_show = function(self, data)
-				showPane()
-				self.text:SetFormattedText(L.popupDeleteDisplay, data)
-			end,
-			no_close_button = true,
-			hide_on_escape = true,
-			show_while_dead = true,
-		})
-	end
+	LibDialog:Register("ORA3_COOLDOWNS_DELETE", { -- data: display_name
+		buttons = {
+			{ text = YES, on_click = function(self, data) deleteDisplay(data) end, },
+			{ text = CANCEL, },
+		},
+		on_show = function(self, data)
+			showPane()
+			self.text:SetFormattedText(L.popupDeleteDisplay, data)
+		end,
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
 	-- Utility
 
@@ -1185,11 +1183,11 @@ do
 
 	local function onDisplayChanged(widget, event, value)
 		if value == "__new" then
-			if LibDialog then LibDialog:Spawn("ORA3_COOLDOWNS_NEW") end
+			LibDialog:Spawn("ORA3_COOLDOWNS_NEW")
 		elseif value == "__newcopy" then
-			if LibDialog then LibDialog:Spawn("ORA3_COOLDOWNS_NEW", true) end
+			LibDialog:Spawn("ORA3_COOLDOWNS_NEW", true)
 		elseif value == "__delete" then
-			if LibDialog then LibDialog:Spawn("ORA3_COOLDOWNS_DELETE", CURRENT_DISPLAY) end
+			LibDialog:Spawn("ORA3_COOLDOWNS_DELETE", CURRENT_DISPLAY)
 		else
 			CURRENT_DISPLAY = value
 			showPane()

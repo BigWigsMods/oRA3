@@ -11,7 +11,7 @@ local L = scope.locale
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")
-local LibDialog = LibStub("LibDialog-1.0", true)
+local LibDialog = LibStub("LibDialog-1.0")
 
 BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L.togglePane
@@ -719,18 +719,16 @@ local function setupGUI()
 	local drag = frame:CreateTitleRegion()
 	drag:SetAllPoints(title)
 
-	if LibDialog then
-		LibDialog:Register("oRA3DisbandGroup", {
-			text = L.disbandGroupWarning,
-			buttons = {
-				{ text = YES, on_click = actuallyDisband, },
-				{ text = NO, },
-			},
-			no_close_button = true,
-			hide_on_escape = true,
-			show_while_dead = true,
-		})
-	end
+	LibDialog:Register("oRA3DisbandGroup", {
+		text = L.disbandGroupWarning,
+		buttons = {
+			{ text = YES, on_click = actuallyDisband, },
+			{ text = NO, },
+		},
+		no_close_button = true,
+		hide_on_escape = true,
+		show_while_dead = true,
+	})
 
 	local disband = CreateFrame("Button", "oRA3DisbandButton", frame, "UIPanelButtonTemplate")
 	disband:SetWidth(120)
@@ -744,9 +742,7 @@ local function setupGUI()
 		if IsControlKeyDown() then
 			actuallyDisband()
 		else
-			if LibDialog then
-				LibDialog:Spawn("oRA3DisbandGroup")
-			end
+			LibDialog:Spawn("oRA3DisbandGroup")
 		end
 	end)
 	if (addon:IsPromoted() or 0) > 1 and not IsInGroup(2) then
