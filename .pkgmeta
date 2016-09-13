@@ -18,7 +18,6 @@ externals:
     libs/LibDualSpec-1.0: git://git.wowace.com/wow/libdualspec-1-0/mainline.git
     libs/LibGroupInSpecT-1.1: svn://svn.wowace.com/wow/libgroupinspect/mainline/trunk
     libs/LibButtonGlow-1.0: git://git.wowace.com/wow/libbuttonglow-1-0/mainline.git
-    libs/LibDialog-1.0: http://hg.wowace.com/wow/libdialog-1-0/mainline
 
 ignore:
   - ISSUE_TEMPLATE.md
