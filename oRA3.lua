@@ -716,9 +716,6 @@ local function setupGUI()
 	title:SetPoint("TOP", 4, -16)
 	frame.title = title
 
-	local drag = frame:CreateTitleRegion()
-	drag:SetAllPoints(title)
-
 	LibDialog:Register("oRA3DisbandGroup", {
 		text = L.disbandGroupWarning,
 		buttons = {
