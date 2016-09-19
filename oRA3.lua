@@ -675,7 +675,7 @@ local function setupGUI()
 
 	frame:SetHitRectInsets(0, 30, 0, 45)
 	frame:SetToplevel(true)
-	frame:EnableMouse(true)
+	frame:SetMovable(true)
 
 	local topleft = frame:CreateTexture(nil, "ARTWORK")
 	topleft:SetTexture(136558) --"Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
@@ -715,6 +715,15 @@ local function setupGUI()
 	title:SetHeight(16)
 	title:SetPoint("TOP", 4, -16)
 	frame.title = title
+
+	local drag = CreateFrame("Frame", nil, frame)
+	drag:SetAllPoints(title)
+	drag:EnableMouse(true)
+	drag:SetMovable(true)
+	drag:RegisterForDrag("LeftButton")
+	drag:SetScript("OnDragStart", function() frame:StartMoving() end)
+	drag:SetScript("OnDragStop", function() frame:StopMovingOrSizing() end)
+	frame.drag = drag
 
 	LibDialog:Register("oRA3DisbandGroup", {
 		text = L.disbandGroupWarning,
@@ -766,6 +775,7 @@ local function setupGUI()
 	check.module = consumables
 
 	local opt = CreateFrame("Button", "oRA3OptionsButton", frame)
+	opt:SetFrameLevel(drag:GetFrameLevel() + 1)
 	opt:SetNormalTexture(311225) --"Interface\\Worldmap\\Gear_64"
 	opt:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
 	opt:SetHighlightTexture(311225) --"Interface\\Worldmap\\Gear_64"
