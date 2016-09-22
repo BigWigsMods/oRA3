@@ -215,12 +215,35 @@ function module:OnRegister()
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
+	oRA.RegisterCallback(self, "OnListSelected")
+	oRA.RegisterCallback(self, "OnListClosed")
 	oRA.RegisterCallback(self, "OnShutdown")
 
 	SLASH_ORABUFFS1 = "/rabuffs"
 	SLASH_ORABUFFS2 = "/rab"
 	SlashCmdList.ORABUFFS = function()
 		oRA:OpenToList(L.buffs)
+	end
+end
+
+do
+	local timer = nil
+	function module:OnListSelected(_, list)
+		if list == L.buffs then
+			self:CheckGroup()
+			if not timer then
+				timer = self:ScheduleRepeatingTimer("CheckGroup", 1)
+			end
+		elseif timer then
+			self:CancelTimer(timer)
+			timer = nil
+		end
+	end
+	function module:OnListClosed(_, list)
+		if timer then
+			self:CancelTimer(timer)
+			timer = nil
+		end
 	end
 end
 
@@ -390,7 +413,7 @@ do
 	local function getStatValue(id)
 		local desc = GetSpellDescription(id)
 		if desc then
-			local value = tonumber(desc:match("(%d+)")) or 0
+			local value = tonumber(desc:match("%d+")) or 0
 			return value >= 75 and value or YES
 		end
 	end
