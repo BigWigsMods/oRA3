@@ -40,9 +40,7 @@ local spells = setmetatable({}, {
 local getRune
 do
 	local runes = {
-		spells[175456], -- Hyper Augmentation (Agility)
-		spells[175439], -- Stout Augmentation (Strength)
-		spells[175457], -- Focus Augmentation (Intellect)
+		spells[224001], -- Defiled Augmentation
 	}
 
 	function getRune(player)
@@ -59,15 +57,10 @@ end
 local getFlask
 do
 	local flasks = {
-		spells[156073], -- Draenic Agility Flask
-		spells[156070], -- Draenic Intellect Flask
-		spells[156071], -- Draenic Strength Flask
-		spells[156077], -- Draenic Stamina Flask
-		spells[156064], -- Greater Draenic Agility Flask
-		spells[156079], -- Greater Draenic Intellect Flask
-		spells[156080], -- Greater Draenic Strength Flask
-		spells[156084], -- Greater Draenic Stamina Flask
-		--spells[176151], -- Whispers of Insanity (Oralius' Whispering Crystal)
+		spells[188031], -- Flask of the Whispered Pact    (Intellect)
+		spells[188033], -- Flask of the Seventh Demon     (Agility)
+		spells[188034], -- Flask of the Countless Armies  (Strength)
+		spells[188035], -- Flask of Ten Thousand Scars    (Stamina)
 	}
 
 	function getFlask(player)
@@ -277,12 +270,16 @@ do
 		[180750] = true, -- mastery
 		[180747] = true, -- stamina
 	}
-	-- 250 stat flask
+	-- 1300 stat flask
 	local maxFlasks = {
-		[156064] = true, -- Greater Draenic Agility Flask
-		[156079] = true, -- Greater Draenic Intellect Flask
-		[156080] = true, -- Greater Draenic Strength Flask
-		[156084] = true, -- Greater Draenic Stamina Flask
+		[188031] = true, -- Flask of the Whispered Pact    (Intellect)
+		[188033] = true, -- Flask of the Seventh Demon     (Agility)
+		[188034] = true, -- Flask of the Countless Armies  (Strength)
+		[188035] = true, -- Flask of Ten Thousand Scars    (Stamina)
+		--[156064] = true, -- Greater Draenic Agility Flask
+		--[156079] = true, -- Greater Draenic Intellect Flask
+		--[156080] = true, -- Greater Draenic Strength Flask
+		--[156084] = true, -- Greater Draenic Stamina Flask
 	}
 
 	function module:IsBest(id)
