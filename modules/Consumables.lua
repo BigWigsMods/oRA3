@@ -1,5 +1,5 @@
 
-local addonName, scope = ...
+local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
 local L = scope.locale
@@ -76,49 +76,35 @@ end
 
 local getFood
 do
-	local eating = spells[433] -- Food (Eating)
+	local eating = spells[192002] -- Food & Drink (Eating)
 	local wellFed = spells[19705] -- Well Fed
-	local foods = {
-		[180745] = { -- crit
-			[75] = 160724,
-			[100] = 160889,
-			[125] = 180745,
-		},
-		[180749] = { -- multistrike
-			[75] = 160832,
-			[100] = 160900,
-			[125] = 180749,
-		},
-		[180748] = { -- haste
-			[75] = 160726,
-			[100] = 160893,
-			[125] = 180748,
-		},
-		[180746] = { -- versatility
-			[75] = 160839,
-			[100] = 160902,
-			[125] = 180746,
-		},
-		[180750] = { -- mastery
-			[75] = 160793,
-			[100] = 160897,
-			[125] = 180750,
-		},
-		[180747] = { -- stamina
-			[112] = 160600,
-			[150] = 160883,
-			[187] = 180747,
-		},
-	}
+	-- local wellFed = {
+	-- 	-- crit
+	-- 	[201223] = 225,
+	-- 	[225597] = 300,
+	-- 	[225602] = 375,
+	-- 	-- mastery
+	-- 	[201332] = 225,
+	-- 	[225599] = 300,
+	-- 	[225604] = 375,
+	-- 	-- haste
+	-- 	[201330] = 225,
+	-- 	[225598] = 300,
+	-- 	[225603] = 375,
+	-- 	-- versatility
+	-- 	[201334] = 225,
+	-- 	[225600] = 300,
+	-- 	[225605] = 375,
+	-- -- aoe damage
+	-- 	[201336] = true, -- ~10k
+	-- 	[225601] = true, -- ~13.5k
+	-- 	[201336] = true, -- ~17k
+	-- }
 
 	function getFood(player)
-		-- thanks blizzard for using the same id with a modifer for 75/100/125 food
-		local id, _, _, _, value = select(11, UnitBuff(player, wellFed))
+		-- return 17 is the stat value
+		local id = select(11, UnitBuff(player, wellFed))
 		if id then
-			if foods[id] and value then
-				-- return an id for the food with the proper stat value (also account for Pandaren)
-				return foods[id][value] or foods[id][value / 2] or id
-			end
 			return id
 		else -- should probably map food -> well fed buffs but bleeh
 			id = select(11, UnitBuff(player, eating))
@@ -261,14 +247,13 @@ end
 -- API
 
 do
-	-- 125 stat food
+	-- 375 stat food
 	local maxFoods = {
-		[180745] = true, -- crit
-		[180749] = true, -- multistrike
-		[180748] = true, -- haste
-		[180746] = true, -- versatility
-		[180750] = true, -- mastery
-		[180747] = true, -- stamina
+		[225602] = true, -- crit
+		[225604] = true, -- mastery
+		[225603] = true, -- haste
+		[225605] = true, -- versatility
+		-- need 200 stat / 300 stamina ids
 	}
 	-- 1300 stat flask
 	local maxFlasks = {
@@ -276,10 +261,6 @@ do
 		[188033] = true, -- Flask of the Seventh Demon     (Agility)
 		[188034] = true, -- Flask of the Countless Armies  (Strength)
 		[188035] = true, -- Flask of Ten Thousand Scars    (Stamina)
-		--[156064] = true, -- Greater Draenic Agility Flask
-		--[156079] = true, -- Greater Draenic Intellect Flask
-		--[156080] = true, -- Greater Draenic Strength Flask
-		--[156084] = true, -- Greater Draenic Stamina Flask
 	}
 
 	function module:IsBest(id)
