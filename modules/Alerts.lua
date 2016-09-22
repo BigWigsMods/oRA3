@@ -237,7 +237,7 @@ function module:Spam(key, msg)
 
 	local chatMsg = msg:gsub("|Hicon:%d+:dest|h|TInterface.TargetingFrame.UI%-RaidTargetingIcon_(%d).blp:0|t|h", "{rt%1}") -- replace icon textures
 	chatMsg = chatMsg:gsub("|Hplayer:.-|h(.-)|h", "%1") -- remove player links
-	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x(.-)|r", "%1") -- remove color
+	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x([^|].-)|r", "%1") -- remove color
 
 	if not IsInGroup() then
 		fallback = true
