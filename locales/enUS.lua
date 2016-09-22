@@ -257,27 +257,6 @@ L.battleResLockDesc = "Toggle locking the monitor. This will hide the header tex
 L.showMonitor = "Show monitor"
 L.battleResShowDesc = "Toggle showing or hiding the monitor."
 
--- Legendary Rings Module
-L.legendaryRings = "Legendary Rings"
-L.onlyRaids = "Only show in raids"
-L.onlyRaidsDesc = "Only show the monitor while you're in a raid group."
-L.showRings = "Show Rings"
-L.sound = "Sound"
-L.soundDesc = "Play a sound when a ring activates."
-L.onlyMyRing = "Only my ring"
-L.onlyMyRingDesc = "Only play a sound when your ring type activates."
-L.displaySettings = "Display"
-L.showText = "Show text"
-L.showTextDesc = "Show ring type or the name of the last player to use the ring."
-L.announce = "Announce"
-L.announceDesc = "Print a message to raid chat when a ring activates."
-L.clickable = "Clickable"
-L.clickableDesc = "Enable clicking on your ring icon to activate the ring."
-L.orientation = "Orientation"
-L.horizontal = "Horizontal"
-L.vertical = "Vertical"
-L.activatedRing = "%s activated %s (%s)"
-
 -- Consumables Module
 L.consumables = "Consumable Check"
 L.checkReadyCheck = "Check on ready check"

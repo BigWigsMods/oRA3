@@ -17,7 +17,6 @@ externals:
     libs/LibDDI-1.0: svn://svn.wowace.com/wow/libddi-1-0/mainline/trunk
     libs/LibDualSpec-1.0: git://git.wowace.com/wow/libdualspec-1-0/mainline.git
     libs/LibGroupInSpecT-1.1: svn://svn.wowace.com/wow/libgroupinspect/mainline/trunk
-    libs/LibButtonGlow-1.0: git://git.wowace.com/wow/libbuttonglow-1-0/mainline.git
 
 ignore:
   - .travis.yml
