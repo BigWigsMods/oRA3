@@ -498,7 +498,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			if icon then
 				srcRaidFlags = _G["COMBATLOG_OBJECT_RAIDTARGET" .. icon]
 			end
-			local srcOutput = ("%s|cff40ff40%s|r"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID, 0, getClassColor(srcName)))
+			local srcOutput = ("%s|cff40ff40%s|r"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID, 0, getClassColor(srcName) or "ff40ff40"))
 			local spellOutput = GetSpellLink(spellId)
 			self:Codex(srcOutput, nil, spellOutput)
 		end
