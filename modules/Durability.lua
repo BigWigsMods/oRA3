@@ -48,6 +48,18 @@ end
 
 function module:OnListSelected(_, list)
 	if list == L.durability then
+		-- Fill the list with all players
+		for unit in self:IterateGroup() do
+			local player = self:UnitName(unit)
+			if player then
+				local k = inTable(durability, player, 1)
+				if not k then
+					k = #durability + 1
+					durability[k] = { player }
+				end
+			end
+		end
+
 		LD:RequestDurability()
 	end
 end

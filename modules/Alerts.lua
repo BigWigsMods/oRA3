@@ -354,7 +354,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	end
 
 	function UpdatePets()
-		for unit in oRA:IterateGroup() do
+		for unit in module:IterateGroup() do
 			module:UNIT_PET(unit)
 		end
 	end
@@ -391,12 +391,13 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	local extraUnits = {"target", "focus", "focustarget", "mouseover", "boss1", "boss2", "boss3", "boss4", "boss5"}
 	local function getUnit(guid)
-		for _, unit in ipairs(extraUnits) do
+		for i = 1, #extraUnits do
+			local unit = extraUnits[i]
 			if UnitGUID(unit) == guid then return unit end
 		end
 
-		for unit in oRA:IterateGroup() do
-			local target = ("%starget"):format(unit)
+		for unit in module:IterateGroup() do
+			local target = unit .."target"
 			if UnitGUID(target) == guid then return target end
 		end
 	end

@@ -51,6 +51,18 @@ do
 	local prev = 0
 	function module:OnListSelected(_, list)
 		if list == L.gear then
+			-- Fill the list with all players
+			for unit in self:IterateGroup() do
+				local player = self:UnitName(unit)
+				if player then
+					local k = inTable(gearTbl, player, 1)
+					if not k then
+						k = #gearTbl + 1
+						gearTbl[k] = { player }
+					end
+				end
+			end
+
 			local t = GetTime()
 			if t-prev > 15 then
 				prev = t

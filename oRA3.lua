@@ -374,30 +374,6 @@ end
 --
 
 do
-	local partyUnits = {"player", "party1", "party2", "party3", "party4"}
-
-	local raidUnits = {}
-	for i = 1, _G.MAX_RAID_MEMBERS do
-		raidUnits[#raidUnits + 1] = ("raid%d"):format(i)
-	end
-
-	function addon:IterateGroup()
-		local i = 0
-		local size = GetNumGroupMembers()
-		if size == 0 then size = 1 end
-
-		local function iter(a)
-			i = i + 1
-			if i <= size then
-				return a[i], i
-			end
-		end
-
-		return iter, (IsInRaid() and raidUnits or partyUnits)
-	end
-end
-
-do
 	local playerCache = {}
 
 	local function guidToUnit(guid)

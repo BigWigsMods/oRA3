@@ -46,6 +46,18 @@ end
 
 function module:OnListSelected(_, list)
 	if list == L.latency then
+		-- Fill the list with all players
+		for unit in self:IterateGroup() do
+			local player = self:UnitName(unit)
+			if player then
+				local k = inTable(latency, player, 1)
+				if not k then
+					k = #latency + 1
+					latency[k] = { player }
+				end
+			end
+		end
+
 		LL:RequestLatency()
 	end
 end
