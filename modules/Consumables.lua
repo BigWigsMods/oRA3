@@ -78,7 +78,7 @@ local getFood
 do
 	local eating = spells[192002] -- Food & Drink (Eating)
 	local wellFed = spells[19705] -- Well Fed
-	-- local wellFed = {
+	-- local food = {
 	-- 	-- crit
 	-- 	[201223] = 225,
 	-- 	[225597] = 300,

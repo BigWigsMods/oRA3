@@ -323,8 +323,8 @@ end
 local function getStatValue(id)
 	local desc = GetSpellDescription(id)
 	if desc then
-		local value = tonumber(desc:match("(%d+)")) or 0
-		return value >= 75 and value or YES
+		local value = tonumber(desc:match("%d+")) or 0
+		return value >= 75 and value
 	end
 end
 
@@ -435,6 +435,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 end
 
 function updateWindow(force)
+	if not window then return end
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
 	window.bar:Hide()
