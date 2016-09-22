@@ -1127,8 +1127,8 @@ function addon:CreateScrollEntry(header)
 end
 
 local sortIndex -- current index (scrollheader) being sorted
-local function sortAsc(a, b) return b[sortIndex] > a[sortIndex] end
-local function sortDesc(a, b) return a[sortIndex] > b[sortIndex] end
+local function sortAsc(a, b) return (b[sortIndex] or 0) > (a[sortIndex] or 0) end
+local function sortDesc(a, b) return (a[sortIndex] or 0) > (b[sortIndex] or 0) end
 local function toggleColumn(header)
 	local list = lists[openedList]
 	local nr = header.headerIndex
