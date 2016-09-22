@@ -1,5 +1,5 @@
 
-local addonName, scope = ...
+local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("ReadyCheck", "AceTimer-3.0")
 local L = scope.locale
@@ -26,6 +26,7 @@ local readycheck = {} -- table containing ready check results
 local readygroup = {}
 local highgroup = 9
 local window -- will be filled with our GUI frame
+local updateWindow
 local showBuffFrame = false
 local lastUpdate = 0
 
@@ -145,6 +146,7 @@ local options = {
 					set = function(_, value)
 						if value == 0 then value = false end
 						module.db.profile.showBuffs = value
+						updateWindow(true)
 					end,
 					order = 1,
 				},
@@ -155,7 +157,7 @@ local options = {
 					descStyle = "inline",
 					set = function(info, value)
 						module.db.profile.showMissingRunes = value
-						lastUpdate = 0
+						updateWindow(true)
 					end,
 					disabled = function() return not module.db.profile.showBuffs end,
 					width = "full",
@@ -166,6 +168,10 @@ local options = {
 					name = colorize(L.showMissingMaxStat),
 					desc = L.showMissingMaxStatDesc,
 					descStyle = "inline",
+					set = function(info, value)
+						module.db.profile.showMissingMaxStat = value
+						updateWindow(true)
+					end,
 					disabled = function() return not module.db.profile.showBuffs end,
 					width = "full",
 					order = 3,
@@ -175,6 +181,14 @@ local options = {
 	}
 }
 
+
+local function shouldShowBuffs()
+	if module.db.profile.showBuffs then
+		local _, type, diff = GetInstanceInfo()
+		return type == "raid" or (type == "party" and (diff == 8 or diff == 23)) -- in raid or challenge mode
+	end
+	return false
+end
 
 local function Frame_Tooltip(self)
 	if self.name then
@@ -325,7 +339,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 	f.player = name
 
 	local ready = true
-	if module.db.profile.showBuffs and showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
+	if showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
 		f.OutOfRange:Hide()
 		if update then
 			local food, flask, rune = consumables:CheckPlayer(name)
@@ -381,7 +395,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 			end
 		end
 	else
-		f.OutOfRange:SetShown(module.db.profile.showBuffs and showBuffFrame)
+		f.OutOfRange:SetShown(showBuffFrame)
 		f.FoodBuff:Hide()
 		f.FlaskBuff:Hide()
 		f.RuneBuff:Hide()
@@ -420,7 +434,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 	end
 end
 
-local function updateWindow()
+function updateWindow(force)
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
 	window.bar:Hide()
@@ -432,13 +446,12 @@ local function updateWindow()
 	-- buff check throttle
 	local update = nil
 	local t = GetTime()
-	if t-lastUpdate > 1 then
+	if t-lastUpdate > 1 or force then
 		lastUpdate = t
 		update = true
 	end
 
-	local _, type, diff = GetInstanceInfo()
-	showBuffFrame = module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) -- in raid or challenge mode
+	showBuffFrame = shouldShowBuffs()
 
 	local height = 0
 	if IsInRaid() then
@@ -766,8 +779,7 @@ function module:OnEnable()
 	SLASH_ORARAIDCHECK1 = "/rarc"
 	SLASH_ORARAIDCHECK2 = "/racheck"
 	SlashCmdList.ORARAIDCHECK = function()
-		local _, type, diff = GetInstanceInfo()
-		if module.db.profile.showBuffs and (type == "raid" or (type == "party" and diff == 8)) then -- in raid or challenge mode
+		if shouldShowBuffs() then
 			showFrame()
 		else
 			print(("|cFFFFFF00%s|r"):format(L.notInRaid))
