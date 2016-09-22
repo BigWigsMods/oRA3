@@ -140,7 +140,7 @@ do
 		false, -- INVSLOT_TRINKET1 -- 13
 		false, -- INVSLOT_TRINKET2 -- 14
 		true, -- INVSLOT_BACK -- 15
-		true, -- INVSLOT_MAINHAND -- 16
+		false, -- INVSLOT_MAINHAND -- 16
 		false, -- INVSLOT_OFFHAND -- 17
 	}
 	function module:ScanGear(unit, count)
@@ -155,11 +155,12 @@ do
 				missingSlots = missingSlots + 1
 			elseif i ~= 4 then -- skip the shirt
 				-- http://www.wowpedia.org/ItemString
-				-- item:itemId:enchantId:jewelId1:jewelId2:jewelId3:jewelId4:suffixId:uniqueId:linkLevel:reforgeId:upgradeId
-				local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d+):(%d+):(%d+):(%d+):(%d+):")
+				-- item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2:...[:upgradeValue]:unknown1:unknown2:unknown3
+				-- |cffff8000|Hitem:102247::::::::100:105:4:::493|h[Jina-Kang, Kindness of Chi-Ji]|h|r
+				local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d*):(%d*):(%d*):(%d*):(%d*):")
 
 				-- Handle missing enchants
-				if enchantableItems[i] and enchant == "0" then
+				if enchantableItems[i] and enchant == "" then
 					missingEnchants = missingEnchants + 1
 				end
 
@@ -174,7 +175,7 @@ do
 					end
 				end
 
-				local filledSockets = (gem1 ~= "0" and 1 or 0) + (gem2 ~= "0" and 1 or 0) + (gem3 ~= "0" and 1 or 0) + (gem4 ~= "0" and 1 or 0)
+				local filledSockets = (gem1 == "" and 0 or 1) + (gem2 == "" and 0 or 1) + (gem3 == "" and 0 or 1) + (gem4 == "" and 0 or 1)
 				local finalCount = totalItemSockets - filledSockets
 				if finalCount > 0 then
 					emptySockets = emptySockets + finalCount
