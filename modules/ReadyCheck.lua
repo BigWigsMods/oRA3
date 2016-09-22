@@ -264,16 +264,14 @@ local function addIconAndName(frame)
 	frame.OutOfRange = oor
 
 	-- missing buffs
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame.OutOfRange, "LEFT", 0, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
-	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
-
-	local food = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame.FlaskBuff, "LEFT", 0, 0) -- 136000="Interface\\Icons\\spell_misc_food"
-	local text = food:CreateFontString(nil, "OVERLAY")
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame, "RIGHT", -6, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", frame.RuneBuff, "LEFT", 0, 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
+	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame.FlaskBuff, "LEFT", 0, 0) -- 136000="Interface\\Icons\\spell_misc_food"
+	local text = frame.FoodBuff:CreateFontString(nil, "OVERLAY")
 	text:SetPoint("BOTTOMRIGHT")
 	text:SetJustifyH("RIGHT")
 	text:SetFont("Fonts\\ARIALN.TTF", 8, "OUTLINE")
-	food.text = text
-	frame.FoodBuff = food
+	frame.FoodBuff.text = text
 
 	local bg = frame:CreateTexture(nil, "ARTWORK")
 	bg:SetColorTexture(1, 0, 0, 0.3)
