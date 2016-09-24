@@ -568,12 +568,14 @@ do
 		PALADIN = 2,
 		DRUID = 3,
 		DEATHKNIGHT = 4,
-		WARLOCK = 5,
-		HUNTER = 6,
-		ROGUE = 7,
-		MAGE = 8,
-		PRIEST = 9,
-		SHAMAN = 10,
+		MONK = 5,
+		DEMONHUNTER = 6,
+		WARLOCK = 7,
+		HUNTER = 8,
+		ROGUE = 9,
+		MAGE = 10,
+		PRIEST = 11,
+		SHAMAN = 12,
 	}
 	local function sort(a, b)
 		local _, aC = UnitClass(a)
