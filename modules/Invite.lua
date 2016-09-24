@@ -253,11 +253,10 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAc
 	if shouldInvite(msg, sender) then
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
-			local groupIsFull = ("<oRA3> %s"):format(L.invitePrintGroupIsFull)
 			if bnetIDAccount > 0 then
-				BNSendWhisper(bnetIDAccount, groupIsFull)
+				BNSendWhisper(bnetIDAccount, "<oRA> ".. L.inviteGroupIsFull)
 			else
-				SendChatMessage(groupIsFull, "WHISPER", nil, sender)
+				SendChatMessage("<oRA> ".. L.inviteGroupIsFull, "WHISPER", nil, sender)
 			end
 		else
 			peopleToInvite[#peopleToInvite + 1] = sender
