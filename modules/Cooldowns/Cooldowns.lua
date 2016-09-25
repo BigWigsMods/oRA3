@@ -334,7 +334,7 @@ local spells = {
 		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
-		[853] = {60, 5}, -- Hammer of Justice XXX (7) Holy Power spenders (ret)/Judgement reduce the remaining cooldown by 8 sec.
+		[853] = {60, 5}, -- Hammer of Justice XXX (7) Judgement reduces the remaining cooldown by 10 sec.
 		[31935] = {15, 10, 66}, -- Avenger's Shield XXX When you avoid a melee attack or use Hammer of the Righteous, you have a 15% chance to reset the remaining cooldown.
 		[642] = {300, 18}, -- Divine Shield
 		[633] = {600, 22}, -- Lay on Hands
@@ -386,6 +386,7 @@ local spells = {
 	},
 	ROGUE = {
 		[5277]  = {120, 8, {259, 261}}, -- Evasion
+		[199754] = {120, 10, 260}, -- Riposte
 		[36554] = {30, 13, 261}, -- Shadowstep
 		[185311] = {30, 14}, -- Crimson Vial
 		[1766] = {15, 18}, -- Kick
