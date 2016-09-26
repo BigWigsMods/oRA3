@@ -26,6 +26,13 @@ local infoCache = {}
 local cdModifiers, chargeModifiers = {}, {}
 local spellsOnCooldown, chargeSpellsOnCooldown = nil, nil
 local deadies = {}
+local playerGUID = UnitGUID("player")
+local _, playerClass = UnitClass("player")
+
+local function round(num, q)
+	q = 10^(q or 3)
+	return floor(num * q + .5) / q
+end
 
 local function addMod(guid, spell, modifier, charges)
 	if modifier ~= 0 then
@@ -116,7 +123,7 @@ local talentCooldowns = {
 	end,
 }
 
--- { cd, level, spec id, talent index }
+-- { cd, level, spec id, talent index, sync }
 -- spec id can be a table of specs
 -- talent index can be negative to indicate a talent replaces the spell
 --   and can be a hash of spec=index for talents in different locations
@@ -129,9 +136,9 @@ local spells = {
 		[43265] = {30, 56, {250, 252}}, -- Death and Decay
 		[49028] = {180, 57, 250}, -- Dancing Rune Weapon
 		[47568] = {180, 57, 251, -8}, -- Empower Rune Weapon
-		[51271] = {60, 57, 251}, -- Pillar of Frost XXX (7) Your Frost Strike, Frostscythe, and Obliterate critical strikes reduce the remaining cooldown  by 1 sec.
+		[51271] = {60, 57, 251, nil, true}, -- Pillar of Frost (Frost): (7) Your Frost Strike, Frostscythe, and Obliterate critical strikes reduce the remaining cooldown  by 1 sec.
 		[196770] = {20, 57, 251}, -- Remorseless Winder
-		[55233] = {90, 57, 250}, -- Vampiric Blood XXX (11) Spending Runic Power will decrease the remaining cooldown by 2 sec per 10 Runic Power.
+		[55233] = {90, 57, 250, nil, true}, -- Vampiric Blood (Blood): (11) Spending Runic Power will decrease the remaining cooldown by 2 sec per 10 Runic Power.
 		[212552] = {60, 60}, -- Wraith Walk
 		[47528] = {15, 62}, -- Mind Freeze
 		[108199] = {180, 64, 250}, -- Gorefiend's Grasp
@@ -144,7 +151,7 @@ local spells = {
 		[206931] = {30, 56, 250, 3}, -- Blooddrinker
 		[207317] = {10, 57, 252, 4}, -- Epidemic (3 charges)
 		[57330] = {30, 57, 251, 6}, -- Horn of Winter
-		[221699] = {60, 58, 250, 8}, -- Blood Tap (2 charges) XXX Recharge time reduced by 1 sec whenever a Bone Shield charge is consumed.
+		[221699] = {60, 58, 250, 8, false}, -- Blood Tap (2 charges) (Blood): (8) Recharge time reduced by 1 sec whenever a Bone Shield charge is consumed. XXX Charge syncing NYI
 		[207127] = {180, 58, 251, 8}, -- Hungering Rune Weapon
 		[108194] = {45, 60, 252, 11}, -- Asphyxiate
 		[207319] = {60, 75, 252, 14}, -- Corpse Shield
@@ -176,7 +183,7 @@ local spells = {
 		[227225] = {20, 110, 581, 21}, -- Soul Barrier
 	},
 	DRUID = {
-		[5217]  = {30, 12, 103}, -- Tiger's Fury XXX (1) The cooldown resets when a target dies with one of your Bleed effects active.
+		[5217]  = {30, 12, 103, nil, true}, -- Tiger's Fury (Feral): (1) The cooldown resets when a target dies with one of your Bleed effects active.
 		[18562] = {30, 12, 105}, -- Swiftmend
 		[1850]  = {180, 24}, -- Dash
 		[20484] = {600, 56}, -- Rebirth
@@ -225,15 +232,15 @@ local spells = {
 	HUNTER = {
 		[136] = {10, 1}, -- Mend Pet
 		[186257] = {180, 5}, -- Aspect of the Cheetah
-		[781] = {20, 14, {253, 254}}, -- Disengage XXX (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
+		[781] = {20, 14, {253, 254}, nil, true}, -- Disengage (not-Survival): (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
 		[193530] = {120, 18, 253}, -- Aspect of the Wild
 		[186387] = {30, 22, 254}, -- Bursting Shot
-		[190925] = {20, 22, 255}, -- Harpoon XXX (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
+		[190925] = {20, 22, 255, nil, true}, -- Harpoon (Survival): (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
 		[147362] = {24, 24, {253, 254}}, -- Counter Shot
 		[187707] = {15, 24, 255}, -- Muzzle
 		[187650] = {30, 28, 255, -12}, -- Freezing Trap
 		[5384]  = {30, 32}, -- Feign Death
-		[109304] = {120, 36, {253, 255}}, -- Exhilaration XXX (marks) After you kill a target, the remaining cooldown is reduced by 30 sec.
+		[109304] = {120, 36, {253, 255}, nil, true}, -- Exhilaration (Marksman): After you kill a target, the remaining cooldown is reduced by 30 sec.
 		[1543] = {20, 38}, -- Flare
 		[61648] = {180, 40}, -- Aspect of the Chameleon
 		[19574] = {90, 40, 253}, -- Bestial Wrath
@@ -244,7 +251,7 @@ local spells = {
 		[191433] = {30, 48, 255}, -- Explosive Trap
 		[186265] = {180, 50}, -- Aspect of the Turtle
 
-		[206505] = {60, 30, 255, 4}, -- A Murder of Crows XXX If the target dies while under attack, the cooldown is reset.
+		[206505] = {60, 30, 255, 4, true}, -- A Murder of Crows (Survival): (4) If the target dies while under attack, the cooldown is reset.
 		[201078] = {90, 30, 255, 6}, -- Snake Hunter
 		[212431] = {30, 60, 254, 10}, -- Explosive Shot
 		[194277] = {15, 60, 255, 10}, -- Caltrops
@@ -255,7 +262,7 @@ local spells = {
 		[19386] = {45, 75, {253, 254}, 14}, -- Wyvern Sting
 		[19577] = {60, 75, 253, 15}, -- Intimidation
 		[191241] = {60, 75, {254, 255}, 15}, -- Camouflage
-		[131894] = {60, 90, {253, 254}, 16}, -- A Murder of Crows XXX If the target dies while under attack, the cooldown is reset.
+		[131894] = {60, 90, {253, 254}, 16, true}, -- A Murder of Crows (not-Survival): (16) If the target dies while under attack, the cooldown is reset.
 		[120360] = {20, 90, {253, 254}, 17}, -- Barrage
 		[194855] = {30, 90, 255, 17}, -- Dragonsfire Grenade
 		[194386] = {90, 90, {253, 254}, 18}, -- Volley
@@ -334,8 +341,8 @@ local spells = {
 		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
-		[853] = {60, 5}, -- Hammer of Justice XXX (7) Judgement reduces the remaining cooldown by 10 sec.
-		[31935] = {15, 10, 66}, -- Avenger's Shield XXX When you avoid a melee attack or use Hammer of the Righteous, you have a 15% chance to reset the remaining cooldown.
+		[853] = {60, 5, nil, nil, true}, -- Hammer of Justice: (7) Judgement reduces the remaining cooldown by 10 sec.
+		[31935] = {15, 10, 66, nil, true}, -- Avenger's Shield (Protection): When you avoid a melee attack or use Hammer of the Righteous, you have a 15% chance to reset the remaining cooldown.
 		[642] = {300, 18}, -- Divine Shield
 		[633] = {600, 22}, -- Lay on Hands
 		[1044] = {25, 52}, -- Blessing of Freedom
@@ -366,7 +373,7 @@ local spells = {
 		[34433] = {180, 40, {256, 258}, {[256]=-12,[258]=-18}}, -- Shadowfiend
 		[47536] = {120, 50, 256}, -- Rapture
 		[15487] = {45, 50, 258}, -- Silence
-		[47788] = {240, 54, 257}, -- Guardian Spirit XXX (11) When Guardian Spirit expires without saving the target from death, reduce its remaining cooldown to 120 seconds.
+		[47788] = {240, 54, 257, nil, true}, -- Guardian Spirit (Holy): (11) When Guardian Spirit expires without saving the target from death, reduce its remaining cooldown to 120 seconds.
 		[33206] = {240, 56, 256}, -- Pain Suppression
 		[47585] = {120, 58, 258}, -- Dispersion
 		[62618] = {180, 65, 256}, -- Power Word: Barrier
@@ -385,28 +392,29 @@ local spells = {
 		[200183] = {180, 100, 257, 19}, -- Apotheosis
 	},
 	ROGUE = {
+		-- True Bearing (Outlaw) For the duration of Roll the Bones, each time you use a finishing move, you reduce the remaining cooldown on .. by 2 sec per combo point spent.
 		[5277]  = {120, 8, {259, 261}}, -- Evasion
-		[199754] = {120, 10, 260}, -- Riposte
+		[199754] = {120, 10, 260, nil, true}, -- Riposte (True Bearing)
 		[36554] = {30, 13, 261}, -- Shadowstep
 		[185311] = {30, 14}, -- Crimson Vial
 		[1766] = {15, 18}, -- Kick
 		[1776]  = {10, 22, 260}, -- Gouge
-		[2983] = {60, 26}, -- Sprint
+		[2983] = {60, 26, nil, nil, true}, -- Sprint (True Bearing)
 		[1725] = {30, 28}, -- Distract
-		[1856] = {120, 32}, -- Vanish
-		[2094] = {120, 38, {260, 261}}, -- Blind
+		[1856] = {120, 32, nil, nil, true}, -- Vanish (True Bearing)
+		[2094] = {120, 38, {260, 261}, nil, true}, -- Blind (True Bearing)
 		[408] = {20, 40, {259, 261}}, -- Kidney Shot
-		[31224] = {60, 58}, -- Cloak of Shadows
+		[31224] = {60, 58, nil, nil, true}, -- Cloak of Shadows (True Bearing)
 		[57934] = {30, 64}, -- Tricks of the Trade
 		[79140] = {120, 72, 259}, -- Vendetta
-		[13750] = {180, 72, 260}, -- Adrenaline Rush
+		[13750] = {180, 72, 260, nil, true}, -- Adrenaline Rush (True Bearing)
 		[121471] = {180, 72, 261}, -- Shadow Blades
 
-		[195457] = {30, 30, 260, 4}, -- Grappling Hook
-		[185767] = {60, 90, 260, 16}, -- Cannonball Barrage
+		[195457] = {30, 30, 260, 4, true}, -- Grappling Hook (True Bearing)
+		[185767] = {60, 90, 260, 16, true}, -- Cannonball Barrage (True Bearing)
 		[200806] = {45, 90, 259, 18}, -- Exsanguinate
-		[51690] = {120, 90, 260, 18}, -- Killing Spree
-		[137619] = {60, 100, nil, 20}, -- Marked for Death XXX Cooldown reset if the target dies within 1 min.
+		[51690] = {120, 90, 260, 18, true}, -- Killing Spree (True Bearing)
+		[137619] = {60, 100, nil, 20, true}, -- Marked for Death: (20) Cooldown reset if the target dies within 1 min.
 	},
 	SHAMAN = {
 		[51514] = {39, 42, nil, -9}, -- Hex
@@ -470,23 +478,23 @@ local spells = {
 		[184364] = {120, 12, 72}, -- Enraged Regeneration
 		[6552]  = {15, 24}, -- Pummel
 		[52174]  = {45, 26}, -- Heroic Leap
-		[12975] = {90, 36, 73}, -- Last Stand
+		[12975] = {90, 36, 73, nil, true}, -- Last Stand (Anger Management)
 		[18499]  = {60, 40}, -- Berserk Rage
-		[871]   = {240, 48, 73}, -- Shield Wall
+		[871]   = {240, 48, 73, nil, true}, -- Shield Wall (Anger Management)
 		[118038]  = {180, 50, 71}, -- Die by the Sword
 		[1160] = {90, 50, 73}, -- Demoralizing Shout
-		[1719] = {60, 60}, -- Battle Cry
+		[1719] = {60, 60, nil, nil, true}, -- Battle Cry (Anger Management)
 		[23920] = {25, 65, 73}, -- Spell Reflection
 		[5246]  = {90, 70, {71, 72}}, -- Intimidating Shout
 		[198304] = {15, 72, 73}, -- Intercept
 		[227847] = {90, 75, 71, -21}, -- Bladestorm
 		[97462] = {180, 83, {71, 72}}, -- Commanding Shout
 
-		[46968] = {40, 30, nil, {[71]=4,[72]=4,[73]=1}}, -- Shockwave -- XXX -20s if hits 3 targets
+		[46968] = {40, 30, nil, {[71]=4,[72]=4,[73]=1}, true}, -- Shockwave: Cooldown reduced by 20 sec if it strikes at least 3 targets.
 		[107570] = {30, 30, nil, {[71]=5,[72]=5,[73]=2}}, -- Storm Bolt
 		[107574] = {90, 45, nil, 9}, -- Avatar
 		[12292] = {30, 90, 72, 16}, -- Bloodbath
-		-- XXX (19) Anger Management: Every 10 Rage you spend reduces the remaining cooldown on Battle Cry, Last Stand, and Shield Wall by 1 sec.
+		-- Anger Management (Arms/Protection): (19) Every 10 Rage you spend reduces the remaining cooldown on Battle Cry, Last Stand, and Shield Wall by 1 sec.
 		[46924] = {90, 100, 72, 19}, -- Bladestorm
 		[152277] = {60, 100, {71, 73}, 21}, -- Ravager
 		[228920] = 152277, -- Ravager (Prot)
@@ -523,9 +531,11 @@ local chargeSpells = {
 	[198304] = 2, -- Intercept
 }
 
+
 local mergeSpells = {}
 local allSpells = {}
 local classLookup = {}
+local syncSpells = {}
 for class, classSpells in next, spells do
 	for spellId, info in next, classSpells do
 		if type(info) == "number" then
@@ -537,6 +547,9 @@ for class, classSpells in next, spells do
 		if GetSpellInfo(spellId) then
 			allSpells[spellId] = info
 			classLookup[spellId] = class
+			if class == playerClass and info[5] then
+				syncSpells[spellId] = true -- info[4] or true
+			end
 		else
 			print("oRA3: Invalid spell id", spellId)
 		end
@@ -1470,6 +1483,10 @@ end
 function module:OnStartup(_, groupStatus)
 	if not self.db.profile.enabled then return end
 
+	if next(syncSpells) then
+		self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+	end
+
 	callbacks:Fire("OnStartup")
 
 	oRA.RegisterCallback(self, "OnCommReceived")
@@ -1565,29 +1582,63 @@ end
 -- Events
 --
 
-local checkReincarnationCooldown = nil
-do
-	local _, class = UnitClass("player")
-	if class == "SHAMAN" then
-		function checkReincarnationCooldown()
-			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 1.5 then
-				local elapsed = GetTime() - start -- don't resend the full duration if already on cooldown
-				module:SendComm("Reincarnation", duration-elapsed)
+function module:SPELL_UPDATE_COOLDOWN()
+	for spellId in next, syncSpells do
+		local expiry = spellsOnCooldown[spellId] and spellsOnCooldown[spellId][playerGUID]
+		if expiry then
+			local start, duration = GetSpellCooldown(spellId)
+			if start > 0 and duration > 0 then
+				if (start + duration + 0.1) < expiry then -- + 0.1 to avoid updating on trivial differences
+					local cd =  duration - (GetTime() - start)
+					module:SendComm("CooldownUpdate", spellId, round(cd)) -- round to the precision of GetTime (%.3f)
+				end
+			else -- off cooldown
+				module:SendComm("CooldownUpdate", spellId, 0)
 			end
 		end
 	end
 end
 
-function module:OnCommReceived(_, sender, prefix, cd)
-	if prefix == "Reincarnation" then
-		local spellId = 20608
+local checkReincarnationCooldown = nil
+do
+	if playerClass == "SHAMAN" then
+		function checkReincarnationCooldown()
+			local start, duration = GetSpellCooldown(20608)
+			if start > 0 and duration > 1.5 then
+				local cd =  duration - (GetTime() - start)
+				module:SendComm("Reincarnation", round(cd))
+			end
+		end
+	end
+end
+
+function module:OnCommReceived(_, sender, prefix, spellId, cd)
+	if prefix == "CooldownUpdate" then
 		local guid = UnitGUID(sender)
+		local name, class = self:GetPlayerFromGUID(guid)
+		cd = tonumber(cd)
+		spellId = tonumber(spellId)
+		if cd > 0 then
+			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
+			spellsOnCooldown[spellId][guid] = GetTime() + cd
+			callbacks:Fire("oRA3CD_StartCooldown", guid, name, class, spellId, cd)
+		else
+			if spellsOnCooldown[spellId] and spellsOnCooldown[spellId][guid] then
+				spellsOnCooldown[spellId][guid] = nil
+			end
+			callbacks:Fire("oRA3CD_StopCooldown", guid, spellId)
+			callbacks:Fire("oRA3CD_CooldownReady", guid, name, class, spellId)
+		end
+
+	elseif prefix == "Reincarnation" then
+		local guid = UnitGUID(sender)
+		local name = self:GetPlayerFromGUID(guid)
+		cd = tonumber(spellId)
+		spellId = 20608
 		if self:GetRemainingCooldown(guid, spellId) == 0 then
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
-			cd = tonumber(cd)
 			spellsOnCooldown[spellId][guid] = GetTime() + cd
-			callbacks:Fire("oRA3CD_StartCooldown", guid, sender, "SHAMAN", spellId, cd)
+			callbacks:Fire("oRA3CD_StartCooldown", guid, name, "SHAMAN", spellId, cd)
 		end
 	end
 end
