@@ -554,15 +554,15 @@ function module:Interrupt(srcOutput, dstOutput, spellOutput, extraSpellOuput)
 end
 
 function module:InterruptCast(srcOutput, dstOutput, spellOutput)
-	self:Spam("interrupt", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, L["Not casting"]))
+	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, L["Not casting"]))
 end
 
 function module:InterruptMiss(srcOutput, dstOutput, spellOutput, extraSpell)
-	self:Spam("interrupt", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..extraSpell]))
+	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..extraSpell]))
 end
 
 function module:InterruptImmune(srcOutput, dstOutput, spellOutput, extraSpell)
-	self:Spam("interrupt", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, extraSpell))
+	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, extraSpell))
 end
 
 do
@@ -677,6 +677,7 @@ function module:OnRegister()
 			taunt = false,
 			tauntPet = false,
 			interrupt = false,
+			interruptMiss = false,
 			dispel = false,
 			combatRes = true,
 			portal = true,
@@ -1004,6 +1005,7 @@ function GetOptions()
 					taunt = createAlertSettings("taunt", L["Taunts"], L["Report taunts."], 3),
 					tauntPet = createAlertSettings("tauntPet", L["Pet Taunts"], L["Report pet taunts."], 4),
 					interrupt = createAlertSettings("interrupt", L["Interrupts"], L["Report interrupts."], 5),
+					interruptMiss = createAlertSettings("interruptMiss", L["Missed Interrupts"], L["Report missed interrupts."], 5),
 					dispel = createAlertSettings("dispel", L["Dispels"], L["Report dispels and Spellsteal."], 6),
 					combatRes = createAlertSettings("combatRes", L["Combat Resurrections"], L["Report combat resurrections."], 7),
 				},
