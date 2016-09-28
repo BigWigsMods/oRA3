@@ -492,7 +492,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	-- Codex handling
 	local prev = nil
 	function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, spellCastGUID, spellId)
-		if spellId == 226234 and spellCastGUID ~= prev then -- Codex of the Tranquil Mind
+		if spellId == 226241 and spellCastGUID ~= prev then -- Codex of the Tranquil Mind
 			prev = spellCastGUID
 			local srcName, srcGUID, srcRaidFlags = self:UnitName(unit), UnitGUID(unit), 0
 			local icon = GetRaidTargetIndex(unit)
