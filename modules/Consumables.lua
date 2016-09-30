@@ -12,7 +12,7 @@ local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsI
 local UnitBuff, UnitName, UnitIsConnected, UnitIsVisible = UnitBuff, UnitName, UnitIsConnected, UnitIsVisible
 local GetTime, UnitIsDeadOrGhost = GetTime, UnitIsDeadOrGhost
 
---luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter ChatThrottleLib
+--luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter
 
 local GROUP_CHECK_THROTTLE = 0.8
 local PLAYER_CHECK_THROTTLE = 0.3
@@ -315,7 +315,7 @@ do
 	end)
 
 	local function send(name, text)
-		ChatThrottleLib:SendChatMessage("BULK", "oRA", ("oRA3> %s"):format(text), "WHISPER", nil, name)
+		SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
 	end
 	local function whisper(name, text)
 		module:ScheduleTimer(send, 0.2, name, text) -- send after print spam
