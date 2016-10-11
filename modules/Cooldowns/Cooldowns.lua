@@ -1913,12 +1913,6 @@ do
 					updateCooldownsBySpell(spellId)
 				end
 			end
-			-- Dark Soul: Misery, Knowledge, Instability are reset
-			for _, spellId in next, {113860, 113861, 113858} do
-				spellsOnCooldown[spellId] = nil
-				chargeSpellsOnCooldown[spellId] = nil
-				updateCooldownsBySpell(spellId)
-			end
 		end
 
 		-- track non-event driven player states (combat and range)
