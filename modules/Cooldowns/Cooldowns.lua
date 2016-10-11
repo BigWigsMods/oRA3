@@ -1764,7 +1764,19 @@ do
 					resetCooldown(srcGUID, source, 198589) -- Blur
 				end
 			end,
-		}
+		},
+		SPELL_AURA_REMOVED = {
+			[206005] = function(srcGUID, source) -- Dream Simulacrum (Xavius Encounter)
+				local info = infoCache[srcGUID]
+				if info then
+					for spellId in next, spells[info.class] do
+						if module:GetRemainingCooldown(srcGUID, spellId) > 0 then
+							resetCooldown(srcGUID, source, spellId)
+						end
+					end
+				end
+			end,
+		},
 	}
 
 	local inEncounter = nil
