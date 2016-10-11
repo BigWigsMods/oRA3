@@ -192,7 +192,6 @@ do
 		return self[key]
 	end })
 
-	local greyColor = classColors.UNKNOWN
 	function prototype:RestyleBar(bar)
 		local db = self.db
 
@@ -206,7 +205,7 @@ do
 
 		local player = bar:Get("ora3cd:player")
 		local status = UnitExists(player) and (not UnitIsConnected(player) and L.offline or UnitIsDeadOrGhost(player) and L.dead or (IsInGroup() and not UnitInRange(player)) and L.range)
-		local classColor = status and greyColor or classColors[bar:Get("ora3cd:class") or UNKNOWN] or greyColor -- XXX why does this need a second fallback?
+		local classColor = classColors[bar:Get("ora3cd:class")] or classColors.UNKNOWN
 		local spell = bar:Get("ora3cd:spell")
 
 		bar:SetScale(db.barScale)
@@ -214,11 +213,14 @@ do
 		bar:SetIcon(db.barShowIcon and bar:Get("ora3cd:icon"))
 		bar:SetTexture(media:Fetch("statusbar", db.barTexture))
 		bar.fill = db.barFill and not bar:Get("ora3cd:ready") -- set directly, don't update min/max values
-		if db.barClassColor then
-			bar:SetColor(classColor.r, classColor.g, classColor.b, status and db.barStatusAlpha or 1)
+		if status and db.barColorStatus then
+			local r, g, b, a = unpack(db.barStatusColor)
+			bar:SetColor(r, g, b, a or 1)
+		elseif db.barClassColor then
+			bar:SetColor(classColor.r, classColor.g, classColor.b, 1)
 		else
-			local r, g, b = unpack(db.barColor)
-			bar:SetColor(r, g, b, status and db.barStatusAlpha or 1)
+			local r, g, b, a = unpack(db.barColor)
+			bar:SetColor(r, g, b, a or 1)
 		end
 		bar.candyBarBackground:SetVertexColor(unpack(db.barColorBG))
 
@@ -487,7 +489,8 @@ local defaultDB = {
 	barClassColor = true,
 	barColor = { 0.25, 0.33, 0.68, 1 },
 	barColorBG = { 0.5, 0.5, 0.5, 0.3 },
-	barStatusAlpha = 0.2,
+	barColorStatus = true,
+	barStatusColor = { 0.8, 0.8, 0.8, 0.2 },
 	barShowIcon = true,
 	barShowDuration = true,
 	barShowUnit = true,
@@ -599,11 +602,18 @@ local function GetOptions(self, db)
 				order = 14,
 				width = "full",
 			},
-			barStatusAlpha = {
-				type = "range",
-				name = L.disabledAlpha,
-				min = 0, max = 1, step = 0.1,
+			barColorStatus = {
+				type = "toggle",
+				name = L.useStatusColor,
+				desc = L.useStatusColorDesc,
 				order = 14.5,
+				width = "full",
+			},
+			barStatusColor = {
+				type = "color", hasAlpha = true,
+				name = L.statusColor,
+				disabled = function() return not db.barColorStatus end,
+				order = 14.6,
 				width = "full",
 			},
 			barHeight = {

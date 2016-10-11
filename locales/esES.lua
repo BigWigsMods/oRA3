@@ -230,9 +230,10 @@ L["sort"] = "Ordenar" -- Needs review
 L["spacing"] = "Espaciado" -- Needs review
 L["spellName"] = "Nombre de hechizo"
 L["spellTooltip"] = "Mostrar descripciones emergentes de hechizos" -- Needs review
+-- L["statusColor"] = "Status color"
 L["style"] = "Estilo de barra" -- Needs review
 L["tankButtonHelp"] = "Alternar si este tanque debería ser un tanque principal de Blizzard."
-L["tankHelp"] = [=[ 
+L["tankHelp"] = [=[
 La gente en la lista superior son tus tanques personales ordenados.. Ellos no serán compartidos con la banda, cualquiera puede tener su propia lista de tanques personales. Haciendo clic sobre un nombre en la lista de abajo agregará a ese a tu lista de tanques personales.
 
 Haciendo clic en el icono de escudo hará que esa persona sea un tanque principal de Blizzard. Los tanques principales de Blizzard son compartidos con el resto de la banda y tienes que ser ayudante para hacerlo.
@@ -256,6 +257,8 @@ L["unitName"] = "Nombre de unidad"
 L["unknown"] = "Desconocido"
 L["up"] = "Arriba" -- Needs review
 L["useClassColor"] = "Usar color de clase"
+-- L["useStatusColor"] = "Use status color"
+-- L["useStatusColorDesc"] = "Change the bar color when a player is out of range, dead, or offline."
 L["whatIsThis"] = "¿Qué es todo esto?"
 -- L["whisperMissing"] = "Whisper missing"
 -- L["whisperMissingDesc"] = "Whisper players that are missing buffs."
