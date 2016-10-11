@@ -1735,8 +1735,8 @@ do
 		return pet, guid
 	end
 
-	local function resetCooldown(guid, player, spellId, remaining, charges)
-		local class = classLookup[spellId]
+	local function resetCooldown(info, spellId, remaining, charges)
+		local guid, player, class = info.guid, info.name, info.class
 		callbacks:Fire("oRA3CD_StopCooldown", guid, spellId)
 		if remaining and remaining > 0 then
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
@@ -1757,21 +1757,21 @@ do
 	-- local scratch = combatLogHandler.userdata
 	local specialEvents = {
 		SPELL_CAST_SUCCESS = {
-			[200166] = function(srcGUID, source) -- Metamorphosis (Havoc)
+			[200166] = function(srcGUID) -- Metamorphosis (Havoc)
 				local info = infoCache[srcGUID]
 				if info and info.talents[18] then -- Demon Reborn
-					resetCooldown(srcGUID, source, 179057) -- Chaos Nova
-					resetCooldown(srcGUID, source, 198589) -- Blur
+					resetCooldown(info, 179057) -- Chaos Nova
+					resetCooldown(info, 198589) -- Blur
 				end
 			end,
 		},
 		SPELL_AURA_REMOVED = {
-			[206005] = function(srcGUID, source) -- Dream Simulacrum (Xavius Encounter)
-				local info = infoCache[srcGUID]
+			[206005] = function(_, dstGUID) -- Dream Simulacrum (Xavius Encounter)
+				local info = infoCache[dstGUID]
 				if info then
 					for spellId in next, spells[info.class] do
-						if module:GetRemainingCooldown(srcGUID, spellId) > 0 then
-							resetCooldown(srcGUID, source, spellId)
+						if module:GetRemainingCooldown(dstGUID, spellId) > 0 then
+							resetCooldown(info, spellId)
 						end
 					end
 				end
@@ -1838,7 +1838,7 @@ do
 		-- Special cooldown conditions
 		local func = specialEvents[event] and specialEvents[event][spellId]
 		if func then
-			func(srcGUID, source, spellId, ...)
+			func(srcGUID, destGUID, spellId, ...)
 		end
 	end)
 
