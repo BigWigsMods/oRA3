@@ -342,7 +342,7 @@ function prototype:Update(icon)
 	local available, cd = 0, nil
 
 	for guid, player in next, players do
-		if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and (not IsInGroup() or UnitInRange(player)) then
+		if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and (not IsInGroup() or UnitIsVisible(player)) then
 			local remaining = oRA3CD:GetRemainingCooldown(guid, spellId)
 			if remaining == 0 then
 				local charges = oRA3CD:GetRemainingCharges(guid, spellId)
