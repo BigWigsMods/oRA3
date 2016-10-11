@@ -511,6 +511,8 @@ local function GetOptions(self, db)
 		end
 	end
 
+	local countdownForCooldowns = GetCVarBool("countdownForCooldowns")
+
 	local options = {
 		type = "group",
 		get = function(info)
@@ -578,10 +580,11 @@ local function GetOptions(self, db)
 			showCooldownText = {
 				name = L.showCooldownText,
 				desc = L.showCooldownTextDesc,
+				descStyle = not countdownForCooldowns and "inline",
 				type = "toggle",
 				order = 4,
 				width = "full",
-				disabled = function() return not GetCVarBool("countdownForCooldowns") end,
+				disabled = not countdownForCooldowns,
 			},
 		},
 	}
