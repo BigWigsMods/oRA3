@@ -1516,7 +1516,7 @@ function module:OnShutdown()
 
 	--self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 	--self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-	self:UnregisterEvent("UNIT_HEALTH")
+	self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
 	self:UnregisterEvent("UNIT_CONNECTION")
 	combatLogHandler:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	wipe(combatLogHandler.userdata)
@@ -1652,7 +1652,7 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 			if UnitIsDeadOrGhost(player) and not UnitIsFeignDeath(player) and not deadies[guid] then
 				deadies[guid] = true
 				callbacks:Fire("oRA3CD_UpdatePlayer", guid, player)
-				self:RegisterEvent("UNIT_HEALTH")
+				self:RegisterEvent("UNIT_HEALTH_FREQUENT")
 			end
 		end
 	end
@@ -1696,14 +1696,14 @@ function module:UNIT_CONNECTION(unit, hasConnected)
 	end
 end
 
-function module:UNIT_HEALTH(unit)
+function module:UNIT_HEALTH_FREQUENT(unit)
 	local guid = UnitGUID(unit)
 	if guid and deadies[guid] and not UnitIsDeadOrGhost(unit) then
 		deadies[guid] = nil
 		callbacks:Fire("oRA3CD_UpdatePlayer", guid, self:UnitName(unit))
 	end
 	if not next(deadies) then
-		self:UnregisterEvent("UNIT_HEALTH")
+		self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
 	end
 end
 
@@ -1789,7 +1789,7 @@ do
 			if band(dstFlags, group) ~= 0 and UnitIsPlayer(destName) and not UnitIsFeignDeath(destName) then
 				callbacks:Fire("oRA3CD_UpdatePlayer", destGUID, destName)
 				deadies[destGUID] = true
-				module:RegisterEvent("UNIT_HEALTH")
+				module:RegisterEvent("UNIT_HEALTH_FREQUENT")
 			end
 			return
 		end
