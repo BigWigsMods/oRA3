@@ -16,7 +16,7 @@
 
 ## X-Credits: Cladhaire, Ammo, Rabbit
 ## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
-## X-Curse-Project-ID: ora3
+## X-Curse-Project-ID: 15655
 ## X-WoWI-ID: 14635
 
 ## SavedVariables: oRA3DB
