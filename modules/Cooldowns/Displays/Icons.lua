@@ -616,7 +616,7 @@ local function GetOptions(self, db)
 			showCooldownText = {
 				name = L.showCooldownText,
 				desc = L.showCooldownTextDesc,
-				descStyle = not countdownForCooldowns and "inline",
+				descStyle = not countdownForCooldowns and "inline" or nil,
 				type = "toggle",
 				order = 4,
 				width = "full",
