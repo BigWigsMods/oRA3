@@ -628,7 +628,7 @@ function addon:SendComm(...)
 	if groupStatus == UNGROUPED then
 		addon.callbacks:Fire("OnCommReceived", playerName, ...)
 	elseif not UnitInBattleground("player") then
-		SendAddonMessage("oRA", strjoin(" ", ...), IsPartyLFG() and "INSTANCE_CHAT" or "RAID")
+		SendAddonMessage("oRA", strjoin(" ", ...), IsInGroup(2) and "INSTANCE_CHAT" or "RAID") -- LE_PARTY_CATEGORY_INSTANCE = 2
 	end
 end
 
