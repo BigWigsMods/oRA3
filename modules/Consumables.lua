@@ -288,9 +288,9 @@ do
 		[225604] = true, -- mastery
 		[225603] = true, -- haste
 		[225605] = true, -- versatility
-		-- [201638] = true, -- str
-		-- [201639] = true, -- agi
-		-- [201640] = true, -- int
+		[201638] = true, -- str
+		[201639] = true, -- agi
+		[201640] = true, -- int
 		-- [201641] = true, -- sta
 	}
 	-- 1300 stat flask
