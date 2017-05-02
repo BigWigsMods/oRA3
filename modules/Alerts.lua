@@ -118,6 +118,7 @@ combatLogMap.SPELL_CREATE = {
 	-- Instant Rituals
 	[29893] = "Feast", -- Create Soulwell (Warlock)
 	[43987] = "Feast", -- Conjure Refreshment Table (Mage)
+	[188036] = "Feast", -- Spirit Cauldron
 }
 combatLogMap.SPELL_RESURRECT = {
 	["*"] = "Resurrect",
