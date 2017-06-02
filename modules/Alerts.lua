@@ -19,7 +19,7 @@ local bit_band, bit_bor = bit.band, bit.bor
 local tconcat = table.concat
 
 local outputValues = { -- channel list
-	["self"] = L["Self"],
+	-- ["self"] = L["Self"],
 	["say"] = _G.SAY,
 	--["yell"] = _G.YELL,
 	["group"] = _G.GROUP,
@@ -232,6 +232,7 @@ function module:Spam(key, msg)
 	if not self.db.profile[key] then return end
 
 	local output = (self.db.profile.outputs[key] or self.db.profile.output):lower()
+	local chatframe = _G.DEFAULT_CHAT_FRAME
 	local fallback = nil
 
 	local isInstanceGroup = IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
@@ -240,7 +241,7 @@ function module:Spam(key, msg)
 	chatMsg = chatMsg:gsub("|Hplayer:.-|h(.-)|h", "%1") -- remove player links
 	chatMsg = chatMsg:gsub("|c%x%x%x%x%x%x%x%x([^|].-)|r", "%1") -- remove color
 
-	if not IsInGroup() then
+	if not IsInGroup() and outputValues[output] then
 		fallback = true
 	elseif output == "say" or output == "yell" then
 		SendChatMessage(chatMsg, output)
@@ -284,17 +285,24 @@ function module:Spam(key, msg)
 		else
 			fallback = true
 		end
-	elseif not outputValues[output] then
-		local index = GetChannelName(output:sub(2))
-		if index > 0 then
-			SendChatMessage(chatMsg, "CHANNEL", nil, index)
-		else
-			fallback = true
+	elseif not outputValues[output] and output ~= "self" then
+		local type = output:sub(1,1)
+		local index = tonumber(output:sub(2))
+		output = "self"
+		if index then
+			if type == "c" and GetChannelName(index) > 0 then
+				SendChatMessage(chatMsg, "CHANNEL", nil, index)
+			elseif type == "t" then
+				local frame = _G["ChatFrame"..index]
+				if frame and frame ~= _G.COMBATLOG and (frame.isDocked or select(7, _G.GetChatWindowInfo(index))) then
+					chatframe = frame
+				end
+			end
 		end
 	end
 
 	if output == "self" or (self.db.profile.fallback and fallback) then
-		print(("|Hora:%s|h|cff33ff99oRA3|r|h: %s"):format(chatMsg:gsub("|", "@"), msg))
+		chatframe:AddMessage(("|Hora:%s|h|cff33ff99oRA3|r|h: %s"):format(chatMsg:gsub("|", "@"), msg))
 	end
 end
 
@@ -732,14 +740,12 @@ end
 function module:OnEnable()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckEnable")
-	self:RegisterEvent("CHANNEL_UI_UPDATE", "UpdateChatChannels")
 
 	self:CheckEnable()
 end
 
 function module:PLAYER_ENTERING_WORLD()
 	wipe(petOwnerMap) -- clear out the cache every now and again
-	self:UpdateChatChannels()
 	self:CheckEnable()
 end
 
@@ -780,28 +786,6 @@ end
 
 ---------------------------------------
 -- Options
-
-do
-	local channels = {}
-	local function updateChannels()
-		wipe(channels)
-		for i = 1, GetNumDisplayChannels() do
-			local name, _, _, _, _, _, category = GetChannelDisplayInfo(i)
-			if category == "CHANNEL_CATEGORY_CUSTOM" then
-				channels[name] = name
-			end
-		end
-	end
-
-	function module:GetChatChannels()
-		return channels
-	end
-
-	function module:UpdateChatChannels()
-		updateChannels()
-		LibStub("AceConfigRegistry-3.0"):NotifyChange("oRA3")
-	end
-end
 
 local function createAlertSettings(alertKey, alertName, alertDescription, alertOrder)
 	if module.db.profile.separateOutputs then
@@ -846,14 +830,24 @@ end
 
 function GetOptions()
 	local self = module
+
 	wipe(outputValuesWithChannels)
 	for k,v in next, outputValues do
 		outputValuesWithChannels[k] = v
 	end
-	for k in next, self:GetChatChannels() do
-		local index, name = GetChannelName(k)
-		outputValuesWithChannels["c"..k] = ("/%d %s"):format(index, name)
-		--outputValuesWithChannels["c"..k] = "Channel: "..k
+	for i = 1, GetNumDisplayChannels() do
+		local name, _, _, index, _, _, category = GetChannelDisplayInfo(i)
+		if category == "CHANNEL_CATEGORY_CUSTOM" then
+			outputValuesWithChannels["c"..index] = ("/%d %s"):format(index, name)
+		end
+	end
+	for i = 1, _G.NUM_CHAT_WINDOWS do
+		local frame = _G["ChatFrame"..i]
+		local _, _, _, _, _, _, shown = _G.GetChatWindowInfo(i)
+		if frame ~= _G.COMBATLOG and (shown or frame.isDocked) then
+			local key = frame == _G.DEFAULT_CHAT_FRAME and "self" or "t"..i
+			outputValuesWithChannels[key] = "ChatFrame: " ..frame.name
+		end
 	end
 
 	local options = {
