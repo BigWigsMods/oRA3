@@ -259,6 +259,7 @@ L["up"] = "Arriba" -- Needs review
 L["useClassColor"] = "Usar color de clase"
 -- L["useStatusColor"] = "Use status color"
 -- L["useStatusColorDesc"] = "Change the bar color when a player is out of range, dead, or offline."
+L["vantus"] = "Vantus"
 L["whatIsThis"] = "¿Qué es todo esto?"
 -- L["whisperMissing"] = "Whisper missing"
 -- L["whisperMissingDesc"] = "Whisper players that are missing buffs."

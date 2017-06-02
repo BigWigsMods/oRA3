@@ -37,6 +37,64 @@ local spells = setmetatable({}, {
 	end
 })
 
+local getVantus, getVantusBoss
+do
+	local runes = {
+		-- Emerald Nightmare
+		[spells[192761]] = 1703, -- Nythndra
+		[spells[192765]] = 1744, -- Elerethe
+		[spells[191464]] = 1667, -- Ursoc
+		[spells[192762]] = 1738, -- Il'gynoth
+		[spells[192763]] = 1704, -- Dragons
+		[spells[192766]] = 1750, -- Cenarius
+		[spells[192764]] = 1726, -- Xavius
+		-- Trial of Valor
+		[spells[229174]] = 1819, -- Odyn
+		[spells[229175]] = 1830, -- Guarm
+		[spells[229176]] = 1829, -- Helya
+		-- Nighthold
+		[spells[192767]] = 1706, -- Skorpyron
+		[spells[192768]] = 1725, -- Chronomatic Anomaly
+		[spells[192769]] = 1731, -- Trilliax
+		[spells[192770]] = 1751, -- Aluriel
+		[spells[192771]] = 1762, -- Tichondrius
+		[spells[192773]] = 1713, -- Krosus
+		[spells[192772]] = 1761, -- Tel'arn
+		[spells[192774]] = 1732, -- Etraeus
+		[spells[192775]] = 1743, -- Elisande
+		[spells[192776]] = 1737, -- Gul'dan
+		-- Tomb of Sargeras
+		[spells[237821]] = 1862, -- Goroth
+		[spells[237828]] = 1867, -- Demonic Inquisition
+		[spells[237824]] = 1856, -- Harjatan
+		[spells[237826]] = 1861, -- Sassz'ine
+		[spells[237822]] = 1903, -- Sisters of the Moon
+		[spells[237827]] = 1896, -- The Desolate Host
+		[spells[237823]] = 1897, -- Maiden of Vigilance
+		[spells[237820]] = 1873, -- Fallen Avatar
+		[spells[237825]] = 1898, -- Kil'jaeden
+	}
+
+	function getVantus(player)
+		for spellName in next, runes do
+			local id = select(11, UnitBuff(player, spellName))
+			if id then
+				return id
+			end
+		end
+		return false
+	end
+
+	function getVantusBoss(rune)
+		local spellId = GetSpellInfo(rune)
+		local id = runes[spellId]
+		if not id then
+			return false
+		end
+		return (EJ_GetEncounterInfo(id))
+	end
+end
+
 local getRune
 do
 	local runes = {
@@ -224,7 +282,8 @@ function module:OnRegister()
 		L.name,
 		L.food,
 		L.flask,
-		L.rune
+		L.rune,
+		L.vantus
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
@@ -398,7 +457,7 @@ end
 function module:CheckPlayer(player)
 	local cache = playerBuffs[player]
 	local t = GetTime()
-	if cache and t-cache[4] < PLAYER_CHECK_THROTTLE then
+	if cache and t-cache[0] < PLAYER_CHECK_THROTTLE then
 		local food, flask, rune = unpack(cache)
 		return food, flask, rune
 	end
@@ -410,13 +469,15 @@ function module:CheckPlayer(player)
 	local flask = getFlask(player)
 	local food = getFood(player)
 	local rune = getRune(player)
+	local vantus = getVantus(player)
 
+	cache[0] = t
 	cache[1] = food
 	cache[2] = flask
 	cache[3] = rune
-	cache[4] = t
+	cache[4] = vantus
 
-	return food, flask, rune
+	return food, flask, rune, vantus
 end
 
 -------------------
@@ -449,13 +510,14 @@ do
 		if not groupMembers[1] then groupMembers[1] = UnitName("player") end
 		for _, player in next, groupMembers do
 			if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and UnitIsVisible(player) then
-				local food, flask, rune = self:CheckPlayer(player)
+				local food, flask, rune, vantus = self:CheckPlayer(player)
 
 				consumablesList[#consumablesList + 1] = {
 					player:gsub("%-.*", ""),
 					food and (getStatValue(food) or spells[161715]) or NO, -- 161715 = Eating
 					flask and (getStatValue(flask) or YES) or NO,
 					rune and YES or NO,
+					getVantusBoss(vantus) or NO,
 				}
 
 				if not food then
