@@ -40,6 +40,7 @@ combatLogMap.SPELL_CAST_START = {
 	-- Feasts
 	[175215] = "Feast", -- Savage Feast (+100)
 	[201351] = "Feast", -- Hearty Feast (+150)
+	[201352] = "Feast", -- Lavish Suramar Feast (+200)
 }
 combatLogMap.SPELL_CAST_SUCCESS = {
 	-- Repair Bots
@@ -224,6 +225,8 @@ combatLogMap.SPELL_SUMMON = {
 	-- [60478] = "AssignOwner",  -- Summon Doonguard (Warlock)
 	-- [111685] = "AssignOwner", -- Summon Infernal (Warlock)
 	-- [132578] = "AssignOwner", -- Invoke Niuzao, the Black Ox (Monk)
+	-- Reaves
+	[200216] = "Feast", -- Snack Distribution Mode (+225 versatility)
 }
 
 -- cache pet owner names
