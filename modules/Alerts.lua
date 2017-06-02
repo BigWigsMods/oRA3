@@ -49,8 +49,7 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[54711] = "Repair",  -- Scrapbot
 	[67826] = "Repair",  -- Jeeves
 	[157066] = "Repair", -- Walter
-	[199109] = "Repair", -- Regular Auto-Hammer
-	[200205] = "Repair", -- Reaves Auto-Hammer mode	
+	[199109] = "Repair", -- Auto-Hammer
 	-- Summoning
 	[698] = "Summon", -- Ritual of Summoning (Warlock)
 	-- Misdirects
@@ -72,6 +71,7 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[183752] = "InterruptCast",-- Consume Magic (Demon Hunter)
 	-- Reincarnation
 	[21169] = "Reincarnation", -- Reincarnation
+	[199115] = "Reincarnation", -- Failure Detection Pylon
 	-- Mass Resurrection
 	[212056] = "MassResurrection", -- Absolution (Paladin)
 	[212048] = "MassResurrection", -- Ancestral Vision (Shaman)
@@ -215,17 +215,12 @@ combatLogMap.SPELL_AURA_BROKEN_SPELL = {
 	[207685] = "CrowdControl", -- Sigil of Misery (Demon Hunter)
 }
 combatLogMap.SPELL_AURA_BROKEN = combatLogMap.SPELL_AURA_BROKEN_SPELL -- for SWING_DAMAGE breaks
--- Used to map guardians to their owners.
+
 combatLogMap.SPELL_SUMMON = {
-	["*"] = "AssignOwner",
-	-- [42651]  = "AssignOwner", -- Army of the Dead (Death Knight)
-	-- [192222] = "AssignOwner", -- Liquid Magma Totem (Shaman)
-	-- [188592] = "AssignOwner", -- Fire Elemental (Shaman)
-	-- [157299] = "AssignOwner", -- Storm Elemental (Shaman)
-	-- [60478] = "AssignOwner",  -- Summon Doonguard (Warlock)
-	-- [111685] = "AssignOwner", -- Summon Infernal (Warlock)
-	-- [132578] = "AssignOwner", -- Invoke Niuzao, the Black Ox (Monk)
+	["*"] = "AssignOwner", -- Used to map guardians to their owners
 	-- Reaves
+	[200205] = "Repair", -- Auto-Hammer Mode
+	[200211] = "Reincarnation", -- Failure Detection Mode
 	[200216] = "Feast", -- Snack Distribution Mode (+225 versatility)
 }
 
