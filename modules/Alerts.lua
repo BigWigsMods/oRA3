@@ -48,6 +48,8 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[54711] = "Repair",  -- Scrapbot
 	[67826] = "Repair",  -- Jeeves
 	[157066] = "Repair", -- Walter
+	[199109] = "Repair", -- Regular Auto-Hammer
+	[200205] = "Repair", -- Reaves Auto-Hammer mode	
 	-- Summoning
 	[698] = "Summon", -- Ritual of Summoning (Warlock)
 	-- Misdirects
