@@ -56,6 +56,7 @@ local defaults = {
 		showBuffs = 1,
 		showMissingMaxStat = false,
 		showMissingRunes = false,
+		showVantus = true,
 	}
 }
 local function colorize(input) return ("|cfffed000%s|r"):format(input) end
@@ -163,6 +164,19 @@ local options = {
 					width = "full",
 					order = 2,
 				},
+				showVantus = {
+					type = "toggle",
+					name = colorize(L.showVantus),
+					desc = L.showVantusDesc,
+					descStyle = "inline",
+					set = function(info, value)
+						module.db.profile.showVantus = value
+						updateWindow(true)
+					end,
+					disabled = function() return not module.db.profile.showBuffs end,
+					width = "full",
+					order = 3,
+				},
 				showMissingMaxStat = {
 					type = "toggle",
 					name = colorize(L.showMissingMaxStat),
@@ -174,7 +188,7 @@ local options = {
 					end,
 					disabled = function() return not module.db.profile.showBuffs end,
 					width = "full",
-					order = 3,
+					order = 4,
 				},
 			},
 		},
@@ -278,9 +292,10 @@ local function addIconAndName(frame)
 	frame.OutOfRange = oor
 
 	-- missing buffs
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame, "RIGHT", -6, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
-	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", frame.RuneBuff, "LEFT", 0, 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
-	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame.FlaskBuff, "LEFT", 0, 0) -- 136000="Interface\\Icons\\spell_misc_food"
+	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", frame, "RIGHT", -6, 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame, "RIGHT", -6 - 12, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", frame, "RIGHT", -6 - 24, 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
+	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame, "RIGHT", -6 - 36, 0) -- 136000="Interface\\Icons\\spell_misc_food"
 	local text = frame.FoodBuff:CreateFontString(nil, "OVERLAY")
 	text:SetPoint("BOTTOMRIGHT")
 	text:SetJustifyH("RIGHT")
@@ -320,6 +335,20 @@ local function createBottomFrame()
 	return f
 end
 
+local function anchorBuffs(f)
+	local i = 0
+	if module.db.profile.showVantus then
+		i = i + 1
+		f.VantusBuff:SetPoint("RIGHT", -6 - ((i-1)*12), 0)
+	end
+	if module.db.profile.showMissingRunes then
+		i = i + 1
+		f.RuneBuff:SetPoint("RIGHT", -6 - ((i-1)*12), 0)
+	end
+	f.FlaskBuff:SetPoint("RIGHT", -6 - ((i+0)*12), 0)
+	f.FoodBuff:SetPoint("RIGHT", -6 - ((i+1)*12), 0)
+end
+
 local function getStatValue(id)
 	local desc = GetSpellDescription(id)
 	if desc then
@@ -342,7 +371,8 @@ local function setMemberStatus(num, bottom, name, class, update)
 	if showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
 		f.OutOfRange:Hide()
 		if update then
-			local food, flask, rune = consumables:CheckPlayer(name)
+			anchorBuffs(f)
+			local food, flask, rune, vantus = consumables:CheckPlayer(name)
 			local showMissing = module.db.profile.showBuffs == 1
 			local onlyMax = module.db.profile.showMissingMaxStat
 			ready = food and flask and (not module.db.profile.showMissingRunes or rune) and true
@@ -356,6 +386,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.FlaskBuff:SetShown(flask)
 				f.RuneBuff:SetShown(rune)
 			end
+			f.VantusBuff:SetShown(vantus and module.db.profile.showVantus)
 
 			f.FoodBuff:SetSpell(food)
 			if food then
@@ -393,12 +424,17 @@ local function setMemberStatus(num, bottom, name, class, update)
 			if not module.db.profile.showMissingRunes then
 				f.RuneBuff:Hide()
 			end
+
+			if vantus then
+				f.VantusBuff:SetSpell(vantus)
+			end
 		end
 	else
 		f.OutOfRange:SetShown(showBuffFrame)
 		f.FoodBuff:Hide()
 		f.FlaskBuff:Hide()
 		f.RuneBuff:Hide()
+		f.VantusBuff:Hide()
 	end
 
 	local color = oRA.classColors[class]

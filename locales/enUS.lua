@@ -79,6 +79,8 @@ L.showMissingRunes = "Show Augment Runes"
 L.showMissingRunesDesc = "Include showing an icon for Augment Rune buffs."
 L.showMissingMaxStat = "Show lesser consumables as missing"
 L.showMissingMaxStatDesc = "Show icons for food and flask buffs with a different color to indicate it is not the highest stat value available."
+L.showVantus = "Show Vantus Runes"
+L.showVantusDesc = "Include showing an icon for Vantus Rune buffs. This icon will always be shown if the player has a Vantus Rune buff."
 L.notInRaid = "You are not in a raid instance."
 
 -- Durability module
