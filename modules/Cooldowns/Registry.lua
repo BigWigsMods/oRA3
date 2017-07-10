@@ -70,33 +70,7 @@ local function copyDefaults(dst, src)
 	end
 end
 
--- XXX locales as of r895
-local translateType = {
-	--esES
-	["Barras"] = "Bars",
-	["Iconos"] = "Icons",
-	["Grupos de iconos"] = "Icon Groups",
-	["Registro"] = "Log",
-	--deDE
-	["Leisten"] = "Bars",
-	["Icon Gruppen"] = "Icon Groups",
-	--frFR
-	["Barres"] = "Bars",
-	["Icônes"] = "Icons",
-	["Groupes d'icônes"] = "Icon Groups",
-	["Journal"] = "Log",
-}
-
 function module:CreateDisplay(type, name)
-	-- XXX I dun fucked up and localized my unique index
-	if not layoutRegistry[type] and translateType[type] then
-		local newType = translateType[type]
-		local db = module.db.profile.displays[name]
-		if db.type and db.type == type then
-			db.type = newType
-		end
-		type = newType
-	end
 	if layoutRegistry[type] then
 		local display = layoutRegistry[type](name)
 		display.name = name
@@ -105,7 +79,7 @@ function module:CreateDisplay(type, name)
 		display.version = layoutVersions[type]
 
 		-- init db
-		local moduleDB = module.db.profile
+		local moduleDB = self.db.profile
 		local db = moduleDB.displays[name]
 
 		-- reset settings on type change
