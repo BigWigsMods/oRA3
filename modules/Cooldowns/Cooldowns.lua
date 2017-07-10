@@ -1364,7 +1364,7 @@ local function upgradeDB(db)
 			oRA.db.profile.positions.oRA3CooldownFrame = nil
 		end
 
-		self:ScheduleTimer(function()
+		module:ScheduleTimer(function()
 			print("oRA3 Cooldowns has been redesigned and now supports multiple displays and different formats! You can open the options panel with /racd and move it around by dragging the title bar.")
 		end, 9)
 	end
