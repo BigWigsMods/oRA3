@@ -1429,6 +1429,7 @@ do
 	end
 
 	function module:OnProfileShutdown()
+		-- clean up display db defaults (ideally, the logic for this would be in Registery.lua)
 		for displayName, display in next, activeDisplays do
 			removeDefaults(self.db.profile.displays[displayName], display.defaultDB)
 		end
@@ -1513,7 +1514,7 @@ function module:OnRegister()
 	oRA.RegisterCallback(self, "OnProfileUpdate")
 	self:OnProfileUpdate()
 
-	-- persist on reloads
+	-- persist cds on reloads
 	spellsOnCooldown = self.db.global.spellsOnCooldown
 	chargeSpellsOnCooldown = self.db.global.chargeSpellsOnCooldown
 	if not self.db.global.lastTime or self.db.global.lastTime > GetTime() then -- probably restarted or crashed, trash times
@@ -1587,7 +1588,9 @@ function module:OnShutdown()
 end
 
 function module:PLAYER_LOGOUT()
-	-- clean db spell cds
+	self:OnProfileShutdown()
+
+	-- cleanup db spell cds
 	local t = GetTime()
 	for spellId, players in next, spellsOnCooldown do
 		if next(players) == nil then
