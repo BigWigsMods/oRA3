@@ -14,7 +14,7 @@ local GetSpellDescription, GetSpellInfo, GetRaidRosterInfo = GetSpellDescription
 local GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers = GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers
 local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime
 local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
-local PlaySoundFile, DoReadyCheck = PlaySoundFile, DoReadyCheck
+local PlaySound, DoReadyCheck, StopSound = PlaySound, DoReadyCheck, StopSound
 
 -- luacheck: globals ChatTypeInfo ChatFrame_GetMessageEventFilters GameFontNormal UISpecialFrames
 -- luacheck: globals READY_CHECK_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_WAITING_TEXTURE
@@ -862,7 +862,14 @@ function module:OnGroupChanged()
 end
 
 function module:READY_CHECK(initiator, duration)
-	if self.db.profile.sound then PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master") end
+	if self.db.profile.sound then
+		-- Play in Master for those that have SFX off or very low.
+		-- Using false as third arg to avoid the "only one of each sound at a time" throttle.
+		local _, id = PlaySound(PlaySoundKitID and "ReadyCheck" or 8960, "Master", false) -- SOUNDKIT.READY_CHECK
+		if id then
+			StopSound(id-1) -- Should work most of the time to stop the blizz sound
+		end
+	end
 
 	self:CancelTimer(clearchecking)
 	self:CancelTimer(readychecking)
