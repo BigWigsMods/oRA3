@@ -261,7 +261,7 @@ local spells = {
 		[191241] = {30, 75, 255, 13}, -- Sticky Bomb
 		[19386] = {45, 75, {253, 254}, 14}, -- Wyvern Sting
 		[19577] = {60, 75, 253, 15}, -- Intimidation
-		[191241] = {60, 75, {254, 255}, 15}, -- Camouflage
+		--[191241] = {60, 75, {254, 255}, 15}, -- Camouflage
 		[131894] = {60, 90, {253, 254}, 16, true}, -- A Murder of Crows (not-Survival): (16) If the target dies while under attack, the cooldown is reset.
 		[120360] = {20, 90, {253, 254}, 17}, -- Barrage
 		[194855] = {30, 90, 255, 17}, -- Dragonsfire Grenade
@@ -312,7 +312,7 @@ local spells = {
 		[198929] = {9, 90, 63, 20}, -- Cinderstorm
 		[153626] = {20, 100, 62, 21}, -- Arcane Orb
 		[153561] = {45, 100, 63, 21}, -- Meteor
-		[153561] = {30, 100, 64, 21}, -- Comet Storm
+		--[153561] = {30, 100, 64, 21}, -- Comet Storm
 	},
 	MONK = {
 		[101545] = {25, 10, 269}, -- Flying Serpent Kick
@@ -949,7 +949,7 @@ do
 		showPane()
 	end
 
-	local function onOptionChanged(widget, event, value, ...)
+	local function onOptionChanged(widget, event, value)
 		local key = widget:GetUserData("key")
 		if key then
 			local display = activeDisplays[CURRENT_DISPLAY]

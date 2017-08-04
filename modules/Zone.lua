@@ -127,7 +127,7 @@ function module:UPDATE_FACTION()
 	in_UPDATE_FACTION = false
 end
 
-function module:OnGroupChanged(event, status, members)
+function module:OnGroupChanged()
 	oRA:UpdateList(L.zone)
 end
 

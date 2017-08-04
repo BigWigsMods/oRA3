@@ -311,7 +311,7 @@ local function updateRankButtons()
 	frame:DoLayout()
 end
 
-function module:OnGuildRanksUpdate(event, ranks)
+function module:OnGuildRanksUpdate()
 	updateRankButtons()
 end
 

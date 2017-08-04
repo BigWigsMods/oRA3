@@ -4,7 +4,6 @@ local oRA = scope.addon
 local util = oRA.util
 local module = oRA:NewModule("Tanks")
 local L = scope.locale
-local AceGUI = LibStub("AceGUI-3.0")
 
 -- luacheck: globals READY_CHECK_READY_TEXTURE FauxScrollFrame_Update
 -- luacheck: globals FauxScrollFrame_OnVerticalScroll FauxScrollFrame_GetOffset

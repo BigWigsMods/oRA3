@@ -60,7 +60,7 @@ local function createFrame()
 	remaining:SetText("0")
 	brez.remaining = remaining
 
-	local scroll = CreateFrame("ScrollingMessageFrame", "TESTT", brez)
+	local scroll = CreateFrame("ScrollingMessageFrame", nil, brez)
 	scroll:SetPoint("TOP", brez, "BOTTOM")
 	scroll:SetFontObject(GameFontNormal)
 	scroll:SetWidth(1920)
@@ -204,7 +204,7 @@ do
 
 	local timeUpdater = nil
 	local function updateStatus()
-		local charges, maxCharges, started, duration = GetSpellCharges(20484) -- Rebirth
+		local charges = GetSpellCharges(20484) -- Rebirth
 		if charges then
 			if not inCombat then
 				inCombat = true
