@@ -237,7 +237,7 @@ local function _Dialog_OnShow(dialog)
         return
     end
 
-    _G.PlaySound(PlaySoundKitID and "igMainMenuOpen" or 850) -- SOUNDKIT.IG_MAINMENU_OPEN
+    _G.PlaySound(850) -- SOUNDKIT.IG_MAINMENU_OPEN
 
     if delegate.on_show then
         delegate.on_show(dialog, dialog.data)
@@ -247,7 +247,7 @@ end
 local function _Dialog_OnHide(dialog)
     local delegate = dialog.delegate
 
-    _G.PlaySound(PlaySoundKitID and "igMainMenuClose" or 851) -- SOUNDKIT.IG_MAINMENU_CLOSE
+    _G.PlaySound(851) -- SOUNDKIT.IG_MAINMENU_CLOSE
 
     -- Required so lib:ActiveDialog() will return false if called from code which is called from the delegate's on_hide
     _RecycleWidget(dialog, active_dialogs, dialog_heap)

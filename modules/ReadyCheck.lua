@@ -865,7 +865,7 @@ function module:READY_CHECK(initiator, duration)
 	if self.db.profile.sound then
 		-- Play in Master for those that have SFX off or very low.
 		-- Using false as third arg to avoid the "only one of each sound at a time" throttle.
-		local _, id = PlaySound(PlaySoundKitID and "ReadyCheck" or 8960, "Master", false) -- SOUNDKIT.READY_CHECK
+		local _, id = PlaySound(8960, "Master", false) -- SOUNDKIT.READY_CHECK
 		if id then
 			StopSound(id-1) -- Should work most of the time to stop the blizz sound
 		end

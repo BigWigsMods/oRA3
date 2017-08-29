@@ -239,7 +239,7 @@ local function topScrollDeleteClick(self)
 	end
 	sessionTanks[value] = nil
 	deletedTanks[value] = true
-	PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOff" or 857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+	PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 	-- update
 	module:OnGroupChanged("OnGroupChanged", nil, oRA:GetGroupMembers())
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks())
@@ -249,10 +249,10 @@ local function topScrollHiddenClick(self)
 	local value = self:GetParent().unitName
 	if namedHidden[value] then
 		namedHidden[value] = nil
-		PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOn" or 856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+		PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
 	else
 		namedHidden[value] = true
-		PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOff" or 857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+		PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 	end
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 end
@@ -261,11 +261,11 @@ local function topScrollSaveClick(self)
 	local value = self:GetParent().unitName
 	local k = util.inTable(module.db.persistentTanks, value)
 	if k then
-		PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOff" or 857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+		PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 		table.remove(module.db.persistentTanks, k)
 		namedPersistent[value] = nil
 	else
-		PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOn" or 856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+		PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
 		namedPersistent[value] = true
 		wipe(module.db.persistentTanks)
 		for _, v in next, allIndexedTanks do
@@ -294,7 +294,7 @@ local function topScrollUpClick(self)
 			module.db.persistentTanks[#module.db.persistentTanks + 1] = v
 		end
 	end
-	PlaySound(PlaySoundKitID and "UChatScrollButton" or 1115) -- SOUNDKIT.U_CHAT_SCROLL_BUTTON
+	PlaySound(1115) -- SOUNDKIT.U_CHAT_SCROLL_BUTTON
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 end
 
@@ -305,7 +305,7 @@ local function bottomScrollClick(self)
 	sessionTanks[value] = true
 	namedTanks[value] = true
 	deletedTanks[value]= nil
-	PlaySound(PlaySoundKitID and "igMainMenuOptionCheckBoxOn" or 856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+	PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
 	module:OnTanksChanged("OnTanksChanged", oRA:GetBlizzardTanks(), true)
 	module:UpdateScrolls()
 end
