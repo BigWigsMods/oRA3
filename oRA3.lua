@@ -419,7 +419,6 @@ do
 					name = player,
 					class = class,
 					level = UnitLevel(player),
-					glyphs = {},
 					talents = {},
 				}
 				-- initial update with no inspect info
@@ -435,7 +434,6 @@ do
 			playerCache[guid] = {
 				guid = guid,
 				unit = "",
-				glyphs = {},
 				talents = {},
 			}
 		end
@@ -448,10 +446,6 @@ do
 		if info.global_spec_id and info.global_spec_id > 0 then
 			cache.spec = info.global_spec_id
 
-			wipe(cache.glyphs)
-			for spellId in next, info.glyphs do
-				cache.glyphs[spellId] = true
-			end
 			wipe(cache.talents)
 			for talentId, talentInfo in next, info.talents do
 				-- easier to look up by index than to try and check multiple talent spell ids
