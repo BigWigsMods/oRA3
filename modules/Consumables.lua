@@ -351,6 +351,7 @@ do
 		[201639] = true, -- agi
 		[201640] = true, -- int
 		-- [201641] = true, -- sta
+		[185736] = true, -- versatility (Sugar-Crusted Fish Feast, gives +1%)
 	}
 	-- 1300 stat flask
 	local maxFlasks = {
