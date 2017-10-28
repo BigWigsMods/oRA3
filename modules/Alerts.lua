@@ -716,25 +716,16 @@ function module:OnRegister()
 	})
 	oRA:RegisterModuleOptions("Alerts", GetOptions)
 
-	-- Enable shift-clicking the line to print in chat. Raw hooked because
-	-- otherwise SetItemRef will also fire on other |H's in the message.
-	local orig_SetItemRef = SetItemRef
-	SetItemRef = function(link, ...)
-		if strsub(link, 1, 3) ~= "ora" then
-			return orig_SetItemRef(link, ...)
-		end
-		if not IsShiftKeyDown() then return end
-
-		local _, msg = strsplit(":", link, 2)
-		msg = msg:gsub("@", "|")
-		local editBox = _G.ChatEdit_ChooseBoxForSend()
-		if editBox:IsShown() and editBox:GetText() ~= "" then
-			editBox:Insert(" "..msg)
-		else
+	-- Enable shift-clicking the line to print in chat.
+	hooksecurefunc("SetItemRef", function(link)
+		if strsub(link, 1, 3) == "ora" and IsModifiedClick("CHATLINK") then
+			local _, msg = strsplit(":", link, 2)
+			msg = msg:gsub("@", "|")
+			local editBox = _G.ChatEdit_ChooseBoxForSend()
 			_G.ChatEdit_ActivateChat(editBox)
 			editBox:SetText(msg)
 		end
-	end
+	end)
 end
 
 function module:OnEnable()
