@@ -412,10 +412,12 @@ do
 			local guid = UnitGUID(unit)
 			local _, class = UnitClass(unit)
 			if not playerCache[guid] and class then
+				local _, race = UnitRace(unit)
 				playerCache[guid] = {
 					guid = guid,
 					name = self:UnitName(unit),
 					class = class,
+					race = race,
 					level = UnitLevel(unit),
 					unit = unit,
 					talents = {},
@@ -433,6 +435,7 @@ do
 			playerCache[guid] = {
 				guid = guid,
 				class = info.class,
+				race = info.race,
 				talents = {},
 			}
 		end

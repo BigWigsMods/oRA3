@@ -123,10 +123,12 @@ local talentCooldowns = {
 	end,
 }
 
--- { cd, level, spec id, talent index, sync }
+-- { cd, level, spec id, talent index, sync, race }
 -- spec id can be a table of specs
 -- talent index can be negative to indicate a talent replaces the spell
 --   and can be a hash of spec=index for talents in different locations
+-- sync will register SPELL_UPDATE_COOLDOWN and send "CooldownUpdate" syncs
+--   with the cd (for dynamic cooldowns with hard to track conditions)
 local spells = {
 	DEATHKNIGHT = {
 		[221562] = {45, 55, 250}, -- Asphyxiate
@@ -500,6 +502,55 @@ local spells = {
 		[228920] = 152277, -- Ravager (Prot)
 		[118000] = {25, 100, 72, 21}, -- Dragon Roar
 	},
+	RACIAL = {
+		--  Arcane Torrent (Blood Elf)
+		[28730] = {90, 1, nil, nil, nil, "BloodElf"}, -- Mage, Warlock
+		[25046] = 28730,  -- Rogue
+		[50613] = 28730,  -- Death Knight
+		[69179] = 28730,  -- Warrior
+		[80483] = 28730,  -- Hunter
+		[129597] = 28730, -- Monk
+		[155145] = 28730, -- Paladin
+		[202719] = 28730, -- Demon Hunter
+		[232633] = 28730, -- Priest
+		-- Gift of the Naaru (Draenei)
+		[28880] = {180, 1, nil, nil, nil, "Draenei"}, -- Warrior
+		[59542] = 28880,  -- Paladin
+		[59543] = 28880,  -- Hunter
+		[59544] = 28880,  -- Priest
+		[59545] = 28880,  -- Death Knight
+		[59547] = 28880,  -- Shaman
+		[59548] = 28880,  -- Mage
+		[121093] = 28880, -- Monk
+		-- Stoneform (Dwarf)
+		[20594] = {120, 1, nil, nil, nil, "Dwarf"},
+		-- Escape Artist (Gnome)
+		[20589] = {60, 1, nil, nil, nil, "Gnome"},
+		-- Rocket Barrage (Goblin)
+		[69041] = {90, 1, nil, nil, nil, "Goblin"},
+		-- Rocket Jump (Goblin)
+		[69070] = {90, 1, nil, nil, nil, "Goblin"},
+		-- Every Man for Himself (Human)
+		[59752] = {120, 1, nil, nil, nil, "Human"},
+		-- Shadowmeld (Night Elf)
+		[58984] = {120, 1, nil, nil, nil, "NightElf"},
+		-- Blood Fury (Orc)
+		[33697] = {120, 1, nil, nil, nil, "Orc"}, -- Shaman, Monk (Attack power and spell power)
+		[20572] = 33697, -- Warrior, Hunter, Rogue, Death Knight (Attack power)
+		[33702] = 33697, -- Mage, Warlock (Spell power)
+		-- Quaking Palm (Pandaren)
+		[107079] = {120, 1, nil, nil, nil, "Pandaren"},
+		-- War Stomp (Tauren)
+		[20549] = {90, 1, nil, nil, nil, "Tauren"},
+		-- Berserking (Troll)
+		[26297] = {180, 1, nil, nil, nil, "Troll"},
+		-- Will of the Forsaken (Undead)
+		[7744] = {120, 1, nil, nil, nil, "Scourge"},
+		-- Cannibalize (Undead)
+		[20577] = {120, 1, nil, nil, nil, "Scourge"},
+		-- Darkflight (Worgen)
+		[68992] = {120, 1, nil, nil, nil, "Worgen"},
+	}
 }
 
 local combatResSpells = {
@@ -571,7 +622,7 @@ function module:IsSpellUsable(guid, spellId)
 	local data = spells[info.class][spellId]
 	if not data then return false end
 
-	local _, level, spec, talent = unpack(data)
+	local _, level, spec, talent, _, race = unpack(data)
 	if type(talent) == "table" then
 		talent = talent[info.spec]
 		-- we already matched the spec, so just decide based on talent
@@ -579,7 +630,7 @@ function module:IsSpellUsable(guid, spellId)
 			spec = nil
 		end
 	end
-	local usable = (info.level >= level) and
+	local usable = (info.level >= level) and (not race or info.race == race) and
 		(not talent or ((talent > 0 and info.talents[talent]) or (talent < 0 and not info.talents[-talent]))) and -- handle talents replacing spells (negative talent index)
 		(not spec or spec == info.spec or (type(spec) == "table" and tContains(spec, info.spec)))
 
@@ -711,8 +762,14 @@ do
 
 		if not spellList then
 			spellList = {}
-			for k in next, allSpells do spellList[#spellList + 1] = k end
-			for name, class in next, oRA._testUnits do reverseClass[class] = name end
+			for k in next, allSpells do
+				if classLookup[k] ~= "RACIAL" then
+					spellList[#spellList + 1] = k
+				end
+			end
+			for name, class in next, oRA._testUnits do
+				reverseClass[class] = name
+			end
 		end
 
 		local spellId = spellList[math.random(1, #spellList)]
@@ -724,7 +781,7 @@ do
 	local tmp = {}
 	local tabStatus, classStatus, filterStatus = { selected = "tab1", scrollvalue = 0 }, { selected = "ALL", scrollvalue = 0 }, { scrollvalue = 0 }
 	local displayList = {}
-	local classList = nil
+	local classList, classListOrder = nil, nil
 
 	-- Create/Delete
 
@@ -896,10 +953,14 @@ do
 	end
 
 	local function sortByClass(a, b)
-		if classLookup[a] == classLookup[b] then
+		local classA, classB = classLookup[a], classLookup[b]
+		-- push racials to the top
+		if classA == "RACIAL" then classA = "ARACIAL" end
+		if classB == "RACIAL" then classB = "ARACIAL" end
+		if classA == classB then
 			return GetSpellInfo(a) < GetSpellInfo(b)
 		else
-			return classLookup[a] < classLookup[b]
+			return classA < classB
 		end
 	end
 
@@ -1049,7 +1110,7 @@ do
 
 		local display = activeDisplays[CURRENT_DISPLAY]
 		if key == "ALL" then
-			-- all spells
+			-- selected spells
 			wipe(tmp)
 			if display then
 				for id, value in next, display.spellDB do
@@ -1083,7 +1144,6 @@ do
 			end
 
 		elseif spells[key] then
-			-- class spells
 			wipe(tmp)
 			for id in next, spells[key] do
 				tmp[#tmp + 1] = id
@@ -1135,7 +1195,7 @@ do
 			group:SetFullWidth(true)
 			group:SetTitle(L.selectClass)
 			group:SetDropdownWidth(165)
-			group:SetGroupList(classList)
+			group:SetGroupList(classList, classListOrder)
 			group:SetCallback("OnGroupSelected", onDropdownGroupSelected)
 			group:SetGroup(classStatus.selected)
 
@@ -1210,10 +1270,17 @@ do
 
 	function showPane()
 		if not classList then
-			classList = { ALL = L.allSpells }
+			classList = { ALL = L.allSpells, RACIAL = "|cffe0e0e0".."Racial Spells".."|r" }
+			classListOrder = {}
 			for class in next, spells do
-				classList[class] = string.format("|c%s%s|r", oRA.classColors[class].colorStr, LOCALIZED_CLASS_NAMES_MALE[class])
+				if class ~= "RACIAL" then
+					classList[class] = string.format("|c%s%s|r", oRA.classColors[class].colorStr, LOCALIZED_CLASS_NAMES_MALE[class])
+					classListOrder[#classListOrder + 1] = class
+				end
 			end
+			table.sort(classListOrder)
+			table.insert(classListOrder, 1, "ALL")
+			table.insert(classListOrder, 2, "RACIAL")
 		end
 		if not frame then
 			frame = AceGUI:Create("SimpleGroup")
@@ -1850,6 +1917,8 @@ do
 			end
 			callbacks:Fire("oRA3CD_SpellUsed", spellId, srcGUID, source, destGUID, destName)
 
+			local class = infoCache[srcGUID].class
+
 			if module:GetCharges(srcGUID, spellId) > 0 then
 				if not chargeSpellsOnCooldown[spellId] then chargeSpellsOnCooldown[spellId] = { [srcGUID] = {} }
 				elseif not chargeSpellsOnCooldown[spellId][srcGUID] then chargeSpellsOnCooldown[spellId][srcGUID] = {} end
@@ -1863,9 +1932,9 @@ do
 				if charges == 0 then
 					if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
 					spellsOnCooldown[spellId][srcGUID] = expires[1]
-					callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, classLookup[spellId], spellId, expires[1] - t)
+					callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, class, spellId, expires[1] - t)
 				end
-				callbacks:Fire("oRA3CD_UpdateCharges", srcGUID, source, classLookup[spellId], spellId, cd, charges, maxCharges)
+				callbacks:Fire("oRA3CD_UpdateCharges", srcGUID, source, class, spellId, cd, charges, maxCharges)
 				return
 			end
 
@@ -1877,7 +1946,7 @@ do
 			local cd = module:GetCooldown(srcGUID, spellId)
 			spellsOnCooldown[spellId][srcGUID] = GetTime() + cd
 
-			callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, classLookup[spellId], spellId, cd)
+			callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, class, spellId, cd)
 		end
 
 		-- Special cooldown conditions
