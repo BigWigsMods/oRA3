@@ -315,7 +315,9 @@ function module:OnGuildRanksUpdate()
 	-- Can't check rank perms directly so use SendAddonMessage to check
 	-- if you have access to the officer channel. Spammy, but oh well.
 	playerIsOfficer = false
-	SendAddonMessage("oRA", "InviteOfficerCheck", "OFFICER")
+	if IsInGuild() then
+		SendAddonMessage("oRA", "InviteOfficerCheck", "OFFICER")
+	end
 end
 
 function module:OnCommReceived(_, sender, message)
