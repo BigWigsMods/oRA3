@@ -14,7 +14,6 @@ local rankButtons = {}
 local difficultyDropdown, updateDifficultyDropdown = nil, nil -- a lot of effort for simply keeping the dialog in sync with the setting
 local playerRealm = GetRealmName()
 local playerFaction = UnitFactionGroup("player")
-local playerIsOfficer = false
 
 local function canInvite()
 	return not IsInGroup() or oRA:IsPromoted()
@@ -136,11 +135,10 @@ end
 
 local function inviteRank(rank, name, only)
 	if not canInvite() then return end
-	local channel = playerIsOfficer and "OFFICER" or "GUILD"
 	if only then
-		SendChatMessage((L.invitePrintRankOnly):format(name), channel)
+		SendChatMessage((L.invitePrintRankOnly):format(name), "GUILD")
 	else
-		SendChatMessage((L.invitePrintRank):format(name), channel)
+		SendChatMessage((L.invitePrintRank):format(name), "GUILD")
 	end
 	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1, only)
 end
@@ -171,7 +169,6 @@ function module:OnRegister()
 		hideConfig
 	)
 	oRA.RegisterCallback(self, "OnGuildRanksUpdate")
-	oRA.RegisterCallback(self, "OnCommReceived")
 	oRA.RegisterCallback(self, "OnStartup", updateDifficultyDropdown)
 	oRA.RegisterCallback(self, "OnShutdown", updateDifficultyDropdown)
 	oRA.RegisterCallback(self, "OnDifficultyChanged", updateDifficultyDropdown)
@@ -312,18 +309,6 @@ end
 
 function module:OnGuildRanksUpdate()
 	updateRankButtons()
-	-- Can't check rank perms directly so use SendAddonMessage to check
-	-- if you have access to the officer channel. Spammy, but oh well.
-	playerIsOfficer = false
-	if IsInGuild() then
-		SendAddonMessage("oRA", "InviteOfficerCheck", "OFFICER")
-	end
-end
-
-function module:OnCommReceived(_, sender, message)
-	if message == "InviteOfficerCheck" then
-		playerIsOfficer = true
-	end
 end
 
 local function saveKeyword(widget, event, value)
