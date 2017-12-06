@@ -67,20 +67,17 @@ do
 			if t-prev > 15 then
 				prev = t
 				self:SendComm("QueryGear")
+				oRA:InspectGroup()
 			end
 		end
 	end
 end
 
--- we're just piggy-backing off Cooldowns (and any other inspect request)
--- should probably handle requeueing people that give us incomplete info
--- but odds are something will trigger it for us (eg, mouseover talent scanning)
 function module:OnPlayerInspect(_, guid, unit)
 	local player = self:UnitName(unit)
-	if not player or syncList[player] or not CheckInteractDistance(unit, 1) then return end
-	if inTable(gearTbl, player, 1) then return end
+	if not player or syncList[player] then return end
 
-	local enchants, gems, ilvl = self:ScanGear(unit, 1)
+	local enchants, gems, ilvl = self:ScanGear(unit)
 	if ilvl and ilvl > 0 then
 		local k = inTable(gearTbl, player, 1)
 		if not k then
@@ -97,7 +94,7 @@ end
 
 function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 	if prefix == "QueryGear" then
-		local missingEnchants, emptySockets, equipped = self:ScanGear("player", 0)
+		local missingEnchants, emptySockets, equipped = self:ScanGear("player")
 		self:SendComm("Gear", floor(equipped), emptySockets, missingEnchants)
 	elseif prefix == "Gear" then
 		local k = inTable(gearTbl, sender, 1)
@@ -122,7 +119,7 @@ do
 	local ITEM_LEVEL_PATTERN = "^"..ITEM_LEVEL:gsub("%%d", "(.-)").."$"
 	function module:GetItemLevel(unit, slot)
 		local item = tooltip:SetInventoryItem(unit, slot, true)
-		if not item then return 0 end
+		if not item then return end
 		for i = 2, tooltip:NumLines() do
 			local text = _G["oRA3GearTooltipScannerTextLeft"..i]:GetText()
 			local ilvl = text and text:match(ITEM_LEVEL_PATTERN)
@@ -130,7 +127,7 @@ do
 				return tonumber(ilvl)
 			end
 		end
-		return 0
+		return
 	end
 end
 
@@ -155,8 +152,8 @@ do
 		false, -- INVSLOT_MAINHAND -- 16
 		false, -- INVSLOT_OFFHAND -- 17
 	}
-	function module:ScanGear(unit, count)
-		if count > 5 then return end
+
+	function module:ScanGear(unit)
 		local isInspecting = unit ~= "player"
 
 		local missingEnchants, emptySockets, averageItemLevel, missingSlots = 0, 0, 0, 0
@@ -195,7 +192,7 @@ do
 
 				-- Handle item level
 				if isInspecting then
-					local itemLevel = self:GetItemLevel(unit, i)
+					local itemLevel = self:GetItemLevel(unit, i) or 0
 					averageItemLevel = averageItemLevel + itemLevel
 
 					if i == 17 then
@@ -209,8 +206,11 @@ do
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = equipped
 		elseif averageItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
-			-- try and filter out people still out of range
-			self:ScanGear(unit, count + 1)
+			-- Requeue the inspect
+			local guid = UnitGUID(unit)
+			if guid then
+				oRA:InspectGroup(guid)
+			end
 			return
 		else
 			averageItemLevel = averageItemLevel / (hasOffhand and 16 or 15)
@@ -219,4 +219,3 @@ do
 		return missingEnchants, emptySockets, averageItemLevel
 	end
 end
-

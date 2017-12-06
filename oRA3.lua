@@ -465,8 +465,8 @@ do
 		self.callbacks:Fire("OnPlayerInspect", guid, unit)
 	end
 
-	function addon:InspectGroup()
-		LGIST:Rescan()
+	function addon:InspectGroup(guid)
+		LGIST:Rescan(guid)
 	end
 
 	function addon:GetPlayerInfo(guid)
