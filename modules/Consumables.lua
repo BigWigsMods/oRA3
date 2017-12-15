@@ -73,6 +73,18 @@ do
 		[spells[237823]] = 1897, -- Maiden of Vigilance
 		[spells[237820]] = 1873, -- Fallen Avatar
 		[spells[237825]] = 1898, -- Kil'jaeden
+		-- Antorus
+		[spells[250153]] = 1992, -- Garothi Worldbreaker
+		[spells[250156]] = 1987, -- Felhounds of Sargeras
+		[spells[250167]] = 1997, -- Antoran High Command
+		[spells[250160]] = 1985, -- Portal Keeper Hasabel
+		[spells[250150]] = 2025, -- Eonar the Lifebinder
+		[spells[250158]] = 2009, -- Imonar the Soulhunter
+		[spells[250148]] = 2004, -- Kin'garoth
+		[spells[250165]] = 1983, -- Varimathras
+		[spells[250163]] = 1986, -- The Coven of Shivarra
+		[spells[250144]] = 1984, -- Aggramar
+		[spells[250146]] = 2031, -- Argus the Unmaker
 	}
 
 	function getVantus(player)
