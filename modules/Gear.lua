@@ -78,7 +78,7 @@ function module:OnPlayerInspect(_, guid, unit)
 	if not player or syncList[player] then return end
 
 	local enchants, gems, ilvl = self:ScanGear(unit)
-	if ilvl and ilvl > 0 then
+	if ilvl then
 		local k = inTable(gearTbl, player, 1)
 		if not k then
 			k = #gearTbl + 1
@@ -112,26 +112,6 @@ function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 end
 
 do
-	-- Let the game figure out the item level
-	local tooltip = CreateFrame("GameTooltip", "oRA3GearTooltipScanner", nil, "GameTooltipTemplate")
-	tooltip:SetOwner(UIParent, "ANCHOR_NONE")
-
-	local ITEM_LEVEL_PATTERN = "^"..ITEM_LEVEL:gsub("%%d", "(.-)").."$"
-	function module:GetItemLevel(unit, slot)
-		local item = tooltip:SetInventoryItem(unit, slot, true)
-		if not item then return end
-		for i = 2, tooltip:NumLines() do
-			local text = _G["oRA3GearTooltipScannerTextLeft"..i]:GetText()
-			local ilvl = text and text:match(ITEM_LEVEL_PATTERN)
-			if ilvl then
-				return tonumber(ilvl)
-			end
-		end
-		return
-	end
-end
-
-do
 	local statsTable = {}
 	local enchantableItems = {
 		false, -- INVSLOT_HEAD -- 1
@@ -154,13 +134,14 @@ do
 	}
 
 	function module:ScanGear(unit)
+		local missingEnchants, emptySockets, averageItemLevel = 0, 0, 0
+		local hasOffhand, totalItemLevel, missingSlots = false, 0, 0
 		local isInspecting = unit ~= "player"
 
-		local missingEnchants, emptySockets, averageItemLevel, missingSlots = 0, 0, 0, 0
-		local hasOffhand = false
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
-			if not itemLink then
+			local itemLevel = itemLink and GetDetailedItemLevelInfo(itemLink)
+			if not itemLevel then
 				missingSlots = missingSlots + 1
 			elseif i ~= 4 then -- skip the shirt
 				-- http://www.wowpedia.org/ItemString
@@ -191,13 +172,11 @@ do
 				end
 
 				-- Handle item level
-				if isInspecting then
-					local itemLevel = self:GetItemLevel(unit, i) or 0
-					averageItemLevel = averageItemLevel + itemLevel
+				totalItemLevel = totalItemLevel + itemLevel
+				-- FIXME handle MH/OH artifacts (one will be the true item level, the other will be 750)
 
-					if i == 17 then
-						hasOffhand = true
-					end
+				if i == 17 then
+					hasOffhand = true
 				end
 			end
 		end
@@ -205,7 +184,7 @@ do
 		if not isInspecting then
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = equipped
-		elseif averageItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
+		elseif totalItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
 			-- Requeue the inspect
 			local guid = UnitGUID(unit)
 			if guid then
@@ -213,7 +192,7 @@ do
 			end
 			return
 		else
-			averageItemLevel = averageItemLevel / (hasOffhand and 16 or 15)
+			averageItemLevel = totalItemLevel / (hasOffhand and 16 or 15)
 		end
 
 		return missingEnchants, emptySockets, averageItemLevel
