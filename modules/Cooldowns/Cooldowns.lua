@@ -1516,7 +1516,15 @@ function module:OnRegister()
 
 	-- persist cds on reloads
 	spellsOnCooldown = self.db.global.spellsOnCooldown
+	if not spellsOnCooldown then -- why. WHY!?
+		self.db.global.spellsOnCooldown = {}
+		spellsOnCooldown = self.db.global.spellsOnCooldown
+	end
 	chargeSpellsOnCooldown = self.db.global.chargeSpellsOnCooldown
+	if not chargeSpellsOnCooldown then
+		self.db.global.chargeSpellsOnCooldown = {}
+		chargeSpellsOnCooldown = self.db.global.chargeSpellsOnCooldown
+	end
 	if not self.db.global.lastTime or self.db.global.lastTime > GetTime() then -- probably restarted or crashed, trash times
 		wipe(spellsOnCooldown)
 		wipe(chargeSpellsOnCooldown)
