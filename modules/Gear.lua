@@ -73,7 +73,7 @@ do
 	end
 end
 
-function module:OnPlayerInspect(_, guid, unit)
+function module:OnPlayerInspect(_, _, unit)
 	local player = self:UnitName(unit)
 	if not player or syncList[player] then return end
 
@@ -136,7 +136,7 @@ do
 	function module:ScanGear(unit)
 		local missingEnchants, emptySockets, averageItemLevel = 0, 0, 0
 		local hasOffhand, totalItemLevel, missingSlots = false, 0, 0
-		local isInspecting = unit ~= "player"
+		local artifactItemLevel = 0
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
@@ -172,16 +172,21 @@ do
 				end
 
 				-- Handle item level
-				totalItemLevel = totalItemLevel + itemLevel
-				-- FIXME handle MH/OH artifacts (one will be the true item level, the other will be 750)
-
 				if i == 17 then
 					hasOffhand = true
+				end
+
+				-- For artifacts with an offhand, one will be 750 the other will be the actual item level
+				if (i == 16 or i == 17) and GetInventoryItemQuality(unit, i) == LE_ITEM_QUALITY_ARTIFACT then
+					artifactItemLevel = max(artifactItemLevel, itemLevel)
+					hasOffhand = false
+				else
+					totalItemLevel = totalItemLevel + itemLevel
 				end
 			end
 		end
 
-		if not isInspecting then
+		if unit == "player" then
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = equipped
 		elseif totalItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
@@ -192,7 +197,7 @@ do
 			end
 			return
 		else
-			averageItemLevel = totalItemLevel / (hasOffhand and 16 or 15)
+			averageItemLevel = (totalItemLevel + artifactItemLevel) / (hasOffhand and 16 or 15)
 		end
 
 		return missingEnchants, emptySockets, averageItemLevel
