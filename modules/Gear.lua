@@ -141,9 +141,10 @@ do
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
 			local itemLevel = itemLink and GetDetailedItemLevelInfo(itemLink)
-			if not itemLevel then
+			if not itemLevel and i ~= 4 and i ~= 17 then
 				missingSlots = missingSlots + 1
-			elseif i ~= 4 then -- skip the shirt
+			end
+			if itemLevel and i ~= 4 then -- skip the shirt
 				-- http://www.wowpedia.org/ItemString
 				-- item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2:...[:upgradeValue]:unknown1:unknown2:unknown3
 				-- |cffff8000|Hitem:102247::::::::100:105:4:::493|h[Jina-Kang, Kindness of Chi-Ji]|h|r
@@ -189,7 +190,7 @@ do
 		if unit == "player" then
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = equipped
-		elseif totalItemLevel == 0 or missingSlots > 2 then -- shirt + off hand
+		elseif totalItemLevel == 0 or (UnitLevel(unit) > 60 and missingSlots > 5) then
 			-- Requeue the inspect
 			local guid = UnitGUID(unit)
 			if guid then
