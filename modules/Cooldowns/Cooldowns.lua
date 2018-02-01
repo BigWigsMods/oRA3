@@ -522,42 +522,27 @@ local spells = {
 		[59547] = 28880,  -- Shaman
 		[59548] = 28880,  -- Mage
 		[121093] = 28880, -- Monk
-		-- Stoneform (Dwarf)
-		[20594] = {120, 1, nil, nil, nil, "Dwarf"},
-		-- Escape Artist (Gnome)
-		[20589] = {60, 1, nil, nil, nil, "Gnome"},
-		-- Rocket Barrage (Goblin)
-		[69041] = {90, 1, nil, nil, nil, "Goblin"},
-		-- Rocket Jump (Goblin)
-		[69070] = {90, 1, nil, nil, nil, "Goblin"},
-		-- Bull Rush (Highmountain Tauren)
-		[255654] = {120, 1, nil, nil, nil, "HighmountainTauren"},
-		-- Every Man for Himself (Human)
-		[59752] = {120, 1, nil, nil, nil, "Human"},
-		-- Light's Judgement (Lightforged Draenei)
-		[255647] = {150, 1, nil, nil, nil, "LightforgedDraenei"},
-		-- Shadowmeld (Night Elf)
-		[58984] = {120, 1, nil, nil, nil, "NightElf"},
-		-- Arcane Pulse (Nightborne)
-		[260364] = {180, 1, nil, nil, nil, "Nightborne"},
 		-- Blood Fury (Orc)
 		[33697] = {120, 1, nil, nil, nil, "Orc"}, -- Shaman, Monk (Attack power and spell power)
 		[20572] = 33697, -- Warrior, Hunter, Rogue, Death Knight (Attack power)
 		[33702] = 33697, -- Mage, Warlock (Spell power)
-		-- Quaking Palm (Pandaren)
-		[107079] = {120, 1, nil, nil, nil, "Pandaren"},
-		-- War Stomp (Tauren)
-		[20549] = {90, 1, nil, nil, nil, "Tauren"},
-		-- Berserking (Troll)
-		[26297] = {180, 1, nil, nil, nil, "Troll"},
-		-- Will of the Forsaken (Undead)
-		[7744] = {120, 1, nil, nil, nil, "Scourge"},
-		-- Cannibalize (Undead)
-		[20577] = {120, 1, nil, nil, nil, "Scourge"},
-		-- Spatial Rift (Void Elf)
-		[256948] = {120, 1, nil, nil, nil, "VoidElf"},
-		-- Darkflight (Worgen)
-		[68992] = {120, 1, nil, nil, nil, "Worgen"},
+		--
+		[20594] = {120, 1, nil, nil, nil, "Dwarf"}, -- Stoneform (Dwarf)
+		[20589] = {60, 1, nil, nil, nil, "Gnome"}, -- Escape Artist (Gnome)
+		[69041] = {90, 1, nil, nil, nil, "Goblin"}, -- Rocket Barrage (Goblin)
+		[69070] = {90, 1, nil, nil, nil, "Goblin"}, -- Rocket Jump (Goblin)
+		[255654] = {120, 1, nil, nil, nil, "HighmountainTauren"}, -- Bull Rush (Highmountain Tauren)
+		[59752] = {120, 1, nil, nil, nil, "Human"}, -- Every Man for Himself (Human)
+		[255647] = {150, 1, nil, nil, nil, "LightforgedDraenei"}, -- Light's Judgement (Lightforged Draenei)
+		[58984] = {120, 1, nil, nil, nil, "NightElf"}, -- Shadowmeld (Night Elf)
+		[260364] = {180, 1, nil, nil, nil, "Nightborne"}, -- Arcane Pulse (Nightborne)
+		[107079] = {120, 1, nil, nil, nil, "Pandaren"}, -- Quaking Palm (Pandaren)
+		[20549] = {90, 1, nil, nil, nil, "Tauren"}, -- War Stomp (Tauren)
+		[26297] = {180, 1, nil, nil, nil, "Troll"}, -- Berserking (Troll)
+		[7744] = {120, 1, nil, nil, nil, "Scourge"}, -- Will of the Forsaken (Undead)
+		[20577] = {120, 1, nil, nil, nil, "Scourge"}, -- Cannibalize (Undead)
+		[256948] = {120, 1, nil, nil, nil, "VoidElf"}, -- Spatial Rift (Void Elf)
+		[68992] = {120, 1, nil, nil, nil, "Worgen"}, -- Darkflight (Worgen)
 	}
 }
 
@@ -1930,10 +1915,14 @@ do
 				-- tracking by spell cast isn't very useful in an encounter because it only counts when accepted
 				return
 			end
-			callbacks:Fire("oRA3CD_SpellUsed", spellId, srcGUID, source, destGUID, destName)
 
+			if band(srcFlags, pet) > 0 then
+				source, srcGUID = getPetOwner(source, srcGUID)
+			end
+			if not infoCache[srcGUID] then return end
 			local class = infoCache[srcGUID].class
 
+			callbacks:Fire("oRA3CD_SpellUsed", spellId, srcGUID, source, destGUID, destName)
 			if module:GetCharges(srcGUID, spellId) > 0 then
 				if not chargeSpellsOnCooldown[spellId] then chargeSpellsOnCooldown[spellId] = { [srcGUID] = {} }
 				elseif not chargeSpellsOnCooldown[spellId][srcGUID] then chargeSpellsOnCooldown[spellId][srcGUID] = {} end
@@ -1950,18 +1939,12 @@ do
 					callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, class, spellId, expires[1] - t)
 				end
 				callbacks:Fire("oRA3CD_UpdateCharges", srcGUID, source, class, spellId, cd, charges, maxCharges)
-				return
+			else
+				if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
+				local cd = module:GetCooldown(srcGUID, spellId)
+				spellsOnCooldown[spellId][srcGUID] = GetTime() + cd
+				callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, class, spellId, cd)
 			end
-
-			if band(srcFlags, pet) > 0 then
-				source, srcGUID = getPetOwner(source, srcGUID)
-			end
-
-			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
-			local cd = module:GetCooldown(srcGUID, spellId)
-			spellsOnCooldown[spellId][srcGUID] = GetTime() + cd
-
-			callbacks:Fire("oRA3CD_StartCooldown", srcGUID, source, class, spellId, cd)
 		end
 
 		-- Special cooldown conditions
