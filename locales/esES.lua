@@ -80,6 +80,7 @@ L["hideDead"] = "Ocultar muertos" -- Needs review
 L["hideGroupDesc"] = "Ocultar CDs de jugadores en este grupo." -- Needs review
 L["hideInCombat"] = "Ocultar en combate"
 L["hideInCombatDesc"] = "Automáticamente oculta la ventana de comprobar listos cuando entras en combate."
+-- L["hideInGroupDesc"] = "Hide cooldowns in this type of group."
 L["hideInInstanceDesc"] = "Ocultar CDs en este tipo de instancia." -- Needs review
 L["hideOffline"] = "Ocultar desconectados" -- Needs review
 L["hideOutOfCombat"] = "Ocultar fuera de combate" -- Needs review

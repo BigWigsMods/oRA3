@@ -652,11 +652,8 @@ function module:CheckFilter(display, player)
 	if db.hideOutOfRange and not isMe and not UnitInRange(player) then return end
 	--if db.hideNameList[player] then return end
 
-	local index = info and info.unit:match("raid(%d+)")
-	if index then
-		local _, _, group = GetRaidRosterInfo(index)
-		if db.hideGroup[group] then return end
-	end
+	local group = IsInRaid() and "raid" or IsInGroup() and "party" or "solo"
+	if db.hideInGroup[group] then return end
 
 	local role = info and GetSpecializationRoleByID(info.spec or 0) or UnitGroupRolesAssigned(player)
 	if db.hideRoles[role] then return end
@@ -664,6 +661,12 @@ function module:CheckFilter(display, player)
 	local inInstance, instanceType = IsInInstance() -- this should really act on the display itself
 	if inInstance and db.hideInInstance[instanceType] then return end
 	if db.hideInInstance.lfg and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return end
+
+	local index = info and info.unit:match("raid(%d+)")
+	if index then
+		local _, _, group = GetRaidRosterInfo(index)
+		if db.hideGroup[group] then return end
+	end
 
 	return true
 end
@@ -1242,6 +1245,7 @@ do
 			--scroll:AddChild(addFilterOptionToggle("hideOutOfCombat", L.hideOutOfCombat))
 			scroll:AddChild(addFilterOptionToggle("hideOutOfRange", L.hideOutOfRange))
 			scroll:AddChild(addFilterOptionMultiselect("hideRoles", ROLE, L.hideRolesDesc, { TANK = TANK, HEALER = HEALER, DAMAGER = DAMAGER }))
+			scroll:AddChild(addFilterOptionMultiselect("hideInGroup", GROUP, L.hideInGroupDesc, { party = PARTY, raid = RAID, solo = SOLO }))
 			scroll:AddChild(addFilterOptionMultiselect("hideInInstance", INSTANCE, L.hideInInstanceDesc, {
 				raid = RAID, party = PARTY, lfg = "LFG",
 				pvp = BATTLEGROUND, arena = ARENA,
@@ -1525,6 +1529,9 @@ function module:OnRegister()
 						TANK = false,
 						HEALER = false,
 						DAMAGER = false,
+					},
+					hideInGroup = {
+						raid = false, party = false, solo = false,
 					},
 					hideInInstance = {
 						raid = false, party = false, lfg = false,
