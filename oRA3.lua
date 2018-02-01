@@ -404,7 +404,7 @@ do
 			end
 		end
 		self:OnGroupChanged()
-		LGIST:Rescan() -- requeue previously inspected players
+		self:ScheduleTimer("InspectGroup", 10) -- delayed refresh for LFG groups
 	end
 
 	function addon:OnGroupChanged()

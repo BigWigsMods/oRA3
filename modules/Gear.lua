@@ -194,7 +194,7 @@ do
 			-- Requeue the inspect
 			local guid = UnitGUID(unit)
 			if guid then
-				oRA:InspectGroup(guid)
+				oRA:ScheduleTimer("InspectGroup", 3, guid)
 			end
 			return
 		else
