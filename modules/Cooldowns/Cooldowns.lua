@@ -530,10 +530,16 @@ local spells = {
 		[69041] = {90, 1, nil, nil, nil, "Goblin"},
 		-- Rocket Jump (Goblin)
 		[69070] = {90, 1, nil, nil, nil, "Goblin"},
+		-- Bull Rush (Highmountain Tauren)
+		[255654] = {120, 1, nil, nil, nil, "HighmountainTauren"},
 		-- Every Man for Himself (Human)
 		[59752] = {120, 1, nil, nil, nil, "Human"},
+		-- Light's Judgement (Lightforged Draenei)
+		[255647] = {150, 1, nil, nil, nil, "LightforgedDraenei"},
 		-- Shadowmeld (Night Elf)
 		[58984] = {120, 1, nil, nil, nil, "NightElf"},
+		-- Arcane Pulse (Nightborne)
+		[260364] = {180, 1, nil, nil, nil, "Nightborne"},
 		-- Blood Fury (Orc)
 		[33697] = {120, 1, nil, nil, nil, "Orc"}, -- Shaman, Monk (Attack power and spell power)
 		[20572] = 33697, -- Warrior, Hunter, Rogue, Death Knight (Attack power)
@@ -548,6 +554,8 @@ local spells = {
 		[7744] = {120, 1, nil, nil, nil, "Scourge"},
 		-- Cannibalize (Undead)
 		[20577] = {120, 1, nil, nil, nil, "Scourge"},
+		-- Spatial Rift (Void Elf)
+		[256948] = {120, 1, nil, nil, nil, "VoidElf"},
 		-- Darkflight (Worgen)
 		[68992] = {120, 1, nil, nil, nil, "Worgen"},
 	}
