@@ -22,22 +22,7 @@ prototype.RegisterEvent = addon.RegisterEvent
 prototype.UnregisterEvent = addon.UnregisterEvent
 prototype.UnregisterAllEvents = addon.UnregisterAllEvents
 prototype.SendComm = addon.SendComm
-
-do
-	local UnitName = UnitName
-	--- Get the full name of a unit.
-	-- @param unit unit token or name
-	-- @return unit name with the server appended if appropriate
-	function prototype:UnitName(unit)
-		local name, server = UnitName(unit)
-		if not name then
-			return
-		elseif server and server ~= "" then
-			name = name .."-".. server
-		end
-		return name
-	end
-end
+prototype.UnitName = addon.UnitName
 
 do
 	local raidList = {
