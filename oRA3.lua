@@ -83,7 +83,7 @@ end
 
 -- Locals
 
-local playerName = UnitName("player")
+local playerName = addon:UnitName("player")
 local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 
 local guildMemberList = {} -- Name:RankIndex
