@@ -225,19 +225,20 @@ do
 				borders[i] = createBorder(bar.candyBarBar)
 			end
 		end
-		for i, border in next, borders do
+		for i = 1, #borders do
+			local border = borders[i]
 			if i == 1 then
 				border:SetTexCoord(0, 1/3, 0, 1/3)
-				border:SetPoint("TOPLEFT", -18, 4)
+				border:SetPoint("TOPLEFT", bar, "TOPLEFT", -4, 4)
 			elseif i == 2 then
 				border:SetTexCoord(2/3, 1, 0, 1/3)
-				border:SetPoint("TOPRIGHT", 4, 4)
+				border:SetPoint("TOPRIGHT", bar, "TOPRIGHT", 4, 4)
 			elseif i == 3 then
 				border:SetTexCoord(0, 1/3, 2/3, 1)
-				border:SetPoint("BOTTOMLEFT", -18, -4)
+				border:SetPoint("BOTTOMLEFT", bar, "BOTTOMLEFT", -4, -3)
 			elseif i == 4 then
 				border:SetTexCoord(2/3, 1, 2/3, 1)
-				border:SetPoint("BOTTOMRIGHT", 4, -4)
+				border:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 4, -3)
 			elseif i == 5 then
 				border:SetTexCoord(1/3, 2/3, 0, 1/3)
 				border:SetPoint("TOPLEFT", borders[1], "TOPRIGHT")
@@ -262,8 +263,8 @@ do
 
 	barStyles.BeautyCase = {
 		apiVersion = 1,
-		version = 1,
-		GetSpacing = function(bar) return 10 end,
+		version = 10,
+		GetSpacing = function() return 8 end,
 		ApplyStyle = styleBar,
 		BarStopped = freeStyle,
 		GetStyleName = function() return "!Beautycase" end,
@@ -280,15 +281,11 @@ do
 	}
 
 	local function removeStyle(bar)
-		bar:SetHeight(14)
 		bar.candyBarBackdrop:Hide()
 
 		local tex = bar:Get("ora3cd:restoreicon")
 		if tex then
 			local icon = bar.candyBarIconFrame
-			icon:ClearAllPoints()
-			icon:SetPoint("TOPLEFT")
-			icon:SetPoint("BOTTOMLEFT")
 			bar:SetIcon(tex)
 
 			bar.candyBarIconFrameBackdrop:Hide()
@@ -304,7 +301,8 @@ do
 	end
 
 	local function styleBar(bar)
-		bar:SetHeight(6)
+		local height = bar:GetHeight()
+		bar:SetHeight(height/2)
 
 		local bd = bar.candyBarBackdrop
 
@@ -322,9 +320,13 @@ do
 			local tex = icon.icon
 			bar:SetIcon(nil)
 			icon:SetTexture(tex)
-			icon:ClearAllPoints()
-			icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -5, 0)
-			icon:SetSize(16, 16)
+			icon:Show()
+			if bar.iconPosition == "RIGHT" then
+				icon:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", 5, 0)
+			else
+				icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -5, 0)
+			end
+			icon:SetSize(height, height)
 			bar:Set("ora3cd:restoreicon", tex)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
@@ -339,18 +341,16 @@ do
 		end
 
 		bar.candyBarLabel:ClearAllPoints()
-		bar.candyBarLabel:SetPoint("LEFT", bar.candyBarBar, "LEFT", 2, 10)
-		bar.candyBarLabel:SetPoint("RIGHT", bar.candyBarBar, "RIGHT", -2, 10)
+		bar.candyBarLabel:SetPoint("BOTTOMLEFT", bar.candyBarBar, "TOPLEFT", 2, 2)
 
 		bar.candyBarDuration:ClearAllPoints()
-		bar.candyBarDuration:SetPoint("RIGHT", bar.candyBarBar, "RIGHT", -2, 10)
-		bar.candyBarDuration:SetPoint("LEFT", bar.candyBarBar, "LEFT", 2, 10)
+		bar.candyBarDuration:SetPoint("BOTTOMRIGHT", bar.candyBarBar, "TOPRIGHT", -2, 2)
 	end
 
 	barStyles.MonoUI = {
 		apiVersion = 1,
-		version = 2,
-		GetSpacing = function(bar) return 15 end,
+		version = 10,
+		GetSpacing = function(bar) return bar:GetHeight()+5 end,
 		ApplyStyle = styleBar,
 		BarStopped = removeStyle,
 		GetStyleName = function() return "MonoUI" end,
@@ -431,8 +431,8 @@ do
 
 	barStyles.TukUI = {
 		apiVersion = 1,
-		version = 3,
-		GetSpacing = function(bar) return 7 end,
+		version = 10,
+		GetSpacing = function() return 7 end,
 		ApplyStyle = styleBar,
 		BarStopped = removeStyle,
 		GetStyleName = function() return "TukUI" end,
@@ -450,8 +450,6 @@ do
 	}
 
 	local function removeStyle(bar)
-		bar:SetHeight(14)
-
 		local bd = bar.candyBarBackdrop
 		bd:Hide()
 		if bd.iborder then
@@ -462,9 +460,6 @@ do
 		local tex = bar:Get("ora3cd:restoreicon")
 		if tex then
 			local icon = bar.candyBarIconFrame
-			icon:ClearAllPoints()
-			icon:SetPoint("TOPLEFT")
-			icon:SetPoint("BOTTOMLEFT")
 			bar:SetIcon(tex)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
@@ -477,8 +472,6 @@ do
 	end
 
 	local function styleBar(bar)
-		bar:SetHeight(20)
-
 		local bd = bar.candyBarBackdrop
 
 		if E then
@@ -503,9 +496,13 @@ do
 			local tex = icon.icon
 			bar:SetIcon(nil)
 			icon:SetTexture(tex)
-			icon:ClearAllPoints()
-			icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", E and (E.PixelMode and -1 or -5) or -1, 0)
-			icon:SetSize(20, 20)
+			icon:Show()
+			if bar.iconPosition == "RIGHT" then
+				icon:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", E and (E.PixelMode and 1 or 5) or 1, 0)
+			else
+				icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", E and (E.PixelMode and -1 or -5) or -1, 0)
+			end
+			icon:SetSize(bar:GetHeight(), bar:GetHeight())
 			bar:Set("ora3cd:restoreicon", tex)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
@@ -534,8 +531,8 @@ do
 
 	barStyles.ElvUI = {
 		apiVersion = 1,
-		version = 2,
-		GetSpacing = function(bar) return E and (E.PixelMode and 4 or 8) or 4 end,
+		version = 10,
+		GetSpacing = function() return E and (E.PixelMode and 4 or 8) or 4 end,
 		ApplyStyle = styleBar,
 		BarStopped = removeStyle,
 		GetStyleName = function() return "ElvUI" end,
