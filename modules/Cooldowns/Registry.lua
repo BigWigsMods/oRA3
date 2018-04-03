@@ -282,11 +282,15 @@ do
 
 	local function removeStyle(bar)
 		bar.candyBarBackdrop:Hide()
+		local height = bar:Get("ora3cd:restoreheight")
+		if height then
+			bar:SetHeight(height)
+		end
 
 		local tex = bar:Get("ora3cd:restoreicon")
 		if tex then
-			local icon = bar.candyBarIconFrame
 			bar:SetIcon(tex)
+			bar:Set("ora3cd:restoreicon", nil)
 
 			bar.candyBarIconFrameBackdrop:Hide()
 		end
@@ -302,6 +306,7 @@ do
 
 	local function styleBar(bar)
 		local height = bar:GetHeight()
+		bar:Set("ora3cd:restoreheight", height)
 		bar:SetHeight(height/2)
 
 		local bd = bar.candyBarBackdrop
@@ -315,9 +320,9 @@ do
 		bd:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 2, -2)
 		bd:Show()
 
-		if bar:Get("ora3cd:display").db.barShowIcon then
+		local tex = bar:GetIcon()
+		if tex then
 			local icon = bar.candyBarIconFrame
-			local tex = icon.icon
 			bar:SetIcon(nil)
 			icon:SetTexture(tex)
 			icon:Show()
@@ -459,8 +464,8 @@ do
 
 		local tex = bar:Get("ora3cd:restoreicon")
 		if tex then
-			local icon = bar.candyBarIconFrame
 			bar:SetIcon(tex)
+			bar:Set("ora3cd:restoreicon", nil)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
 			iconBd:Hide()
@@ -491,9 +496,9 @@ do
 			bd:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 1, -1)
 		end
 
-		if bar:Get("ora3cd:display").db.barShowIcon then
+		local tex = bar:GetIcon()
+		if tex then
 			local icon = bar.candyBarIconFrame
-			local tex = icon.icon
 			bar:SetIcon(nil)
 			icon:SetTexture(tex)
 			icon:Show()
