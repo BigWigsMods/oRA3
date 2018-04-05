@@ -140,8 +140,8 @@ local options = {
 				end
 			end,
 			disabled = function()
-				local inInstance, instanceType =  IsInInstance()
-				return not module.db.profile.showDisplay or (inInstance and instanceType == "raid")
+				local _, type, diff = GetInstanceInfo()
+				return not module.db.profile.showDisplay or type == "raid" or diff == 8
 			end,
 			order = 0.5,
 		},
@@ -173,11 +173,15 @@ end
 
 function module:OnStartup()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckOpen")
+	self:RegisterEvent("CHALLENGE_MODE_START", "CheckOpen")
+	oRA.RegisterCallback(self, "OnGroupChanged", "CheckOpen")
 	self:CheckOpen()
 end
 
 function module:OnShutdown()
 	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:UnregisterEvent("CHALLENGE_MODE_START")
+	oRA.UnregisterCallback(self, "OnGroupChanged")
 	self:Close()
 end
 
@@ -195,8 +199,9 @@ do
 			for k, v in next, theDead do
 				if module:UnitBuffByIDs(k, badBuffs) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 					theDead[k] = nil
-				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
-					if v ~= "br" then
+				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) then
+					local _, type = GetInstanceInfo()
+					if v ~= "br" and ((type == "raid" and UnitAffectingCombat(k)) or (type == "party" and UnitHealth(k) ~= UnitHealthMax(k))) then
 						brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k])) -- Soulstone
 					end
 					theDead[k] = nil
@@ -236,9 +241,19 @@ do
 		end
 	end
 
+	local function canGroupRes()
+		for _, player in next, oRA:GetGroupMembers() do
+			local _, class = UnitClass(player)
+			if class == "DRUID" or class == "DEATHKNIGHT" or class == "WARLOCK" then
+				return true
+			end
+		end
+		return false
+	end
+
 	function module:CheckOpen()
-		local _, type = GetInstanceInfo()
-		if type == "raid" and self.db.profile.showDisplay then
+		local _, type, diff = GetInstanceInfo()
+		if self.db.profile.showDisplay and (type == "raid" or diff == 8) and canGroupRes() then
 			if not inCombat then self:CancelAllTimers() end
 
 			if not brez then
