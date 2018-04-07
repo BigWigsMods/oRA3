@@ -264,7 +264,7 @@ do
 	barStyles.BeautyCase = {
 		apiVersion = 1,
 		version = 10,
-		GetSpacing = function() return 8 end,
+		GetSpacing = function() return 10 end,
 		ApplyStyle = styleBar,
 		BarStopped = freeStyle,
 		GetStyleName = function() return "!Beautycase" end,
@@ -281,11 +281,8 @@ do
 	}
 
 	local function removeStyle(bar)
+		bar:SetHeight(14)
 		bar.candyBarBackdrop:Hide()
-		local height = bar:Get("ora3cd:restoreheight")
-		if height then
-			bar:SetHeight(height)
-		end
 
 		local tex = bar:Get("ora3cd:restoreicon")
 		if tex then
@@ -305,9 +302,7 @@ do
 	end
 
 	local function styleBar(bar)
-		local height = bar:GetHeight()
-		bar:Set("ora3cd:restoreheight", height)
-		bar:SetHeight(height/2)
+		bar:SetHeight(6)
 
 		local bd = bar.candyBarBackdrop
 
@@ -331,7 +326,7 @@ do
 			else
 				icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -5, 0)
 			end
-			icon:SetSize(height, height)
+			icon:SetSize(16, 16)
 			bar:Set("ora3cd:restoreicon", tex)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
@@ -355,7 +350,7 @@ do
 	barStyles.MonoUI = {
 		apiVersion = 1,
 		version = 10,
-		GetSpacing = function(bar) return bar:GetHeight()+5 end,
+		GetSpacing = function() return 15 end,
 		ApplyStyle = styleBar,
 		BarStopped = removeStyle,
 		GetStyleName = function() return "MonoUI" end,
@@ -455,6 +450,8 @@ do
 	}
 
 	local function removeStyle(bar)
+		bar:SetHeight(14)
+
 		local bd = bar.candyBarBackdrop
 		bd:Hide()
 		if bd.iborder then
@@ -477,6 +474,8 @@ do
 	end
 
 	local function styleBar(bar)
+		bar:SetHeight(20)
+
 		local bd = bar.candyBarBackdrop
 
 		if E then
@@ -507,7 +506,7 @@ do
 			else
 				icon:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", E and (E.PixelMode and -1 or -5) or -1, 0)
 			end
-			icon:SetSize(bar:GetHeight(), bar:GetHeight())
+			icon:SetSize(20, 20)
 			bar:Set("ora3cd:restoreicon", tex)
 
 			local iconBd = bar.candyBarIconFrameBackdrop
