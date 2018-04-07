@@ -278,14 +278,7 @@ function prototype:RestyleBar(bar)
 	bar:SetTimeVisibility(db.barShowDuration and not bar:Get("ora3cd:ready")) -- show cd text for charges?
 
 	if barStyle == "Default" then
-		bar.candyBarDuration:ClearAllPoints()
-		if db.barDurationAlign == "RIGHT" then
-			bar.candyBarDuration:SetPoint("RIGHT", bar.candyBarBar, "RIGHT", -2, 0)
-		elseif db.barDurationAlign == "LEFT" then
-			bar.candyBarDuration:SetPoint("LEFT", bar.candyBarBar, "LEFT", 2, 0)
-		elseif db.barDurationAlign == "CENTER" then
-			bar.candyBarDuration:SetPoint("CENTER", bar.candyBarBar, "CENTER", 0, 0)
-		end
+		bar.candyBarDuration:SetJustifyH(db.barDurationAlign)
 	end
 
 	self:UpdateBarStatus(bar)
