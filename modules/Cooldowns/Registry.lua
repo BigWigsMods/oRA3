@@ -264,7 +264,7 @@ do
 	barStyles.BeautyCase = {
 		apiVersion = 1,
 		version = 10,
-		GetSpacing = function() return 10 end,
+		GetSpacing = function() return 8 end,
 		ApplyStyle = styleBar,
 		BarStopped = freeStyle,
 		GetStyleName = function() return "!Beautycase" end,
