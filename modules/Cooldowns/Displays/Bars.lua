@@ -257,7 +257,7 @@ function prototype:RestyleBar(bar)
 	bar:SetHeight(db.barHeight)
 	bar:SetIcon(db.barShowIcon and bar:Get("ora3cd:icon"))
 	bar:SetTexture(media:Fetch("statusbar", db.barTexture))
-	bar.fill = db.barFill and not bar:Get("ora3cd:ready") -- set directly, don't update min/max values
+	bar:SetFill(db.barFill and not bar:Get("ora3cd:ready"))
 
 	bar.candyBarBackground:SetVertexColor(unpack(db.barColorBG))
 
@@ -335,7 +335,7 @@ function prototype:TestCooldown(player, class, spellId, remaining)
 	bar:Set("ora3cd:testunit", true)
 
 	bar:SetDuration(remaining)
-	bar.fill = self.db.barFill -- don't flash
+	bar:SetFill(self.db.barFill)
 	bar.paused = nil
 	bar:Start()
 	self:RestyleBar(bar)
@@ -362,7 +362,7 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, remaini
 	bar:Set("ora3cd:ready", nil)
 
 	bar:SetDuration(remaining)
-	bar.fill = self.db.barFill -- don't flash
+	bar:SetFill(self.db.barFill)
 	bar.paused = nil
 	bar:Start(duration)
 	self:RestyleBar(bar)
