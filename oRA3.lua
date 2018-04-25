@@ -86,6 +86,7 @@ end
 local playerName = addon:UnitName("player")
 local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 local SendAddonMessage = C_ChatInfo and C_ChatInfo.SendAddonMessage or SendAddonMessage -- XXX 8.0
+local PlaySound, IsInGroup = PlaySound, IsInGroup
 
 local guildMemberList = {} -- Name:RankIndex
 local guildRanks = {} -- Index:RankName
