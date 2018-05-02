@@ -57,7 +57,7 @@ do
 	-- @string unit unit token or unit name
 	-- @string spellName the spell name of the buff to scan for
 	-- @return spellName, expirationTime, spellId
-	function boss:UnitBuff(unit, spellName)
+	function prototype:UnitBuff(unit, spellName)
 		local name, expirationTime, spellId, _
 		for i = 1, 100 do
 			if CombatLogGetCurrentEventInfo then
