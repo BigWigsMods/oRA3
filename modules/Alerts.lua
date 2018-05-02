@@ -828,7 +828,7 @@ function GetOptions()
 	end
 	for i = 1, GetNumDisplayChannels() do
 		local name, _, _, index, _, _, category = GetChannelDisplayInfo(i)
-		if category == "CHANNEL_CATEGORY_CUSTOM" then
+		if index and category == "CHANNEL_CATEGORY_CUSTOM" then
 			outputValuesWithChannels["c"..index] = ("/%d %s"):format(index, name)
 		end
 	end
