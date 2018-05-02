@@ -49,3 +49,28 @@ do
 		return iter, IsInRaid() and raidList or partyList
 	end
 end
+
+do
+	local UnitAura = UnitAura
+	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
+	--- Get the buff info of a unit.
+	-- @string unit unit token or unit name
+	-- @string spellName the spell name of the buff to scan for
+	-- @return spellName, expirationTime, spellId
+	function boss:UnitBuff(unit, spellName)
+		local name, expirationTime, spellId, _
+		for i = 1, 100 do
+			if CombatLogGetCurrentEventInfo then
+				name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			else
+				name, _, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			end
+
+			if spellName == name then
+				return name, expirationTime, spellId
+			elseif not spellId then
+				break
+			end
+		end
+	end
+end
