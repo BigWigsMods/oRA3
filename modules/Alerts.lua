@@ -423,7 +423,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	}
 	local function getMissReason(unit)
 		for immunity in next, immunities do
-			local name, _, _, _, _, _, expires = UnitBuff(unit, immunity)
+			local name, expires = module:UnitBuff(unit, immunity)
 			if name then
 				expires = expires and tonumber(("%.1f"):format(expires - GetTime())) or 0
 				if expires < 1 then expires = nil end
@@ -653,7 +653,7 @@ do
 			for name, expires in next, soulstoneList do
 				if now > expires or UnitIsGhost(name) or not UnitIsConnected(name) then -- expired (waited 60 seconds, now i don't care) or released or dc'd
 					soulstoneList[name] = nil
-				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not UnitBuff(name, feignDeath) and not UnitBuff(name, spiritOfRedemption) then
+				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not module:UnitBuff(name, feignDeath) and not module:UnitBuff(name, spiritOfRedemption) then
 					soulstoneList[name] = nil
 					name = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
 					local srcOutput = ("|cff40ff40%s|r"):format(name)

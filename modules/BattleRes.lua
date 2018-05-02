@@ -190,7 +190,7 @@ do
 
 		if next(theDead) then
 			for k, v in next, theDead do
-				if UnitBuff(k, redemption) or UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
+				if module:UnitBuff(k, redemption) or module:UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 					if v ~= "br" then
@@ -305,7 +305,7 @@ do
 			theDead[name] = nil
 
 		-- Lots of lovely checks before adding someone to the deaths table
-		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not UnitBuff(tarName, redemption) and not UnitBuff(tarName, feign) then
+		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuff(tarName, redemption) and not module:UnitBuff(tarName, feign) then
 			theDead[tarName] = true
 		end
 	end

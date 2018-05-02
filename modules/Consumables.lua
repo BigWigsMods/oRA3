@@ -9,7 +9,7 @@ local format = string.format
 local tconcat, sort, wipe = table.concat, table.sort, table.wipe
 local GetSpellInfo, GetSpellDescription = GetSpellInfo, GetSpellDescription
 local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsInRaid, IsInInstance
-local UnitBuff, UnitName, UnitIsConnected, UnitIsVisible = UnitBuff, UnitName, UnitIsConnected, UnitIsVisible
+local UnitName, UnitIsConnected, UnitIsVisible = UnitName, UnitIsConnected, UnitIsVisible
 local GetTime, UnitIsDeadOrGhost = GetTime, UnitIsDeadOrGhost
 
 --luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter
@@ -89,7 +89,7 @@ do
 
 	function getVantus(player)
 		for spellName in next, runes do
-			local id = select(11, UnitBuff(player, spellName))
+			local _, _, id = module:UnitBuff(player, spellName)
 			if id then
 				return id
 			end
@@ -115,7 +115,7 @@ do
 
 	function getRune(player)
 		for _, spellName in next, runes do
-			local id = select(11, UnitBuff(player, spellName))
+			local _, _, id = module:UnitBuff(player, spellName)
 			if id then
 				return id
 			end
@@ -135,7 +135,7 @@ do
 
 	function getFlask(player)
 		for _, spellName in next, flasks do
-			local id = select(11, UnitBuff(player, spellName))
+			local _, _, id = module:UnitBuff(player, spellName)
 			if id then
 				return id
 			end
@@ -186,11 +186,11 @@ do
 
 	function getFood(player)
 		-- return 17 is the stat value
-		local id = select(11, UnitBuff(player, wellFed))
+		local _, _, id = module:UnitBuff(player, wellFed)
 		if id then
 			return id
 		else -- should probably map food -> well fed buffs but bleeh
-			id = select(11, UnitBuff(player, eating))
+			_, _, id = module:UnitBuff(player, eating)
 			if id then
 				return -id -- negative value for eating, not well fed yet
 			end
@@ -434,7 +434,7 @@ do
 						warnings[#warnings + 1] = L.noFlask
 					else
 						local flask = getFlask(player)
-						local _, _, _, _, _, _, expires = UnitBuff(player, spells[flask])
+						local _, expires = module:UnitBuff(player, spells[flask])
 						local remaining = expires and (expires - t) or 0
 						if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
 							whisper(player, L.flaskExpires)
