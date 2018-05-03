@@ -154,8 +154,7 @@ L["playersNotReady"] = "Os seguintes jogadores não estão prontos: %s"
 L["playerStatus"] = "Status do jogador"
 L["popupConvertDisplay"] = "Alterar o tipo de exibição irá redefinir as configurações específicas da exibição!"
 L["popupDeleteDisplay"] = "Deletar exibição '%s'?"
-[==[ L["popupNameError"] = [=[Já existe uma exibição chamada '%s'.
-Please choose another name.]=] ]==]
+[==[ L["popupNameError"] = [=[L["popupNameError"] = "Já existe uma exibição chamada '%s'.\nFavor escolher outro nome."]=] ]==]
 L["popupNewDisplay"] = "Digite o nome da nova exibição"
 L["printToRaid"] = "Repassar o resultado de \"Todos prontos?\" para o chat de raide"
 L["printToRaidDesc"] = "Se você tiver assistência, repassa os resultados do \"Todos prontos?\" para o chat de raide, permitindo que os membros vejam o que está atrasando. Por favor certifique-se que apenas uma pessoa tem isso desabilitado."
