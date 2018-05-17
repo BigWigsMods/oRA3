@@ -55,10 +55,11 @@ do
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 	--- Get the buff info of a unit.
 	-- @string unit unit token or unit name
-	-- @string spellName the spell name of the buff to scan for
+	-- @string list the table full of buff names to scan for
 	-- @return spellName, expirationTime, spellId
-	function prototype:UnitBuff(unit, spellName)
+	function prototype:UnitBuffByNames(unit, list)
 		local name, expirationTime, spellId, _
+		local num = #list
 		for i = 1, 100 do
 			if CombatLogGetCurrentEventInfo then
 				name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
@@ -66,10 +67,42 @@ do
 				name, _, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			end
 
-			if spellName == name then
-				return name, expirationTime, spellId
-			elseif not spellId then
-				break
+			if not spellId then
+				return
+			else
+				for i = 1, num do
+					local spellName = list[i]
+					if spellName == name then
+						return name, expirationTime, spellId
+					end
+				end
+			end
+		end
+	end
+
+	--- Get the buff info of a unit.
+	-- @string unit unit token or unit name
+	-- @string list the table full of spell IDs to scan for
+	-- @return spellName, expirationTime, spellId
+	function prototype:UnitBuffByIDs(unit, list)
+		local name, expirationTime, spellId, _
+		local num = #list
+		for i = 1, 100 do
+			if CombatLogGetCurrentEventInfo then
+				name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			else
+				name, _, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			end
+
+			if not spellId then
+				return
+			else
+				for i = 1, num do
+					local id = list[i]
+					if spellId == id then
+						return name, expirationTime, spellId
+					end
+				end
 			end
 		end
 	end
