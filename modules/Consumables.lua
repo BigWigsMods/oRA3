@@ -41,84 +41,126 @@ local getVantus, getVantusBoss
 do
 	local runes = {
 		-- Emerald Nightmare
-		[spells[192761]] = 1703, -- Nythndra
-		[spells[192765]] = 1744, -- Elerethe
-		[spells[191464]] = 1667, -- Ursoc
-		[spells[192762]] = 1738, -- Il'gynoth
-		[spells[192763]] = 1704, -- Dragons
-		[spells[192766]] = 1750, -- Cenarius
-		[spells[192764]] = 1726, -- Xavius
+		[192761] = 1703, -- Nythndra
+		[192765] = 1744, -- Elerethe
+		[191464] = 1667, -- Ursoc
+		[192762] = 1738, -- Il'gynoth
+		[192763] = 1704, -- Dragons
+		[192766] = 1750, -- Cenarius
+		[192764] = 1726, -- Xavius
 		-- Trial of Valor
-		[spells[229174]] = 1819, -- Odyn
-		[spells[229175]] = 1830, -- Guarm
-		[spells[229176]] = 1829, -- Helya
+		[229174] = 1819, -- Odyn
+		[229175] = 1830, -- Guarm
+		[229176] = 1829, -- Helya
 		-- Nighthold
-		[spells[192767]] = 1706, -- Skorpyron
-		[spells[192768]] = 1725, -- Chronomatic Anomaly
-		[spells[192769]] = 1731, -- Trilliax
-		[spells[192770]] = 1751, -- Aluriel
-		[spells[192771]] = 1762, -- Tichondrius
-		[spells[192773]] = 1713, -- Krosus
-		[spells[192772]] = 1761, -- Tel'arn
-		[spells[192774]] = 1732, -- Etraeus
-		[spells[192775]] = 1743, -- Elisande
-		[spells[192776]] = 1737, -- Gul'dan
+		[192767] = 1706, -- Skorpyron
+		[192768] = 1725, -- Chronomatic Anomaly
+		[192769] = 1731, -- Trilliax
+		[192770] = 1751, -- Aluriel
+		[192771] = 1762, -- Tichondrius
+		[192773] = 1713, -- Krosus
+		[192772] = 1761, -- Tel'arn
+		[192774] = 1732, -- Etraeus
+		[192775] = 1743, -- Elisande
+		[192776] = 1737, -- Gul'dan
 		-- Tomb of Sargeras
-		[spells[237821]] = 1862, -- Goroth
-		[spells[237828]] = 1867, -- Demonic Inquisition
-		[spells[237824]] = 1856, -- Harjatan
-		[spells[237826]] = 1861, -- Sassz'ine
-		[spells[237822]] = 1903, -- Sisters of the Moon
-		[spells[237827]] = 1896, -- The Desolate Host
-		[spells[237823]] = 1897, -- Maiden of Vigilance
-		[spells[237820]] = 1873, -- Fallen Avatar
-		[spells[237825]] = 1898, -- Kil'jaeden
+		[237821] = 1862, -- Goroth
+		[237828] = 1867, -- Demonic Inquisition
+		[237824] = 1856, -- Harjatan
+		[237826] = 1861, -- Sassz'ine
+		[237822] = 1903, -- Sisters of the Moon
+		[237827] = 1896, -- The Desolate Host
+		[237823] = 1897, -- Maiden of Vigilance
+		[237820] = 1873, -- Fallen Avatar
+		[237825] = 1898, -- Kil'jaeden
 		-- Antorus
-		[spells[250153]] = 1992, -- Garothi Worldbreaker
-		[spells[250156]] = 1987, -- Felhounds of Sargeras
-		[spells[250167]] = 1997, -- Antoran High Command
-		[spells[250160]] = 1985, -- Portal Keeper Hasabel
-		[spells[250150]] = 2025, -- Eonar the Lifebinder
-		[spells[250158]] = 2009, -- Imonar the Soulhunter
-		[spells[250148]] = 2004, -- Kin'garoth
-		[spells[250165]] = 1983, -- Varimathras
-		[spells[250163]] = 1986, -- The Coven of Shivarra
-		[spells[250144]] = 1984, -- Aggramar
-		[spells[250146]] = 2031, -- Argus the Unmaker
+		[250153] = 1992, -- Garothi Worldbreaker
+		[250156] = 1987, -- Felhounds of Sargeras
+		[250167] = 1997, -- Antoran High Command
+		[250160] = 1985, -- Portal Keeper Hasabel
+		[250150] = 2025, -- Eonar the Lifebinder
+		[250158] = 2009, -- Imonar the Soulhunter
+		[250148] = 2004, -- Kin'garoth
+		[250165] = 1983, -- Varimathras
+		[250163] = 1986, -- The Coven of Shivarra
+		[250144] = 1984, -- Aggramar
+		[250146] = 2031, -- Argus the Unmaker
+	}
+	local buffs = {
+		-- Emerald Nightmare
+		192761, -- Nythndra
+		192765, -- Elerethe
+		191464, -- Ursoc
+		192762, -- Il'gynoth
+		192763, -- Dragons
+		192766, -- Cenarius
+		192764, -- Xavius
+		-- Trial of Valor
+		229174, -- Odyn
+		229175, -- Guarm
+		229176, -- Helya
+		-- Nighthold
+		192767, -- Skorpyron
+		192768, -- Chronomatic Anomaly
+		192769, -- Trilliax
+		192770, -- Aluriel
+		192771, -- Tichondrius
+		192773, -- Krosus
+		192772, -- Tel'arn
+		192774, -- Etraeus
+		192775, -- Elisande
+		192776, -- Gul'dan
+		-- Tomb of Sargeras
+		237821, -- Goroth
+		237828, -- Demonic Inquisition
+		237824, -- Harjatan
+		237826, -- Sassz'ine
+		237822, -- Sisters of the Moon
+		237827, -- The Desolate Host
+		237823, -- Maiden of Vigilance
+		237820, -- Fallen Avatar
+		237825, -- Kil'jaeden
+		-- Antorus
+		250153, -- Garothi Worldbreaker
+		250156, -- Felhounds of Sargeras
+		250167, -- Antoran High Command
+		250160, -- Portal Keeper Hasabel
+		250150, -- Eonar the Lifebinder
+		250158, -- Imonar the Soulhunter
+		250148, -- Kin'garoth
+		250165, -- Varimathras
+		250163, -- The Coven of Shivarra
+		250144, -- Aggramar
+		250146, -- Argus the Unmaker
 	}
 
 	function getVantus(player)
-		for spellName in next, runes do
-			local _, _, id = module:UnitBuff(player, spellName)
-			if id then
-				return id
-			end
+		local _, _, id = module:UnitBuffByIDs(player, buffs)
+		if id then
+			return id
 		end
 		return false
 	end
 
-	function getVantusBoss(rune)
-		local spellId = GetSpellInfo(rune)
-		local id = runes[spellId]
-		if not id then
+	function getVantusBoss(runeId)
+		local ejId = runes[runeId]
+		if not ejId then
 			return false
 		end
-		return (EJ_GetEncounterInfo(id))
+		return (EJ_GetEncounterInfo(ejId))
 	end
 end
 
 local getRune
 do
 	local runes = {
-		spells[224001], -- Defiled Augmentation
+		224001, -- Defiled Augmentation
 	}
 
 	function getRune(player)
-		for _, spellName in next, runes do
-			local _, _, id = module:UnitBuff(player, spellName)
-			if id then
-				return id
-			end
+		local _, _, id = module:UnitBuffByIDs(player, runes)
+		if id then
+			return id
 		end
 		return false
 	end
@@ -127,18 +169,16 @@ end
 local getFlask
 do
 	local flasks = {
-		spells[188031], -- Flask of the Whispered Pact    (Intellect)
-		spells[188033], -- Flask of the Seventh Demon     (Agility)
-		spells[188034], -- Flask of the Countless Armies  (Strength)
-		spells[188035], -- Flask of Ten Thousand Scars    (Stamina)
+		188031, -- Flask of the Whispered Pact    (Intellect)
+		188033, -- Flask of the Seventh Demon     (Agility)
+		188034, -- Flask of the Countless Armies  (Strength)
+		188035, -- Flask of Ten Thousand Scars    (Stamina)
 	}
 
 	function getFlask(player)
-		for _, spellName in next, flasks do
-			local _, _, id = module:UnitBuff(player, spellName)
-			if id then
-				return id
-			end
+		local _, expires, id = module:UnitBuffByIDs(player, flasks)
+		if id then
+			return id, expires
 		end
 		return false
 	end
@@ -146,8 +186,10 @@ end
 
 local getFood
 do
-	local eating = spells[192002] -- Food & Drink (Eating)
-	local wellFed = spells[19705] -- Well Fed
+	local eating = {
+		spells[192002], -- Food & Drink (Eating)
+		spells[19705], -- Well Fed
+	}
 	-- local food = {
 	-- 	-- crit
 	-- 	[201223] = 225,
@@ -185,15 +227,9 @@ do
 	-- }
 
 	function getFood(player)
-		-- return 17 is the stat value
-		local _, _, id = module:UnitBuff(player, wellFed)
+		local _, _, id = module:UnitBuffByNames(player, eating)
 		if id then
 			return id
-		else -- should probably map food -> well fed buffs but bleeh
-			_, _, id = module:UnitBuff(player, eating)
-			if id then
-				return -id -- negative value for eating, not well fed yet
-			end
 		end
 		return false
 	end
@@ -433,8 +469,7 @@ do
 					if noFlasks[player] then
 						warnings[#warnings + 1] = L.noFlask
 					else
-						local flask = getFlask(player)
-						local _, expires = module:UnitBuff(player, spells[flask])
+						local flask, expires = getFlask(player)
 						local remaining = expires and (expires - t) or 0
 						if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
 							whisper(player, L.flaskExpires)

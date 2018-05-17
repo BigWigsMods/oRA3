@@ -413,22 +413,20 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- stuff I pulled out of my fork of Deadened (Antiarc probably did most of the immunity coding, pretty old stuff)
 	local immunities = {
-		[(GetSpellInfo(642))] = true, -- Divine Shield
-		[(GetSpellInfo(710))] = true, -- Banish
-		[(GetSpellInfo(1022))] = true, -- Blessing of Protection
-		[(GetSpellInfo(204018))] = true, -- Blessing of Spellwarding
-		[(GetSpellInfo(33786))] = true, -- Cyclone (PvP)
-		[(GetSpellInfo(45438))] = true, -- Ice Block
-		[(GetSpellInfo(217832))] = true, -- Imprision (PvP)
+		642, -- Divine Shield
+		710, -- Banish
+		1022, -- Blessing of Protection
+		204018, -- Blessing of Spellwarding
+		33786, -- Cyclone (PvP)
+		45438, -- Ice Block
+		217832, -- Imprision (PvP)
 	}
 	local function getMissReason(unit)
-		for immunity in next, immunities do
-			local name, expires = module:UnitBuff(unit, immunity)
-			if name then
-				expires = expires and tonumber(("%.1f"):format(expires - GetTime())) or 0
-				if expires < 1 then expires = nil end
-				return name, expires
-			end
+		local name, expires = module:UnitBuffByIDs(unit, immunities)
+		if name then
+			expires = expires and tonumber(("%.1f"):format(expires - GetTime())) or 0
+			if expires < 1 then expires = nil end
+			return name, expires
 		end
 	end
 
@@ -634,8 +632,10 @@ do
 	-- player becomes alive (not UnitIsDead) in that time period, we report
 	-- them as having used the Soulstone!
 
-	local spiritOfRedemption = GetSpellInfo(27827)
-	local feignDeath = GetSpellInfo(5384)
+	local buffs = {
+		27827, -- Spirit of Redemption
+		5384, -- Feign Death
+	}
 
 	local soulstone = GetSpellLink(20707)
 
@@ -653,7 +653,7 @@ do
 			for name, expires in next, soulstoneList do
 				if now > expires or UnitIsGhost(name) or not UnitIsConnected(name) then -- expired (waited 60 seconds, now i don't care) or released or dc'd
 					soulstoneList[name] = nil
-				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not module:UnitBuff(name, feignDeath) and not module:UnitBuff(name, spiritOfRedemption) then
+				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not module:UnitBuffByIDs(name, buffs) then
 					soulstoneList[name] = nil
 					name = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
 					local srcOutput = ("|cff40ff40%s|r"):format(name)

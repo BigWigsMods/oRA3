@@ -8,7 +8,10 @@ local coloredNames = oRA.coloredNames
 --luacheck: globals GameFontNormal
 
 local resAmount = 0
-local redemption, feign = (GetSpellInfo(27827)), (GetSpellInfo(5384))
+local badBuffs = {
+	27827, -- Spirit of Redemption
+	5384, -- Feign Death
+}
 local theDead = {}
 local updateFunc
 local brez
@@ -190,7 +193,7 @@ do
 
 		if next(theDead) then
 			for k, v in next, theDead do
-				if module:UnitBuff(k, redemption) or module:UnitBuff(k, feign) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
+				if module:UnitBuffByIDs(k, badBuffs) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) and UnitAffectingCombat(k) then
 					if v ~= "br" then
@@ -305,7 +308,7 @@ do
 			theDead[name] = nil
 
 		-- Lots of lovely checks before adding someone to the deaths table
-		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuff(tarName, redemption) and not module:UnitBuff(tarName, feign) then
+		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuffByIDs(tarName, badBuffs) then
 			theDead[tarName] = true
 		end
 	end
