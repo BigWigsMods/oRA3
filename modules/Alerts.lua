@@ -432,7 +432,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- aaand where all the magic happens
 	local FILTER_GROUP = bit_bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId, extraSpellName)
+	local handler = function(self, _, _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId, extraSpellName)
 		-- first check if someone died
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" then
 			if soulstoneList[dstName] then
@@ -494,7 +494,15 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			return module[handler](module, srcOutput, dstOutput, spellOutput, extraSpellOuput)
 		end
 
-	end)
+	end
+
+	if CombatLogGetCurrentEventInfo then -- XXX 8.0
+		combatLogHandler:SetScript("OnEvent", function(self, event)
+			handler(self, event, CombatLogGetCurrentEventInfo())
+		end)
+	else
+		combatLogHandler:SetScript("OnEvent", handler)
+	end
 
 	-- Codex handling
 	local prev = nil
