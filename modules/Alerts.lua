@@ -92,7 +92,7 @@ combatLogMap.SPELL_AURA_APPLIED = {
 	-- Pet Taunts
 	[17735] = "TauntPet",   -- Suffering (Warlock Pet)
 	[2649] = "TauntPet",    -- Growl (Hunter Pet)
-	[196727] = "TauntMiss", -- Provoke (Niuzao, Monk Pet)
+	[196727] = "TauntPet", -- Provoke (Niuzao, Monk Pet)
 }
 combatLogMap.SPELL_CREATE = {
 	-- Portals
