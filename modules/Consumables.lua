@@ -86,53 +86,11 @@ do
 		[250144] = 1984, -- Aggramar
 		[250146] = 2031, -- Argus the Unmaker
 	}
-	local buffs = {
-		-- Emerald Nightmare
-		192761, -- Nythndra
-		192765, -- Elerethe
-		191464, -- Ursoc
-		192762, -- Il'gynoth
-		192763, -- Dragons
-		192766, -- Cenarius
-		192764, -- Xavius
-		-- Trial of Valor
-		229174, -- Odyn
-		229175, -- Guarm
-		229176, -- Helya
-		-- Nighthold
-		192767, -- Skorpyron
-		192768, -- Chronomatic Anomaly
-		192769, -- Trilliax
-		192770, -- Aluriel
-		192771, -- Tichondrius
-		192773, -- Krosus
-		192772, -- Tel'arn
-		192774, -- Etraeus
-		192775, -- Elisande
-		192776, -- Gul'dan
-		-- Tomb of Sargeras
-		237821, -- Goroth
-		237828, -- Demonic Inquisition
-		237824, -- Harjatan
-		237826, -- Sassz'ine
-		237822, -- Sisters of the Moon
-		237827, -- The Desolate Host
-		237823, -- Maiden of Vigilance
-		237820, -- Fallen Avatar
-		237825, -- Kil'jaeden
-		-- Antorus
-		250153, -- Garothi Worldbreaker
-		250156, -- Felhounds of Sargeras
-		250167, -- Antoran High Command
-		250160, -- Portal Keeper Hasabel
-		250150, -- Eonar the Lifebinder
-		250158, -- Imonar the Soulhunter
-		250148, -- Kin'garoth
-		250165, -- Varimathras
-		250163, -- The Coven of Shivarra
-		250144, -- Aggramar
-		250146, -- Argus the Unmaker
-	}
+
+	local buffs = {}
+	for k in next, runes do
+		buffs[#buffs + 1] = k
+	end
 
 	function getVantus(player)
 		local _, _, id = module:UnitBuffByIDs(player, buffs)

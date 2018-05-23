@@ -66,15 +66,11 @@ do
 			else
 				name, _, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			end
+			if not spellId then return end
 
-			if not spellId then
-				return
-			else
-				for i = 1, num do
-					local spellName = list[i]
-					if spellName == name then
-						return name, expirationTime, spellId
-					end
+			for i = 1, num do
+				if list[i] == name then
+					return name, expirationTime, spellId
 				end
 			end
 		end
@@ -93,15 +89,11 @@ do
 			else
 				name, _, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			end
+			if not spellId then return end
 
-			if not spellId then
-				return
-			else
-				for i = 1, num do
-					local id = list[i]
-					if spellId == id then
-						return name, expirationTime, spellId
-					end
+			for i = 1, num do
+				if list[i] == id then
+					return name, expirationTime, spellId
 				end
 			end
 		end
