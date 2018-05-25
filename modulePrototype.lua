@@ -92,7 +92,7 @@ do
 			if not spellId then return end
 
 			for i = 1, num do
-				if list[i] == id then
+				if list[i] == spellId then
 					return name, expirationTime, spellId
 				end
 			end
