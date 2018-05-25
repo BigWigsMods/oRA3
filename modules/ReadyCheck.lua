@@ -208,7 +208,17 @@ local function Frame_Tooltip(self)
 	if self.name then
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		local unit = self:GetParent().player
-		GameTooltip:SetUnitBuff(unit, self.name)
+		for i = 1, 40 do
+			local name = UnitBuff(unit, i)
+			if not name then
+				GameTooltip:SetText(self.name) -- we're out of sync
+				break
+			end
+			if name == self.name then
+				GameTooltip:SetUnitBuff(unit, i)
+				break
+			end
+		end
 		if self.tooltip then
 			GameTooltip:AddLine("\n"..self.tooltip)
 		end
