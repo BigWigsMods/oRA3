@@ -144,10 +144,9 @@ end
 
 local getFood
 do
-	local eating = {
-		spells[192002], -- Food & Drink (Eating)
-		spells[19705], -- Well Fed
-	}
+	local eating = { spells[192002] } -- Food & Drink (Eating)
+	local wellFed = { spells[19705] } -- Well Fed
+
 	-- local food = {
 	-- 	-- crit
 	-- 	[201223] = 225,
@@ -185,9 +184,14 @@ do
 	-- }
 
 	function getFood(player)
-		local _, _, id = module:UnitBuffByNames(player, eating)
+		local _, _, id = module:UnitBuffByNames(player, wellFed)
 		if id then
 			return id
+		else -- should probably map food -> well fed buffs but bleeh
+			_, _, id = module:UnitBuffByNames(player, eating)
+			if id then
+				return -id -- negative value for eating, not well fed yet
+			end
 		end
 		return false
 	end
