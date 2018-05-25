@@ -112,7 +112,8 @@ end
 local getRune
 do
 	local runes = {
-		224001, -- Defiled Augmentation
+		224001, -- Defiled Augmentation (Legion)
+		-- 270058, -- Battle-Scarred Augmentation (BfA)
 	}
 
 	function getRune(player)
@@ -127,10 +128,16 @@ end
 local getFlask
 do
 	local flasks = {
+		-- Legion
 		188031, -- Flask of the Whispered Pact    (Intellect)
 		188033, -- Flask of the Seventh Demon     (Agility)
 		188034, -- Flask of the Countless Armies  (Strength)
 		188035, -- Flask of Ten Thousand Scars    (Stamina)
+		-- BfA
+		-- 251836, -- Flask of the Currents          (Agility)
+		-- 251837, -- Flask of Endless Fathoms       (Intellect)
+		-- 251838, -- Flask of the Vast Horizon      (Stamina)
+		-- 251839, -- Flask of the Undertow          (Strength)
 	}
 
 	function getFlask(player)
@@ -146,42 +153,6 @@ local getFood
 do
 	local eating = { spells[192002] } -- Food & Drink (Eating)
 	local wellFed = { spells[19705] } -- Well Fed
-
-	-- local food = {
-	-- 	-- crit
-	-- 	[201223] = 225,
-	-- 	[225597] = 300,
-	-- 	[225602] = 375,
-	-- 	-- mastery
-	-- 	[201332] = 225,
-	-- 	[225599] = 300,
-	-- 	[225604] = 375,
-	-- 	-- haste
-	-- 	[201330] = 225,
-	-- 	[225598] = 300,
-	-- 	[225603] = 375,
-	-- 	-- versatility
-	-- 	[201334] = 225,
-	-- 	[225600] = 300,
-	-- 	[225605] = 375,
-	-- 	-- aoe damage
-	-- 	[201336] = true, -- ~10k
-	-- 	[225601] = true, -- ~13.5k
-	-- 	[201336] = true, -- ~17k
-	-- 	-- stats (feast)
-	-- 	-- str
-	-- 	[201634] = 150,
-	-- 	[201638] = 200,
-	-- 	-- agi
-	-- 	[201635] = 150,
-	-- 	[201639] = 200,
-	-- 	-- int
-	-- 	[201636] = 150,
-	-- 	[201640] = 200,
-	-- 	-- sta
-	-- 	[201637] = 225,
-	-- 	[201641] = 300,
-	-- }
 
 	function getFood(player)
 		local _, _, id = module:UnitBuffByNames(player, wellFed)
@@ -354,14 +325,22 @@ end
 do
 	local maxFoods = {
 		[225602] = true, -- crit
-		[225604] = true, -- mastery
 		[225603] = true, -- haste
+		[225604] = true, -- mastery
 		[225605] = true, -- versatility
 		[201638] = true, -- str
 		[201639] = true, -- agi
 		[201640] = true, -- int
 		-- [201641] = true, -- sta
 		[185736] = true, -- versatility (Sugar-Crusted Fish Feast, gives +1%)
+		-- [257410] = true, -- crit
+		-- [257415] = true, -- haste
+		-- [257420] = true, -- mastery
+		-- [257424] = true, -- versatility
+		-- [259454] = true, -- agi
+		-- [259455] = true, -- int
+		-- [259456] = true, -- str
+		-- -- [259457] = true, -- sta
 	}
 	-- 1300 stat flask
 	local maxFlasks = {
@@ -369,6 +348,10 @@ do
 		[188033] = true, -- Flask of the Seventh Demon     (Agility)
 		[188034] = true, -- Flask of the Countless Armies  (Strength)
 		[188035] = true, -- Flask of Ten Thousand Scars    (Stamina)
+		-- [251836] = true, -- Flask of the Currents          (Agility)
+		-- [251837] = true, -- Flask of Endless Fathoms       (Intellect)
+		-- [251838] = true, -- Flask of the Vast Horizon      (Stamina)
+		-- [251839] = true, -- Flask of the Undertow          (Strength)
 	}
 
 	function module:IsBest(id)
