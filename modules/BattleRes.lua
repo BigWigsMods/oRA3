@@ -281,51 +281,18 @@ function module:Close()
 	end
 end
 
-do
-	local function getPetOwner(pet, guid)
-		if UnitGUID("pet") == guid then
-			return UnitName("player")
-		end
+updateFunc = function()
+	local _, event, _, _, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
+	if event == "SPELL_RESURRECT" then
+		brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
+		theDead[tarName] = "br"
 
-		local owner
-		if IsInRaid() then
-			for i=1, GetNumGroupMembers() do
-				if UnitGUID(("raid%dpet"):format(i)) == guid then
-					owner = ("raid%d"):format(i)
-					break
-				end
-			end
-		else
-			for i=1, GetNumSubgroupMembers() do
-				if UnitGUID(("party%dpet"):format(i)) == guid then
-					owner = ("party%d"):format(i)
-					break
-				end
-			end
-		end
-		if owner then
-			return module:UnitName(owner)
-		end
-		return pet
-	end
+	elseif event == "SPELL_CAST_SUCCESS" and spellId == 21169 then -- Reincarnation
+		brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[name]))
+		theDead[name] = nil
 
-	updateFunc = function()
-		local _, event, _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
-		if event == "SPELL_RESURRECT" then
-			if spellId == 159931 or spellId == 159956 then -- Gift of Chi-Ji, Dust of Life
-				name = getPetOwner(name, sGuid)
-			end
-
-			brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
-			theDead[tarName] = "br"
-
-		elseif event == "SPELL_CAST_SUCCESS" and spellId == 21169 then -- Reincarnation
-			brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[name]))
-			theDead[name] = nil
-
-		-- Lots of lovely checks before adding someone to the deaths table
-		elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuffByIDs(tarName, badBuffs) then
-			theDead[tarName] = true
-		end
+	-- Lots of lovely checks before adding someone to the deaths table
+	elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuffByIDs(tarName, badBuffs) then
+		theDead[tarName] = true
 	end
 end
