@@ -29,7 +29,13 @@ local function createFrame()
 	brez:SetMovable(true)
 	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA:SavePosition("oRA3BattleResMonitor") end)
-	brez:SetScript("OnEvent", updateFunc)
+	if CombatLogGetCurrentEventInfo then -- XXX 8.0
+		brez:SetScript("OnEvent", function(self, event)
+			updateFunc(self, event, CombatLogGetCurrentEventInfo())
+		end)
+	else
+		brez:SetScript("OnEvent", updateFunc)
+	end
 
 	local bg = brez:CreateTexture(nil, "PARENT")
 	bg:SetAllPoints(brez)

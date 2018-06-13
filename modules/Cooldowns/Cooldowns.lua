@@ -1906,7 +1906,7 @@ do
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	local pet = bit.bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_TYPE_PET)
 
-	combatLogHandler:SetScript("OnEvent", function(self, _, _, event, _, srcGUID, source, srcFlags, _, destGUID, destName, dstFlags, _, spellId, spellName, _, ...)
+	local function handler(self, _, _, event, _, srcGUID, source, srcFlags, _, destGUID, destName, dstFlags, _, spellId, spellName, _, ...)
 		if event == "UNIT_DIED" then
 			if band(dstFlags, group) ~= 0 and UnitIsPlayer(destName) and not UnitIsFeignDeath(destName) then
 				callbacks:Fire("oRA3CD_UpdatePlayer", destGUID, destName)
@@ -1962,7 +1962,15 @@ do
 		if func then
 			func(srcGUID, destGUID, spellId, ...)
 		end
-	end)
+	end
+	if CombatLogGetCurrentEventInfo then -- XXX 8.0
+		combatLogHandler:SetScript("OnEvent", function(self, event)
+			handler(self, event, CombatLogGetCurrentEventInfo())
+		end)
+	else
+		combatLogHandler:SetScript("OnEvent", handler)
+	end
+
 
 	local playerStates = {}
 	local STATUS_RANGE, STATUS_COMBAT = 1, 2
