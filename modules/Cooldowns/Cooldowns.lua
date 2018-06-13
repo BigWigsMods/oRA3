@@ -1735,6 +1735,7 @@ end
 function module:OnCommReceived(_, sender, prefix, spellId, cd)
 	if prefix == "CooldownUpdate" then
 		local guid = UnitGUID(sender)
+		if not guid then return end
 		local name, class = self:GetPlayerFromGUID(guid)
 		cd = tonumber(cd)
 		spellId = tonumber(spellId)
@@ -1752,6 +1753,7 @@ function module:OnCommReceived(_, sender, prefix, spellId, cd)
 
 	elseif prefix == "Reincarnation" then
 		local guid = UnitGUID(sender)
+		if not guid then return end
 		local name = self:GetPlayerFromGUID(guid)
 		cd = tonumber(spellId)
 		spellId = 20608
