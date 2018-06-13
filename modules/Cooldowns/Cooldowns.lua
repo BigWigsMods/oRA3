@@ -1719,19 +1719,6 @@ function module:SPELL_UPDATE_COOLDOWN()
 	end
 end
 
-local checkReincarnationCooldown = nil
-do
-	if playerClass == "SHAMAN" then
-		function checkReincarnationCooldown()
-			local start, duration = GetSpellCooldown(20608)
-			if start > 0 and duration > 1.5 then
-				local cd =  duration - (GetTime() - start)
-				module:SendComm("Reincarnation", round(cd))
-			end
-		end
-	end
-end
-
 function module:OnCommReceived(_, sender, prefix, spellId, cd)
 	if prefix == "CooldownUpdate" then
 		local guid = UnitGUID(sender)
@@ -1779,8 +1766,12 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 		end
 	end
 
-	if checkReincarnationCooldown then
-		checkReincarnationCooldown()
+	if playerClass == "SHAMAN" then
+		local start, duration = GetSpellCooldown(20608)
+		if start > 0 and duration > 1.5 then
+			local cd = duration - (GetTime() - start)
+			self:SendComm("Reincarnation", round(cd))
+		end
 	end
 end
 
