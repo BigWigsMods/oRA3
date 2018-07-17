@@ -542,7 +542,6 @@ local combatResSpells = {
 	[20484] = true,  -- Rebirth
 	[95750] = true,  -- Soulstone Resurrection
 	[61999] = true,  -- Raise Ally
-	[126393] = true, -- Eternal Guardian
 	[159956] = true, -- Dust of Life
 	[159931] = true, -- Gift of Chi-Ji
 }

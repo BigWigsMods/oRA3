@@ -297,7 +297,7 @@ do
 	updateFunc = function()
 		local _, event, _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
 		if event == "SPELL_RESURRECT" then
-			if spellId == 126393 then -- Eternal Guardian
+			if spellId == 159931 or spellId == 159956 then -- Gift of Chi-Ji, Dust of Life
 				name = getPetOwner(name, sGuid)
 			end
 

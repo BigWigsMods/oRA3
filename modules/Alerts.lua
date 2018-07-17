@@ -135,7 +135,6 @@ combatLogMap.SPELL_RESURRECT = {
 	[20484] = "CombatResurrect",  -- Rebirth (Druid)
 	[61999] = "CombatResurrect",  -- Raise Ally (Death Knight)
 	[95750] = "CombatResurrect",  -- Soulstone Resurrection (Warlock)
-	[126393] = "CombatResurrect", -- Eternal Guardian (Hunter Quilen Pet)
 	[159931] = "CombatResurrect", -- Dust to Life (Hunter Moth Pet)
 	[159956] = "CombatResurrect", -- Gift of Chi-Ji (Hunter Crane Pet)
 }
