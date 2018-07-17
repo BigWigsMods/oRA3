@@ -364,7 +364,7 @@ local function getStatValue(id)
 	local desc = GetSpellDescription(id)
 	if desc then
 		local value = tonumber(desc:match("%d+")) or 0
-		return value >= (C_Spell and 10 or 75) and value -- XXX 8.0
+		return value >= 10 and value
 	end
 end
 
@@ -419,7 +419,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 
 			f.FoodBuff:SetSpell(food)
 			if food then
-				if C_Spell and not C_Spell.IsSpellDataCached(food) then -- XXX 8.0 (this is probably overkill)
+				if not C_Spell.IsSpellDataCached(food) then
 					if not delayedSpellUpdates[food] then delayedSpellUpdates[food] = {} end
 					tinsert(delayedSpellUpdates[food], f.FoodBuff.text)
 					C_Spell.RequestLoadSpellData(food)

@@ -9,9 +9,7 @@ local L = scope.locale
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
 local LibDialog = LibStub("LibDialog-1.0")
 
-local bfa_800 = select(4, GetBuildInfo()) >= 80000
-
--- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide
+-- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide CombatLogGetCurrentEventInfo
 
 --------------------------------------------------------------------------------
 -- Locals
@@ -173,7 +171,6 @@ local spells = {
 		[183752] = {15, 1}, -- Consume Magic
 		[179057] = {60, 1, 577}, -- Chaos Nova
 		[196718] = {180, 1, 577}, -- Darkness
-		[218256] = not bfa_800 and {20, 100, 581}, -- Empower Wards
 		[204021] = {60, 1, 581}, -- Fiery Brand
 		[200166] = {300, 1, 577}, -- Metamorphosis (Havoc)
 		[187827] = {180, 1, 581}, -- Metamorphosis (Vengeance)
@@ -255,7 +252,6 @@ local spells = {
 		[191433] = {30, 48, 255}, -- Explosive Trap
 		[186265] = {180, 50}, -- Aspect of the Turtle
 
-		[206505] = not bfa_800 and {60, 30, 255, 4, true}, -- A Murder of Crows (Survival): (4) If the target dies while under attack, the cooldown is reset.
 		[201078] = {90, 30, 255, 6}, -- Snake Hunter
 		[212431] = {30, 60, 254, 10}, -- Explosive Shot
 		[194277] = {15, 60, 255, 10}, -- Caltrops
@@ -275,7 +271,6 @@ local spells = {
 		-- Pet
 		[90355]  = {360, 20}, -- Ancient Hysteria
 		[160452] = {360, 20}, -- Netherwinds
-		[126393] = not bfa_800 and {600, 20}, -- Eternal Guardian
 		[159956] = {600, 20}, -- Dust of Life
 		[159931] = {600, 20}, -- Gift of Chi-Ji
 	},
@@ -287,7 +282,6 @@ local spells = {
 		[195676] = {30, 24, 62}, -- Displacement
 		[31661] = {20, 62, 63}, -- Dragon's Breath
 		[45438] = {300, 26, nil}, -- Ice Block
-		[135029] = not bfa_800 and {25, 32, 64}, -- Water Jet
 		[190319] = {120, 28, 63}, -- Combustion
 		[2139]  = {24, 34}, -- Counterspell
 		[120]   = {12, 36, 64}, -- Cone of Cold
@@ -330,7 +324,6 @@ local spells = {
 		[115176] = {300, 65, 268}, -- Zen Meditation
 		[115310] = {180, 65, 270}, -- Revival
 
-		[197945] = not bfa_800 and {20, 15, 270, 3}, -- Mistwalk (2 charges)
 		[116841] = {30, 30, nil, 5}, -- Tiger's Lust
 		[115288] = {60, 45, 269, 7}, -- Energizing Elixir
 		[115399] = {90, 45, 269, 8}, -- Black Ox Brew
@@ -356,7 +349,6 @@ local spells = {
 		[6940] = {150, 56, {65, 66}}, -- Blessing of Sacrifice
 		[31821] = {180, 65, 65}, -- Aura Mastery
 		[31850] = {120, 65, 66}, -- Ardent Defender
-		[31842] = not bfa_800 and {120, 72, 65}, -- Avenging Wrath (Holy)
 		[31884] = {120, 72, {65, 70}}, -- Avenging Wrath (Prot/Ret)
 		[86659] = {300, 83, 66}, -- Guardian of Ancient Kings
 
@@ -415,7 +407,6 @@ local spells = {
 		[121471] = {180, 72, 261}, -- Shadow Blades
 
 		[195457] = {30, 30, 260, 4, true}, -- Grappling Hook (True Bearing)
-		[185767] = not bfa_800 and {60, 90, 260, 16, true}, -- Cannonball Barrage (True Bearing)
 		[200806] = {45, 90, 259, 18}, -- Exsanguinate
 		[51690] = {120, 90, 260, 18, true}, -- Killing Spree (True Bearing)
 		[137619] = {60, 100, nil, 20, true}, -- Marked for Death: (20) Cooldown reset if the target dies within 1 min.
@@ -459,7 +450,6 @@ local spells = {
 		[20707] = {600, 18}, -- Soulstone
 		[95750] = 20707, -- Soulstone Resurrection (combat)
 		[1122]  = {180, 50}, -- Summon Infernal
-		[18540] = not bfa_800 and {180, 58}, -- Summon Doomguard
 		[104773] = {180, 62}, -- Unending Resolve
 		[29893] = {120, 65}, -- Create Soulwell
 		[698]   = {120, 72}, -- Ritual of Summoning
@@ -571,8 +561,6 @@ local chargeSpells = {
 	[212653] = 2, -- Shimmer
 	[116011] = 2, -- Rune of Power
 	[108839] = 3, -- Ice Floes
-	-- Monk
-	[197945] = not bfa_800 and 2, -- Mistwalk
 	-- Warrior
 	[198304] = 2, -- Intercept
 }
@@ -1897,7 +1885,7 @@ do
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	local pet = bit.bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_TYPE_PET)
 
-	local function handler(self, _, _, event, _, srcGUID, source, srcFlags, _, destGUID, destName, dstFlags, _, spellId, spellName, _, ...)
+	local function handler(_, event, _, srcGUID, source, srcFlags, _, destGUID, destName, dstFlags, _, spellId, spellName, _, ...)
 		if event == "UNIT_DIED" then
 			if band(dstFlags, group) ~= 0 and UnitIsPlayer(destName) and not UnitIsFeignDeath(destName) then
 				callbacks:Fire("oRA3CD_UpdatePlayer", destGUID, destName)
@@ -1954,13 +1942,9 @@ do
 			func(srcGUID, destGUID, spellId, ...)
 		end
 	end
-	if CombatLogGetCurrentEventInfo then -- XXX 8.0
-		combatLogHandler:SetScript("OnEvent", function(self, event)
-			handler(self, event, CombatLogGetCurrentEventInfo())
-		end)
-	else
-		combatLogHandler:SetScript("OnEvent", handler)
-	end
+	combatLogHandler:SetScript("OnEvent", function(self, event)
+		handler(CombatLogGetCurrentEventInfo())
+	end)
 
 
 	local playerStates = {}

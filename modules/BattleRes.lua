@@ -29,13 +29,7 @@ local function createFrame()
 	brez:SetMovable(true)
 	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA:SavePosition("oRA3BattleResMonitor") end)
-	if CombatLogGetCurrentEventInfo then -- XXX 8.0
-		brez:SetScript("OnEvent", function(self, event)
-			updateFunc(self, event, CombatLogGetCurrentEventInfo())
-		end)
-	else
-		brez:SetScript("OnEvent", updateFunc)
-	end
+	brez:SetScript("OnEvent", updateFunc)
 
 	local bg = brez:CreateTexture(nil, "PARENT")
 	bg:SetAllPoints(brez)
@@ -300,7 +294,8 @@ do
 		return pet
 	end
 
-	updateFunc = function(_, _, _, event, _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId)
+	updateFunc = function()
+		local _, event, _, sGuid, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
 		if event == "SPELL_RESURRECT" then
 			if spellId == 126393 then -- Eternal Guardian
 				name = getPetOwner(name, sGuid)
