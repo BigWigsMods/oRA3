@@ -48,15 +48,35 @@ end
 
 local talentCooldowns = {
 	-- Death Knight
-	[19227] = function(info) -- Blood: Tightening Grasp
-		addMod(info.guid, 108199, 60) -- Gorefiend's Grasp
+	[22014] = function(info) -- Blood: Anti-Magic Barrier
+		addMod(info.guid, 48707, 15) -- Anti-Magic Shell
 	end,
-	[22024] = function(info) -- Unholy: All Will Serve
-		addMod(info.guid, 46584, 60) -- Raise Dead
+	[19226] = function(info) -- Blood: Tightening Grasp
+		addMod(info.guid, 108199, 30) -- Gorefiend's Grasp
 	end,
-	[22022] = function(info) -- Lingering Apparition
-		addMod(info.guid, 212552, 15) -- Wraith Walk
+	[21208] = function(info) -- Blood: Red Thirst
+		-- Reduces the cooldown on Vampiric Blood by 1 sec per 10 Runic Power spent.
+		if info.guid == playerGUID then
+			syncSpells[55233] = true -- Vampiric Blood
+		end
 	end,
+	[22023] = function(info) -- Frost: Icecap
+		-- Your Frost Strike/Frostscythe and Obliterate critical strikes reduce the
+		-- remaining cooldown of Pillar of Frost by 1 sec.
+		if info.guid == playerGUID then
+			syncSpells[51271] = true -- Pillar of Frost
+		end
+	end,
+	[22023] = function(info) -- Unholy: Army of the Damned
+		-- Death Coil [and Epidemic] reduces the cooldown of Apocalypse by 1 sec and
+		-- Army of the Dead by 5 sec.
+		-- XXX Should probably handle this via CLEU
+		if info.guid == playerGUID then
+			syncSpells[42650] = true -- Army of the Dead
+			syncSpells[275699] = true -- Apocalypse
+		end
+	end,
+
 	-- Demon Hunter
 	[21870] = function(info) -- Unleashed Power
 		addMod(info.guid, 179057, 20) -- Chaos Nova
@@ -66,6 +86,7 @@ local talentCooldowns = {
 		addMod(info.guid, 202137, 12) -- Sigil of Silence
 		addMod(info.guid, 207684, 12) -- Sigil of Misery
 	end,
+
 	-- Druid
 	[22424] = function(info) -- Guardian: Guttural Roars
 		addMod(info.guid, 106898, 60) -- Stampeding Roar
@@ -83,12 +104,14 @@ local talentCooldowns = {
 	[21651] = function(info) -- Resto: Stonebark
 		addMod(info.guid, 102342, 30) -- Ironbark
 	end,
+
 	-- Hunter
 	[19361] = function(info) -- Survival: Improved Traps
 		addMod(info.guid, 187650, 4.5) -- Freezing Trap (15%)
 		addMod(info.guid, 187698, 15) -- Tar Trap (50%)
 		addMod(info.guid, 191433, 15) -- Explosve Trap (50%)
 	end,
+
 	-- Mage
 	[16025] = function(info) -- Cold Snap
 		addMod(info.guid, 45438, 0, 2) -- Ice Block
@@ -96,12 +119,14 @@ local talentCooldowns = {
 	[22471] = function(info) -- Ice Ward
 		addMod(info.guid, 122, 0, 2)
 	end,
+
 	-- Paladin
 	[17567] = function(info) -- Holy: Unbreakable Spirit (-30%)
 		addMod(info.guid, 642, 100) -- Divine Shield
 		addMod(info.guid, 498, 20) -- Divine Protection
 		addMod(info.guid, 633, 200) -- Lay on Hands
 	end,
+
 	-- Priest
 	[22094] = function(info) -- Disc/Shadow: Psychic Voice
 		addMod(info.guid, 8122, 30)
@@ -110,11 +135,13 @@ local talentCooldowns = {
 	[22492] = function(info) -- Resto: Graceful Spirit
 		addMod(info.guid, 79206, 60) -- Spiritwalker's Grace
 	end,
+
 	-- Warlock
 	[21182] = function(info) -- Grimoire of Supremacy
 		addMod(info.guid, 1122, 180) -- Summon Infernal
 		addMod(info.guid, 18540, 180) -- Summon Doomguard
 	end,
+
 	-- Warrior
 	[22409] = function(info) -- Arms/Fury: Double Time
 		addMod(info.guid, 100, 3, 2) -- Charge
@@ -133,40 +160,43 @@ local talentCooldowns = {
 --   with the cd (for dynamic cooldowns with hard to track conditions)
 local spells = {
 	DEATHKNIGHT = {
-		[221562] = {45, 55, 250}, -- Asphyxiate
+		[221562] = {45, 1, 250}, -- Asphyxiate
 		[49576] = {25, 55}, -- Death Grip
-		[46584] = {60, 55, 252}, -- Raise Dead
+		[46584] = {30, 55, 252}, -- Raise Dead
 		[48707] = {60, 57}, -- Anti-Magic Shell
 		[43265] = {30, 56, {250, 252}}, -- Death and Decay
-		[49028] = {180, 57, 250}, -- Dancing Rune Weapon
-		[47568] = {180, 57, 251, -8}, -- Empower Rune Weapon
-		[51271] = {60, 57, 251, nil, true}, -- Pillar of Frost (Frost): (7) Your Frost Strike, Frostscythe, and Obliterate critical strikes reduce the remaining cooldown  by 1 sec.
+		[49028] = {120, 57, 250}, -- Dancing Rune Weapon
+		[47568] = {120, 57, 251}, -- Empower Rune Weapon
+		[51271] = {45, 57, 251}, -- Pillar of Frost
 		[196770] = {20, 57, 251}, -- Remorseless Winder
-		[55233] = {90, 57, 250, nil, true}, -- Vampiric Blood (Blood): (11) Spending Runic Power will decrease the remaining cooldown by 2 sec per 10 Runic Power.
-		[212552] = {60, 60}, -- Wraith Walk
+		[55233] = {90, 57, 250}, -- Vampiric Blood
 		[47528] = {15, 62}, -- Mind Freeze
-		[108199] = {180, 64, 250}, -- Gorefiend's Grasp
+		[108199] = {120, 64, 250}, -- Gorefiend's Grasp
 		[48792] = {180, 65, {251, 252}}, -- Icebound Fortitude
 		[61999] = {600, 72}, -- Raise Ally
 		[63560] = {60, 74, 252}, -- Dark Transformation
-		[49206] = {180, 75, 252}, -- Summon Gargoyle
-		[42650] = {600, 82, 252}, -- Army of the Dead
+		[275699] = {120, 75, 252}, -- Apocalypse
+		[42650] = {600, 82, 252, nil, true}, -- Army of the Dead
 
-		[206931] = {30, 56, 250, 3}, -- Blooddrinker
-		[207317] = {10, 57, 252, 4}, -- Epidemic (3 charges)
-		[57330] = {30, 57, 251, 6}, -- Horn of Winter
-		[221699] = {60, 58, 250, 8, false}, -- Blood Tap (2 charges) (Blood): (8) Recharge time reduced by 1 sec whenever a Bone Shield charge is consumed. XXX Charge syncing NYI
-		[207127] = {180, 58, 251, 8}, -- Hungering Rune Weapon
-		[108194] = {45, 60, 252, 11}, -- Asphyxiate
-		[207319] = {60, 75, 252, 14}, -- Corpse Shield
-		[194679] = {25, 90, 250, 17}, -- Rune Tap (2 charges)
-		[194844] = {60, 100, 250, 19}, -- Bonestorm
-		[207349] = {180, 100, 252, 19}, -- Dark Arbiter
-		[206977] = {120, 100, 250, 20}, -- Blood Mirror
-		[152279] = {120, 100, 251, 20}, -- Breath of Sindragosa
-		[152280] = {30, 100, 252, 20}, -- Defile
-		[194913] = {15, 100, 251, 21}, -- Glacial Advance
-		[130736] = {45, 100, 252, 21}, -- Soul Reaper
+		[206931] = {30, 56, 250, 2}, -- Blooddrinker
+		[210764] = {60, 56, 250, 3, true}, -- Rune Strike (2 charges) XXX Charge syncing NYI!
+		[274156] = {45, 57, 250, 6}, -- Consumption
+		[57330] = {45, 57, 251, 6}, -- Horn of Winter
+		[115989] = {10, 57, 252, 6}, -- Unholy Blight
+		[219809] = {60, 58, 250, 9}, -- Tombstone
+		[207167] = {60, 58, 251, 9}, -- Blinding Sleet
+		[108194] = {45, 60, nil, {[251]=8, [252]=9}}, -- Asphyxiate
+		[194679] = {25, 60, 250, 12}, -- Rune Tap (2 charges)
+		[130736] = {45, 60, 252, 12}, -- Soul Reaper
+		[212552] = {60, 75, nil, {[250]=15, [251]=14, [252]=14}}, -- Wraith Walk
+		[48743] = {90, 75, {251,252}, 15}, -- Death Pact
+		[194913] = {6, 90, 251, 17}, -- Glacial Advance
+		[152280] = {30, 90, 252, 17}, -- Defile
+		[279302] = {180, 90, 251, 18}, -- Frostwyrm's Fury
+		[207289] = {75, 100, 252, 20}, -- Unholy Frenzy
+		[194844] = {60, 100, 250, 21}, -- Bonestorm
+		[152279] = {120, 100, 251, 21}, -- Breath of Sindragosa
+		[49206] = {180, 75, 252, 21}, -- Summon Gargoyle
 	},
 	DEMONHUNTER = {
 		-- [198589] = {60, 1, 577, -10}, -- Blur XXX No SPELL_CAST_SUCCESS
@@ -550,9 +580,8 @@ local combatResSpells = {
 
 local chargeSpells = {
 	-- Death Knight
-	[207317] = 2, -- Epidemic
-	[221699] = 2, -- Blood Tap
-	[194679] = 2, -- Rune Tap
+	[210764] = 2, -- Rune Strike (Blood talent)
+	[194679] = 2, -- Rune Tap (Blood talent)
 	-- Druid
 	[61336] = 2, -- Survival Instincts
 	[22842] = 2, -- Frenzied Regeneration
