@@ -78,13 +78,42 @@ local talentCooldowns = {
 	end,
 
 	-- Demon Hunter
-	[21870] = function(info) -- Unleashed Power
+	[21869] = function(info) -- Havoc: Unleashed Power
 		addMod(info.guid, 179057, 20) -- Chaos Nova
 	end,
-	-- Demon Hunter
-	[22511] = function(info) -- Quickened Sigils
+	-- [21864] = function(info) -- Havoc: Desperate Instincts
+	-- 	-- You automatically trigger Blur when you fall below 35% health.
+	-- 	if info.guid == playerGUID then
+	-- 		syncSpells[198589] = true -- Blur
+	-- 	end
+	-- end,
+	[21866] = function(info) -- Havoc: Cycle of Hatred
+		-- When Chaos Strike refunds Fury, it also reduces the cooldown of
+		-- Metamorphosis by 3 sec.
+		if info.guid == playerGUID then
+			syncSpells[200166] = true -- Metamorphosis
+		end
+	end,
+	[21870] = function(info) -- Havoc: Master of the Glaive
+		addMod(info.guid, 185123, 0, 2) -- Throw Glaive
+	end,
+	[21901] = function(info) -- Havoc: Momentum
+		-- Vengeful Retreat's cooldown is reduced by 5 sec if it damages at least
+		-- one enemy.
+		if info.guid == playerGUID then
+			syncSpells[198793] = true -- Vengeful Retreat
+		end
+	end,
+	[22502] = function(info) -- Vengeance: Abyssal Strike
+		addMod(info.guid, 189110, 8) -- Inferal Strike
+	end,
+	[22510] = function(info) -- Vengeance: Quickened Sigils
 		addMod(info.guid, 202137, 12) -- Sigil of Silence
-		addMod(info.guid, 207684, 12) -- Sigil of Misery
+		addMod(info.guid, 204596, 6)  -- Sigil of Flame
+		addMod(info.guid, 207684, 18) -- Sigil of Misery
+		if info.talents[15] then
+			addMod(info.guid, 202138, 18) -- Sigil of Chains
+		end
 	end,
 
 	-- Druid
@@ -199,21 +228,33 @@ local spells = {
 		[49206] = {180, 75, 252, 21}, -- Summon Gargoyle
 	},
 	DEMONHUNTER = {
-		-- [198589] = {60, 1, 577, -10}, -- Blur XXX No SPELL_CAST_SUCCESS
-		[183752] = {15, 1}, -- Consume Magic
+		[212800] = {60, 1, 577}, -- Blur XXX No SPELL_CAST_SUCCESS
 		[179057] = {60, 1, 577}, -- Chaos Nova
-		[196718] = {180, 1, 577}, -- Darkness
+		[183752] = {15, 1}, -- Disrupt
+		[195072] = {10, 1, 577}, -- Fel Rush
 		[204021] = {60, 1, 581}, -- Fiery Brand
-		[200166] = {300, 1, 577}, -- Metamorphosis (Havoc)
+		[217832] = {45, 1}, -- Imprison
+		[189110] = {20, 1, 581}, -- Infernal Strike
+		[200166] = {240, 1, 577}, -- Metamorphosis (Havoc)
 		[187827] = {180, 1, 581}, -- Metamorphosis (Vengeance)
-		[207684] = {60, 100, 581}, -- Sigil of Misery
-		[202137] = {60, 100, 581}, -- Sigil of Silence
+		[204596] = {30, 1, 581}, -- Sigil of Flame
+		[214743] = {60, 1, 577}, -- Soul Carver
+		[188501] = {30, 1}, -- Spectral Sight
+		[185123] = {9, 1, 577}, -- Throw Glaive (Havoc)
+		[198793] = {25, 1, 577}, -- Vengeful Retreat
+		[196718] = {180, 100, 577}, -- Darkness
+		[202137] = {60, 101, 581}, -- Sigil of Silence
+		[183752] = {10, 103}, -- Consume Magic
+		[207684] = {60, 105, 581}, -- Sigil of Misery
 
-		[211881] = {35, 102, nil, {[577]=14,[581]=9}}, -- Fel Eruption, 106 Havoc / 102 Vengeance
-		[196555] = {90, 104, 577, 0000}, -- Netherwalk
-		[202138] = {120, 106, 581, 14}, -- Sigil of Chains
-		[207810] = {120, 110, 581, 20}, -- Nether Bond
-		[227225] = {20, 110, 581, 21}, -- Soul Barrier
+		[258925] = {60, 102, 577, 9}, -- Fel Barrage
+		[232893] = {15,  102, 581, 9}, -- Felblade
+		[196555] = {120, 104, 577, 12}, -- Netherwalk
+		[202138] = {90, 106, 581, 15}, -- Sigil of Chains
+		[211881] = {30, 108, 577, 18}, -- Fel Eruption
+		[212084] = {60, 108, 581, 18}, -- Fel Devastation
+		[206491] = {120, 110, 577, 21}, -- Nemesis
+		[227225] = {30, 110, 581, 21}, -- Soul Barrier
 	},
 	DRUID = {
 		[5217]  = {30, 12, 103, nil, true}, -- Tiger's Fury (Feral): (1) The cooldown resets when a target dies with one of your Bleed effects active.
@@ -582,6 +623,9 @@ local chargeSpells = {
 	-- Death Knight
 	[210764] = 2, -- Rune Strike (Blood talent)
 	[194679] = 2, -- Rune Tap (Blood talent)
+	-- Demon Hunter
+	[195072] = 2, -- Fel Rush (Havoc)
+	[189110] = 2, -- Infernal Strike (Vengeance)
 	-- Druid
 	[61336] = 2, -- Survival Instincts
 	[22842] = 2, -- Frenzied Regeneration
@@ -1900,12 +1944,12 @@ do
 	combatLogHandler.userdata = {}
 	-- local scratch = combatLogHandler.userdata
 	local specialEvents = {
-		SPELL_CAST_SUCCESS = {
-			[200166] = function(srcGUID) -- Metamorphosis (Havoc)
+		SPELL_AURA_APPLIED = {
+			[212800] = function(srcGUID) -- Blur (work around for not having a cast event)
 				local info = infoCache[srcGUID]
-				if info and info.talents[18] then -- Demon Reborn
-					resetCooldown(info, 179057) -- Chaos Nova
-					resetCooldown(info, 198589) -- Blur
+				if info then
+					callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
+					resetCooldown(info, 212800, 60)
 				end
 			end,
 		},
