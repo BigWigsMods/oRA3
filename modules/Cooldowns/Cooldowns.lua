@@ -135,10 +135,29 @@ local talentCooldowns = {
 	end,
 
 	-- Hunter
-	[19361] = function(info) -- Survival: Improved Traps
-		addMod(info.guid, 187650, 4.5) -- Freezing Trap (15%)
-		addMod(info.guid, 187698, 15) -- Tar Trap (50%)
-		addMod(info.guid, 191433, 15) -- Explosve Trap (50%)
+	[19348] = function(info) -- All: Natural Mending
+		-- Focus you spend reduces the remaining cooldown on Exhilaration by 1 sec.
+		if info.guid == playerGUID then
+			syncSpells[109304] = true -- Exhilaration
+		end
+	end,
+	[22268] = function(info) -- All: Born To Be Wild
+		addMod(info.guid, 186257, 36) -- Aspect of the Cheetah
+		addMod(info.guid, 186265, 36) -- Aspect of the Turtle
+		if info.spec == 255 then -- Survival
+			addMod(info.guid, 186289, 18) -- Aspect of the Eagle
+		end
+	end,
+	[22274] = function(info) -- Marksmanship: Calling the Shots
+		-- Casting Arcane Shot or Multi-Shot reduces the cooldown of Trueshot by 2.5
+		-- sec.
+		-- XXX Could maybe handle this via CLEU
+		if info.guid == playerGUID then
+			syncSpells[193526] = true -- Trueshot
+		end
+	end,
+	[21997] = function(info) -- Survival: Guerrilla Tactics
+		addMod(info.guid, 259495, 0, 2) -- Wildfire Bomb
 	end,
 
 	-- Mage
@@ -304,48 +323,49 @@ local spells = {
 		[197721] = {60, 100, 105, 21}, -- Flourish
 	},
 	HUNTER = {
-		[136] = {10, 1}, -- Mend Pet
-		[186257] = {180, 5}, -- Aspect of the Cheetah
-		[781] = {20, 14, {253, 254}, nil, true}, -- Disengage (not-Survival): (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
-		[193530] = {120, 18, 253}, -- Aspect of the Wild
-		[186387] = {30, 22, 254}, -- Bursting Shot
-		[190925] = {20, 22, 255, nil, true}, -- Harpoon (Survival): (8) Your ability critical strikes have a 10% chance to reset the remaining cooldown.
-		[147362] = {24, 24, {253, 254}}, -- Counter Shot
-		[187707] = {15, 24, 255}, -- Muzzle
-		[187650] = {30, 28, 255, -12}, -- Freezing Trap
-		[5384]  = {30, 32}, -- Feign Death
-		[109304] = {120, 36, {253, 255}, nil, true}, -- Exhilaration (Marksman): After you kill a target, the remaining cooldown is reduced by 30 sec.
+		[781] = {20, 8}, -- Disengage (30s base, reduced by 10s at 85)
+		[136] = {10, 13}, -- Mend Pet
+		[187650] = {30, 18}, -- Freezing Trap
+		[19574] = {90, 20, 253, nil, true}, -- Bestial Wrath: Bestial Wrath's remaining cooldown is reduced by 12 sec each time you use Barbed Shot.
+		[257044] = {20, 20, 254}, -- Rapid Fire
+		[186257] = {180, 22}, -- Aspect of the Cheetah
+		[190925] = {20, 14, 255}, -- Harpoon (30s base, reduced by 10s at 65)
+		[259495] = {18, 20, 255}, -- Wildfire Bomb
+		[270335] = 259495, -- Shrapnel Bomb (20: Wildfire Infusion)
+		[270323] = 259495, -- Pheromone Bomb (20: Wildfire Infusion)
+		[271045] = 259495, -- Volatile Bomb (20: Wildfire Infusion)
+		[109304] = {120, 24}, -- Exhilaration
+		[186387] = {30, 26, 254}, -- Bursting Shot
+		[19577] = {60, 26, {253,255}}, -- Intimidation
+		[5384] = {30, 28}, -- Feign Death
+		[147362] = {24, 32, {253, 254}}, -- Counter Shot
+		[187707] = {15, 32, 255}, -- Muzzle
+		[187698] = {30, 36, 255}, -- Tar Trap
 		[1543] = {20, 38}, -- Flare
 		[61648] = {180, 40}, -- Aspect of the Chameleon
-		[19574] = {90, 40, 253}, -- Bestial Wrath
+		[266779] = {120, 40, 255}, -- Coordinated Assault
+		[193530] = {120, 40, 253}, -- Aspect of the Wild
 		[193526] = {180, 40, 254}, -- Trueshot
-		[34477] = {30, 42, {253, 254}}, -- Misdirection
-		[187698] = {30, 42, 255}, -- Tar Trap
-		[186289] = {120, 44, 255}, -- Aspect of the Eagle
-		[191433] = {30, 48, 255}, -- Explosive Trap
-		[186265] = {180, 50}, -- Aspect of the Turtle
+		[34477] = {30, 42}, -- Misdirection
+		[186289] = {90, 54, 255}, -- Aspect of the Eagle
+		[186265] = {180, 70}, -- Aspect of the Turtle
 
-		[201078] = {90, 30, 255, 6}, -- Snake Hunter
-		[212431] = {30, 60, 254, 10}, -- Explosive Shot
-		[194277] = {15, 60, 255, 10}, -- Caltrops
-		[206817] = {30, 60, 254, 11}, -- Sentinel (2 charges)
-		[162488] = {60, 60, 255, 12}, -- Steel Trap
-		[109248] = {45, 75, {253, 254}, 13}, -- Binding Shot
-		[191241] = {30, 75, 255, 13}, -- Sticky Bomb
-		[19386] = {45, 75, {253, 254}, 14}, -- Wyvern Sting
-		[19577] = {60, 75, 253, 15}, -- Intimidation
-		[199483] = {60, 75, {254, 255}, 15}, -- Camouflage
-		[131894] = {60, 90, {253, 254}, 16, true}, -- A Murder of Crows (not-Survival): (16) If the target dies while under attack, the cooldown is reset.
+		[212431] = {30, 30, 254, 6, true}, -- Explosive Shot
+		[199483] = {60, 45, nil, 9}, -- Camouflage
+		[131894] = {60, {[253]=60,[254]=15,[255]=60}, nil, {[253]=12,[254]=3,[255]=12}, true}, -- A Murder of Crows
+		[162488] = {30, 60, 255, 11}, -- Steel Trap
+		[109248] = {45, 75, nil, 15}, -- Binding Shot
 		[120360] = {20, 90, {253, 254}, 17}, -- Barrage
-		[194855] = {30, 90, 255, 17}, -- Dragonsfire Grenade
-		[194386] = {90, 90, {253, 254}, 18}, -- Volley
-		[201430] = {180, 100, 253, 19}, -- Stampede
-		[194407] = {60, 100, 255, 19}, -- Splitting Cobra
-		-- Pet
-		[90355]  = {360, 20}, -- Ancient Hysteria
-		[160452] = {360, 20}, -- Netherwinds
-		[159956] = {600, 20}, -- Dust of Life
-		[159931] = {600, 20}, -- Gift of Chi-Ji
+		[201430] = {180, 90, 253, 18}, -- Stampede
+		[260402] = {60, 90, 254, 18}, -- Double Tap
+		[269751] = {40, 90, 255, 18}, -- Flanking Strike
+		[194407] = {90, 100, 253, 21}, -- Splitting Cobra
+		[198670] = {30, 100, 254, 21}, -- Piercing Shot
+		[259391] = {20, 100, 255, 21}, -- Chakrams
+		-- Command Pet XXX Not sure how do deal with these for available cds
+		[53271] = {45, 20}, -- Master's Call (Cunning)
+		[264735] = {360, 20}, -- Survival of the Fittest (Tenacity)
+		[272678] = {360, 20}, -- Primal Rage (Ferocity)
 	},
 	MAGE = {
 		[122]   = {30, 3, nil}, -- Frost Nova
@@ -615,8 +635,6 @@ local combatResSpells = {
 	[20484] = true,  -- Rebirth
 	[95750] = true,  -- Soulstone Resurrection
 	[61999] = true,  -- Raise Ally
-	[159956] = true, -- Dust of Life
-	[159931] = true, -- Gift of Chi-Ji
 }
 
 local chargeSpells = {
@@ -629,8 +647,6 @@ local chargeSpells = {
 	-- Druid
 	[61336] = 2, -- Survival Instincts
 	[22842] = 2, -- Frenzied Regeneration
-	-- Hunter
-	[206817] = 2, -- Sentinel
 	-- Mage
 	[212653] = 2, -- Shimmer
 	[116011] = 2, -- Rune of Power
