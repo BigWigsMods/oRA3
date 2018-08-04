@@ -117,21 +117,31 @@ local talentCooldowns = {
 	end,
 
 	-- Druid
-	[22424] = function(info) -- Guardian: Guttural Roars
-		addMod(info.guid, 106898, 60) -- Stampeding Roar
+	[22157] = function(info) -- Balance: Guardian Affinity
+		addMod(info.guid, 22842, 0, 1) -- Frenzied Regeneration
 	end,
-	[22422] = function(info) -- Guardian: Survival of the Fittest
+	[22364] = function(info) -- Feral: Predator
+		-- The cooldown on Tiger's Fury resets when a target dies with one of your
+		-- Bleed effects active
+		if info.guid == playerGUID then
+			syncSpells[5217] = true -- Tiger's Fury
+		end
+	end,
+	[22158] = function(info) -- Feral: Guardian Affinity
+		addMod(info.guid, 22842, 0, 1) -- Frenzied Regeneration
+	end,
+	[22160] = function(info) -- Restoration: Guardian Affinity
+		addMod(info.guid, 22842, 0, 1) -- Frenzied Regeneration
+	end,
+	[21713] = function(info) -- Guardian: Survival of the Fittest
 		addMod(info.guid, 22812, 20) -- Barkskin
 		addMod(info.guid, 61336, 60) -- Survival Instincts
 	end,
-	[18569] = function(info) -- Resto: Prosperity
-		addMod(info.guid, 18562, 5, 2) -- Swiftmend
-	end,
-	[21713] = function(info) -- Resto: Inner Peace
+	[21716] = function(info) -- Restoration: Inner Peace
 		addMod(info.guid, 740, 60) -- Tranquility
 	end,
-	[21651] = function(info) -- Resto: Stonebark
-		addMod(info.guid, 102342, 30) -- Ironbark
+	[18585] = function(info) -- Restoration: Stonebark
+		addMod(info.guid, 102342, 15) -- Ironbark
 	end,
 
 	-- Hunter
@@ -367,51 +377,50 @@ local spells = {
 		[227225] = {30, 110, 581, 21}, -- Soul Barrier
 	},
 	DRUID = {
-		[5217]  = {30, 12, 103, nil, true}, -- Tiger's Fury (Feral): (1) The cooldown resets when a target dies with one of your Bleed effects active.
-		[18562] = {30, 12, 105}, -- Swiftmend
-		[1850]  = {180, 24}, -- Dash
-		[20484] = {600, 56}, -- Rebirth
-		[78675] = {60, 28, 102}, -- Solar Beam
-		[99] = {30, 28, 104}, -- Incapacitating Roar
-		[22812] = {60, 36, {102, 104, 105}}, -- Barkskin
-		[61336] = {180, 40, {103, 104}}, -- Survival Instincts (2 charges)
-		[106951] = {180, 48, 103, -14}, -- Berserk
-		[102793] = {60, 48, 105}, -- Ursol's Vortex
+		[1850] = {120, 8, nil, -4}, -- Dash
+		[5217] = {30, 13, 103}, -- Tiger's Fury
+		[22812] = {60, 26, {102, 104, 105}}, -- Barkskin
+		[99] = {30, 28, 104, -5}, -- Incapacitating Roar
+		[61336] = {180, 36, {103, 104}}, -- Survival Instincts (2 charges)
+		[106951] = {180, 40, 103, -15}, -- Berserk
+		[22842] = {36, 40, nil, {[102]=8,[103]=8,[104]=false},[105]=8}, -- Frenzied Regeneration (2 charges at lv63) (Granted via Guardian Affinity)
+		[20484] = {600, 42}, -- Rebirth
+		[194223] = {180, 48, 102, -15}, -- Celestial Alignment
 		[29166] = {180, 50, {102, 105}}, -- Innervate
-		[22842] = {24, 50, 104}, -- Frenzied Regeneration (2 charges)
-		[102342] = {90, 52, 105}, -- Ironbark
-		[194223] = {180, 64, 102, -14}, -- Celestial Alignment
-		[106839] = {15, 64, {103, 104}}, -- Skull Bash
-		[740]   = {180, 72, 105}, -- Tranquility
-		[106898] = {120, 83, {103, 104}}, -- Stampeding Roar
+		[106898] = {120, 50, {103, 104}}, -- Stampeding Roar
+		[102342] = {60, 54, 105}, -- Ironbark
+		[2908] = {10, 56}, -- Soothe
+		[78675] = {60, 60, 102}, -- Solar Beam
+		[102793] = {60, 63, 105}, -- Ursol's Vortex
+		[106839] = {15, 70, {103, 104}}, -- Skull Bash
+		[740] = {180, 80, 105}, -- Tranquility
 
-		[205636] = {60, 15, 102, 1}, -- Force of Nature
 		[202425] = {45, 15, 102, 2}, -- Warrior of Elune
-		[155835] = {40, 15, 104, 2}, -- Bristling Fur
-		[102351] = {30, 15, 105, 2}, -- Cenarion Ward
-		[108238] = {120, 30, {102, 103, 105}, 4}, -- Renewel
-		[102280] = {30, 30, nil, 5}, -- Displacer Beast
+		[155835] = {40, 15, 104, 3}, -- Bristling Fur
+		[102351] = {30, 15, 105, 3}, -- Cenarion Ward
+		[205636] = {60, 15, 102, 3}, -- Force of Nature
+		[252216] = {45, 30, nil, 4}, -- Tiger Dash
+		[236748] = {30, 30, 104, 5}, -- Initidating Roar
+		[108238] = {90, 30, {102, 103, 105}, 5}, -- Renewel
 		[132302] = {15, 30, nil, 6}, -- Wild Charge
-		[16979] = 132302, -- Wild Charge (Bear)
-		[49376] = 132302, -- Wild Charge (Cat)
+		[16979]  = 132302, -- Wild Charge (Bear)
+		[49376]  = 132302, -- Wild Charge (Cat)
 		[102383] = 132302, -- Wild Charge (Moonkin)
 		[102416] = 132302, -- Wild Charge (Aquatic)
 		[102417] = 132302, -- Wild Charge (Travel)
-		-- XXX 45 talents add spells exclusive to other specs...WHATDO?!
-		[5211] = {50, 60, nil, 10}, -- Mighty Bash
+		[5211]   = {50, 60, nil, 10}, -- Mighty Bash
 		[102359] = {30, 60, nil, 11}, -- Mass Entanglement
 		[132469] = {30, 60, nil, 12}, -- Typhoon
-		[61391] = 132469, -- Typhoon (actual event)
-		[102560] = {180, 75, 102, 14}, -- Incarnation: Chosen of Elune
-		[102543] = {180, 75, 103, 14}, -- Incarnation: King of the Jungle
-		[102558] = {180, 75, 104, 14}, -- Incarnation: Guardian of Ursoc
-		[33891]  = {180, 75, 105, 14}, -- Incarnation: Tree of Life
-		[202359] = {80, 90, 102, 17}, -- Astral Communion
-		[202360] = {15, 90, 102, 18}, -- Blessing of the Ancients
-		[202060] = {45, 90, 103, 18}, -- Elune's Guidance
-		[202770] = {90, 100, 102, 19}, -- Fury of Elune
-		[204066] = {90, 100, 104, 20}, -- Lunar Beam
-		[197721] = {60, 100, 105, 21}, -- Flourish
+		[61391]  = 132469, -- Typhoon (actual event)
+		[102560] = {180, 75, 102, 15}, -- Incarnation: Chosen of Elune
+		[102558] = {180, 75, 104, 15}, -- Incarnation: Guardian of Ursoc
+		[102543] = {180, 75, 103, 15}, -- Incarnation: King of the Jungle
+		[33891]  = {180, 75, 105, 15}, -- Incarnation: Tree of Life
+		[202770] = {60, 100, 102, 20}, -- Fury of Elune
+		[204066] = {75, 100, 104, 20}, -- Lunar Beam
+		[274281] = {25, 100, 102, 21}, -- New Moon (3 charges)
+		[274837] = {45, 100, 103, 21}, -- Feral Frenzy
+		[197721] = {90, 100, 105, 21}, -- Flourish
 	},
 	HUNTER = {
 		[781] = {20, 8}, -- Disengage (30s base, reduced by 10s at 85)
@@ -766,6 +775,7 @@ local chargeSpells = {
 	-- Druid
 	[61336] = 2, -- Survival Instincts
 	[22842] = 2, -- Frenzied Regeneration
+	[274281] = 3, -- New Moon
 	-- Mage
 	[212653] = 2, -- Shimmer
 	[116011] = 2, -- Rune of Power
