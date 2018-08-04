@@ -191,11 +191,44 @@ local talentCooldowns = {
 	end,
 
 	-- Warrior
-	[22409] = function(info) -- Arms/Fury: Double Time
+	[21204] = function(info) -- All: Anger Management
+		-- Rage you spend reduces the remaining cooldown on [Spell] by 1 sec.
+		if info.guid == playerGUID then
+			if info.spec == 71 then -- Arms
+				if info.talents[14] then
+					syncSpells[262161] = true -- Warbreaker
+				else
+					syncSpells[167105] = true -- Colossus Smash
+				end
+				syncSpells[227847] = true -- Bladestorm
+			elseif info.spec == 72 then -- Fury
+				syncSpells[1719] = true -- Recklessness
+			elseif info.spec == 73 then -- Prot
+				syncSpells[107574] = true -- Avatar
+				syncSpells[12975] = true -- Last Stand
+				syncSpells[871] = true -- Shield Wall
+				syncSpells[1160] = true -- Demoralizing Shout
+			end
+		end
+	end,
+	[22627] = function(info) -- Arms/Fury: Bounding Stride
+		addMod(info.guid, 52174, 15) -- Heroic Leap
+	end,
+	[19676] = function(info) -- Arms/Fury: Double Time
 		addMod(info.guid, 100, 3, 2) -- Charge
 	end,
-	[22627] = function(info) -- Bounding Stride
+	[22629] = function(info) -- Protection: Bounding Stride
 		addMod(info.guid, 52174, 15) -- Heroic Leap
+	end,
+	[22488] = function(info) -- Protection: Bolster
+		addMod(info.guid, 12975, 60) -- Last Stand
+	end,
+	[22631] = function(info) -- Protection: Rumbling Earth
+		-- When Shockwave strikes at least 3 targets, its cooldown is reduced by 15
+		-- sec.
+		if info.guid == playerGUID then
+			syncSpells[46968] = true -- Shockwave
+		end
 	end,
 }
 
@@ -561,31 +594,34 @@ local spells = {
 		[171140] = 19647,    -- Doomguard Shadow Lock (via Command Demon, originates from player)
 	},
 	WARRIOR = {
-		[100]   = {20, 3}, -- Charge
-		[184364] = {120, 12, 72}, -- Enraged Regeneration
-		[6552]  = {15, 24}, -- Pummel
-		[52174]  = {45, 26}, -- Heroic Leap
-		[12975] = {180, 36, 73, nil, true}, -- Last Stand (Anger Management)
-		[18499]  = {60, 40}, -- Berserk Rage
-		[871]   = {240, 48, 73, nil, true}, -- Shield Wall (Anger Management)
-		[118038]  = {180, 50, 71}, -- Die by the Sword
-		[1160] = {90, 50, 73}, -- Demoralizing Shout
-		[1719] = {60, 60, nil, nil, true}, -- Battle Cry (Anger Management)
-		[23920] = {25, 65, 73}, -- Spell Reflection
-		[5246]  = {90, 70, {71, 72}}, -- Intimidating Shout
-		[198304] = {15, 72, 73}, -- Intercept
-		[227847] = {90, 75, 71, -21}, -- Bladestorm
-		[97462] = {180, 83, {71, 72}}, -- Commanding Shout
+		[100] = {20, 3}, -- Charge
+		[260708] = {30, 22, 71}, -- Sweeping Strikes
+		[6552] = {15, 24}, -- Pummel
+		[52174] = {45, 26}, -- Heroic Leap
+		[198304] = {20, 28, 73}, -- Intercept
+		[12975] = {180, 32, 73}, -- Last Stand
+		[118038] = {180, 36, 71}, -- Die by the Sword
+		[184364] = {120, 36, 72}, -- Enraged Regeneration
+		[18499] = {60, 44}, -- Berserk Rage
+		[1160] = {45, 48, 73}, -- Demoralizing Shout
+		[167105] = {45, 50, 71}, -- Colossus Smash
+		[1719] = {60, 50, 72}, -- Recklessness
+		[46968] = {40, 50, 73}, -- Shockwave
+		[871] = {240, 55, 73}, -- Shield Wall
+		[227847] = {90, 65, 71, -21}, -- Bladestorm
+		[5246] = {90, 70}, -- Intimidating Shout
+		[23920] = {25, 70, 73}, -- Spell Reflection
+		[97462] = {180, 80}, -- Rallying Cry
 
-		[46968] = {40, 30, nil, {[71]=4,[72]=4,[73]=1}, true}, -- Shockwave: Cooldown reduced by 20 sec if it strikes at least 3 targets.
-		[107570] = {30, 30, nil, {[71]=5,[72]=5,[73]=2}}, -- Storm Bolt
-		[107574] = {90, 45, nil, 9}, -- Avatar
-		[12292] = {30, 90, 72, 16}, -- Bloodbath
-		-- Anger Management (Arms/Protection): (19) Every 10 Rage you spend reduces the remaining cooldown on Battle Cry, Last Stand, and Shield Wall by 1 sec.
-		[46924] = {90, 100, 72, 19}, -- Bladestorm
-		[152277] = {60, 100, {71, 73}, 21}, -- Ravager
-		[228920] = 152277, -- Ravager (Prot)
-		[118000] = {25, 100, 72, 21}, -- Dragon Roar
+		[260643] = {21, 15, 71, 3}, -- Skullsplitter
+		[107570] = {30, {[71]=30,[72]=30,[73]=75}, nil, {[71]=6,[72]=6,[73]=15}}, -- Storm Bolt
+		[262161] = {45, 75, 71, 14}, -- Warbreaker
+		[107574] = {90, 90, nil, {[71]=17,[73]=false}}, -- Avatar -- Protection always has it, Arms can talent into it
+		[118000] = {35, {[72]=90,[73]=45}, nil, {[72]=17,[73]=9}}, -- Dragon Roar
+		[46924] = {60, 90, 72, 18}, -- Bladestorm
+		[152277] = {60, 100, {71, 73}, 21}, -- Ravager (Arms)
+		[228920] = 152277, -- Ravager (Protection)
+		[280772] = {30, 100, 72, 21}, -- Siegebreaker
 	},
 	RACIAL = {
 		--  Arcane Torrent (Blood Elf)
@@ -696,7 +732,7 @@ function module:IsSpellUsable(guid, spellId)
 	local _, level, spec, talent, _, race = unpack(data)
 	if type(talent) == "table" then
 		talent = talent[info.spec]
-		if not talent then
+		if talent == nil then
 			return false
 		end
 		if type(level) == "table" then
