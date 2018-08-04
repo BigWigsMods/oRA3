@@ -169,10 +169,36 @@ local talentCooldowns = {
 	end,
 
 	-- Paladin
-	[17567] = function(info) -- Holy: Unbreakable Spirit (-30%)
+	-- [22896] = function(info) -- Retribution: Fist of Justice
+	-- 	-- Each Holy Power spent reduces the remaining cooldown on Hammer of Justice
+	-- 	-- by 2 sec.
+	-- 	if info.guid == playerGUID then
+	-- 		syncSpells[853] = true -- Hammer of Justice
+	-- 	end
+	-- end,
+	[17575] = function(info) -- Holy: Cavalier
+		addMod(info.guid, 190784, 0, 2) -- Divine Steed
+	end,
+	[22434] = function(info) -- Protection: Cavalier
+		addMod(info.guid, 190784, 0, 2) -- Divine Steed
+	end,
+	[22185] = function(info) -- Retribution: Cavalier
+		addMod(info.guid, 190784, 0, 2) -- Divine Steed
+	end,
+	[22176] = function(info) -- Holy: Unbreakable Spirit (-30%)
 		addMod(info.guid, 642, 100) -- Divine Shield
-		addMod(info.guid, 498, 20) -- Divine Protection
 		addMod(info.guid, 633, 200) -- Lay on Hands
+		addMod(info.guid, 498, 18) -- Divine Protection
+	end,
+	[22705] = function(info) -- Protection: Unbreakable Spirit (-30%)
+		addMod(info.guid, 642, 100) -- Divine Shield
+		addMod(info.guid, 633, 200) -- Lay on Hands
+		addMod(info.guid, 31850, 36) -- Ardent Defender
+	end,
+	[22595] = function(info) -- Retribution: Unbreakable Spirit (-30%)
+		addMod(info.guid, 642, 100) -- Divine Shield
+		addMod(info.guid, 633, 200) -- Lay on Hands
+		addMod(info.guid, 184662, 36) -- Shield of Vengeance
 	end,
 
 	-- Priest
@@ -496,29 +522,35 @@ local spells = {
 		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
-		[853] = {60, 5, nil, nil, true}, -- Hammer of Justice: (7) Judgement reduces the remaining cooldown by 10 sec.
-		[31935] = {15, 10, 66, nil, true}, -- Avenger's Shield (Protection): When you avoid a melee attack or use Hammer of the Righteous, you have a 15% chance to reset the remaining cooldown.
+		[853] = {60, 8}, -- Hammer of Justice
 		[642] = {300, 18}, -- Divine Shield
-		[633] = {600, 22}, -- Lay on Hands
-		[1044] = {25, 52}, -- Blessing of Freedom
-		[498] = {60, 26, {65, 66}}, -- Divine Protection
-		[96231] = {15, 36, {66, 70}}, -- Rebuke
-		[1022] = {300, 48, nil, {[66]=-10}}, -- Blessing of Protection
+		[183218] = {30, 24, 70}, -- Hand of Hindrance
+		[190784] = {45, 28}, -- Divine Steed
+		[184662] = {120, 32, 70}, -- Shield of Vengeance
+		[498] = {60, 32, {65, 66}}, -- Divine Protection
+		[96231] = {15, 35, {66, 70}}, -- Rebuke
+		[1044] = {25, 38}, -- Blessing of Freedom
+		[1022] = {300, 48, nil, {[66]=-12}}, -- Blessing of Protection
+		[31850] = {120, 50, 66}, -- Ardent Defender
+		[633] = {600, 55}, -- Lay on Hands
 		[6940] = {150, 56, {65, 66}}, -- Blessing of Sacrifice
-		[31821] = {180, 65, 65}, -- Aura Mastery
-		[31850] = {120, 65, 66}, -- Ardent Defender
-		[31884] = {120, 72, {65, 70}}, -- Avenging Wrath (Prot/Ret)
-		[86659] = {300, 83, 66}, -- Guardian of Ancient Kings
+		[31821] = {180, 70, 65}, -- Aura Mastery
+		[86659] = {300, 70, 66}, -- Guardian of Ancient Kings
+		[31884] = {120, 80}, -- Avenging Wrath
 
-		[114158] = {60, 15, 65, 2}, -- Light's Hammer
+		[114158] = {60, 15, 65, 3}, -- Light's Hammer
+		[267798] = {30, 15, 70, 3}, -- Execution Sentence
+		[204035] = {120, 30, 66, 6}, -- Bastion of Light
 		[20066] = {15, 45, nil, 8}, -- Repentance
-		[115750] = {90, 30, nil, 9}, -- Blinding Light
-		[204018] = {180, 60, 66, 10}, -- Blessing of Spellwarding
-		[105809] = {120, 75, 65, 14}, -- Holy Avenger
-		[114165] = {20, 75, 65, 15}, -- Holy Prism
-		[205191] = {60, 75, 70, 14}, -- Eye for an Eye
-		[204150] = {300, 90, 66, 16}, -- Aegis of Light
-		[152262] = {30, 100, 66, 20}, -- Seraphim
+		[115750] = {90, 45, nil, 9}, -- Blinding Light
+		[204018] = {180, 60, 66, 12}, -- Blessing of Spellwarding
+		[255937] = {45, 60, 70, 12}, -- Wake of Ashes
+		[114165] = {20, 75, 65, 14}, -- Holy Prism
+		[205191] = {60, 75, 70, 15}, -- Eye for an Eye
+		[105809] = {90, 75, 65, 15}, -- Holy Avenger
+		[204150] = {300, 90, 66, 18}, -- Aegis of Light
+		[231895] = 31884, -- Crusade
+		[152262] = {45, 100, 66, 21}, -- Seraphim
 	},
 	PRIEST = {
 		[8122] = {60, 18, nil, {[258]=-11}}, -- Psychic Scream
@@ -2050,6 +2082,25 @@ do
 
 	combatLogHandler.userdata = {}
 	-- local scratch = combatLogHandler.userdata
+
+	local function fistOfJustice(srcGUID, _, spellId)
+		local info = infoCache[srcGUID]
+		if info and info.talents[7] then -- Fist of Justice
+			local remaining = module:GetRemainingCooldown(srcGUID, 853) -- Hammer of Justice
+			if remaining > 0 then
+				if info.spec == 65 then -- Holy
+					resetCooldown(info, 853, remaining - 10)
+				elseif info.spec == 66 then -- Protection
+					resetCooldown(info, 853, remaining - 6)
+				elseif info.spec == 70 then -- Retribution
+					-- Inquisition = 84963, can be 1-3. ffffuuuuu
+					local hp = spellId == 215661 and 5 or 3
+					resetCooldown(info, 853, remaining - (hp * 2))
+				end
+			end
+		end
+	end
+
 	local specialEvents = {
 		SPELL_CAST_SUCCESS = {
 			[2050] = function(srcGUID) -- Holy Word: Serenity
@@ -2070,6 +2121,23 @@ do
 					end
 				end
 			end,
+			[53600] = function(srcGUID) -- Shield of the Righteous
+				local info = infoCache[srcGUID]
+				if info and info.talents[20] then -- Righteous Protector
+					local remaining = module:GetRemainingCooldown(srcGUID, 31884) -- Avenging Wrath
+					if remaining > 0 then
+						resetCooldown(info, 31884, remaining - 3)
+					end
+				end
+			end,
+			[275773] = fistOfJustice, -- Judgement (Holy)
+			[275779] = fistOfJustice, -- Judgement (Protection)
+			[85256] = fistOfJustice, -- Templar's Verdict
+			[53385] = fistOfJustice, -- Divine Storm
+			[267798] = fistOfJustice, -- Execution Sentence
+			[210191] = fistOfJustice, -- Word of Glory
+			[215661] = fistOfJustice, -- Justicar's Vengeance
+			[84963] = fistOfJustice, -- Inquisition
 		},
 		SPELL_AURA_APPLIED = {
 			[212800] = function(srcGUID) -- Blur (work around for not having a cast event)
