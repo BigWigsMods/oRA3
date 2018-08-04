@@ -24,6 +24,7 @@ local combatOnUpdate = nil
 
 local infoCache = {}
 local cdModifiers, chargeModifiers = {}, {}
+local syncSpells = {}
 local spellsOnCooldown, chargeSpellsOnCooldown = nil, nil
 local deadies = {}
 local playerGUID = UnitGUID("player")
@@ -124,7 +125,8 @@ local talentCooldowns = {
 }
 
 -- { cd, level, spec id, talent index, sync, race }
--- spec id can be a table of specs
+-- level can be a hash of spec=level for talents in different locations
+-- spec id can be a table of specs and is optional if level or talent are a table
 -- talent index can be negative to indicate a talent replaces the spell
 --   and can be a hash of spec=index for talents in different locations
 -- sync will register SPELL_UPDATE_COOLDOWN and send "CooldownUpdate" syncs
@@ -568,7 +570,6 @@ local chargeSpells = {
 local mergeSpells = {}
 local allSpells = {}
 local classLookup = {}
-local syncSpells = {}
 for class, classSpells in next, spells do
 	for spellId, info in next, classSpells do
 		if type(info) == "number" then
@@ -578,12 +579,9 @@ for class, classSpells in next, spells do
 			classSpells[spellId] = nil
 		end
 		if info then
-			if GetSpellInfo(spellId) then
+			if C_Spell.DoesSpellExist(spellId) then
 				allSpells[spellId] = info
 				classLookup[spellId] = class
-				if class == playerClass and info[5] then
-					syncSpells[spellId] = true -- info[4] or true
-				end
 			else
 				print("oRA3: Invalid spell id", spellId)
 			end
@@ -609,16 +607,19 @@ function module:IsSpellUsable(guid, spellId)
 	local _, level, spec, talent, _, race = unpack(data)
 	if type(talent) == "table" then
 		talent = talent[info.spec]
-		-- we already matched the spec, so just decide based on talent
-		if talent ~= nil then
-			spec = nil
+		if not talent then
+			return false
 		end
+		if type(level) == "table" then
+			level = level[info.spec]
+		end
+		-- we already matched the spec
+		spec = nil
 	end
-	local usable = (info.level >= level) and (not race or info.race == race) and
+
+	return (info.level >= level) and (not race or info.race == race) and
 		(not talent or ((talent > 0 and info.talents[talent]) or (talent < 0 and not info.talents[-talent]))) and -- handle talents replacing spells (negative talent index)
 		(not spec or spec == info.spec or (type(spec) == "table" and tContains(spec, info.spec)))
-
-	return usable
 end
 
 function module:CheckFilter(display, player)
@@ -1765,6 +1766,17 @@ end
 function module:OnPlayerUpdate(_, guid, unit, info)
 	for _, mods in next, cdModifiers do mods[guid] = nil end
 	for _, mods in next, chargeModifiers do mods[guid] = nil end
+	infoCache[guid] = info
+
+	if guid == playerGUID then
+		self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
+		wipe(syncSpells)
+		for spellId, data in next, spells[playerClass] do
+			if data[5] and self:IsSpellUsable(info.guid, spellId) then
+				syncSpells[spellId] = true
+			end
+		end
+	end
 
 	for talentIndex, talentId in next, info.talents do
 		if talentCooldowns[talentId] then
@@ -1772,7 +1784,10 @@ function module:OnPlayerUpdate(_, guid, unit, info)
 		end
 	end
 
-	infoCache[guid] = info
+	if guid == playerGUID and next(syncSpells) then
+		self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+	end
+
 	updateCooldownsByGUID(guid)
 end
 
