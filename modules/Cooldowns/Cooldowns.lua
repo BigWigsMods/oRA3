@@ -176,8 +176,28 @@ local talentCooldowns = {
 	end,
 
 	-- Priest
-	[22094] = function(info) -- Disc/Shadow: Psychic Voice
-		addMod(info.guid, 8122, 30)
+	[22094] = function(info) -- Disc/Holy: Psychic Voice
+		addMod(info.guid, 8122, 30) -- Psychic Scream
+	end,
+	[22325] = function(info) -- Holy: Angel's Mercy
+		-- Damage you take reduces the cooldown of Desperate Prayer, based on the
+		-- amount of damage taken.
+		if info.guid == playerGUID then
+			syncSpells[19236] = true -- Desperate Prayer
+		end
+	end,
+	[22095] = function(info) -- Holy: Guardian Angel
+		-- When Guardian Spirit expires without saving the target from death, reduce
+		-- its remaining cooldown to 60 seconds.
+		if info.guid == playerGUID then
+			syncSpells[47788] = true -- Guardian Spirit
+		end
+	end,
+	[23374] = function(info) -- Shadow: San'layn
+		addMod(info.guid, 15286, 45) -- Vampiric Embrace
+	end,
+	[23375] = function(info) -- Shadow: Last Word
+		addMod(info.guid, 15487, 15) -- Silence
 	end,
 
 	-- Rogue
@@ -501,29 +521,35 @@ local spells = {
 		[152262] = {30, 100, 66, 20}, -- Seraphim
 	},
 	PRIEST = {
-		[8122]  = {60, 12, {256, 258}, {[258]=-7}}, -- Psychic Scream
-		[586]   = {30, 38}, -- Fade
-		[32375] = {15, 72}, -- Mass Dispel
-		[34433] = {180, 40, {256, 258}, {[256]=-12,[258]=-18}}, -- Shadowfiend
-		[47536] = {120, 50, 256}, -- Rapture
-		[15487] = {45, 50, 258}, -- Silence
-		[47788] = {240, 54, 257, nil, true}, -- Guardian Spirit (Holy): (11) When Guardian Spirit expires without saving the target from death, reduce its remaining cooldown to 120 seconds.
-		[33206] = {240, 56, 256}, -- Pain Suppression
-		[47585] = {120, 58, 258}, -- Dispersion
-		[62618] = {180, 65, 256}, -- Power Word: Barrier
-		[15286] = {180, 65, 258}, -- Vampiric Embrace
-		[64843] = {180, 76, 257}, -- Divine Hymn
-		[73325] = {90, 83, {256, 257}}, -- Leap of Faith
+		[8122] = {60, 18, nil, {[258]=-11}}, -- Psychic Scream
+		[19236] = {90, 26, {256,257}}, -- Desperate Prayer
+		[15286] = {120, 28, 258}, -- Vampiric Embrace
+		[586] = {30, 44}, -- Fade
+		[32375] = {45, 80}, -- Mass Dispel
+		[34433] = {180, 40, {256, 258}, {[256]=-8,[258]=-17}}, -- Shadowfiend
+		[33206] = {180, 48, 256}, -- Pain Suppression
+		[47536] = {90, 50, 256}, -- Rapture
+		[194509] = {20, 52, 256}, -- Power Word: Radiance
+		[15487] = {45, 52, 258}, -- Silence
+		[47788] = {180, 44, 257}, -- Guardian Spirit
+		[47585] = {120, 48, 258}, -- Dispersion
+		[73325] = {90, 63}, -- Leap of Faith
+		[64843] = {180, 70, 257}, -- Divine Hymn
+		[62618] = {180, 70, 256, -20}, -- Power Word: Barrier
+		[64901] = {300, 84, 257}, -- Symbol of Hope
 
-		[19236] = {90, 30, 257, 6}, -- Desperate Prayer
-		[204263] = {60, 45, {256, 257}, 7}, -- Shining Force
-		[205369] = {30, 45, 258, 7}, -- Mind Bomb
-		[123040] = {60, 60, {256, 258}, {[256]=12,[258]=18}}, -- Mindbender (Disc: 60, Shadow: 90)
+		[123040] = {60, {[256]=45,[258]=90}, nil, {[256]=8,[258]=17}}, -- Mindbender
 		[200174] = 123040, -- Mindbender (Shadow)
-		[64901] = {360, 60, 257, 12}, -- Hymn of Hope
-		[10060] = {120, 75, {256, 258}, {[256]=14,[258]=16}}, -- Power Infusion (Disc: 75, Shadow: 90)
+		[205369] = {30, 60, 258, 11}, -- Mind Bomb
+		[64044] = {45, 60, 258, 12}, -- Psychic Horror
+		[204263] = {60, 45, {256, 257}, 12}, -- Shining Force
 		[120517] = {40, 90, {256, 257}, 18}, -- Halo
-		[200183] = {180, 100, 257, 19}, -- Apotheosis
+		[200183] = {120, 100, 257, 20}, -- Apotheosis
+		[280711] = {60, 100, 258, 20}, -- Dark Ascension
+		[271466] = {180, 100, 256, 20}, -- Luminous Barrier
+		[246287] = {75, 100, 258, 21}, -- Evangelism
+		[265202] = {720, 100, 257, 21}, -- Holy Word: Salvation
+		[193223] = {240, 100, 258, 21}, -- Surrender to Madness
 	},
 	ROGUE = {
 		-- Restless Blades (Outlaw, 50): Finishing moves reduce the remaining cooldown
@@ -2025,6 +2051,26 @@ do
 	combatLogHandler.userdata = {}
 	-- local scratch = combatLogHandler.userdata
 	local specialEvents = {
+		SPELL_CAST_SUCCESS = {
+			[2050] = function(srcGUID) -- Holy Word: Serenity
+				local info = infoCache[srcGUID]
+				if info and info.talents[21] then
+					local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
+					if remaining > 0 then
+						resetCooldown(info, 265202, remaining - 30)
+					end
+				end
+			end,
+			[34861] = function(srcGUID) -- Holy Word: Sanctify
+				local info = infoCache[srcGUID]
+				if info and info.talents[21] then
+					local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
+					if remaining > 0 then
+						resetCooldown(info, 265202, remaining - 30)
+					end
+				end
+			end,
+		},
 		SPELL_AURA_APPLIED = {
 			[212800] = function(srcGUID) -- Blur (work around for not having a cast event)
 				local info = infoCache[srcGUID]
