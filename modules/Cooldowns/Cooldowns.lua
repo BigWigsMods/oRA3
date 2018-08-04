@@ -179,6 +179,18 @@ local talentCooldowns = {
 	[22094] = function(info) -- Disc/Shadow: Psychic Voice
 		addMod(info.guid, 8122, 30)
 	end,
+
+	-- Rogue
+	[19237] = function(info) -- Outlaw: Retractable Hook
+		addMod(info.guid, 195457, 30) -- Grappling Hook
+	end,
+	[19237] = function(info) -- Outlaw: Blinding Powder
+		addMod(info.guid, 2094, 30) -- Blind
+	end,
+	[22336] = function(info) -- Subtlety: Enveloping Shadows
+		addMod(info.guid, 185313, 0, 3) -- Shadow Dance
+	end,
+
 	-- Shaman
 	[22492] = function(info) -- Resto: Graceful Spirit
 		addMod(info.guid, 79206, 60) -- Spiritwalker's Grace
@@ -514,28 +526,41 @@ local spells = {
 		[200183] = {180, 100, 257, 19}, -- Apotheosis
 	},
 	ROGUE = {
-		-- True Bearing (Outlaw) For the duration of Roll the Bones, each time you use a finishing move, you reduce the remaining cooldown on .. by 2 sec per combo point spent.
-		[5277]  = {120, 8, {259, 261}}, -- Evasion
-		[199754] = {120, 10, 260, nil, true}, -- Riposte (True Bearing)
-		[36554] = {30, 13, 261}, -- Shadowstep
-		[185311] = {30, 14}, -- Crimson Vial
+		-- Restless Blades (Outlaw, 50): Finishing moves reduce the remaining cooldown
+		-- of Adrenaline Rush, Between the Eyes, Sprint, Grappling Hook, Ghostly
+		-- Strike, Marked for Death, Blade Rush, Killing Spree, and Vanish by 1 sec
+		-- per combo point spent.
+		[36554] = {30, 22, {259,261}}, -- Shadowstep
+		[185311] = {30, 16}, -- Crimson Vial
 		[1766] = {15, 18}, -- Kick
-		[1776]  = {10, 22, 260}, -- Gouge
-		[2983] = {60, 26, nil, nil, true}, -- Sprint (True Bearing)
-		[1725] = {30, 28}, -- Distract
-		[1856] = {120, 32, nil, nil, true}, -- Vanish (True Bearing)
-		[2094] = {120, 38, {260, 261}, nil, true}, -- Blind (True Bearing)
-		[408] = {20, 40, {259, 261}}, -- Kidney Shot
-		[31224] = {60, 58, nil, nil, true}, -- Cloak of Shadows (True Bearing)
-		[57934] = {30, 64}, -- Tricks of the Trade
-		[79140] = {120, 72, 259}, -- Vendetta
-		[13750] = {180, 72, 260, nil, true}, -- Adrenaline Rush (True Bearing)
-		[121471] = {180, 72, 261}, -- Shadow Blades
+		[199804] = {30, 20, 260, nil, true}, -- Between the Eyes
+		[195457] = {60, 22, 260, nil, true}, -- Grappling Hook
+		[2094] = {120, 24}, -- Blind
+		[5277] = {120, 26, {259,261}}, -- Evasion
+		[199754] = {120, 26, 260}, -- Riposte
+		[2983] = {60, 32, nil, nil, {[260]=true}}, -- Sprint (120s base, reduced by 60s at 66)
+		[1776]  = {15, 34, 260}, -- Gouge
+		[408] = {20, 34, {259, 261}}, -- Kidney Shot
+		[212283] = {30, 36, 261}, -- Symbols of Death
+		[1725] = {30, 38}, -- Distract
+		[185313] = {60, 40, 261, nil, true}, -- Shadow Dance - Your finishing moves reduce the remaining cooldown on Shadow Dance
+		[1966] = {15, 44}, -- Feint
+		[1856] = {120, 48, nil, nil, {[260]=true}}, -- Vanish
+		[121471] = {180, 56, 261}, -- Shadow Blades
+		[79140] = {120, 56, 259}, -- Vendetta
+		[13877] = {25, 63, 260}, -- Blade Flurry
+		[114018] = {360, 68}, -- Shroud of Concealment
+		[57934] = {30, 70}, -- Tricks of the Trade
+		[13750] = {180, 56, 260, nil, true}, -- Adrenaline Rush
+		[31224] = {120, 80}, -- Cloak of Shadows
 
-		[195457] = {30, 30, 260, 4, true}, -- Grappling Hook (True Bearing)
+		[196937] = {35, 15, 260, 3, true}, -- Ghostly Strike
+		[137619] = {60, 45, nil, 20, true}, -- Marked for Death - Cooldown reset if the target dies within 1 min.
 		[200806] = {45, 90, 259, 18}, -- Exsanguinate
-		[51690] = {120, 90, 260, 18, true}, -- Killing Spree (True Bearing)
-		[137619] = {60, 100, nil, 20, true}, -- Marked for Death: (20) Cooldown reset if the target dies within 1 min.
+		[271877] = {45, 100, 260, 20, true}, -- Blade Rush
+		[51690] = {120, 100, 260, 21, true}, -- Killing Spree
+		[280719] = {45, 100, 261, 20, true}, -- Secret Technique
+		[277925] = {60, 100, 261, 21}, -- Shuriken Tornado
 	},
 	SHAMAN = {
 		[51514] = {39, 42, nil, -9}, -- Hex
@@ -687,6 +712,10 @@ local chargeSpells = {
 	[212653] = 2, -- Shimmer
 	[116011] = 2, -- Rune of Power
 	[108839] = 3, -- Ice Floes
+	-- Rogue
+	[13877] = 2, -- Blade Flurry
+	[36554] = 2, -- Shadowstep
+	[185313] = 2, -- Shadow Dance
 	-- Warrior
 	[198304] = 2, -- Intercept
 }
