@@ -141,6 +141,14 @@ local talentCooldowns = {
 		addMod(info.guid, 235450, 25) -- Primastic Barrier (removes cd)
 	end,
 
+	-- Monk
+	[19304] = function(info) -- Celerity
+		addMod(info.guid, 109132, 5, 3) -- Roll
+	end,
+	[19993] = function(info) -- Tiger Tail Sweep
+		addMod(info.guid, 119381, 10) -- Leg Sweep
+	end,
+
 	-- Paladin
 	[17575] = function(info) -- Holy: Cavalier
 		addMod(info.guid, 190784, 0, 2) -- Divine Steed
@@ -453,28 +461,32 @@ local spells = {
 		[153561] = {45, 100, 63, 21}, -- Meteor
 	},
 	MONK = {
-		[101545] = {25, 10, 269}, -- Flying Serpent Kick
-		[122470] = {90, 22, 269}, -- Touch of Karma
-		[115203] = {420, 24, 268}, -- Fortifying Brew
-		[115080] = {120, 24, 269}, -- Touch of Death
-		[116849] = {180, 28, 270}, -- Life Cocoon
-		[116705] = {15, 32, {268, 269}}, -- Spear Hand Strike
-		[115078] = {15, 48}, -- Paralysis
-		[116680] = {30, 54, 270}, -- Thunder Focus Tea
+		[109132] = {20, 5, nil, -5}, -- Roll
+		[115078] = {45, 25}, -- Paralysis
+		[115080] = {120, 32, 269}, -- Touch of Death
+		[116705] = {15, 35, {268, 269}}, -- Spear Hand Strike
+		[116849] = {120, 35, 270}, -- Life Cocoon
+		[101545] = {25, 48, 269}, -- Flying Serpent Kick
+		[116680] = {30, 50, 270}, -- Thunder Focus Tea
+		[119381] = {60, 52}, -- Leg Sweep
+		[115203] = {90, 55, 270}, -- Fortifying Brew
+		[122470] = {90, 55, 269}, -- Touch of Karma
 		[115176] = {300, 65, 268}, -- Zen Meditation
-		[115310] = {180, 65, 270}, -- Revival
+		[115310] = {180, 70, 270}, -- Revival
 
-		[116841] = {30, 30, nil, 5}, -- Tiger's Lust
-		[115288] = {60, 45, 269, 7}, -- Energizing Elixir
-		[115399] = {90, 45, 269, 8}, -- Black Ox Brew
-		[116844] = {45, 60, nil, 10}, -- Ring of Peace
+		[115008] = {20, 30, nil, 5}, -- Chi Torpedo
+		[116841] = {30, 30, nil, 6}, -- Tiger's Lust
+		[115288] = {60, 45, 269, 9}, -- Energizing Elixir
+		[115399] = {120, 45, 268, 9}, -- Black Ox Brew
+		[197908] = {90, 45, 270, 9}, -- Mana Tea
+		[115315] = {10, 60, 268, 11}, -- Summon Black Ox Statue
 		[198898] = {30, 60, 270, 11}, -- Song of Chi-Ji
-		[119381] = {45, 60, nil, 12}, -- Leg Sweep
-		[122783] = {120, 75, nil, 14}, -- Diffuse Magic
+		[116844] = {45, 60, nil, 12}, -- Ring of Peace
+		[122783] = {120, 75, {269,270}, 14}, -- Diffuse Magic
 		[122278] = {120, 75, nil, 15}, -- Dampen Harm
-		[132578] = {180, 90, 268, 17}, -- Invoke Niuzao, the Black Ox
-		[123904] = {180, 90, 269, 17}, -- Invoke Xuen, the White Tiger
-		[198664] = {180, 90, 270, 17}, -- Invoke Chi-Ji, the Red Crane
+		[198664] = {180, 90, 270, 18}, -- Invoke Chi-Ji, the Red Crane
+		[132578] = {180, 90, 268, 18}, -- Invoke Niuzao, the Black Ox
+		[123904] = {120, 90, 269, 18}, -- Invoke Xuen, the White Tiger
 		[152173] = {90, 100, 269, 21}, -- Serenity
 	},
 	PALADIN = {
@@ -728,6 +740,8 @@ local chargeSpells = {
 	[116011] = 2, -- Rune of Power
 	[108839] = 3, -- Ice Floes
 	[257541] = 3, -- Phoenix Flames
+	-- Monk
+	[109132] = 2, -- Roll
 	-- Rogue
 	[13877] = 2, -- Blade Flurry
 	[36554] = 2, -- Shadowstep
