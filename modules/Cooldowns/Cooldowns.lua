@@ -171,11 +171,11 @@ local talentCooldowns = {
 	end,
 
 	-- Mage
-	[16025] = function(info) -- Cold Snap
-		addMod(info.guid, 45438, 0, 2) -- Ice Block
+	[22448] = function(info) -- Ice Ward
+		addMod(info.guid, 122, 0, 2) -- Frost Nova
 	end,
-	[22471] = function(info) -- Ice Ward
-		addMod(info.guid, 122, 0, 2)
+	[23072] = function(info)
+		addMod(info.guid, 235450, 25) -- Primastic Barrier (removes cd)
 	end,
 
 	-- Paladin
@@ -468,42 +468,47 @@ local spells = {
 		[272678] = {360, 20}, -- Primal Rage (Ferocity)
 	},
 	MAGE = {
-		[122]   = {30, 3, nil}, -- Frost Nova
-		[1953]  = {15, 7, nil, -4}, -- Blink
-		[31687] = {60, 10, 64}, -- Summon Water Elemental
-		[11426] = {25, 16}, -- Ice Barrier
-		[195676] = {30, 24, 62}, -- Displacement
-		[31661] = {20, 62, 63}, -- Dragon's Breath
-		[45438] = {300, 26, nil}, -- Ice Block
-		[190319] = {120, 28, 63}, -- Combustion
-		[2139]  = {24, 34}, -- Counterspell
-		[120]   = {12, 36, 64}, -- Cone of Cold
-		[12051] = {120, 40, 62}, -- Evocation
+		[45438] = {240, 50}, -- Ice Block
+		[122] = {30, 5}, -- Frost Nova
+		[31687] = {30, 12, 64, -2}, -- Summon Water Elemental
+		[1953] = {15, 16, nil, -5}, -- Blink
+		[12051] = {180, 20, 62}, -- Evocation
+		[2139] = {24, 22}, -- Counterspell
+		[235313] = {25, 26, 63}, -- Blazing Barrier
+		[11426] = {25, 26, 64}, -- Ice Barrier
+		[235450] = {25, 26, 62}, -- Prismatic Barrier
+		[31661] = {20, 32, 63}, -- Dragon's Breath
+		[33395] = {25, 32, 62}, -- Freeze
+		[120] = {12, 34, 64}, -- Cone of Cold
+		[12042] = {90, 40, 62}, -- Arcane Power
+		[190319] = {120, 40, 63}, -- Combustion
 		[12472] = {180, 40, 64}, -- Icy Veins
-		[12042] = {90, 44, 62}, -- Arcane Power
-		[110959] = {120, 50, 62}, -- Greater Invisibility
-		[66]    = {300, 50, {63, 64}}, -- Invisibility
-		[80353] = {300, 65}, -- Time Warp
-		[84714] = {60, 83, 64}, -- Frozen Orb
+		[66] = {300, 42}, -- Invisibility
+		[195676] = {30, 48, 62}, -- Displacement
+		[45438] = {240, 50}, -- Ice Block
+		[235219] = {300, 52, 64}, -- Cold Snap
+		[205025] = {60, 54, 62}, -- Presence of Mind
+		[84714] = {60, 57, 64}, -- Frozen Orb
+		[110959] = {120, 65, 62}, -- Greater Invisibility
+		[80353] = {300, 80}, -- Time Warp
 
-		[205021] = {60, 15, 64, 1}, -- Ray of Frost
-		[205025] = {60, 15, 62, 2}, -- Presence of Mind
-		[212653] = {15, 30, nil, 4}, -- Shimmer
-		[55342]  = {120, 45, nil, 7}, -- Mirror Image
-		[116011] = {120, 45, nil, 8}, -- Rune of Power (2 charges)
-		[157980] = {25, 60, 62, 10}, -- Supernova
-		[157981] = {25, 60, 63, 10}, -- Blast Wave
-		[157997] = {25, 60, 64, 10}, -- Ice Nova
+		[205022] = {10, 15, 62, 3}, -- Arcane Familiar
+		[157997] = {25, 15, 64, 3}, -- Ice Nova
+		[212653] = {15, 30, nil, 5}, -- Shimmer
+		[157981] = {25, 30, 63, 6}, -- Blast Wave
+		[108839] = {20, 30, 64, 6}, -- Ice Floes (3 charges)
+		[55342]  = {120, 45, nil, 8}, -- Mirror Image
+		[116011] = {120, 45, nil, 9}, -- Rune of Power (2 charges)
 		[205032] = {40, 60, 62, 11}, -- Charged Up
-		[205029] = {40, 60, 63, 11}, -- Flame On
-		[205030] = {30, 60, 64, 11}, -- Frozen Touch
-		[108839] = {20, 60, nil, 13}, -- Ice Floes (3 charges)
-		[113724] = {45, 60, nil, 14}, -- Ring of Frost
-		[44457]  = {12, 90, 63, 16}, -- Living Bomb
-		[198929] = {9, 90, 63, 20}, -- Cinderstorm
+		[257537] = {45, 60, 64, 12}, -- Ebonbolt
+		[257541] = {30, 60, 63, 12}, -- Phoenix Flames (3 charges)
+		[157980] = {25, 60, 62, 12}, -- Supernova
+		[113724] = {45, 75, nil, 15}, -- Ring of Frost
+		[153595] = {30, 90, 64, 18}, -- Comet Storm
+		[44457]  = {12, 90, 63, 18}, -- Living Bomb
+		[205021] = {75, 100, 64, 20}, -- Ray of Frost
 		[153626] = {20, 100, 62, 21}, -- Arcane Orb
 		[153561] = {45, 100, 63, 21}, -- Meteor
-		[153595] = {30, 100, 64, 21}, -- Comet Storm
 	},
 	MONK = {
 		[101545] = {25, 10, 269}, -- Flying Serpent Kick
@@ -780,6 +785,7 @@ local chargeSpells = {
 	[212653] = 2, -- Shimmer
 	[116011] = 2, -- Rune of Power
 	[108839] = 3, -- Ice Floes
+	[257541] = 3, -- Phoenix Flames
 	-- Rogue
 	[13877] = 2, -- Blade Flurry
 	[36554] = 2, -- Shadowstep
@@ -2093,6 +2099,19 @@ do
 	combatLogHandler.userdata = {}
 	-- local scratch = combatLogHandler.userdata
 
+	local function kindling(srcGUID, ...)
+		local critical = select(9, ...)
+		if not critical then return end
+
+		local info = infoCache[srcGUID]
+		if info and info.talents[19] then -- Kindling
+			local remaining = module:GetRemainingCooldown(srcGUID, 190319) -- Combustion
+			if remaining > 0 then
+				resetCooldown(info, 190319, remaining - 1)
+			end
+		end
+	end
+
 	local function fistOfJustice(srcGUID, _, spellId)
 		local info = infoCache[srcGUID]
 		if info and info.talents[7] then -- Fist of Justice
@@ -2113,6 +2132,14 @@ do
 
 	local specialEvents = {
 		SPELL_CAST_SUCCESS = {
+			[235219] = function(srcGUID) -- Cold Snap
+				local info = infoCache[srcGUID]
+				if info then
+					resetCooldown(info, 120) -- Cone of Cold
+					resetCooldown(info, 122) -- Frost Nova
+					resetCooldown(info, 11426) -- Ice Barrier
+				end
+			end,
 			[2050] = function(srcGUID) -- Holy Word: Serenity
 				local info = infoCache[srcGUID]
 				if info and info.talents[21] then
@@ -2170,6 +2197,12 @@ do
 				end
 			end,
 		},
+		SPELL_DAMAGE = {
+			[133] = kindling, -- Fireball
+			[11366] = kindling, -- Pyroblast
+			[108853] = kindling, -- Fire Blast
+			[257541] = kindling, -- Phoenix Flames
+		}
 	}
 
 	local inEncounter = nil
