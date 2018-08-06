@@ -54,28 +54,6 @@ local talentCooldowns = {
 	[19226] = function(info) -- Blood: Tightening Grasp
 		addMod(info.guid, 108199, 30) -- Gorefiend's Grasp
 	end,
-	[21208] = function(info) -- Blood: Red Thirst
-		-- Reduces the cooldown on Vampiric Blood by 1 sec per 10 Runic Power spent.
-		if info.guid == playerGUID then
-			syncSpells[55233] = true -- Vampiric Blood
-		end
-	end,
-	[22023] = function(info) -- Frost: Icecap
-		-- Your Frost Strike/Frostscythe and Obliterate critical strikes reduce the
-		-- remaining cooldown of Pillar of Frost by 1 sec.
-		if info.guid == playerGUID then
-			syncSpells[51271] = true -- Pillar of Frost
-		end
-	end,
-	[22023] = function(info) -- Unholy: Army of the Damned
-		-- Death Coil [and Epidemic] reduces the cooldown of Apocalypse by 1 sec and
-		-- Army of the Dead by 5 sec.
-		-- XXX Should probably handle this via CLEU
-		if info.guid == playerGUID then
-			syncSpells[42650] = true -- Army of the Dead
-			syncSpells[275699] = true -- Apocalypse
-		end
-	end,
 
 	-- Demon Hunter
 	[21869] = function(info) -- Havoc: Unleashed Power
@@ -96,13 +74,6 @@ local talentCooldowns = {
 	end,
 	[21870] = function(info) -- Havoc: Master of the Glaive
 		addMod(info.guid, 185123, 0, 2) -- Throw Glaive
-	end,
-	[21901] = function(info) -- Havoc: Momentum
-		-- Vengeful Retreat's cooldown is reduced by 5 sec if it damages at least
-		-- one enemy.
-		if info.guid == playerGUID then
-			syncSpells[198793] = true -- Vengeful Retreat
-		end
 	end,
 	[22502] = function(info) -- Vengeance: Abyssal Strike
 		addMod(info.guid, 189110, 8) -- Inferal Strike
@@ -158,14 +129,6 @@ local talentCooldowns = {
 			addMod(info.guid, 186289, 18) -- Aspect of the Eagle
 		end
 	end,
-	[22274] = function(info) -- Marksmanship: Calling the Shots
-		-- Casting Arcane Shot or Multi-Shot reduces the cooldown of Trueshot by 2.5
-		-- sec.
-		-- XXX Could maybe handle this via CLEU
-		if info.guid == playerGUID then
-			syncSpells[193526] = true -- Trueshot
-		end
-	end,
 	[21997] = function(info) -- Survival: Guerrilla Tactics
 		addMod(info.guid, 259495, 0, 2) -- Wildfire Bomb
 	end,
@@ -179,13 +142,6 @@ local talentCooldowns = {
 	end,
 
 	-- Paladin
-	-- [22896] = function(info) -- Retribution: Fist of Justice
-	-- 	-- Each Holy Power spent reduces the remaining cooldown on Hammer of Justice
-	-- 	-- by 2 sec.
-	-- 	if info.guid == playerGUID then
-	-- 		syncSpells[853] = true -- Hammer of Justice
-	-- 	end
-	-- end,
 	[17575] = function(info) -- Holy: Cavalier
 		addMod(info.guid, 190784, 0, 2) -- Divine Steed
 	end,
@@ -220,13 +176,6 @@ local talentCooldowns = {
 		-- amount of damage taken.
 		if info.guid == playerGUID then
 			syncSpells[19236] = true -- Desperate Prayer
-		end
-	end,
-	[22095] = function(info) -- Holy: Guardian Angel
-		-- When Guardian Spirit expires without saving the target from death, reduce
-		-- its remaining cooldown to 60 seconds.
-		if info.guid == playerGUID then
-			syncSpells[47788] = true -- Guardian Spirit
 		end
 	end,
 	[23374] = function(info) -- Shadow: San'layn
@@ -290,13 +239,6 @@ local talentCooldowns = {
 	end,
 	[22488] = function(info) -- Protection: Bolster
 		addMod(info.guid, 12975, 60) -- Last Stand
-	end,
-	[22631] = function(info) -- Protection: Rumbling Earth
-		-- When Shockwave strikes at least 3 targets, its cooldown is reduced by 15
-		-- sec.
-		if info.guid == playerGUID then
-			syncSpells[46968] = true -- Shockwave
-		end
 	end,
 }
 
@@ -1926,6 +1868,7 @@ function module:SPELL_UPDATE_COOLDOWN()
 			if start > 0 and duration > 0 then
 				if (start + duration + 0.1) < expiry then -- + 0.1 to avoid updating on trivial differences
 					local cd =  duration - (GetTime() - start)
+					print(GetSpellInfo(spellId), "old:", expiry-GetTime(), "new:", cd, "diff:", (expiry-GetTime())-cd)
 					module:SendComm("CooldownUpdate", spellId, round(cd)) -- round to the precision of GetTime (%.3f)
 				end
 			else -- off cooldown
@@ -2097,7 +2040,63 @@ do
 	end
 
 	combatLogHandler.userdata = {}
-	-- local scratch = combatLogHandler.userdata
+	local scratch = combatLogHandler.userdata
+
+	local function armyOfTheDamned(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[19] then -- Army of the Damned
+			local remaining = module:GetRemainingCooldown(srcGUID, 42650) -- Army of the Dead
+			if remaining > 0 then
+				resetCooldown(info, 42650, remaining - 5)
+			end
+			remaining = module:GetRemainingCooldown(srcGUID, 275699) -- Apocalypse
+			if remaining > 0 then
+				resetCooldown(info, 275699, remaining - 1)
+			end
+		end
+	end
+	local function icecap(srcGUID, _, spellId, ...)
+		local info = infoCache[srcGUID]
+		if info and scratch[srcGUID] then -- Icecap
+			-- only count it once x.x
+			local id = 3
+			if spellId == 222024 or spellId == 66198 then
+				id = 1
+			elseif spellId == 222026 or spellId == 66196 then
+				id = 2
+			end
+			if scratch[srcGUID][id] then
+				local remaining = module:GetRemainingCooldown(srcGUID, 51271) -- Pillar of Frost
+				if remaining > 0 then
+					resetCooldown(info, 51271, remaining - 1)
+				end
+				scratch[srcGUID][id] = nil
+			end
+		end
+	end
+	local function icecapCast(srcGUID, _, spellId)
+		local info = infoCache[srcGUID]
+		if info and info.talents[19] then -- Icecap
+			if not scratch[srcGUID] then scratch[srcGUID] = {} end
+			local id = 3
+			if spellId == 222024 or spellId == 66198 then
+				id = 1
+			elseif spellId == 222026 or spellId == 66196 then
+				id = 2
+			end
+			scratch[srcGUID][id] = true
+		end
+	end
+
+	local function callingTheShots(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[19] then -- Calling the Shots
+			local remaining = module:GetRemainingCooldown(srcGUID, 193526) -- Trueshot
+			if remaining > 0 then
+				resetCooldown(info, 193526, remaining - 2.5)
+			end
+		end
+	end
 
 	local function kindling(srcGUID, ...)
 		local critical = select(9, ...)
@@ -2108,6 +2107,16 @@ do
 			local remaining = module:GetRemainingCooldown(srcGUID, 190319) -- Combustion
 			if remaining > 0 then
 				resetCooldown(info, 190319, remaining - 1)
+			end
+		end
+	end
+
+	local function holyWordSalvation(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[21] then
+			local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
+			if remaining > 0 then
+				resetCooldown(info, 265202, remaining - 30)
 			end
 		end
 	end
@@ -2130,8 +2139,25 @@ do
 		end
 	end
 
+
 	local specialEvents = {
 		SPELL_CAST_SUCCESS = {
+			[49998] = function(srcGUID) -- Death Strike
+				local info = infoCache[srcGUID]
+				if info and info.talents[20] == 21208 then -- Red Thirst
+					local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
+					if remaining > 0 then
+						resetCooldown(info, 55233, remaining - 4.5)
+					end
+				end
+			end,
+			[47541] = armyOfTheDamned, -- Death Coil
+			[207317] = armyOfTheDamned, -- Epidemic
+			[49020] = icecapCast, -- Obliterate
+			[49143] = icecapCast, -- Frost Strike
+			[207230] = icecapCast, -- Frostscythe
+			[185358] = callingTheShots, -- Arcane Shot
+			[257620] = callingTheShots, -- Multi-Shot (Marksmanship)
 			[235219] = function(srcGUID) -- Cold Snap
 				local info = infoCache[srcGUID]
 				if info then
@@ -2140,24 +2166,8 @@ do
 					resetCooldown(info, 11426) -- Ice Barrier
 				end
 			end,
-			[2050] = function(srcGUID) -- Holy Word: Serenity
-				local info = infoCache[srcGUID]
-				if info and info.talents[21] then
-					local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
-					if remaining > 0 then
-						resetCooldown(info, 265202, remaining - 30)
-					end
-				end
-			end,
-			[34861] = function(srcGUID) -- Holy Word: Sanctify
-				local info = infoCache[srcGUID]
-				if info and info.talents[21] then
-					local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
-					if remaining > 0 then
-						resetCooldown(info, 265202, remaining - 30)
-					end
-				end
-			end,
+			[2050] = holyWordSalvation, -- Holy Word: Serenity
+			[34861] = holyWordSalvation, -- Holy Word: Sanctify
 			[53600] = function(srcGUID) -- Shield of the Righteous
 				local info = infoCache[srcGUID]
 				if info and info.talents[20] then -- Righteous Protector
@@ -2175,6 +2185,9 @@ do
 			[210191] = fistOfJustice, -- Word of Glory
 			[215661] = fistOfJustice, -- Justicar's Vengeance
 			[84963] = fistOfJustice, -- Inquisition
+			[46968] = function(srcGUID) -- Shockwave
+				scratch[srcGUID] = 0
+			end,
 		},
 		SPELL_AURA_APPLIED = {
 			[212800] = function(srcGUID) -- Blur (work around for not having a cast event)
@@ -2183,6 +2196,9 @@ do
 					callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
 					resetCooldown(info, 212800, 60)
 				end
+			end,
+			[47788] = function(srcGUID) -- Guardian Spirit
+				scratch[srcGUID] = GetTime()
 			end,
 		},
 		SPELL_AURA_REMOVED = {
@@ -2196,12 +2212,46 @@ do
 					end
 				end
 			end,
+			[47788] = function(srcGUID) -- Guardian Spirit
+				local info = infoCache[srcGUID]
+				if info and info.talents[8] and scratch[srcGUID] then -- Guardian Angel
+					if GetTime() - scratch[srcGUID] > 9.7 then
+						resetCooldown(info, 47788, 60)
+					end
+				end
+				scratch[srcGUID] = nil
+			end,
 		},
 		SPELL_DAMAGE = {
+			[222024] = icecap, -- Obliterate
+			[66198] = icecap, -- Obliterate Off-Hand
+			[222026] = icecap, -- Frost Strike
+			[66196] = icecap, -- Frost Strike Off-Hand
+			[207230] = icecap, -- Frostscythe
+			[198813] = function(srcGUID) -- Vengeful Retreat
+				local info = infoCache[srcGUID]
+				if info and info.talents[20] then -- Momentum
+					local t = GetTime()
+					if t-(scratch[srcGUID] or 0) > 2 then
+						scratch[srcGUID] = t
+						resetCooldown(info, 198793, module:GetRemainingCooldown(srcGUID, 198793) - 5) -- Vengeful Retreat
+					end
+				end
+			end,
 			[133] = kindling, -- Fireball
 			[11366] = kindling, -- Pyroblast
 			[108853] = kindling, -- Fire Blast
 			[257541] = kindling, -- Phoenix Flames
+			[46968] = function(srcGUID) -- Shockwave
+				local info = infoCache[srcGUID]
+				if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
+					scratch[srcGUID] = scratch[srcGUID] + 1
+					if scratch[srcGUID] > 2 then
+						resetCooldown(info, 46968, module:GetRemainingCooldown(srcGUID, 46968) - 15) -- Shockwave
+						scratch[srcGUID] = nil
+					end
+				end
+			end
 		}
 	}
 
