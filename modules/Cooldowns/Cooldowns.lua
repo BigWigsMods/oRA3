@@ -210,9 +210,8 @@ local talentCooldowns = {
 	end,
 
 	-- Warlock
-	[21182] = function(info) -- Grimoire of Supremacy
-		addMod(info.guid, 1122, 180) -- Summon Infernal
-		addMod(info.guid, 18540, 180) -- Summon Doomguard
+	[22047] = function(info) -- All: Darkfury
+		addMod(info.guid, 30283, 15) -- Shadowfury
 	end,
 
 	-- Warrior
@@ -624,25 +623,31 @@ local spells = {
 		[114052] = 114049, -- Ascendance (Restoration)
 	},
 	WARLOCK = {
-		[20707] = {600, 18}, -- Soulstone
+		[19647] = {24, 35}, -- Spell Lock (Felhunter)
+		[119910] = 19647, -- Spell Lock (Command Demon)
+		[80240] = {30, 40, 267}, -- Havoc
+		[698] = {120, 42}, -- Ritual of Summoning
+		[20707] = {600, 44}, -- Soulstone
 		[95750] = 20707, -- Soulstone Resurrection (combat)
-		[1122]  = {180, 50}, -- Summon Infernal
-		[104773] = {180, 62}, -- Unending Resolve
+		[104773] = {180, 54}, -- Unending Resolve
+		[205180] = {180, 58, 265}, -- Summon Darkglare
+		[1122] = {180, 58, 267}, -- Summon Infernal
+		[30283] = {60, 60}, -- Shadowfury
 		[29893] = {120, 65}, -- Create Soulwell
-		[698]   = {120, 72}, -- Ritual of Summoning
+		[265187] = {90, 80, 266}, -- Summon Demonic Tyranic
 
-		[152108] = {45, 30, 267, 5}, -- Cataclysm
-		[6789]  = {45, 45, nil, 8}, -- Mortal Coil
-		[5484]  = {40, 45, 265, 9}, -- Howl of Terror
-		[30283] = {30, 45, {266, 267}, 9}, -- Shadowfury
-		[196098] = {120, 60, nil, 12}, -- Soul Harvest
-		[48020] = {30, 75, nil, 13}, -- Demonic Circle: Teleport
-		[108416] = {60, 75, nil, 15}, -- Dark Pact
-		-- Pet
-		[19647]  = {24, 50}, -- Felhunter Spell Lock (Normal, originates from pet)
-		[119910] = 19647,    -- Felhunter Spell Lock (via Command Demon, originates from player)
-		[171138] = 19647,    -- Doomguard Shadow Lock (Normal, originates from pet)
-		[171140] = 19647,    -- Doomguard Shadow Lock (via Command Demon, originates from player)
+		[267211] = {30, 15, 266, 3}, -- Bilescourge Bombers
+		[264130] = {30, 30, 266, 5}, -- Power Siphon
+		[108416] = {60, 45, nil, 9}, -- Dark Pact
+		[205179] = {45, 60, 265, 11}, -- Phantom Singularity
+		[152108] = {30, 60, 267, 12}, -- Cataclysm
+		[264119] = {45, 60, 266, 12}, -- Summon Vilefiend
+		[48020] = {10, 75, nil, 12}, -- Demonic Circle: Teleport
+		[6789] = {45, 75, nil, 14}, -- Mortal Coil
+		[111898] = {120, 90, 266, 18}, -- Grimoire: Felguard
+		[113860] = {120, 100, 265, 21}, -- Dark Soul: Misery
+		[267217] = {180, 100, 266, 21}, -- Nether Portal
+		[113858] = {120, 100, 267, 21}, -- Dark Soul: Instability
 	},
 	WARRIOR = {
 		[100] = {20, 3}, -- Charge
