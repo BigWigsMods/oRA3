@@ -222,11 +222,6 @@ L.showCooldownTextDesc = "Show the Blizzard cooldown text. This will be disabled
 -- Zone module
 L.zone = "Zone"
 
--- Loot module
-L.makeLootMaster = "Leave empty to make yourself the Master Looter."
-L.autoLootMethod = "Set the loot mode automatically when joining a group"
-L.autoLootMethodDesc = "Allow oRA3 to automatically set the loot method to the one you specify below when entering a party or raid."
-
 -- Tanks module
 L.tanks = "Tanks"
 L.tankTabTopText = "Click on players in the bottom list to make them a personal tank. If you want help with all the options here then move your mouse over the question mark."

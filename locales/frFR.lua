@@ -222,11 +222,6 @@ L["showCooldownTextDesc"] = "Affiche le texte des temps de recharge de Blizzard.
 -- Zone module
 L["zone"] = "Zone"
 
--- Loot module
-L["makeLootMaster"] = "Laissez vide pour faire de vous le maître du butin."
-L["autoLootMethod"] = "Définir auto. le mode du butin en rejoignant un groupe"
-L["autoLootMethodDesc"] = "Laisse oRA3 définir automatiquement la méthode de fouille selon ce que vous avez spécifié ci-dessous quand vous entrez dans un groupe (de raid)."
-
 -- Tanks module
 L["tanks"] = "Tanks"
 L["tankTabTopText"] = "Cliquez sur les joueurs de la liste du bas pour les nommer tank personnel. Si vous souhaitez obtenir de l'aide, survolez le '?' avec votre souris."

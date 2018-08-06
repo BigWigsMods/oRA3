@@ -221,11 +221,6 @@ L.showCooldownTextDesc = "블리자드 재사용 대기시간 문자를 표시�
 -- Zone module
 L.zone = "지역"
 
--- Loot module
-L.makeLootMaster = "자신이 전리품 담당자가 되려면 빈 칸으로 남겨두세요."
-L.autoLootMethod = "파티에 참여하면 자동으로 전리품 모드를 설정"
-L.autoLootMethodDesc = "oRA3가 파티나 공격대에 참여하면 아래에서 선택한 전리품 획득 방법으로 자동으로 설정하도록 허용합니다."
-
 -- Tanks module
 L.tanks = "방어 전담"
 L.tankTabTopText = "개인 방어 전담으로 만들기 위해 하단의 명단에서 플레이어를 클릭하세요. 여기 모든 옵션의 도움말이 필요하면 마우스를 물음표 위로 이동시키세요."
