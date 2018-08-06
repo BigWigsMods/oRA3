@@ -41,14 +41,6 @@ oRA3 supporte toute une série de commandes « / » (ou slash) pour vous aider
 |cff44ff44/rarinv <nom du rang>|r - invite les membres de la guilde du rang donné.
 ]]
 
--- Guild Repairs module
-L["guildRepairs"] = "Réparations de guilde"
-L["ensureRepair"] = "S'assurer que les réparations de guilde sont activées pour tous les rangs du raid"
-L["ensureRepairDesc"] = "Si vous êtes le maître de guilde, à chaque fois que vous rejoignez un groupe de raid dans lequel vous êtes chef ou assistant, ceci s'assurera que les réparations de guilde sont activées pendant la durée du raid (jusqu'à 300po). Une fois que vous quittez le groupe de raid, les marqueurs retrouveront leur état initial |cffff4411à condition que votre jeu ne crash pas pendant le raid.|r"
-L["repairEnabled"] = "Réparations de guilde activées pour %s pendant la durée de ce raid."
-L["repairAmount"] = "Limite de réparation"
-L["repairAmountDesc"] = "Le montant maximal d'or que chaque joueur est autorisé à utiliser pour ses réparations."
-
 -- Ready Check module
 L["playersNotReady"] = "Les joueurs suivants ne sont pas prêts : %s"
 L["readyCheckSeconds"] = "Appel (%d |4seconde:secondes;)"

@@ -44,7 +44,6 @@ modules\Alerts.lua
 modules\BattleRes.lua
 modules\Consumables.lua
 modules\Cooldowns\module.xml
-#modules\GuildRepairs.lua
 modules\ReadyCheck.lua
 # modules with no settings
 modules\Difficulty.lua
