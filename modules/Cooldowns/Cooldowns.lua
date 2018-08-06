@@ -1887,7 +1887,6 @@ function module:SPELL_UPDATE_COOLDOWN()
 			if start > 0 and duration > 0 then
 				if (start + duration + 0.1) < expiry then -- + 0.1 to avoid updating on trivial differences
 					local cd =  duration - (GetTime() - start)
-					print(GetSpellInfo(spellId), "old:", expiry-GetTime(), "new:", cd, "diff:", (expiry-GetTime())-cd)
 					module:SendComm("CooldownUpdate", spellId, round(cd)) -- round to the precision of GetTime (%.3f)
 				end
 			else -- off cooldown
