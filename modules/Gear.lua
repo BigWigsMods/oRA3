@@ -115,7 +115,7 @@ do
 	local statsTable = {}
 	local enchantableItems = {
 		false, -- INVSLOT_HEAD -- 1
-		true, -- INVSLOT_NECK -- 2
+		false, -- INVSLOT_NECK -- 2
 		false, -- INVSLOT_SHOULDER -- 3
 		false, -- INVSLOT_BODY -- 4
 		false, -- INVSLOT_CHEST -- 5
@@ -128,8 +128,8 @@ do
 		true, -- INVSLOT_FINGER2 -- 12
 		false, -- INVSLOT_TRINKET1 -- 13
 		false, -- INVSLOT_TRINKET2 -- 14
-		true, -- INVSLOT_BACK -- 15
-		false, -- INVSLOT_MAINHAND -- 16
+		false, -- INVSLOT_BACK -- 15
+		true, -- INVSLOT_MAINHAND -- 16
 		false, -- INVSLOT_OFFHAND -- 17
 	}
 
