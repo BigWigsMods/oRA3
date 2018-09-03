@@ -105,7 +105,7 @@ local talentCooldowns = {
 		addMod(info.guid, 22842, 0, 1) -- Frenzied Regeneration
 	end,
 	[21713] = function(info) -- Guardian: Survival of the Fittest
-		addMod(info.guid, 22812, 20) -- Barkskin
+		addMod(info.guid, 22812, 30) -- Barkskin
 		addMod(info.guid, 61336, 60) -- Survival Instincts
 	end,
 	[21716] = function(info) -- Restoration: Inner Peace
@@ -113,6 +113,16 @@ local talentCooldowns = {
 	end,
 	[18585] = function(info) -- Restoration: Stonebark
 		addMod(info.guid, 102342, 15) -- Ironbark
+	end,
+	-- Guardian: Increase Barkskin 60s->90s from checking first tier talents
+	[22419] = function(info) -- Brambles
+		addMod(info.guid, 22812, -30) -- Barkskin
+	end,
+	[22418] = function(info) -- Blood Frenzy
+		addMod(info.guid, 22812, -30) -- Barkskin
+	end,
+	[22420] = function(info) -- Bristling Fur
+		addMod(info.guid, 22812, -30) -- Barkskin
 	end,
 
 	-- Hunter
@@ -328,7 +338,7 @@ local spells = {
 	DRUID = {
 		[1850] = {120, 8, nil, -4}, -- Dash
 		[5217] = {30, 13, 103}, -- Tiger's Fury
-		[22812] = {60, 26, {102, 104, 105}}, -- Barkskin
+		[22812] = {60, 26, {102, 104, 105}}, -- Barkskin XXX Guardian CD is 90s (hacked in via talents)
 		[99] = {30, 28, 104, -5}, -- Incapacitating Roar
 		[61336] = {180, 36, {103, 104}}, -- Survival Instincts (2 charges)
 		[106951] = {180, 40, 103, -15}, -- Berserk
