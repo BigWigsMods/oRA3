@@ -222,7 +222,7 @@ end
 local function checkKeywords(msg, ...)
 	for i = 1, select("#", ...) do
 		local keyword = select(i, ...):trim()
-		if msg == keyword then
+		if string.match(msg, keyword) then
 			return true
 		end
 	end
