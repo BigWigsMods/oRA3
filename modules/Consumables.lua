@@ -426,7 +426,7 @@ do
 		local desc = GetSpellDescription(id)
 		if desc then
 			local value = tonumber(desc:match("%d+")) or 0
-			return value >= 75 and value or YES
+			return value >= 75 and tostring(value) or YES
 		end
 	end
 
