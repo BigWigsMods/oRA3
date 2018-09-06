@@ -40,51 +40,15 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
-		-- Emerald Nightmare
-		[192761] = 1703, -- Nythndra
-		[192765] = 1744, -- Elerethe
-		[191464] = 1667, -- Ursoc
-		[192762] = 1738, -- Il'gynoth
-		[192763] = 1704, -- Dragons
-		[192766] = 1750, -- Cenarius
-		[192764] = 1726, -- Xavius
-		-- Trial of Valor
-		[229174] = 1819, -- Odyn
-		[229175] = 1830, -- Guarm
-		[229176] = 1829, -- Helya
-		-- Nighthold
-		[192767] = 1706, -- Skorpyron
-		[192768] = 1725, -- Chronomatic Anomaly
-		[192769] = 1731, -- Trilliax
-		[192770] = 1751, -- Aluriel
-		[192771] = 1762, -- Tichondrius
-		[192773] = 1713, -- Krosus
-		[192772] = 1761, -- Tel'arn
-		[192774] = 1732, -- Etraeus
-		[192775] = 1743, -- Elisande
-		[192776] = 1737, -- Gul'dan
-		-- Tomb of Sargeras
-		[237821] = 1862, -- Goroth
-		[237828] = 1867, -- Demonic Inquisition
-		[237824] = 1856, -- Harjatan
-		[237826] = 1861, -- Sassz'ine
-		[237822] = 1903, -- Sisters of the Moon
-		[237827] = 1896, -- The Desolate Host
-		[237823] = 1897, -- Maiden of Vigilance
-		[237820] = 1873, -- Fallen Avatar
-		[237825] = 1898, -- Kil'jaeden
-		-- Antorus
-		[250153] = 1992, -- Garothi Worldbreaker
-		[250156] = 1987, -- Felhounds of Sargeras
-		[250167] = 1997, -- Antoran High Command
-		[250160] = 1985, -- Portal Keeper Hasabel
-		[250150] = 2025, -- Eonar the Lifebinder
-		[250158] = 2009, -- Imonar the Soulhunter
-		[250148] = 2004, -- Kin'garoth
-		[250165] = 1983, -- Varimathras
-		[250163] = 1986, -- The Coven of Shivarra
-		[250144] = 1984, -- Aggramar
-		[250146] = 2031, -- Argus the Unmaker
+		-- Uldir
+		[269276] = 2168, -- Taloc
+		[269405] = 2167, -- MOTHER
+		[269407] = 2169, -- Zek'voz
+		[269408] = 2146, -- Fetid Devourer
+		[269409] = 2166, -- Vectis
+		[269411] = 2195, -- Zul
+		[269412] = 2194, -- Mythrax
+		[269413] = 2147, -- G'hunn
 	}
 
 	local buffs = {}
@@ -112,8 +76,7 @@ end
 local getRune
 do
 	local runes = {
-		224001, -- Defiled Augmentation (Legion)
-		-- 270058, -- Battle-Scarred Augmentation (BfA)
+		270058, -- Battle-Scarred Augmentation (BfA)
 	}
 
 	function getRune(player)
@@ -128,16 +91,10 @@ end
 local getFlask
 do
 	local flasks = {
-		-- Legion
-		188031, -- Flask of the Whispered Pact    (Intellect)
-		188033, -- Flask of the Seventh Demon     (Agility)
-		188034, -- Flask of the Countless Armies  (Strength)
-		188035, -- Flask of Ten Thousand Scars    (Stamina)
-		-- BfA
-		-- 251836, -- Flask of the Currents          (Agility)
-		-- 251837, -- Flask of Endless Fathoms       (Intellect)
-		-- 251838, -- Flask of the Vast Horizon      (Stamina)
-		-- 251839, -- Flask of the Undertow          (Strength)
+		251836, -- Flask of the Currents          (Agility)
+		251837, -- Flask of Endless Fathoms       (Intellect)
+		251838, -- Flask of the Vast Horizon      (Stamina)
+		251839, -- Flask of the Undertow          (Strength)
 	}
 
 	function getFlask(player)
@@ -324,34 +281,20 @@ end
 
 do
 	local maxFoods = {
-		[225602] = true, -- crit
-		[225603] = true, -- haste
-		[225604] = true, -- mastery
-		[225605] = true, -- versatility
-		[201638] = true, -- str
-		[201639] = true, -- agi
-		[201640] = true, -- int
-		-- [201641] = true, -- sta
-		[185736] = true, -- versatility (Sugar-Crusted Fish Feast, gives +1%)
-		-- [257410] = true, -- crit
-		-- [257415] = true, -- haste
-		-- [257420] = true, -- mastery
-		-- [257424] = true, -- versatility
-		-- [259454] = true, -- agi
-		-- [259455] = true, -- int
-		-- [259456] = true, -- str
-		-- -- [259457] = true, -- sta
+		[257410] = true, -- crit
+		[257415] = true, -- haste
+		[257420] = true, -- mastery
+		[257424] = true, -- versatility
+		[259454] = true, -- agi
+		[259455] = true, -- int
+		[259456] = true, -- str
+		-- [259457] = true, -- sta
 	}
-	-- 1300 stat flask
 	local maxFlasks = {
-		[188031] = true, -- Flask of the Whispered Pact    (Intellect)
-		[188033] = true, -- Flask of the Seventh Demon     (Agility)
-		[188034] = true, -- Flask of the Countless Armies  (Strength)
-		[188035] = true, -- Flask of Ten Thousand Scars    (Stamina)
-		-- [251836] = true, -- Flask of the Currents          (Agility)
-		-- [251837] = true, -- Flask of Endless Fathoms       (Intellect)
-		-- [251838] = true, -- Flask of the Vast Horizon      (Stamina)
-		-- [251839] = true, -- Flask of the Undertow          (Strength)
+		[251836] = true, -- agi
+		[251837] = true, -- int
+		[251838] = true, -- sta
+		[251839] = true, -- str
 	}
 
 	function module:IsBest(id)
