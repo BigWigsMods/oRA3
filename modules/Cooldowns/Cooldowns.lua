@@ -323,7 +323,7 @@ local spells = {
 		[198793] = {25, 1, 577}, -- Vengeful Retreat
 		[196718] = {180, 100, 577}, -- Darkness
 		[202137] = {60, 101, 581}, -- Sigil of Silence
-		[183752] = {10, 103}, -- Consume Magic
+		[278326] = {10, 103}, -- Consume Magic
 		[207684] = {60, 105, 581}, -- Sigil of Misery
 
 		[258925] = {60, 102, 577, 9}, -- Fel Barrage
