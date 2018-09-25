@@ -635,6 +635,7 @@ local spells = {
 	WARLOCK = {
 		[19647] = {24, 35}, -- Spell Lock (Felhunter)
 		[119910] = 19647, -- Spell Lock (Command Demon)
+		[132409] = 19647, -- Spell Lock (Command Demon, sacrificed)
 		[80240] = {30, 40, 267}, -- Havoc
 		[698] = {120, 42}, -- Ritual of Summoning
 		[20707] = {600, 44}, -- Soulstone
