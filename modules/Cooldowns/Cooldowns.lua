@@ -635,7 +635,7 @@ local spells = {
 	WARLOCK = {
 		[19647] = {24, 35}, -- Spell Lock (Felhunter)
 		[119910] = 19647, -- Spell Lock (Command Demon)
-		[132409] = 19647, -- Spell Lock (Command Demon, sacrificed)
+		[132409] = 19647, -- Spell Lock (Grimoire of Sacrifice Command Demon)
 		[80240] = {30, 40, 267}, -- Havoc
 		[698] = {120, 42}, -- Ritual of Summoning
 		[20707] = {600, 44}, -- Soulstone
@@ -714,7 +714,14 @@ local spells = {
 		[33697] = {120, 1, nil, nil, nil, "Orc"}, -- Shaman, Monk (Attack power and spell power)
 		[20572] = 33697, -- Warrior, Hunter, Rogue, Death Knight (Attack power)
 		[33702] = 33697, -- Mage, Warlock (Spell power)
+		-- Ancestral Call (Mag'har Orc)
+		[274738] = {120, 1, nil, nil, nil, "MagharOrc"},
+		[274739] = 274738, -- Rictus of the Laughing Skull
+		[274740] = 274738, -- Zeal of the Burning Blade
+		[274741] = 274738, -- Ferocity of the Frostwolf
+		[274742] = 274738, -- Might of the Blackrock
 		--
+		[273104] = {120, 1, nil, nil, nil, "DarkIronDwarf"}, -- Fireblood (Dark Iron Dwarf)
 		[20594] = {120, 1, nil, nil, nil, "Dwarf"}, -- Stoneform (Dwarf)
 		[20589] = {60, 1, nil, nil, nil, "Gnome"}, -- Escape Artist (Gnome)
 		[69041] = {90, 1, nil, nil, nil, "Goblin"}, -- Rocket Barrage (Goblin)
