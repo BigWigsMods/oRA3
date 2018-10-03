@@ -199,7 +199,7 @@ local talentCooldowns = {
 	[23374] = function(info) -- Shadow: San'layn
 		addMod(info.guid, 15286, 45) -- Vampiric Embrace
 	end,
-	[23375] = function(info) -- Shadow: Last Word
+	[23137] = function(info) -- Shadow: Last Word
 		addMod(info.guid, 15487, 15) -- Silence
 	end,
 
