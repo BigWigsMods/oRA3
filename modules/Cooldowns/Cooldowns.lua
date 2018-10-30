@@ -2414,19 +2414,23 @@ do
 		-- encounter checking for cd resets
 		if not inEncounter and IsEncounterInProgress() then
 			inEncounter = true
-			-- reset combat reses
-			for spellId in next, combatResSpells do
-				spellsOnCooldown[spellId] = nil
-				updateCooldownsBySpell(spellId)
+			if IsInRaid() then
+				-- reset combat reses
+				for spellId in next, combatResSpells do
+					spellsOnCooldown[spellId] = nil
+					updateCooldownsBySpell(spellId)
+				end
 			end
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = nil
-			-- reset 3min+ cds (except Reincarnation)
-			for spellId, info in next, allSpells do
-				if info[1] >= 180 and spellId ~= 20608 then
-					spellsOnCooldown[spellId] = nil
-					chargeSpellsOnCooldown[spellId] = nil
-					updateCooldownsBySpell(spellId)
+			if IsInRaid() then
+				-- reset 3min+ cds (except Reincarnation)
+				for spellId, info in next, allSpells do
+					if info[1] >= 180 and spellId ~= 20608 then
+						spellsOnCooldown[spellId] = nil
+						chargeSpellsOnCooldown[spellId] = nil
+						updateCooldownsBySpell(spellId)
+					end
 				end
 			end
 		end
