@@ -116,12 +116,6 @@ local options = {
 	type = "group",
 	name = L.battleResTitle,
 	get = function(k) return module.db.profile[k[#k]] end,
-	set = function(k, v)
-		module.db.profile[k[#k]] = v
-		toggleLock()
-		toggleShow()
-		module:CheckOpen()
-	end,
 	args = {
 		header = {
 			type = "description",
@@ -149,23 +143,35 @@ local options = {
 				local _, _, diff = GetInstanceInfo()
 				return not module.db.profile.showDisplay or active[diff]
 			end,
-			order = 0.5,
+			order = 1,
 		},
 		showDisplay = {
 			type = "toggle",
 			name = colorize(L.showMonitor),
 			desc = L.battleResShowDesc,
-			width = "full",
 			descStyle = "inline",
-			order = 1,
+			set = function(_, v)
+				module.db.profile.showDisplay = v
+				if v then
+					module:CheckOpen()
+				else
+					module:Close()
+				end
+			end,
+			order = 2,
+			width = "full",
 		},
 		lock = {
 			type = "toggle",
 			name = colorize(L.lockMonitor),
 			desc = L.battleResLockDesc,
-			width = "full",
 			descStyle = "inline",
-			order = 2,
+			set = function(_, v)
+				module.db.profile.lock = v
+				toggleLock()
+			end,
+			order = 3,
+			width = "full",
 		},
 	}
 }
