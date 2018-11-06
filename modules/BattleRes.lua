@@ -16,6 +16,12 @@ local theDead = {}
 local updateFunc
 local brez
 local inCombat = false
+local active = {
+	[8] = true, -- Mythic+
+	[14] = true, -- Normal
+	[15] = true, -- Heroic
+	[16] = true, -- Mythic
+}
 
 local function createFrame()
 	brez = CreateFrame("Frame", "oRA3BattleResMonitor", UIParent)
@@ -140,8 +146,8 @@ local options = {
 				end
 			end,
 			disabled = function()
-				local _, type, diff = GetInstanceInfo()
-				return not module.db.profile.showDisplay or type == "raid" or diff == 8
+				local _, _, diff = GetInstanceInfo()
+				return not module.db.profile.showDisplay or active[diff]
 			end,
 			order = 0.5,
 		},
@@ -252,8 +258,8 @@ do
 	end
 
 	function module:CheckOpen()
-		local _, type, diff = GetInstanceInfo()
-		if self.db.profile.showDisplay and (type == "raid" or diff == 8) and canGroupRes() then
+		local _, _, diff = GetInstanceInfo()
+		if self.db.profile.showDisplay and active[diff] and canGroupRes() then
 			if not inCombat then self:CancelAllTimers() end
 
 			if not brez then
