@@ -12,6 +12,11 @@ local badBuffs = {
 	27827, -- Spirit of Redemption
 	5384, -- Feign Death
 }
+local resSpells = {
+	[20484] = true,  -- Rebirth
+	[61999] = true,  -- Raise Ally
+	[95750] = true,  -- Soulstone Resurrection
+}
 local theDead = {}
 local updateFunc
 local brez
@@ -213,7 +218,7 @@ do
 					theDead[k] = nil
 				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) then
 					local _, type = GetInstanceInfo()
-					if v ~= "br" and ((type == "raid" and UnitAffectingCombat(k)) or (type == "party" and UnitHealth(k) ~= UnitHealthMax(k))) then
+					if v == true and (type == "raid" and UnitAffectingCombat(k)) or (type == "party" and UnitHealth(k)/UnitHealthMax(k) < .7) then -- Soulstone is 60% hp, releasing is 80%
 						brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k])) -- Soulstone
 					end
 					theDead[k] = nil
@@ -294,10 +299,12 @@ function module:Close()
 end
 
 updateFunc = function()
-	local _, event, _, _, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
+	local ts, event, _, _, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
 	if event == "SPELL_RESURRECT" then
-		brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
-		theDead[tarName] = "br"
+		if resSpells[spellId] then
+			brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
+		end
+		theDead[tarName] = nil
 
 	elseif event == "SPELL_CAST_SUCCESS" and spellId == 21169 then -- Reincarnation
 		brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20608), coloredNames[name]))
@@ -305,6 +312,13 @@ updateFunc = function()
 
 	-- Lots of lovely checks before adding someone to the deaths table
 	elseif event == "UNIT_DIED" and UnitIsPlayer(tarName) and UnitGUID(tarName) == tarGuid and not UnitIsFeignDeath(tarName) and not module:UnitBuffByIDs(tarName, badBuffs) then
-		theDead[tarName] = true
+		if tonumber(theDead[tarName]) and ts < theDead[tarName] then
+			theDead[tarName] = true
+		else
+			theDead[tarName] = nil
+		end
+
+	elseif event == "SPELL_AURA_REMOVED" and spellId == 20707 then -- Soulstone
+		theDead[tarName] = ts + 1 -- timeout for REMOVED->DIED
 	end
 end
