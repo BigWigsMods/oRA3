@@ -206,6 +206,8 @@ end
 
 local function getBattleNetCharacter(bnetIDAccount)
 	local friendIndex = BNGetFriendIndex(bnetIDAccount)
+	if not friendIndex then return end
+
 	for i = 1, BNGetNumFriendGameAccounts(friendIndex) do
 		local _, charName, client, realmName, realmId, faction, _, _, _, _, _, _, _, _, _, bnetIDGameAccount = BNGetFriendGameAccountInfo(friendIndex, i)
 		if client == BNET_CLIENT_WOW and faction == playerFaction and realmId > 0 then
