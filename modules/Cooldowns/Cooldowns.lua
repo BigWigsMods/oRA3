@@ -478,7 +478,8 @@ local spells = {
 		[101545] = {25, 48, 269}, -- Flying Serpent Kick
 		[116680] = {30, 50, 270}, -- Thunder Focus Tea
 		[119381] = {60, 52}, -- Leg Sweep
-		[115203] = {90, 55, 270}, -- Fortifying Brew
+		[115203] = {420, 55, 268}, -- Fortifying Brew (Brewmaster)
+		[243435] = {90, 55, 270}, -- Fortifying Brew (Mistweaver)
 		[122470] = {90, 55, 269}, -- Touch of Karma
 		[115176] = {300, 65, 268}, -- Zen Meditation
 		[115310] = {180, 70, 270}, -- Revival
@@ -2200,6 +2201,32 @@ do
 					resetCooldown(info, 120) -- Cone of Cold
 					resetCooldown(info, 122) -- Frost Nova
 					resetCooldown(info, 11426) -- Ice Barrier
+				end
+			end,
+			[121253] = function(srcGUID) -- Keg Smash
+				local info = infoCache[srcGUID]
+				if info then
+					local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
+					if remaining > 0 then
+						resetCooldown(info, 115203, remaining - 4)
+					end
+					remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
+					if remaining > 0 then
+						resetCooldown(info, 115399, remaining - 4)
+					end
+				end
+			end,
+			[100780] = function(srcGUID) -- Tiger Palm (Brewmaster)
+				local info = infoCache[srcGUID]
+				if info and info.spec == 268 then
+					local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
+					if remaining > 0 then
+						resetCooldown(info, 115203, remaining - 1)
+					end
+					remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
+					if remaining > 0 then
+						resetCooldown(info, 115399, remaining - 1)
+					end
 				end
 			end,
 			[2050] = holyWordSalvation, -- Holy Word: Serenity
