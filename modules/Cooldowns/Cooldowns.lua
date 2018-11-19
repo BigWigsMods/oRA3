@@ -2079,6 +2079,24 @@ do
 	combatLogHandler.userdata = {}
 	local scratch = combatLogHandler.userdata
 
+	local specialEvents = setmetatable({}, {__index=function(t, k)
+		t[k] = {}
+		return t[k]
+	end})
+
+	-- Death Knight
+
+	-- Death Strike
+	specialEvents.SPELL_CAST_SUCCESS[49998] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[20] == 21208 then -- Red Thirst
+			local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
+			if remaining > 0 then
+				resetCooldown(info, 55233, remaining - 4.5)
+			end
+		end
+	end
+
 	local function armyOfTheDamned(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[19] then -- Army of the Damned
@@ -2092,6 +2110,9 @@ do
 			end
 		end
 	end
+	specialEvents.SPELL_CAST_SUCCESS[47541] = armyOfTheDamned -- Death Coil
+	specialEvents.SPELL_CAST_SUCCESS[207317] = armyOfTheDamned -- Epidemic
+
 	local function icecap(srcGUID, _, spellId, ...)
 		local info = infoCache[srcGUID]
 		if info and scratch[srcGUID] then -- Icecap
@@ -2111,6 +2132,12 @@ do
 			end
 		end
 	end
+	specialEvents.SPELL_DAMAGE[207230] = icecap -- Frostscythe
+	specialEvents.SPELL_DAMAGE[222024] = icecap -- Obliterate
+	specialEvents.SPELL_DAMAGE[66198] = icecap -- Obliterate Off-Hand
+	specialEvents.SPELL_DAMAGE[222026] = icecap -- Frost Strike
+	specialEvents.SPELL_DAMAGE[66196] = icecap -- Frost Strike Off-Hand
+
 	local function icecapCast(srcGUID, _, spellId)
 		local info = infoCache[srcGUID]
 		if info and info.talents[19] then -- Icecap
@@ -2124,6 +2151,34 @@ do
 			scratch[srcGUID][id] = true
 		end
 	end
+	specialEvents.SPELL_CAST_SUCCESS[49020] = icecapCast -- Obliterate
+	specialEvents.SPELL_CAST_SUCCESS[49143] = icecapCast -- Frost Strike
+	specialEvents.SPELL_CAST_SUCCESS[207230] = icecapCast -- Frostscythe
+
+	-- Demon Hunter
+
+	-- Blur (work around for not having a cast event)
+	specialEvents.SPELL_CAST_SUCCESS[212800] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info then
+			callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
+			resetCooldown(info, 212800, 60)
+		end
+	end
+
+	-- Vengeful Retreat
+	specialEvents.SPELL_DAMAGE[198813] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[20] then -- Momentum
+			local t = GetTime()
+			if t-(scratch[srcGUID] or 0) > 2 then
+				scratch[srcGUID] = t
+				resetCooldown(info, 198793, module:GetRemainingCooldown(srcGUID, 198793) - 5) -- Vengeful Retreat
+			end
+		end
+	end
+
+	-- Hunter
 
 	local function callingTheShots(srcGUID)
 		local info = infoCache[srcGUID]
@@ -2132,6 +2187,20 @@ do
 			if remaining > 0 then
 				resetCooldown(info, 193526, remaining - 2.5)
 			end
+		end
+	end
+	specialEvents.SPELL_CAST_SUCCESS[185358] = callingTheShots -- Arcane Shot
+	specialEvents.SPELL_CAST_SUCCESS[257620] = callingTheShots -- Multi-Shot (Marksmanship)
+
+	-- Mage
+
+	-- Cold Snap
+	specialEvents.SPELL_CAST_SUCCESS[235219] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info then
+			resetCooldown(info, 120) -- Cone of Cold
+			resetCooldown(info, 122) -- Frost Nova
+			resetCooldown(info, 11426) -- Ice Barrier
 		end
 	end
 
@@ -2147,6 +2216,44 @@ do
 			end
 		end
 	end
+	specialEvents.SPELL_DAMAGE[133] = kindling -- Fireball
+	specialEvents.SPELL_DAMAGE[11366] = kindling -- Pyroblast
+	specialEvents.SPELL_DAMAGE[108853] = kindling -- Fire Blast
+	specialEvents.SPELL_DAMAGE[257541] = kindling -- Phoenix Flames
+
+	-- Monk
+
+	-- Keg Smash
+	specialEvents.SPELL_CAST_SUCCESS[121253] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info then
+			local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
+			if remaining > 0 then
+				resetCooldown(info, 115203, remaining - 4)
+			end
+			remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
+			if remaining > 0 then
+				resetCooldown(info, 115399, remaining - 4)
+			end
+		end
+	end
+
+	-- Tiger Palm (Brewmaster)
+	specialEvents.SPELL_CAST_SUCCESS[100780] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.spec == 268 then
+			local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
+			if remaining > 0 then
+				resetCooldown(info, 115203, remaining - 1)
+			end
+			remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
+			if remaining > 0 then
+				resetCooldown(info, 115399, remaining - 1)
+			end
+		end
+	end
+
+	-- Priest
 
 	local function holyWordSalvation(srcGUID)
 		local info = infoCache[srcGUID]
@@ -2154,6 +2261,35 @@ do
 			local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
 			if remaining > 0 then
 				resetCooldown(info, 265202, remaining - 30)
+			end
+		end
+	end
+	specialEvents.SPELL_CAST_SUCCESS[2050] = holyWordSalvation -- Holy Word: Serenity
+	specialEvents.SPELL_CAST_SUCCESS[34861] = holyWordSalvation -- Holy Word: Sanctify
+
+	-- Guardian Spirit
+	specialEvents.SPELL_AURA_APPLIED[47788] = function(srcGUID)
+		scratch[srcGUID] = GetTime()
+	end
+	specialEvents.SPELL_AURA_REMOVED[47788] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[8] and scratch[srcGUID] then -- Guardian Angel
+			if GetTime() - scratch[srcGUID] > 9.7 then
+				resetCooldown(info, 47788, 60)
+			end
+		end
+		scratch[srcGUID] = nil
+	end
+
+	-- Paladin
+
+	-- Shield of the Righteous
+	specialEvents.SPELL_CAST_SUCCESS[53600] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[20] then -- Righteous Protector
+			local remaining = module:GetRemainingCooldown(srcGUID, 31884) -- Avenging Wrath
+			if remaining > 0 then
+				resetCooldown(info, 31884, remaining - 3)
 			end
 		end
 	end
@@ -2175,148 +2311,49 @@ do
 			end
 		end
 	end
+	specialEvents.SPELL_CAST_SUCCESS[53385] = fistOfJustice -- Divine Storm
+	specialEvents.SPELL_CAST_SUCCESS[84963] = fistOfJustice -- Inquisition
+	specialEvents.SPELL_CAST_SUCCESS[85256] = fistOfJustice -- Templar's Verdict
+	specialEvents.SPELL_CAST_SUCCESS[210191] = fistOfJustice -- Word of Glory
+	specialEvents.SPELL_CAST_SUCCESS[215661] = fistOfJustice -- Justicar's Vengeance
+	specialEvents.SPELL_CAST_SUCCESS[267798] = fistOfJustice -- Execution Sentence
+	specialEvents.SPELL_CAST_SUCCESS[275773] = fistOfJustice -- Judgement (Holy)
+	specialEvents.SPELL_CAST_SUCCESS[275779] = fistOfJustice -- Judgement (Protection)
 
+	-- Warrior
 
-	local specialEvents = {
-		SPELL_CAST_SUCCESS = {
-			[49998] = function(srcGUID) -- Death Strike
-				local info = infoCache[srcGUID]
-				if info and info.talents[20] == 21208 then -- Red Thirst
-					local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
-					if remaining > 0 then
-						resetCooldown(info, 55233, remaining - 4.5)
-					end
-				end
-			end,
-			[47541] = armyOfTheDamned, -- Death Coil
-			[207317] = armyOfTheDamned, -- Epidemic
-			[49020] = icecapCast, -- Obliterate
-			[49143] = icecapCast, -- Frost Strike
-			[207230] = icecapCast, -- Frostscythe
-			[185358] = callingTheShots, -- Arcane Shot
-			[257620] = callingTheShots, -- Multi-Shot (Marksmanship)
-			[235219] = function(srcGUID) -- Cold Snap
-				local info = infoCache[srcGUID]
-				if info then
-					resetCooldown(info, 120) -- Cone of Cold
-					resetCooldown(info, 122) -- Frost Nova
-					resetCooldown(info, 11426) -- Ice Barrier
-				end
-			end,
-			[121253] = function(srcGUID) -- Keg Smash
-				local info = infoCache[srcGUID]
-				if info then
-					local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
-					if remaining > 0 then
-						resetCooldown(info, 115203, remaining - 4)
-					end
-					remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
-					if remaining > 0 then
-						resetCooldown(info, 115399, remaining - 4)
-					end
-				end
-			end,
-			[100780] = function(srcGUID) -- Tiger Palm (Brewmaster)
-				local info = infoCache[srcGUID]
-				if info and info.spec == 268 then
-					local remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
-					if remaining > 0 then
-						resetCooldown(info, 115203, remaining - 1)
-					end
-					remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
-					if remaining > 0 then
-						resetCooldown(info, 115399, remaining - 1)
-					end
-				end
-			end,
-			[2050] = holyWordSalvation, -- Holy Word: Serenity
-			[34861] = holyWordSalvation, -- Holy Word: Sanctify
-			[53600] = function(srcGUID) -- Shield of the Righteous
-				local info = infoCache[srcGUID]
-				if info and info.talents[20] then -- Righteous Protector
-					local remaining = module:GetRemainingCooldown(srcGUID, 31884) -- Avenging Wrath
-					if remaining > 0 then
-						resetCooldown(info, 31884, remaining - 3)
-					end
-				end
-			end,
-			[275773] = fistOfJustice, -- Judgement (Holy)
-			[275779] = fistOfJustice, -- Judgement (Protection)
-			[85256] = fistOfJustice, -- Templar's Verdict
-			[53385] = fistOfJustice, -- Divine Storm
-			[267798] = fistOfJustice, -- Execution Sentence
-			[210191] = fistOfJustice, -- Word of Glory
-			[215661] = fistOfJustice, -- Justicar's Vengeance
-			[84963] = fistOfJustice, -- Inquisition
-			[46968] = function(srcGUID) -- Shockwave
-				scratch[srcGUID] = 0
-			end,
-		},
-		SPELL_AURA_APPLIED = {
-			[212800] = function(srcGUID) -- Blur (work around for not having a cast event)
-				local info = infoCache[srcGUID]
-				if info then
-					callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
-					resetCooldown(info, 212800, 60)
-				end
-			end,
-			[47788] = function(srcGUID) -- Guardian Spirit
-				scratch[srcGUID] = GetTime()
-			end,
-		},
-		SPELL_AURA_REMOVED = {
-			[206005] = function(_, dstGUID) -- Dream Simulacrum (Xavius Encounter)
-				local info = infoCache[dstGUID]
-				if info then
-					for spellId in next, spells[info.class] do
-						if module:GetRemainingCooldown(dstGUID, spellId) > 0 then
-							resetCooldown(info, spellId)
-						end
-					end
-				end
-			end,
-			[47788] = function(srcGUID) -- Guardian Spirit
-				local info = infoCache[srcGUID]
-				if info and info.talents[8] and scratch[srcGUID] then -- Guardian Angel
-					if GetTime() - scratch[srcGUID] > 9.7 then
-						resetCooldown(info, 47788, 60)
-					end
-				end
+	-- Shockwave
+	specialEvents.SPELL_CAST_SUCCESS[46968] = function(srcGUID)
+		scratch[srcGUID] = 0
+	end
+	specialEvents.SPELL_DAMAGE[46968] = function(srcGUID)
+		local info = infoCache[srcGUID]
+		if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
+			scratch[srcGUID] = scratch[srcGUID] + 1
+			if scratch[srcGUID] > 2 then
+				resetCooldown(info, 46968, module:GetRemainingCooldown(srcGUID, 46968) - 15) -- Shockwave
 				scratch[srcGUID] = nil
-			end,
-		},
-		SPELL_DAMAGE = {
-			[222024] = icecap, -- Obliterate
-			[66198] = icecap, -- Obliterate Off-Hand
-			[222026] = icecap, -- Frost Strike
-			[66196] = icecap, -- Frost Strike Off-Hand
-			[207230] = icecap, -- Frostscythe
-			[198813] = function(srcGUID) -- Vengeful Retreat
-				local info = infoCache[srcGUID]
-				if info and info.talents[20] then -- Momentum
-					local t = GetTime()
-					if t-(scratch[srcGUID] or 0) > 2 then
-						scratch[srcGUID] = t
-						resetCooldown(info, 198793, module:GetRemainingCooldown(srcGUID, 198793) - 5) -- Vengeful Retreat
-					end
-				end
-			end,
-			[133] = kindling, -- Fireball
-			[11366] = kindling, -- Pyroblast
-			[108853] = kindling, -- Fire Blast
-			[257541] = kindling, -- Phoenix Flames
-			[46968] = function(srcGUID) -- Shockwave
-				local info = infoCache[srcGUID]
-				if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
-					scratch[srcGUID] = scratch[srcGUID] + 1
-					if scratch[srcGUID] > 2 then
-						resetCooldown(info, 46968, module:GetRemainingCooldown(srcGUID, 46968) - 15) -- Shockwave
-						scratch[srcGUID] = nil
-					end
+			end
+		end
+	end
+
+	-- Misc
+
+	-- Dream Simulacrum (Xavius Encounter)
+	specialEvents.SPELL_AURA_REMOVED[206005] = function(_, dstGUID)
+		local info = infoCache[dstGUID]
+		if info then
+			for spellId in next, spells[info.class] do
+				if module:GetRemainingCooldown(dstGUID, spellId) > 0 then
+					resetCooldown(info, spellId)
 				end
 			end
-		}
-	}
+		end
+	end
+
+	-- stop autovivification
+	setmetatable(specialEvents, nil)
+
 
 	local inEncounter = nil
 	local band = bit.band
@@ -2380,7 +2417,7 @@ do
 			func(srcGUID, destGUID, spellId, ...)
 		end
 	end
-	combatLogHandler:SetScript("OnEvent", function(self, event)
+	combatLogHandler:SetScript("OnEvent", function()
 		handler(CombatLogGetCurrentEventInfo())
 	end)
 
