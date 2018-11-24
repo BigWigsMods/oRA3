@@ -852,6 +852,7 @@ function module:CheckFilter(display, player)
 	if db.hideRoles[role] then return end
 
 	local inInstance, instanceType = IsInInstance() -- this should really act on the display itself
+	if instanceType == "none" and db.hideInInstance[instanceType] then return end
 	if inInstance and db.hideInInstance[instanceType] then return end
 	if db.hideInInstance.lfg and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return end
 
@@ -1440,7 +1441,7 @@ do
 			scroll:AddChild(addFilterOptionMultiselect("hideRoles", ROLE, L.hideRolesDesc, { TANK = TANK, HEALER = HEALER, DAMAGER = DAMAGER }))
 			scroll:AddChild(addFilterOptionMultiselect("hideInGroup", GROUP, L.hideInGroupDesc, { party = PARTY, raid = RAID })) -- , solo = SOLO
 			scroll:AddChild(addFilterOptionMultiselect("hideInInstance", INSTANCE, L.hideInInstanceDesc, {
-				raid = RAID, party = PARTY, lfg = "LFG",
+				none = L.none, raid = RAID, party = PARTY, lfg = "LFG",
 				pvp = BATTLEGROUND, arena = ARENA,
 			}))
 			scroll:AddChild(addFilterOptionMultiselect("hideGroup", RAID_GROUPS, L.hideGroupDesc, {
@@ -1731,7 +1732,7 @@ function module:OnRegister()
 						raid = false, party = false, solo = false,
 					},
 					hideInInstance = {
-						raid = false, party = false, lfg = false,
+						none = false, raid = false, party = false, lfg = false,
 						pvp = false, arena = false,
 					},
 					--hideNameList = {},

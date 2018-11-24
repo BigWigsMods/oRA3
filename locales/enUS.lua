@@ -153,6 +153,7 @@ L.hideInGroupDesc = "Hide cooldowns in this type of group."
 L.hideInInstanceDesc = "Hide cooldowns in this type of instance."
 L.hideRolesDesc = "Hide cooldowns from players in this role."
 L.hideGroupDesc = "Hide cooldowns from players in this group."
+L.none = "None"
 
 -- Cooldown display settings
 L.barDisplay = "Bars"
