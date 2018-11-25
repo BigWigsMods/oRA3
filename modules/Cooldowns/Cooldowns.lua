@@ -2158,7 +2158,7 @@ do
 	-- Demon Hunter
 
 	-- Blur (work around for not having a cast event)
-	specialEvents.SPELL_CAST_SUCCESS[212800] = function(srcGUID)
+	specialEvents.SPELL_AURA_APPLIED[212800] = function(srcGUID)
 		local info = infoCache[srcGUID]
 		if info then
 			callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
