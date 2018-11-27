@@ -407,6 +407,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	end
 
 	local extraUnits = {"target", "focus", "focustarget", "mouseover", "boss1", "boss2", "boss3", "boss4", "boss5"}
+	for i = 1, 40 do extraUnits[#extraUnits + 1] = "nameplate"..i end
 	local function getUnit(guid)
 		for i = 1, #extraUnits do
 			local unit = extraUnits[i]
@@ -414,26 +415,32 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		end
 
 		for unit in module:IterateGroup() do
-			local target = unit .."target"
+			local target = unit.."target"
 			if UnitGUID(target) == guid then return target end
 		end
 	end
 
-	-- stuff I pulled out of my fork of Deadened (Antiarc probably did most of the immunity coding, pretty old stuff)
 	local immunities = {
 		642, -- Divine Shield
 		710, -- Banish
 		1022, -- Blessing of Protection
 		204018, -- Blessing of Spellwarding
+		5277, -- Evasion
+		31224, -- Cloak of Shadows
 		33786, -- Cyclone (PvP)
 		45438, -- Ice Block
-		217832, -- Imprision (PvP)
+		104773, -- Unending Resolve
+		186265, -- Aspect of the Turtle
+		196555, -- Netherwalk
+		221527, -- Imprision (PvP)
 	}
 	local function getMissReason(unit)
 		local name, expires = module:UnitBuffByIDs(unit, immunities)
 		if name then
-			expires = expires and tonumber(("%.1f"):format(expires - GetTime())) or 0
-			if expires < 1 then expires = nil end
+			if expires then
+				expires = tonumber(("%.1f"):format(expires - GetTime()))
+				if expires < 1 then expires = nil end
+			end
 			return name, expires
 		end
 	end
@@ -473,16 +480,17 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			elseif handler == "InterruptCast" then -- not casting alert
 				local unit = getUnit(dstGUID)
 				if not unit or UnitCastingInfo(unit) then return end
-			elseif handler == "InterruptMiss" and extraSpellId == "IMMUNE" then
+			elseif handler == "InterruptMiss" then
 				local unit = getUnit(dstGUID)
-				if not unit or not UnitCastingInfo(unit) then return end -- don't care if the mob is immune if it's not casting
-				local reason, timeleft = getMissReason(unit)
-				if reason then
-					handler = "InterruptImmune"
-					if timeleft then
-						extraSpellId = ("%s - %s, %ss remaining"):format(_G.ACTION_SPELL_MISSED_IMMUNE, reason, timeleft)
-					else
-						extraSpellId = ("%s - %s"):format(_G.ACTION_SPELL_MISSED_IMMUNE, reason)
+				if unit and UnitCastingInfo(unit) then
+					local reason, timeleft = getMissReason(unit)
+					if reason then
+						handler = "InterruptImmune"
+						if timeleft then
+							extraSpellId = ("%s - %s, %ss remaining"):format(_G.ACTION_SPELL_MISSED_IMMUNE, reason, timeleft)
+						else
+							extraSpellId = ("%s - %s"):format(_G.ACTION_SPELL_MISSED_IMMUNE, reason)
+						end
 					end
 				end
 			end
