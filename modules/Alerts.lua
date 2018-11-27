@@ -78,6 +78,14 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[212036] = "MassResurrection", -- Mass Resurrection (Priest)
 	[212051] = "MassResurrection", -- Reawaken (Monk)
 	[212040] = "MassResurrection", -- Revitalize (Druid)
+	-- Bloodlust
+	[2825] = "Bloodlust", -- Bloodlust
+	[32182] = "Bloodlust", -- Heroism
+	[80353] = "Bloodlust", -- Time Warp
+	[264667] = "Bloodlust", -- Primal Rage
+	[178207] = "Bloodlust", -- Drums of Fury (WoD)
+	[230935] = "Bloodlust", -- Drums of the Mountain (Legion)
+	[256740] = "Bloodlust", -- Drums of the Maelstrom (BfA)
 }
 combatLogMap.SPELL_AURA_APPLIED = {
 	-- Taunts
@@ -606,6 +614,10 @@ do
 	end
 end
 
+function module:Bloodlust(srcOutput, _, spellOutput)
+	self:Spam("bloodlust", L["%s cast %s"]:format(srcOutput, spellOutput))
+end
+
 function module:Portal(srcOutput, _, spellOutput)
 	self:Spam("portal", L["%s used %s"]:format(srcOutput, spellOutput))
 end
@@ -692,6 +704,7 @@ function module:OnRegister()
 			interruptMiss = false,
 			dispel = false,
 			combatRes = true,
+			bloodlust = false,
 			portal = true,
 			repair = true,
 			feast = true,
@@ -997,6 +1010,7 @@ function GetOptions()
 					interruptMiss = createAlertSettings("interruptMiss", L["Missed Interrupts"], L["Report missed interrupts."], 5),
 					dispel = createAlertSettings("dispel", L["Dispels"], L["Report dispels and Spellsteal."], 6),
 					combatRes = createAlertSettings("combatRes", L["Combat Resurrections"], L["Report combat resurrections."], 7),
+					bloodlust = createAlertSettings("bloodlust", L["Bloodlust"], L["Report Bloodlust casts."], 8),
 				},
 			},
 
