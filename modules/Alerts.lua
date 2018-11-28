@@ -447,7 +447,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- aaand where all the magic happens
 	local FILTER_GROUP = bit_bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	local handler = function(_, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId, extraSpellName)
+	local handler = function(_, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId)
 		-- first check if someone died
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" then
 			if soulstoneList[dstName] then
@@ -460,8 +460,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		local e = combatLogMap[event]
 		if not e then return end
 
-		local handler = e[spellId]
-		if handler == nil then handler = e["*"] end
+		local handler = e[spellId] or e["*"]
 		if handler and (not module.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
 			-- special cases
 			if handler == "AssignOwner" then
@@ -479,7 +478,9 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 				end
 			elseif handler == "InterruptCast" then -- not casting alert
 				local unit = getUnit(dstGUID)
-				if not unit or UnitCastingInfo(unit) then return end
+				if not unit or UnitCastingInfo(unit) then
+					return
+				end
 			elseif handler == "InterruptMiss" then
 				local unit = getUnit(dstGUID)
 				if unit and UnitCastingInfo(unit) then
@@ -499,11 +500,11 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			local srcOutput = ("%s%s"):format(getIconString(srcRaidFlags), getName(srcName, srcGUID, srcFlags, "ff40ff40"))
 			local dstOutput = ("%s%s"):format(getIconString(dstRaidFlags), getName(dstName, dstGUID, dstFlags, "ffff4040"))
 			local spellOutput = GetSpellLink(spellId)
-			local extraSpellOuput
-			if tonumber(extraSpellId) then -- kind of hacky, pretty print the extra spell for interrupts/breaks/dispels
+			local extraSpellOuput = nil
+			if event == "SPELL_DISPEL" or event == "SPELL_STOLEN" or event == "SPELL_INTERRUPT" or event == "SPELL_AURA_BROKEN_SPELL" then
 				extraSpellOuput = GetSpellLink(extraSpellId)
-			elseif (extraSpellId ~= "BUFF" and extraSpellId ~= "DEBUFF") then
-				extraSpellOuput = extraSpellId
+			elseif event == "SPELL_MISSED" then
+				extraSpellOuput = extraSpellId -- missType
 			end
 
 			-- execute!
@@ -563,8 +564,8 @@ function module:TauntAE(srcOutput, dstOutput, spellOutput)
 	self:SpamMultiCast("taunt", srcOutput, dstOutput, spellOutput)
 end
 
-function module:TauntMiss(srcOutput, dstOutput, spellOutput, extraSpell)
-	self:Spam("taunt", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..extraSpell]))
+function module:TauntMiss(srcOutput, dstOutput, spellOutput, missType)
+	self:Spam("taunt", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..missType]))
 end
 
 function module:Dispel(srcOutput, dstOutput, spellOutput, extraSpellOuput)
@@ -583,12 +584,12 @@ function module:InterruptCast(srcOutput, dstOutput, spellOutput)
 	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, L["Not casting"]))
 end
 
-function module:InterruptMiss(srcOutput, dstOutput, spellOutput, extraSpell)
-	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..extraSpell]))
+function module:InterruptMiss(srcOutput, dstOutput, spellOutput, missType)
+	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, _G["ACTION_SPELL_MISSED_"..missType]))
 end
 
-function module:InterruptImmune(srcOutput, dstOutput, spellOutput, extraSpell)
-	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, extraSpell))
+function module:InterruptImmune(srcOutput, dstOutput, spellOutput, extraSpellOuput)
+	self:Spam("interruptMiss", L["%s missed %s on %s (%s)"]:format(srcOutput, spellOutput, dstOutput, extraSpellOuput))
 end
 
 do
@@ -790,7 +791,7 @@ end
 
 function module:PLAYER_ENTERING_WORLD()
 	wipe(petOwnerMap) -- clear out the cache every now and again
-	self:CheckEnable()
+	UpdatePets()
 end
 
 function module:CheckEnable()
@@ -833,44 +834,48 @@ end
 ---------------------------------------
 -- Options
 
-local function createAlertSettings(alertKey, alertName, alertDescription, alertOrder)
-	if module.db.profile.separateOutputs then
-		return {
-			--name = alertName,
-			name = "", -- side effect of a blank inline group name is no border? i'll take it
-			type = "group",
-			inline = true,
-			order = alertOrder,
-			args = {
-				enable = {
-					name = alertName,
-					desc = alertDescription,
-					type = "toggle",
-					get = function(info) return module.db.profile[alertKey] end,
-					set = function(info, value) module.db.profile[alertKey] = value end,
-					order = 10,
+local createAlertSettings do
+	local order = 0
+	function createAlertSettings(key, name, desc)
+		order = order + 1
+		if module.db.profile.separateOutputs then
+			return {
+				type = "group",
+				--name = name,
+				name = "", -- side effect of a blank inline group name is no border? i'll take it
+				inline = true,
+				order = order,
+				args = {
+					enable = {
+						type = "toggle",
+						name = name,
+						desc = desc,
+						get = function(info) return module.db.profile[key] end,
+						set = function(info, value) module.db.profile[key] = value end,
+						order = 10,
+					},
+					outputSelect = {
+						type = "select",
+						name = L["Output"],
+						desc = L["Set where the alert output is sent."],
+						values = outputValuesWithChannels,
+						get = function(info) return module.db.profile.outputs[key] or module.db.profile.output end,
+						set = function(info, value) module.db.profile.outputs[key] = value:lower() end,
+						disabled = function() return not module.db.profile[key] end,
+						order = 20,
+					},
 				},
-				outputSelect = {
-					name = L["Output"],
-					desc = L["Set where the alert output is sent."],
-					type = "select",
-					values = outputValuesWithChannels,
-					get = function(info) return module.db.profile.outputs[alertKey] or module.db.profile.output end,
-					set = function(info, value) module.db.profile.outputs[alertKey] = value:lower() end,
-					disabled = function() return not module.db.profile[alertKey] end,
-					order = 20,
-				},
-			},
-		}
-	else
-		return {
-			type = "toggle",
-			name = alertName,
-			desc = alertDescription,
-			get = function(info) return module.db.profile[alertKey] end,
-			set = function(info, value) module.db.profile[alertKey] = value end,
-			order = alertOrder,
-		}
+			}
+		else
+			return {
+				type = "toggle",
+				name = name,
+				desc = desc,
+				get = function(info) return module.db.profile[key] end,
+				set = function(info, value) module.db.profile[key] = value end,
+				order = order,
+			}
+		end
 	end
 end
 
@@ -1041,16 +1046,16 @@ function GetOptions()
 				type = "group",
 				order = 2,
 				args = {
-					crowdControl = createAlertSettings("crowdControl", L["Crowd Control"], L["Report when a player breaks a crowd control effect."], 1),
-					misdirect = createAlertSettings("misdirect", L["Misdirects"], L["Report who gains Misdirection."], 2),
-					taunt = createAlertSettings("taunt", L["Taunts"], L["Report taunts."], 3),
-					tauntPet = createAlertSettings("tauntPet", L["Pet Taunts"], L["Report pet taunts."], 4),
-					interrupt = createAlertSettings("interrupt", L["Interrupts"], L["Report interrupts."], 5),
-					interruptMiss = createAlertSettings("interruptMiss", L["Missed Interrupts"], L["Report missed interrupts."], 5),
-					dispel = createAlertSettings("dispel", L["Dispels"], L["Report dispels and Spellsteal."], 6),
-					combatRes = createAlertSettings("combatRes", L["Combat Resurrections"], L["Report combat resurrections."], 7),
-					bloodlust = createAlertSettings("bloodlust", L["Bloodlust"], L["Report Bloodlust casts."], 8),
-					pulled = createAlertSettings("pulled", L["Started Encounter"], L["Report the first person to go into combat when starting a boss encounter."], 9),
+					crowdControl = createAlertSettings("crowdControl", L["Crowd Control"], L["Report when a player breaks a crowd control effect."]),
+					misdirect = createAlertSettings("misdirect", L["Misdirects"], L["Report who gains Misdirection."]),
+					taunt = createAlertSettings("taunt", L["Taunts"], L["Report taunts."]),
+					tauntPet = createAlertSettings("tauntPet", L["Pet Taunts"], L["Report pet taunts."]),
+					interrupt = createAlertSettings("interrupt", L["Interrupts"], L["Report interrupts."]),
+					interruptMiss = createAlertSettings("interruptMiss", L["Missed Interrupts"], L["Report missed interrupts."]),
+					dispel = createAlertSettings("dispel", L["Dispels"], L["Report dispels and Spellsteal."]),
+					combatRes = createAlertSettings("combatRes", L["Combat Resurrections"], L["Report combat resurrections."]),
+					bloodlust = createAlertSettings("bloodlust", L["Bloodlust"], L["Report Bloodlust casts."]),
+					pulled = createAlertSettings("pulled", L["Started Encounter"], L["Report the first person to go into combat when starting a boss encounter."]),
 				},
 			},
 
@@ -1060,12 +1065,12 @@ function GetOptions()
 				type = "group",
 				order = 3,
 				args = {
-					feast = createAlertSettings("feast", L["Consumables"], L["Report when a player uses a feast."], 1),
-					repair = createAlertSettings("repair", L["Repair Bots"], L["Report when a player uses a repair bot."], 2),
-					portal = createAlertSettings("portal", L["Portals"], L["Report when a Mage opens a portal."], 3),
-					summon = createAlertSettings("summon", L["Rituals"], L["Report when a player needs assistance summoning an object."], 4),
-					resurrect = createAlertSettings("resurrect", L["Resurrections"], L["Report resurrections."], 5),
-					codex = createAlertSettings("codex", L["Codex"], L["Report when a player uses a Codex of the Tranquil Mind."], 6),
+					feast = createAlertSettings("feast", L["Consumables"], L["Report when a player uses a feast."]),
+					repair = createAlertSettings("repair", L["Repair Bots"], L["Report when a player uses a repair bot."]),
+					portal = createAlertSettings("portal", L["Portals"], L["Report when a Mage opens a portal."]),
+					summon = createAlertSettings("summon", L["Rituals"], L["Report when a player needs assistance summoning an object."]),
+					resurrect = createAlertSettings("resurrect", L["Resurrections"], L["Report resurrections."]),
+					codex = createAlertSettings("codex", L["Codex"], L["Report when a player uses a Codex of the Tranquil Mind."]),
 				},
 			},
 
