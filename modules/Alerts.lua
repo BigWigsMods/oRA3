@@ -699,11 +699,40 @@ end
 
 
 ---------------------------------------
+-- Who pulled?
+
+do
+	local encounter = nil
+	local encounterStart = 0
+
+	function module:UNIT_FLAGS(unit)
+		if (unit == "player" or unit:match("^raid") or unit:match("^party")) and UnitAffectingCombat(unit) then
+			if GetTime() - encounterStart < 6 then -- timeout for safety's sake
+				local name = self:UnitName(unit:gsub("pet$", ""))
+				local source = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
+				local boss = ("|cffff8000%s|r"):format(encounter) -- would be nice to turn this into proper EJ link
+				self:Spam("pulled", L["%s engaged %s"]:format(source, boss))
+			end
+			encounter = nil
+			self:UnregisterEvent("UNIT_FLAGS")
+		end
+	end
+
+	function module:ENCOUNTER_START(_, name)
+		encounter = name
+		encounterStart = GetTime()
+		self:RegisterEvent("UNIT_FLAGS")
+	end
+end
+
+
+---------------------------------------
 -- Init
 
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("Alerts", {
 		profile = {
+			pulled = true,
 			crowdControl = true,
 			misdirect = true,
 			taunt = false,
@@ -787,6 +816,7 @@ function module:CheckEnable()
 		self:RegisterEvent("GROUP_ROSTER_UPDATE", UpdatePets)
 		self:RegisterEvent("UNIT_PET")
 		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		self:RegisterEvent("ENCOUNTER_START")
 		combatLogHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		UpdatePets()
 	else
@@ -794,6 +824,7 @@ function module:CheckEnable()
 		self:UnregisterEvent("GROUP_ROSTER_UPDATE")
 		self:UnregisterEvent("UNIT_PET")
 		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		self:UnregisterEvent("ENCOUNTER_START")
 		combatLogHandler:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
 end
@@ -1019,6 +1050,7 @@ function GetOptions()
 					dispel = createAlertSettings("dispel", L["Dispels"], L["Report dispels and Spellsteal."], 6),
 					combatRes = createAlertSettings("combatRes", L["Combat Resurrections"], L["Report combat resurrections."], 7),
 					bloodlust = createAlertSettings("bloodlust", L["Bloodlust"], L["Report Bloodlust casts."], 8),
+					pulled = createAlertSettings("pulled", L["Started Encounter"], L["Report the first person to go into combat when starting a boss encounter."], 9),
 				},
 			},
 
