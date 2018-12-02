@@ -471,6 +471,10 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			elseif handler == "Soulstone" then
 				module:Soulstone(dstName)
 				return
+			elseif handler == "Dispel" then
+				if extraSpellId == 1604 then -- Dazed
+					return
+				end
 			elseif handler == "Interrupt" then
 				-- ignore players getting interrupted
 				if bit_band(dstFlags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
