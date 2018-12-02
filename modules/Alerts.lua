@@ -36,12 +36,6 @@ local UNKNOWN = ("(%s)"):format(_G.UNKNOWN)
 local soulstoneList = {}
 
 local combatLogMap = {}
-combatLogMap.SPELL_CAST_START = {
-	-- Feasts
-	[175215] = "Feast", -- Savage Feast (+100)
-	[201351] = "Feast", -- Hearty Feast (+150)
-	[201352] = "Feast", -- Lavish Suramar Feast (+200)
-}
 combatLogMap.SPELL_CAST_SUCCESS = {
 	-- Repair Bots
 	[22700] = "Repair",  -- Field Repair Bot 74A
@@ -122,15 +116,22 @@ combatLogMap.SPELL_CREATE = {
 	[88346] = "Portal", -- Tol Barad (Horde)
 	[132620] = "Portal",-- Vale Blossom (Alliance)
 	[132626] = "Portal",-- Vale Blossom (Horde)
-	[176248] = "Portal", -- Stormshield
-	[176242] = "Portal", -- Warspear
+	[176244] = "Portal", -- Warspear
+	[176246] = "Portal", -- Stormshield
 	[120146] = "Portal", -- Dalaran (Crater)
 	[224871] = "Portal", -- Dalaran (Broken Isles)
-
+	[281400] = "Portal", -- Boralus
+	[281402] = "Portal", -- Dazar'alor
+	-- Feasts
+	[201351] = "Feast", -- Hearty Feast (+18)
+	[201352] = "Feast", -- Lavish Suramar Feast (+22)
+	[259409] = "Feast", -- Galley Banquet (+75)
+	[259410] = "Feast", -- Bountiful Captain's Feast (+100)
+	[286050] = "Feast", -- Sanguinated Feast (+100)
 	-- Instant Rituals
 	[29893] = "Feast", -- Create Soulwell (Warlock)
-	[43987] = "Feast", -- Conjure Refreshment Table (Mage)
-	[188036] = "Feast", -- Spirit Cauldron
+	[190336] = "Feast", -- Conjure Refreshment (Mage)
+	[276972] = "Feast", -- Mystical Cauldron
 }
 combatLogMap.SPELL_RESURRECT = {
 	["*"] = "Resurrect",
@@ -522,8 +523,8 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- Codex handling
 	local prev = nil
-	function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, spellCastGUID, spellId)
-		if spellId == 226241 and spellCastGUID ~= prev then -- Codex of the Tranquil Mind
+	function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellCastGUID, spellId)
+		if (spellId == 226241 or spellId == 256230) and spellCastGUID ~= prev then -- Codex of the Tranquil/Quiet Mind
 			prev = spellCastGUID
 			local srcName, srcGUID, srcRaidFlags = self:UnitName(unit), UnitGUID(unit), 0
 			local icon = GetRaidTargetIndex(unit)
