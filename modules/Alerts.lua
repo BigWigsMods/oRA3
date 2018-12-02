@@ -461,7 +461,8 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		local e = combatLogMap[event]
 		if not e then return end
 
-		local handler = e[spellId] or e["*"]
+		local handler = e[spellId]
+		if handler == nil then handler = e["*"] end -- can be false to ignore
 		if handler and (not self.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
 			-- special cases
 			if handler == "AssignOwner" then
