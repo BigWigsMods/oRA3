@@ -448,7 +448,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- aaand where all the magic happens
 	local FILTER_GROUP = bit_bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	local handler = function(_, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId)
+	local function handler(self, _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId)
 		-- first check if someone died
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" then
 			if soulstoneList[dstName] then
@@ -462,7 +462,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		if not e then return end
 
 		local handler = e[spellId] or e["*"]
-		if handler and (not module.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
+		if handler and (not self.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
 			-- special cases
 			if handler == "AssignOwner" then
 				if bit_band(srcFlags, FILTER_GROUP) ~= 0 then
@@ -470,7 +470,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 				end
 				return
 			elseif handler == "Soulstone" then
-				module:Soulstone(dstName)
+				self:Soulstone(dstName)
 				return
 			elseif handler == "Dispel" then
 				if extraSpellId == 1604 then -- Dazed
@@ -513,12 +513,12 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			end
 
 			-- execute!
-			return module[handler](module, srcOutput, dstOutput, spellOutput, extraSpellOuput)
+			return self[handler](self, srcOutput, dstOutput, spellOutput, extraSpellOuput)
 		end
 
 	end
-	combatLogHandler:SetScript("OnEvent", function(self, event)
-		handler(CombatLogGetCurrentEventInfo())
+	combatLogHandler:SetScript("OnEvent", function()
+		handler(module, CombatLogGetCurrentEventInfo())
 	end)
 
 	-- Codex handling
@@ -666,8 +666,6 @@ do
 		5384, -- Feign Death
 	}
 
-	local soulstone = GetSpellLink(20707)
-
 	local total = 0
 	local function checkDead(self, elapsed)
 		total = elapsed + total
@@ -684,9 +682,9 @@ do
 					soulstoneList[name] = nil
 				elseif not UnitIsDead(name) and UnitIsConnected(name) and not UnitIsFeignDeath(name) and not module:UnitBuffByIDs(name, buffs) then
 					soulstoneList[name] = nil
-					name = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
-					local srcOutput = ("|cff40ff40%s|r"):format(name)
-					module:Spam("combatRes", L["%s used %s"]:format(srcOutput, soulstone))
+					local srcOutput = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
+					local spellOutput = GetSpellLink(20707) -- Soulstone
+					module:Spam("combatRes", L["%s used %s"]:format(srcOutput, spellOutput))
 				end
 			end
 
@@ -713,7 +711,7 @@ do
 
 	function module:UNIT_FLAGS(unit)
 		if (unit == "player" or unit:match("^raid") or unit:match("^party")) and UnitAffectingCombat(unit) then
-			if GetTime() - encounterStart < 6 then -- timeout for safety's sake
+			if encounter and GetTime() - encounterStart < 6 then -- timeout for safety's sake
 				local name = self:UnitName(unit:gsub("pet$", ""))
 				local source = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
 				local boss = ("|cffff8000%s|r"):format(encounter) -- would be nice to turn this into proper EJ link
@@ -902,7 +900,7 @@ function GetOptions()
 		local _, _, _, _, _, _, shown = _G.GetChatWindowInfo(i)
 		if frame ~= _G.COMBATLOG and (shown or frame.isDocked) then
 			local key = frame == _G.DEFAULT_CHAT_FRAME and "self" or "t"..i
-			outputValuesWithChannels[key] = "ChatFrame: " ..frame.name
+			outputValuesWithChannels[key] = L["ChatFrame: %s"]:format(frame.name)
 		end
 	end
 
