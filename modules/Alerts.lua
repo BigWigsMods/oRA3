@@ -153,9 +153,21 @@ combatLogMap.SPELL_AURA_REMOVED = {
 }
 combatLogMap.SPELL_DISPEL = {
 	["*"] = "Dispel",
-	[32375] = "MassDispel", -- friendly dispel? (the main spell id, next two trigger off it)
-	[39897] = "MassDispel", -- offensive dispel?
-	[32592] = "MassDispel", -- why are there so many ids?!
+	[115310] = "MassDispel", -- Revival (Monk)
+	-- Mass Dispel (Priest)
+	[32375] = "MassDispel",
+	[39897] = "MassDispel",
+	[32592] = "MassDispel",
+	-- Arcane Torrent
+	[28730] = "MassDispel",  -- Mage, Warlock
+	[25046] = "MassDispel",  -- Rogue
+	[50613] = "MassDispel",  -- Death Knight
+	[69179] = "MassDispel",  -- Warrior
+	[80483] = "MassDispel",  -- Hunter
+	[129597] = "MassDispel", -- Monk
+	[155145] = "MassDispel", -- Paladin
+	[202719] = "MassDispel", -- Demon Hunter
+	[232633] = "MassDispel", -- Priest
 }
 combatLogMap.SPELL_STOLEN = combatLogMap.SPELL_DISPEL
 combatLogMap.SPELL_INTERRUPT = {
