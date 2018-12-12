@@ -114,15 +114,27 @@ local talentCooldowns = {
 	[18585] = function(info) -- Restoration: Stonebark
 		addMod(info.guid, 102342, 15) -- Ironbark
 	end,
-	-- Guardian: Increase Barkskin 60s->90s from checking first tier talents
+	-- Guardian: Adjust cooldowns
 	[22419] = function(info) -- Brambles
 		addMod(info.guid, 22812, -30) -- Barkskin
+		addMod(info.guid, 61336, -120) -- Survival Instincts
+		if info.level >= 80 then
+			addMod(info.guid, 106898, 60) -- Stampeding Roar
+		end
 	end,
 	[22418] = function(info) -- Blood Frenzy
 		addMod(info.guid, 22812, -30) -- Barkskin
+		addMod(info.guid, 61336, -120) -- Survival Instincts
+		if info.level >= 80 then
+			addMod(info.guid, 106898, 60) -- Stampeding Roar
+		end
 	end,
 	[22420] = function(info) -- Bristling Fur
 		addMod(info.guid, 22812, -30) -- Barkskin
+		addMod(info.guid, 61336, -120) -- Survival Instincts
+		if info.level >= 80 then
+			addMod(info.guid, 106898, 60) -- Stampeding Roar
+		end
 	end,
 
 	-- Hunter
@@ -198,6 +210,9 @@ local talentCooldowns = {
 	end,
 	[23374] = function(info) -- Shadow: San'layn
 		addMod(info.guid, 15286, 45) -- Vampiric Embrace
+	end,
+	[21976] = function(info) -- Shadow: Intangibility
+		addMod(info.guid, 47585, 30) -- Dispersion
 	end,
 	[23137] = function(info) -- Shadow: Last Word
 		addMod(info.guid, 15487, 15) -- Silence
@@ -307,7 +322,7 @@ local spells = {
 		[49206] = {180, 75, 252, 21}, -- Summon Gargoyle
 	},
 	DEMONHUNTER = {
-		[212800] = {60, 1, 577}, -- Blur XXX No SPELL_CAST_SUCCESS
+		[198589] = {60, 1, 577}, -- Blur
 		[179057] = {60, 1, 577}, -- Chaos Nova
 		[183752] = {15, 1}, -- Disrupt
 		[195072] = {10, 1, 577}, -- Fel Rush
@@ -338,15 +353,17 @@ local spells = {
 	DRUID = {
 		[1850] = {120, 8, nil, -4}, -- Dash
 		[5217] = {30, 13, 103}, -- Tiger's Fury
-		[22812] = {60, 26, {102, 104, 105}}, -- Barkskin XXX Guardian CD is 90s (hacked in via talents)
+		[22812] = {60, 26, {102, 104, 105}}, -- Barkskin (Guardian CD is 90s)
 		[99] = {30, 28, 104, -5}, -- Incapacitating Roar
-		[61336] = {180, 36, {103, 104}}, -- Survival Instincts (2 charges)
+		[61336] = {120, 36, {103, 104}}, -- Survival Instincts (2 charges) (Guardian CD is 240s)
 		[106951] = {180, 40, 103, -15}, -- Berserk
 		[22842] = {36, 40, nil, {[102]=8,[103]=8,[104]=false},[105]=8}, -- Frenzied Regeneration (2 charges at lv63) (Granted via Guardian Affinity)
 		[20484] = {600, 42}, -- Rebirth
 		[194223] = {180, 48, 102, -15}, -- Celestial Alignment
 		[29166] = {180, 50, {102, 105}}, -- Innervate
 		[106898] = {120, 50, {103, 104}}, -- Stampeding Roar
+		[77761] = 106898, -- Stampeding Roar (Guardian, 60s)
+		[77764] = 106898, -- Stampeding Roar (Feral, 120s)
 		[102342] = {60, 54, 105}, -- Ironbark
 		[2908] = {10, 56}, -- Soothe
 		[78675] = {60, 60, 102}, -- Solar Beam
@@ -359,7 +376,7 @@ local spells = {
 		[102351] = {30, 15, 105, 3}, -- Cenarion Ward
 		[205636] = {60, 15, 102, 3}, -- Force of Nature
 		[252216] = {45, 30, nil, 4}, -- Tiger Dash
-		[236748] = {30, 30, 104, 5}, -- Initidating Roar
+		[102793] = {60, 30, 104, 5}, -- Ursol's Vortex
 		[108238] = {90, 30, {102, 103, 105}, 5}, -- Renewel
 		[132302] = {15, 30, nil, 6}, -- Wild Charge
 		[16979]  = 132302, -- Wild Charge (Bear)
@@ -386,7 +403,7 @@ local spells = {
 		[136] = {10, 13}, -- Mend Pet
 		[187650] = {30, 18}, -- Freezing Trap
 		[19574] = {90, 20, 253, nil, true}, -- Bestial Wrath: Bestial Wrath's remaining cooldown is reduced by 12 sec each time you use Barbed Shot.
-		[257044] = {20, 20, 254}, -- Rapid Fire
+		-- [257044] = {20, 20, 254}, -- Rapid Fire (XXX CD reduced with Lethal Shots talent randomly and by 60% during Trueshot)
 		[186257] = {180, 22}, -- Aspect of the Cheetah
 		[190925] = {20, 14, 255}, -- Harpoon (30s base, reduced by 10s at 65)
 		[259495] = {18, 20, 255}, -- Wildfire Bomb
@@ -557,9 +574,9 @@ local spells = {
 		[200183] = {120, 100, 257, 20}, -- Apotheosis
 		[280711] = {60, 100, 258, 20}, -- Dark Ascension
 		[271466] = {180, 100, 256, 20}, -- Luminous Barrier
-		[246287] = {75, 100, 258, 21}, -- Evangelism
+		[246287] = {90, 100, 258, 21}, -- Evangelism
 		[265202] = {720, 100, 257, 21}, -- Holy Word: Salvation
-		[193223] = {240, 100, 258, 21}, -- Surrender to Madness
+		[193223] = {180, 100, 258, 21}, -- Surrender to Madness
 	},
 	ROGUE = {
 		-- Restless Blades (Outlaw, 50): Finishing moves reduce the remaining cooldown
@@ -2156,15 +2173,6 @@ do
 	specialEvents.SPELL_CAST_SUCCESS[207230] = icecapCast -- Frostscythe
 
 	-- Demon Hunter
-
-	-- Blur (work around for not having a cast event)
-	specialEvents.SPELL_AURA_APPLIED[212800] = function(srcGUID)
-		local info = infoCache[srcGUID]
-		if info then
-			callbacks:Fire("oRA3CD_SpellUsed", 212800, srcGUID, info.name, srcGUID, info.name)
-			resetCooldown(info, 212800, 60)
-		end
-	end
 
 	-- Vengeful Retreat
 	specialEvents.SPELL_DAMAGE[198813] = function(srcGUID)
