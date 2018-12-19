@@ -49,6 +49,21 @@ do
 		[269411] = 2195, -- Zul
 		[269412] = 2194, -- Mythrax
 		[269413] = 2147, -- G'hunn
+		-- Battle of Dazar'alor
+		[285535] = 2333, -- Champion of the Light
+		[285536] = 2325, -- Grong, the Jungle Lord (Horde)
+		[289194] = 2340, -- Grong, the Revenant (Alliance)
+		[285537] = 2323, -- Jadefire Masters
+		[289196] = 2323, -- Jadefire Masters
+		[285538] = 2342, -- Opulence
+		[285539] = 2330, -- Conclave of the Chosen
+		[285540] = 2335, -- King Rastakhan
+		[285541] = 2334, -- High Tinker Mekkatorque
+		[285542] = 2337, -- Stormwall Blockade
+		[285543] = 2343, -- Lady Jaina Proudmoore
+		-- Crucible of Storms
+		--  The Restless Cabal
+		--  Uu'nat, Harbinger of the Void
 	}
 
 	local buffs = {}

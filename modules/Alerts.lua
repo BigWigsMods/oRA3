@@ -758,7 +758,7 @@ function module:OnRegister()
 			interruptMiss = false,
 			dispel = false,
 			combatRes = true,
-			bloodlust = false,
+			bloodlust = true,
 			portal = true,
 			repair = true,
 			feast = true,
