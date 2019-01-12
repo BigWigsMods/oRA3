@@ -62,8 +62,8 @@ do
 		[285542] = 2337, -- Stormwall Blockade
 		[285543] = 2343, -- Lady Jaina Proudmoore
 		-- Crucible of Storms
-		--  The Restless Cabal
-		--  Uu'nat, Harbinger of the Void
+		[285900] = 2328, -- The Restless Cabal
+		[285901] = 2332, -- Uu'nat, Harbinger of the Void
 	}
 
 	local buffs = {}
