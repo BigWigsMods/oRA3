@@ -92,6 +92,7 @@ do
 
 	function createCountIcons()
 		countIcons = CreateFrame("Frame", "oRA3RaidFrameRoleIcons", RaidFrame)
+		countIcons:SetFrameLevel(FriendsFrame.NineSlice:GetFrameLevel() + 1) -- the nine slice textures sit at 500 for some reason
 		countIcons:SetPoint("TOPLEFT", 51, 8)
 		countIcons:SetSize(30, 30)
 
