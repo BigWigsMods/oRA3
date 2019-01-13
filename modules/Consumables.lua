@@ -19,7 +19,7 @@ local PLAYER_CHECK_THROTTLE = 0.3
 
 local consumablesList = {}
 local playerBuffs = {}
-local missingFood, missingFlasks, missingRunes = {}, {}, {}
+local missingFood, missingFlasks, missingRunes, missingBuffs = {}, {}, {}, {}
 
 local YES = ("|cff20ff20%s|r"):format(YES)
 local NO = ("|cffff2020%s|r"):format(NO)
@@ -140,6 +140,26 @@ do
 	end
 end
 
+local raidBuffs = {
+	{ -- Intellect
+		1459,   -- Arcane Intellect
+		264760, -- War-Scroll of Intellect
+	},
+	{ -- Stamina
+		21562,  -- Power Word: Fortitude
+		264764, -- War-Scroll of Fortitude
+	},
+	{ -- Attack Power
+		6673,   -- Battle Shout
+		264761, -- War-Scroll of Battle Shout
+	},
+}
+local raidBuffNames = {
+	ITEM_MOD_INTELLECT_SHORT,
+	ITEM_MOD_STAMINA_SHORT,
+	ITEM_MOD_ATTACK_POWER_SHORT,
+}
+
 ---------------------------------------
 -- Options
 
@@ -208,6 +228,12 @@ local options = {
 					desc = L.checkRuneDesc,
 					order = 3,
 				},
+				checkBuffs = {
+					type = "toggle",
+					name = L.raidBuffs,
+					desc = L.checkBuffsDesc,
+					order = 4,
+				},
 			},
 		}, -- checks
 	},
@@ -222,6 +248,7 @@ function module:OnRegister()
 			checkFood = true,
 			checkFlask = true,
 			checkRune = false,
+			checkBuffs = true,
 			output = 1, -- 1 = disabled
 			checkReadyCheck = 2, -- 2 = started by you
 			whisper = false,
@@ -236,7 +263,8 @@ function module:OnRegister()
 		L.food,
 		L.flask,
 		L.rune,
-		L.vantus
+		L.vantus,
+		L.raidBuffs
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
@@ -282,6 +310,7 @@ function module:OnShutdown()
 	wipe(missingFlasks)
 	wipe(missingFood)
 	wipe(missingRunes)
+	wipe(missingBuffs)
 end
 
 function module:READY_CHECK(sender)
@@ -295,7 +324,8 @@ end
 -- API
 
 do
-	local maxFoods = {
+	local best = {
+		-- Food
 		[257410] = true, -- crit
 		[257415] = true, -- haste
 		[257420] = true, -- mastery
@@ -303,17 +333,22 @@ do
 		[259454] = true, -- agi
 		[259455] = true, -- int
 		[259456] = true, -- str
-		-- [259457] = true, -- sta
-	}
-	local maxFlasks = {
+		[288075] = true, -- sta (stamina is not gained from feasts now)
+
+		--Flasks
 		[251836] = true, -- agi
 		[251837] = true, -- int
 		[251838] = true, -- sta
 		[251839] = true, -- str
+
+		-- Buffs
+		[1459] = true,   -- Arcane Intellect
+		[21562] = true,  -- Power Word: Fortitude
+		[264761] = true, -- War-Scroll of Battle Shout
 	}
 
 	function module:IsBest(id)
-		return maxFoods[id] or maxFlasks[id]
+		return best[id]
 	end
 end
 
@@ -355,7 +390,7 @@ do
 			if not oRA:IsPromoted() or oRA:IsPromoted() == 1 then return end
 		end
 
-		local noFood, noFlasks, noRunes = self:CheckGroup()
+		local noFood, noFlasks, noRunes, noBuffs = self:CheckGroup()
 
 		local db = self.db.profile
 		if db.whisper then
@@ -399,6 +434,9 @@ do
 		if db.checkRune then
 			out(L.noRune, noRunes)
 		end
+		if db.checkBuffs then
+			out(L.missingBuffs, noBuffs)
+		end
 	end
 end
 
@@ -409,9 +447,9 @@ function module:CheckPlayer(player)
 	local cache = playerBuffs[player]
 	local t = GetTime()
 	if cache and t-cache[0] < PLAYER_CHECK_THROTTLE then
-		local food, flask, rune = unpack(cache)
-		return food, flask, rune
+		return unpack(cache)
 	end
+
 	if not cache then
 		playerBuffs[player] = {}
 		cache = playerBuffs[player]
@@ -421,14 +459,20 @@ function module:CheckPlayer(player)
 	local food = getFood(player)
 	local rune = getRune(player)
 	local vantus = getVantus(player)
+	local buffs = cache[5] or {}
+	for i = 1, #raidBuffs do
+		local _, _, id = self:UnitBuffByIDs(player, raidBuffs[i])
+		buffs[i] = id or false
+	end
 
 	cache[0] = t
 	cache[1] = food
 	cache[2] = flask
 	cache[3] = rune
 	cache[4] = vantus
+	cache[5] = buffs
 
-	return food, flask, rune, vantus
+	return food, flask, rune, vantus, buffs
 end
 
 -------------------
@@ -437,6 +481,7 @@ end
 do
 	local prev = 0
 
+	-- XXX this need to be updated for async loading
 	local function getStatValue(id)
 		local desc = GetSpellDescription(id)
 		if desc then
@@ -448,7 +493,7 @@ do
 	function module:CheckGroup()
 		local t = GetTime()
 		if t-prev < GROUP_CHECK_THROTTLE then
-			return missingFood, missingFlasks, missingRunes
+			return missingFood, missingFlasks, missingRunes, missingBuffs
 		end
 		prev = t
 
@@ -456,20 +501,14 @@ do
 		wipe(missingFlasks)
 		wipe(missingFood)
 		wipe(missingRunes)
+		wipe(missingBuffs)
 
 		local groupMembers = oRA:GetGroupMembers()
 		if not groupMembers[1] then groupMembers[1] = UnitName("player") end
 		for _, player in next, groupMembers do
 			if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and UnitIsVisible(player) then
-				local food, flask, rune, vantus = self:CheckPlayer(player)
-
-				consumablesList[#consumablesList + 1] = {
-					player:gsub("%-.*", ""),
-					food and (getStatValue(food) or spells[161715]) or NO, -- 161715 = Eating
-					flask and (getStatValue(flask) or YES) or NO,
-					rune and YES or NO,
-					getVantusBoss(vantus) or NO,
-				}
+				local food, flask, rune, vantus, buffs = self:CheckPlayer(player)
+				local numBuffs = 0
 
 				if not food then
 					missingFood[player] = true
@@ -482,9 +521,26 @@ do
 				if not rune then
 					missingRunes[player] = true
 				end
+
+				for i = 1, #buffs do
+					if not buffs[i] then
+						missingBuffs[raidBuffNames[i]] = true
+					else
+						numBuffs = numBuffs + 1
+					end
+				end
+
+				consumablesList[#consumablesList + 1] = {
+					player:gsub("%-.*", ""),
+					food and (getStatValue(food) or spells[161715]) or NO, -- 161715 = Eating
+					flask and (getStatValue(flask) or YES) or NO,
+					rune and YES or NO,
+					getVantusBoss(vantus) or NO,
+					("%d/%d"):format(numBuffs, #buffs),
+				}
 			end
 		end
 
-		return missingFood, missingFlasks, missingRunes
+		return missingFood, missingFlasks, missingRunes, missingBuffs
 	end
 end
