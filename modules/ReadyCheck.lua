@@ -28,7 +28,18 @@ local highgroup = 9
 local window -- will be filled with our GUI frame
 local updateWindow
 local showBuffFrame = false
+local list = {} -- temp table to concat from
 local lastUpdate = 0
+
+local missingBuffs = {}
+local buffAvailable = {}
+local buffProvider = {
+	MAGE = 1,
+	PRIEST = 2,
+	WARRIOR = 3,
+}
+
+local BUFF_ICON_SIZE = 12
 
 local playerName = UnitName("player")
 local _, playerClass = UnitClass("player")
@@ -293,20 +304,35 @@ local function addIconAndName(frame)
 	rdt:SetFontObject(GameFontNormal)
 	rdt:SetPoint("LEFT", rdc, "RIGHT", 3)
 	rdt:SetHeight(14)
-	rdt:SetWidth(120)
+	rdt:SetWidth(160)
 	frame.NameText = rdt
 
 	-- out of range indicator
-	local oor = addBuffFrame("Range", frame, nil, 446212, "RIGHT", frame, "RIGHT", -6, 0) -- 446212="Interface\\TargetingFrame\\UI-PhasingIcon"
+	local oor = addBuffFrame("Range", frame, nil, 446212, "RIGHT", -6, 0) -- 446212="Interface\\TargetingFrame\\UI-PhasingIcon"
 	oor.icon:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
 	oor.tooltip = SPELL_FAILED_OUT_OF_RANGE
 	frame.OutOfRange = oor
 
-	-- missing buffs
-	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", frame, "RIGHT", -6, 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", frame, "RIGHT", -6 - 12, 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
-	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", frame, "RIGHT", -6 - 24, 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
-	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", frame, "RIGHT", -6 - 36, 0) -- 136000="Interface\\Icons\\spell_misc_food"
+	-- Battle Shout
+	local name, _, icon = GetSpellInfo(6673)
+	frame.GroupBuff3 = addBuffFrame("GroupBuff3", frame, name, icon, "RIGHT", -6 - (0*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff3.groupBuff = ITEM_MOD_ATTACK_POWER_SHORT
+
+	-- Power Word: Fortitude
+	name, _, icon = GetSpellInfo(21562)
+	frame.GroupBuff2 = addBuffFrame("GroupBuff2", frame, name, icon, "RIGHT", -6 - (1*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff2.groupBuff = ITEM_MOD_STAMINA_SHORT
+
+	-- Arcane Intellect
+	name, _, icon = GetSpellInfo(1459)
+	frame.GroupBuff1 = addBuffFrame("GroupBuff1", frame, name, icon, "RIGHT", -6 - (2*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff1.groupBuff = ITEM_MOD_INTELLECT_SHORT
+
+	-- consumable buffs
+	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", -6 - (4*BUFF_ICON_SIZE), 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", -6 - (5*BUFF_ICON_SIZE), 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
+	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", -6 - (6*BUFF_ICON_SIZE), 0) -- 136000="Interface\\Icons\\spell_misc_food"
 	local text = frame.FoodBuff:CreateFontString(nil, "OVERLAY")
 	text:SetPoint("BOTTOMRIGHT")
 	text:SetJustifyH("RIGHT")
@@ -324,9 +350,9 @@ local function createTopFrame()
 	local num = #topMemberFrames + 1
 	local f = CreateFrame("Frame", "oRA3ReadyCheckTopFrame"..num, window)
 	topMemberFrames[num] = f
-	local xoff = num % 2 == 0 and 160 or 15
+	local xoff = num % 2 == 0 and 200 or 15
 	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) - 17
-	f:SetWidth(150)
+	f:SetWidth(190)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", window, "TOPLEFT", xoff, yoff)
 	addIconAndName(f)
@@ -337,9 +363,9 @@ local function createBottomFrame()
 	local num = #bottomMemberFrames + 1
 	local f = CreateFrame("Frame", "oRA3ReadyCheckBottomFrame"..num, window)
 	bottomMemberFrames[num] = f
-	local xoff = num % 2 == 0 and 152 or 7
+	local xoff = num % 2 == 0 and 192 or 7
 	local yoff = 0 - ((floor(num / 2) + (num % 2)) * 14) + 4
-	f:SetWidth(150)
+	f:SetWidth(190)
 	f:SetHeight(14)
 	f:SetPoint("TOPLEFT", window.bar, "TOPLEFT", xoff, yoff)
 	addIconAndName(f)
@@ -347,17 +373,17 @@ local function createBottomFrame()
 end
 
 local function anchorBuffs(f)
-	local i = 0
+	local i = 3
 	if module.db.profile.showVantus then
 		i = i + 1
-		f.VantusBuff:SetPoint("RIGHT", -6 - ((i-1)*12), 0)
+		f.VantusBuff:SetPoint("RIGHT", -6 - ((i-1)*BUFF_ICON_SIZE), 0)
 	end
 	if module.db.profile.showMissingRunes then
 		i = i + 1
-		f.RuneBuff:SetPoint("RIGHT", -6 - ((i-1)*12), 0)
+		f.RuneBuff:SetPoint("RIGHT", -6 - ((i-1)*BUFF_ICON_SIZE), 0)
 	end
-	f.FlaskBuff:SetPoint("RIGHT", -6 - ((i+0)*12), 0)
-	f.FoodBuff:SetPoint("RIGHT", -6 - ((i+1)*12), 0)
+	f.FlaskBuff:SetPoint("RIGHT", -6 - ((i+0)*BUFF_ICON_SIZE), 0)
+	f.FoodBuff:SetPoint("RIGHT", -6 - ((i+1)*BUFF_ICON_SIZE), 0)
 end
 
 local function getStatValue(id)
@@ -401,7 +427,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 		f.OutOfRange:Hide()
 		if update then
 			anchorBuffs(f)
-			local food, flask, rune, vantus = consumables:CheckPlayer(name)
+			local food, flask, rune, vantus, buffs = consumables:CheckPlayer(name)
 			local showMissing = module.db.profile.showBuffs == 1
 			local onlyMax = module.db.profile.showMissingMaxStat
 			ready = food and flask and (not module.db.profile.showMissingRunes or rune) and true
@@ -410,10 +436,16 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.FoodBuff:SetShown(not food)
 				f.FlaskBuff:SetShown(not flask)
 				f.RuneBuff:SetShown(not rune)
+				f.GroupBuff1:SetShown(not buffs[1])
+				f.GroupBuff2:SetShown(not buffs[2])
+				f.GroupBuff3:SetShown(not buffs[3])
 			else
 				f.FoodBuff:SetShown(food)
 				f.FlaskBuff:SetShown(flask)
 				f.RuneBuff:SetShown(rune)
+				f.GroupBuff1:SetShown(buffs[1])
+				f.GroupBuff2:SetShown(buffs[2])
+				f.GroupBuff3:SetShown(buffs[3])
 			end
 			f.VantusBuff:SetShown(vantus and module.db.profile.showVantus)
 
@@ -463,6 +495,30 @@ local function setMemberStatus(num, bottom, name, class, update)
 			if vantus then
 				f.VantusBuff:SetSpell(vantus)
 			end
+
+			for i = 1, #buffs do
+				local id = buffs[i]
+				local icon = f[("GroupBuff%d"):format(i)]
+				icon:SetSpell(id)
+				if not id then
+					missingBuffs[icon.groupBuff] = true
+				end
+				if buffAvailable[i] and (not id or not consumables:IsBest(id)) then
+					ready = false
+					missingBuffs[icon.groupBuff] = true
+					if id and not consumables:IsBest(id) then -- using a scroll
+						icon.tooltip = L.notBestBuff
+						if showMissing then
+							icon.icon:SetDesaturated(true)
+							icon.icon:SetVertexColor(1, 1, 0.5, 1) -- yellow
+							icon:Show()
+						else
+							icon.icon:SetDesaturated(true)
+							icon.icon:SetVertexColor(1, 0.5, 0.5, 1) -- red
+						end
+					end
+				end
+			end
 		end
 	else
 		f.OutOfRange:SetShown(showBuffFrame)
@@ -470,6 +526,9 @@ local function setMemberStatus(num, bottom, name, class, update)
 		f.FlaskBuff:Hide()
 		f.RuneBuff:Hide()
 		f.VantusBuff:Hide()
+		f.GroupBuff1:Hide()
+		f.GroupBuff2:Hide()
+		f.GroupBuff3:Hide()
 	end
 
 	local color = oRA.classColors[class]
@@ -510,6 +569,7 @@ function updateWindow(force)
 	for _, v in next, topMemberFrames do v:Hide() end
 	for _, v in next, bottomMemberFrames do v:Hide() end
 	window.bar:Hide()
+	window.MissingGroupBuffs:Hide()
 
 	local promoted = oRA:IsPromoted()
 	window.ready:SetDisabled(not promoted)
@@ -524,6 +584,7 @@ function updateWindow(force)
 	end
 
 	showBuffFrame = shouldShowBuffs()
+	wipe(missingBuffs)
 
 	local height = 0
 	if IsInRaid() then
@@ -560,6 +621,16 @@ function updateWindow(force)
 	end
 
 	window:SetHeight(max(height, 128))
+
+	if showBuffFrame and next(missingBuffs) then
+		wipe(list)
+		for k in next, missingBuffs do
+			list[#list + 1] = k
+		end
+		sort(list)
+		window.MissingGroupBuffs:SetText(concat(list, ", "))
+		window.MissingGroupBuffs:Show()
+	end
 end
 
 local function createWindow()
@@ -569,15 +640,15 @@ local function createWindow()
 	tinsert(UISpecialFrames, "oRA3ReadyCheck") -- Close on ESC
 
 	local f = window
-	f:SetWidth(320)
-	f:SetHeight(300)
-	f:SetMovable(true)
-	f:EnableMouse(true)
-	f:SetClampedToScreen(true)
 	if not oRA:RestorePosition("oRA3ReadyCheck") then
 		f:ClearAllPoints()
 		f:SetPoint("CENTER", UIParent, 0, 180)
 	end
+	f:SetWidth(400)
+	f:SetHeight(300)
+	f:SetMovable(true)
+	f:EnableMouse(true)
+	f:SetClampedToScreen(true)
 
 	local titlebg = f:CreateTexture(nil, "BACKGROUND")
 	titlebg:SetTexture(251966) --[[Interface\PaperDollInfoFrame\UI-GearManager-Title-Background]]
@@ -654,7 +725,9 @@ local function createWindow()
 	title:SetFontObject(GameFontNormal)
 	title:SetPoint("TOPLEFT", 12, -8)
 	title:SetPoint("TOPRIGHT", -32, -8)
-	title:SetText(L.raidCheck)
+	-- title:SetPoint("TOP", 0, -8)
+	-- title:SetJustifyH("CENTER")
+	title:SetFormattedText("oRA: %s", L.raidCheck)
 	f.title = title
 
 	local ready = CreateFrame("Button", "oRA3ReadyCheckReadyCheckButton", f)
@@ -704,7 +777,7 @@ local function createWindow()
 	titlebutton:SetScript("OnDragStop", function()
 		f.moving = nil
 		f:StopMovingOrSizing()
-		oRA:SavePosition("oRA3ReadyCheck")
+		oRA:SavePosition("oRA3ReadyCheck", true)
 	end)
 
 	local bar = CreateFrame("Button", nil, f)
@@ -717,6 +790,25 @@ local function createWindow()
 	barmiddle:SetTexture(130968) --"Interface\\ClassTrainerFrame\\UI-ClassTrainer-HorizontalBar"
 	barmiddle:SetAllPoints(bar)
 	barmiddle:SetTexCoord(0.29296875, 1, 0, 0.25)
+
+	-- missing buffs
+	local missingGroupBuffs = CreateFrame("Frame", "oRA3ReadyCheckMissingGroupBuffs", f)
+
+	local text = missingGroupBuffs:CreateFontString(nil, "OVERLAY")
+	text:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -2)
+	text:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, 2)
+	text:SetHeight(24)
+	text:SetFontObject(GameFontNormal)
+	text:SetJustifyV("TOP")
+	text:SetShadowColor(0, 0, 0, 1)
+	text:SetShadowOffset(1, -1)
+	text:SetWordWrap(true)
+
+	missingGroupBuffs.SetText = function(_, t)
+		text:SetFormattedText("|TInterface\\DialogFrame\\DialogIcon-AlertNew-16:0|t %s: %s", L.missingBuffs, t)
+	end
+
+	f.MissingGroupBuffs = missingGroupBuffs
 
 	-- updater
 	local animFader = f:CreateAnimationGroup()
@@ -876,19 +968,28 @@ local function checkReady()
 	module:READY_CHECK_FINISHED()
 end
 
-function module:OnGroupChanged()
-	if not readychecking or not IsInRaid() or not self.db.profile.readyByGroup then return end
+function module:OnGroupChanged(_, status, members)
+	if not IsInRaid() then return end
 
+	local checkupdate = readychecking and self.db.profile.readyByGroup
 	local update = nil
+	wipe(buffAvailable)
+
 	for i = 1, GetNumGroupMembers() do
-		local name, _, group = GetRaidRosterInfo(i)
+		local name, _, group, _, class = GetRaidRosterInfo(i)
 		if name then
-			if group < highgroup and not readygroup[name] then
-				readygroup[name] = true
-				update = true
-			elseif readygroup[name] then
-				readygroup[name] = nil
-				update = true
+			if checkupdate then
+				if group < highgroup and not readygroup[name] then
+					readygroup[name] = true
+					update = true
+				elseif readygroup[name] then
+					readygroup[name] = nil
+					update = true
+				end
+			end
+			local buff = buffProvider[class]
+			if buff then
+				buffAvailable[buff] = true
 			end
 		end
 	end
