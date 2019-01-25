@@ -21,6 +21,7 @@ local theDead = {}
 local updateFunc
 local brez
 local inCombat = false
+local isEngineer = false
 local active = {
 	[8] = true, -- Mythic+
 	[14] = true, -- Normal
@@ -74,6 +75,14 @@ local function createFrame()
 	remaining:SetText("0")
 	brez.remaining = remaining
 
+	local icon = brez:CreateTexture()
+	icon:SetWidth(20)
+	icon:SetHeight(20)
+	icon:SetPoint("LEFT", remaining, "LEFT", 20, 0)
+	icon:SetTexture(2115322) -- inv_eng_unstabletemporaltimeshifter
+	icon:Hide()
+	brez.icon = icon
+
 	local scroll = CreateFrame("ScrollingMessageFrame", nil, brez)
 	scroll:SetPoint("TOP", brez, "BOTTOM")
 	scroll:SetFontObject(GameFontNormal)
@@ -105,6 +114,7 @@ local function toggleShow()
 	if not brez then return end
 	if module.db.profile.showDisplay then
 		brez:Show()
+		brez.icon:SetShown(isEngineer)
 	else
 		brez:Hide()
 	end
@@ -190,7 +200,7 @@ end
 
 function module:OnStartup()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckOpen")
-	self:RegisterEvent("CHALLENGE_MODE_START", "CheckOpen")
+	self:RegisterEvent("CHALLENGE_MODE_START")
 	oRA.RegisterCallback(self, "OnGroupChanged", "CheckOpen")
 	self:CheckOpen()
 end
@@ -200,6 +210,11 @@ function module:OnShutdown()
 	self:UnregisterEvent("CHALLENGE_MODE_START")
 	oRA.UnregisterCallback(self, "OnGroupChanged")
 	self:Close()
+end
+
+function module:CHALLENGE_MODE_START()
+	self:CheckOpen()
+	self:ScheduleTimer("CheckOpen", 1)
 end
 
 do
@@ -246,6 +261,14 @@ do
 				else
 					brez.remaining:SetTextColor(0,1,0)
 				end
+				if isEngineer then
+					local count = GetItemCount(158379) -- Unstable Temporal Time Shifter
+					if count > 0 then
+						brez.icon:SetVertexColor(1, 1, 1)
+					else
+						brez.icon:SetVertexColor(1, 0.5, 0.5)
+					end
+				end
 			end
 		elseif inCombat and not charges then
 			inCombat = false
@@ -258,13 +281,28 @@ do
 		end
 	end
 
+	local p = {}
 	local function canGroupRes()
+		isEngineer = false
 		for _, player in next, oRA:GetGroupMembers() do
 			local _, class = UnitClass(player)
 			if class == "DRUID" or class == "DEATHKNIGHT" or class == "WARLOCK" then
 				return true
 			end
 		end
+
+		p[1], p[2] = GetProfessions()
+		for i = 1, 2 do
+			local index = p[i]
+			if index then
+				local _, _, rank, maxRank, _, _, skillLine, _, _, _, skillLineName = GetProfessionInfo(index)
+				if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2499) and rank > 85 then -- Zandalari/Kul Tiran Engineering
+					isEngineer = true
+					return true
+				end
+			end
+		end
+
 		return false
 	end
 
@@ -295,6 +333,7 @@ function module:Close()
 		brez.remaining:SetText("0")
 		brez.timer:SetText("0:00")
 		brez.remaining:SetTextColor(1,1,1)
+		resAmount = 0
 	end
 end
 
