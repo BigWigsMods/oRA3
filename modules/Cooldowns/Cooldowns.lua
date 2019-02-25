@@ -29,6 +29,7 @@ local spellsOnCooldown, chargeSpellsOnCooldown = nil, nil
 local deadies = {}
 local playerGUID = UnitGUID("player")
 local _, playerClass = UnitClass("player")
+local instanceType, instanceDifficulty = nil, nil
 
 local function round(num, q)
 	q = 10^(q or 3)
@@ -868,7 +869,7 @@ function module:CheckFilter(display, player)
 	local role = info and GetSpecializationRoleByID(info.spec or 0) or UnitGroupRolesAssigned(player)
 	if db.hideRoles[role] then return end
 
-	local inInstance, instanceType = IsInInstance() -- this should really act on the display itself
+	-- this should probably act on the display itself
 	if db.hideInInstance[instanceType] then return end
 	if db.hideInInstance.lfg and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then return end
 
@@ -1821,6 +1822,7 @@ function module:OnRegister()
 
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnShutdown")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_LOGOUT")
 
 	oRA:RegisterPanel(L.cooldowns, showPane, hidePane)
@@ -1909,6 +1911,10 @@ function module:PLAYER_LOGOUT()
 		end
 	end
 	self.db.global.lastTime = t
+end
+
+function module:PLAYER_ENTERING_WORLD()
+	_, instanceType, instanceDifficulty = GetInstanceInfo()
 end
 
 --------------------------------------------------------------------------------
@@ -2363,7 +2369,13 @@ do
 	setmetatable(specialEvents, nil)
 
 
+	local encounterResetsCooldowns = {
+		[14] = true, -- Normal
+		[15] = true, -- Heroic
+		[16] = true, -- Mythic
+	}
 	local inEncounter = nil
+
 	local band = bit.band
 	local group = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	local pet = bit.bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_TYPE_PET)
@@ -2383,8 +2395,8 @@ do
 				spellId = mergeSpells[spellId]
 			end
 
-			if combatResSpells[spellId] and inEncounter then
-				-- tracking by spell cast isn't very useful in an encounter because it only counts when accepted
+			if combatResSpells[spellId] and (encounterResetsCooldowns[inEncounter] or instanceDifficulty == 8) then
+				-- tracking by spell cast isn't very useful in non-legacy raid encounters and mythic+ because it only counts when accepted
 				return
 			end
 
@@ -2485,8 +2497,8 @@ do
 
 		-- encounter checking for cd resets
 		if not inEncounter and IsEncounterInProgress() then
-			inEncounter = true
-			if IsInRaid() then
+			inEncounter = instanceDifficulty
+			if encounterResetsCooldowns[instanceDifficulty] then
 				-- reset combat reses
 				for spellId in next, combatResSpells do
 					spellsOnCooldown[spellId] = nil
@@ -2495,7 +2507,7 @@ do
 			end
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = nil
-			if IsInRaid() then
+			if encounterResetsCooldowns[instanceDifficulty] then
 				-- reset 3min+ cds (except Reincarnation)
 				for spellId, info in next, allSpells do
 					if info[1] >= 180 and spellId ~= 20608 then
