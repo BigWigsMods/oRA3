@@ -457,6 +457,20 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		end
 	end
 
+	local function isCasting(unit)
+		if not unit then return end
+
+		local name, _, _, _, _, _, _, notInterruptible, spellId = UnitCastingInfo(unit)
+		if name then
+			return spellId, not notInterruptible
+		end
+
+		name, _, _, _, _, _, notInterruptible, spellId = UnitChannelInfo(unit)
+		if name then
+			return spellId, not notInterruptible
+		end
+	end
+
 	-- aaand where all the magic happens
 	local FILTER_GROUP = bit_bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 	local function handler(self, _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId)
@@ -495,12 +509,24 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 				end
 			elseif handler == "InterruptCast" then -- not casting alert
 				local unit = getUnit(dstGUID)
-				if not unit or UnitCastingInfo(unit) then
-					return
+				if not unit then return end
+
+				local casting, interruptible = isCasting(unit)
+				if casting then
+					if interruptible then
+						-- wait for SPELL_INTERRUPT or SPELL_MISSED
+						return
+					end
+
+					-- handle uninterruptible casts (no SPELL_MISSED)
+					event = "SPELL_MISSED"
+					handler = "InterruptImmune"
+					extraSpellId = L["%s is uninterruptible"]:format(GetSpellLink(casting))
 				end
 			elseif handler == "InterruptMiss" then
 				local unit = getUnit(dstGUID)
-				if unit and UnitCastingInfo(unit) then
+				if isCasting(unit) then
+					-- check if the miss was due to an immunity buff on the target
 					local reason, timeleft = getMissReason(unit)
 					if reason then
 						handler = "InterruptImmune"
