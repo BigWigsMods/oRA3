@@ -723,7 +723,7 @@ do
 
 	function module:UNIT_FLAGS(unit)
 		if (unit == "player" or unit:match("^raid") or unit:match("^party")) and UnitAffectingCombat(unit) then
-			if encounter and GetTime() - encounterStart < 6 then -- timeout for safety's sake
+			if encounter and GetTime() - encounterStart < 15 then -- timeout for safety's sake
 				local name = self:UnitName(unit:gsub("pet$", ""))
 				local source = ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or "ff40ff40", name, name:gsub("%-.*", ""))
 				local boss = ("|cffff8000%s|r"):format(encounter) -- would be nice to turn this into proper EJ link
