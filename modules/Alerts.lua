@@ -473,7 +473,9 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 	-- aaand where all the magic happens
 	local FILTER_GROUP = bit_bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
-	local function handler(self, _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId)
+	combatLogHandler:SetScript("OnEvent", function()
+		local _, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId, spellName, _, extraSpellId = CombatLogGetCurrentEventInfo()
+
 		-- first check if someone died
 		if event == "UNIT_DIED" or event == "UNIT_DESTROYED" then
 			if soulstoneList[dstName] then
@@ -488,7 +490,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 
 		local handler = e[spellId]
 		if handler == nil then handler = e["*"] end -- can be false to ignore
-		if handler and (not self.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
+		if handler and (not module.db.profile.groupOnly or bit_band(bit_bor(srcFlags, dstFlags), FILTER_GROUP) ~= 0) then
 			-- special cases
 			if handler == "AssignOwner" then
 				if bit_band(srcFlags, FILTER_GROUP) ~= 0 then
@@ -496,7 +498,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 				end
 				return
 			elseif handler == "Soulstone" then
-				self:Soulstone(dstName)
+				module:Soulstone(dstName)
 				return
 			elseif handler == "Dispel" then
 				if extraSpellId == 1604 then -- Dazed
@@ -551,12 +553,9 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 			end
 
 			-- execute!
-			return self[handler](self, srcOutput, dstOutput, spellOutput, extraSpellOuput)
+			return module[handler](module, srcOutput, dstOutput, spellOutput, extraSpellOuput)
 		end
 
-	end
-	combatLogHandler:SetScript("OnEvent", function()
-		handler(module, CombatLogGetCurrentEventInfo())
 	end)
 
 	-- Codex handling
