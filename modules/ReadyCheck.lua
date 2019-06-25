@@ -805,7 +805,7 @@ local function createWindow()
 	text:SetWordWrap(true)
 
 	missingGroupBuffs.SetText = function(_, t)
-		text:SetFormattedText("|TInterface\\DialogFrame\\DialogIcon-AlertNew-16:0|t %s: %s", L.missingBuffs, t)
+		text:SetFormattedText("|T666946:0|t %s: %s", L.missingBuffs, t) -- 666946 = Interface\\DialogFrame\\DialogIcon-AlertNew-16
 	end
 
 	f.MissingGroupBuffs = missingGroupBuffs
