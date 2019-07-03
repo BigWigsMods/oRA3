@@ -293,7 +293,7 @@ function addon:OnInitialize()
 
 	local function OnRaidHide()
 		if addon:IsEnabled() and db.toggleWithRaid then
-			HideUIPanel(oRA3Frame)
+			addon:HideUIPanel()
 		end
 	end
 	RaidFrame:HookScript("OnHide", OnRaidHide)
@@ -303,7 +303,7 @@ function addon:OnInitialize()
 
 	RaidFrame:HookScript("OnShow", function()
 		if addon:IsEnabled() and db.toggleWithRaid then
-			addon:ToggleFrame(true)
+			addon:ShowUIPanel()
 		end
 		if addon.rehookAfterRaidUILoad and IsAddOnLoaded("Blizzard_RaidUI") then
 			-- Blizzard_RaidUI overwrites the RaidFrame "OnHide" script squashing the hook registered above, so re-hook.
@@ -357,7 +357,7 @@ end
 
 function addon:OnDisable()
 	self:UnregisterAllEvents()
-	HideUIPanel(oRA3Frame) -- nil-safe
+	self:HideUIPanel()
 end
 
 do
@@ -630,8 +630,6 @@ end
 
 local function setupGUI()
 	local frame = oRA3Frame
-	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 12, xoffset = -16 }
-	HideUIPanel(oRA3Frame)
 
 	frame:SetWidth(384)
 	frame:SetHeight(512)
@@ -864,15 +862,66 @@ local function setupGUI()
 	end
 end
 
-function addon:ToggleFrame(force)
+do
+	local function updateUIPanel(frame)
+		local frameName = frame and frame:GetName()
+		if UIPanelWindows[frameName] and oRA3Frame:IsShown() then
+			addon:ShowUIPanel()
+		end
+	end
+	hooksecurefunc("ShowUIPanel", updateUIPanel)
+	hooksecurefunc("HideUIPanel", updateUIPanel)
+	hooksecurefunc("UpdateUIPanelPositions", updateUIPanel)
+	hooksecurefunc("MaximizeUIPanel", updateUIPanel)
+	hooksecurefunc("RestoreUIPanelArea", updateUIPanel)
+end
+
+function addon:ShowUIPanel()
 	if setupGUI then
 		setupGUI()
 		setupGUI = nil
 	end
-	if force then
-		ShowUIPanel(oRA3Frame, true)
+
+	if not CanOpenPanels() or GetUIPanel("fullscreen") or (StoreFrame_IsShown and StoreFrame_IsShown()) then
+		return
+	end
+
+	local leftOffset = UIParent:GetAttribute("LEFT_OFFSET")
+	local xOff = -16
+
+	-- Position based off of UIPanelWindows without being managed by them
+	-- Will always be the right-most frame
+	local frame = GetUIPanel("right") or GetUIPanel("center") or GetUIPanel("left") or GetUIPanel("doublewide")
+	if frame then
+		if GetUIPanel("right") == frame then
+			-- RIGHT_OFFSET isn't updated after setting the right frame
+			local info = UIPanelWindows[frame:GetName()]
+			leftOffset = UIParent:GetAttribute("RIGHT_OFFSET") + (info.xoffset or 0) + GetUIPanelWidth(frame) + 32
+			-- can get pushed off the screen (never entirely), but since we don't want to touch
+			-- the current panels this seems better than overlapping or not showing at all
+		elseif GetUIPanel("left") == frame then
+			leftOffset = UIParent:GetAttribute("CENTER_OFFSET")
+		else -- center or doublewide (left+center)
+			leftOffset = UIParent:GetAttribute("RIGHT_OFFSET")
+		end
+		xOff = xOff + 32
+	end
+
+	oRA3Frame:ClearAllPoints()
+	oRA3Frame:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", leftOffset + xOff, -104)
+	oRA3Frame:Raise()
+	oRA3Frame:Show()
+end
+
+function addon:HideUIPanel()
+	oRA3Frame:Hide()
+end
+
+function addon:ToggleFrame()
+	if oRA3Frame:IsShown() then
+		self:HideUIPanel()
 	else
-		ToggleFrame(oRA3Frame)
+		self:ShowUIPanel()
 	end
 end
 
@@ -981,7 +1030,6 @@ function addon:RegisterPanel(name, show, hide)
 end
 
 function addon:SelectPanel(name, noUpdate)
-	self:ToggleFrame(true)
 	if not name then
 		name = db.lastSelectedPanel or panels[1].name
 	end
@@ -1003,8 +1051,8 @@ function addon:SelectPanel(name, noUpdate)
 
 	panels[index].show()
 
-	if not noUpdate then
-		UpdateUIPanelPositions(oRA3Frame) -- snap the panel back
+	if not oRA3Frame:IsShown() or not noUpdate then
+		self:ShowUIPanel()
 	end
 end
 
