@@ -5,7 +5,7 @@ scope.addon = addon
 local L = scope.locale
 
 -- luacheck: globals RaidFrame RaidInfoFrame GameFontNormalSmall GameFontHighlightSmall GameFontDisableSmall
--- luacheck: globals oRA3Frame oRA3DisbandButton oRA3CheckButton
+-- luacheck: globals oRA3DisbandButton oRA3CheckButton
 -- luacheck: globals PanelTemplates_SetNumTabs PanelTemplates_SetTab PanelTemplates_UpdateTabs
 -- luacheck: globals FauxScrollFrame_OnVerticalScroll FauxScrollFrame_Update FauxScrollFrame_GetOffset
 
@@ -83,8 +83,10 @@ end
 
 -- Locals
 
+local oRA3Frame = CreateFrame("Frame", "oRA3Frame", UIParent)
+oRA3Frame:Hide()
+
 local playerName = addon:UnitName("player")
-local oraFrame = CreateFrame("Frame", "oRA3Frame", UIParent)
 local SendAddonMessage = C_ChatInfo.SendAddonMessage
 local PlaySound, IsInGroup = PlaySound, IsInGroup
 
@@ -222,7 +224,7 @@ do
 	local noFunc = "Module %q tried to register an event with the function '%s' which doesn't exist in the module."
 
 	local eventMap = {}
-	oraFrame:SetScript("OnEvent", function(_, event, ...)
+	oRA3Frame:SetScript("OnEvent", function(_, event, ...)
 		for k,v in next, eventMap[event] do
 			if type(v) == "function" then
 				v(...)
@@ -237,14 +239,14 @@ do
 		if (not func and not self[event]) or (type(func) == "string" and not self[func]) then error((noFunc):format(self.moduleName, func or event)) end
 		if not eventMap[event] then eventMap[event] = {} end
 		eventMap[event][self] = func or event
-		oraFrame:RegisterEvent(event)
+		oRA3Frame:RegisterEvent(event)
 	end
 	function addon:UnregisterEvent(event)
 		if type(event) ~= "string" then error((noEvent):format(self.moduleName)) end
 		if not eventMap[event] then return end
 		eventMap[event][self] = nil
 		if not next(eventMap[event]) then
-			oraFrame:UnregisterEvent(event)
+			oRA3Frame:UnregisterEvent(event)
 			eventMap[event] = nil
 		end
 	end
@@ -290,7 +292,7 @@ function addon:OnInitialize()
 	LibStub("LibDualSpec-1.0"):EnhanceOptions(options.args.general.args.profileOptions, self.db)
 
 	local function OnRaidHide()
-		if addon:IsEnabled() and db.toggleWithRaid and oRA3Frame then
+		if addon:IsEnabled() and db.toggleWithRaid then
 			HideUIPanel(oRA3Frame)
 		end
 	end
@@ -310,18 +312,6 @@ function addon:OnInitialize()
 		end
 	end)
 
-	RaidInfoFrame:HookScript("OnShow", function()
-		if addon:IsEnabled() and oRA3Frame and oRA3Frame:IsShown() then
-			addon.toggle = true
-			HideUIPanel(oRA3Frame)
-		end
-	end)
-	RaidInfoFrame:HookScript("OnHide", function()
-		if addon:IsEnabled() and addon.toggle then
-			addon:ToggleFrame(true)
-			addon.toggle = nil
-		end
-	end)
 
 	db = self.db.profile
 
@@ -639,7 +629,7 @@ end
 --
 
 local function setupGUI()
-	local frame = oraFrame
+	local frame = oRA3Frame
 	UIPanelWindows["oRA3Frame"] = { area = "left", pushable = 3, whileDead = 1, yoffset = 12, xoffset = -16 }
 	HideUIPanel(oRA3Frame)
 
@@ -880,13 +870,9 @@ function addon:ToggleFrame(force)
 		setupGUI = nil
 	end
 	if force then
-		RaidInfoFrame:Hide()
 		ShowUIPanel(oRA3Frame, true)
 	else
 		ToggleFrame(oRA3Frame)
-		if oRA3Frame:IsShown() then
-			RaidInfoFrame:Hide()
-		end
 	end
 end
 
