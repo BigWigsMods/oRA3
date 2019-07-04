@@ -891,18 +891,24 @@ function addon:ShowUIPanel()
 
 	-- Position based off of UIPanelWindows without being managed by them
 	-- Will always be the right-most frame
-	local frame = GetUIPanel("right") or GetUIPanel("center") or GetUIPanel("left") or GetUIPanel("doublewide")
+	local right, center, left = GetUIPanel("right"), GetUIPanel("center"), GetUIPanel("left")
+	local frame = right or center or left or GetUIPanel("doublewide")
 	if frame then
-		if GetUIPanel("right") == frame then
+		if right == frame then
 			-- RIGHT_OFFSET isn't updated after setting the right frame
 			local info = UIPanelWindows[frame:GetName()]
 			leftOffset = UIParent:GetAttribute("RIGHT_OFFSET") + (info.xoffset or 0) + GetUIPanelWidth(frame) + 32
 			-- can get pushed off the screen (never entirely), but since we don't want to touch
 			-- the current panels this seems better than overlapping or not showing at all
-		elseif GetUIPanel("left") == frame then
+		elseif left == frame then
 			leftOffset = UIParent:GetAttribute("CENTER_OFFSET")
 		else -- center or doublewide (left+center)
-			leftOffset = UIParent:GetAttribute("RIGHT_OFFSET")
+			if center == frame and not left then
+				-- center frames can allows others, but normally get closed, so stick with LEFT_OFFSET
+				xOff = xOff - 32 -- undo spacing
+			else
+				leftOffset = UIParent:GetAttribute("RIGHT_OFFSET")
+			end
 		end
 		xOff = xOff + 32
 	end
