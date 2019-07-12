@@ -1036,6 +1036,11 @@ function addon:RegisterPanel(name, show, hide)
 end
 
 function addon:SelectPanel(name, noUpdate)
+	if setupGUI then
+		setupGUI()
+		setupGUI = nil
+	end
+
 	if not name then
 		name = db.lastSelectedPanel or panels[1].name
 	end
