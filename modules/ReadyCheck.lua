@@ -926,7 +926,6 @@ end
 function module:OnRegister()
 	self.db = oRA.db:RegisterNamespace("ReadyCheck", defaults)
 	oRA:RegisterModuleOptions("ReadyCheck", options)
-	self.db.profile.gui = nil -- XXX temp cleanup
 end
 
 function module:OnEnable()
