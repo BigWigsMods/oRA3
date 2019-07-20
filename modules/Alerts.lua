@@ -80,6 +80,7 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[178207] = "Bloodlust", -- Drums of Fury (WoD)
 	[230935] = "Bloodlust", -- Drums of the Mountain (Legion)
 	[256740] = "Bloodlust", -- Drums of the Maelstrom (BfA)
+	[292686] = "Bloodlust", -- Mallet of Thunderous Skins (BfA)
 }
 combatLogMap.SPELL_AURA_APPLIED = {
 	-- Taunts
@@ -243,7 +244,7 @@ combatLogMap.SPELL_SUMMON = {
 	-- Reaves
 	[200205] = "Repair", -- Auto-Hammer Mode
 	[200211] = "Reincarnation", -- Failure Detection Mode
-	[200216] = "Feast", -- Snack Distribution Mode (+225 versatility)
+	[200216] = "Feast", -- Snack Distribution Mode (+10 versatility)
 }
 
 -- cache pet owner names
