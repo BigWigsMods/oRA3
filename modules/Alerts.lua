@@ -128,10 +128,12 @@ combatLogMap.SPELL_CREATE = {
 	[259409] = "Feast", -- Galley Banquet (+75)
 	[259410] = "Feast", -- Bountiful Captain's Feast (+100)
 	[286050] = "Feast", -- Sanguinated Feast (+100)
+	[297048] = "Feast", -- Famine Evaluator And Snack Table (+131)
 	-- Instant Rituals
 	[29893] = "Feast", -- Create Soulwell (Warlock)
 	[190336] = "Feast", -- Conjure Refreshment (Mage)
 	[276972] = "Feast", -- Mystical Cauldron
+	[298861] = "Feast", -- Greater Mystical Cauldron
 }
 combatLogMap.SPELL_RESURRECT = {
 	["*"] = "Resurrect",
