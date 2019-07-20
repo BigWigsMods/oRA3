@@ -8,6 +8,7 @@ local L = scope.locale
 -- luacheck: globals oRA3DisbandButton oRA3CheckButton
 -- luacheck: globals PanelTemplates_SetNumTabs PanelTemplates_SetTab PanelTemplates_UpdateTabs
 -- luacheck: globals FauxScrollFrame_OnVerticalScroll FauxScrollFrame_Update FauxScrollFrame_GetOffset
+-- luacheck: globals RAID_CLASS_COLORS StoreFrame_IsShown
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")
