@@ -325,7 +325,7 @@ function module:Spam(key, msg)
 	end
 
 	if output == "self" or (self.db.profile.fallback and fallback) then
-		chatframe:AddMessage(("|Hora:%s|h|cff33ff99oRA3|r|h: %s"):format(chatMsg:gsub("|", "@"), msg))
+		chatframe:AddMessage(("|Hgarrmission:oRA:%s|h|cff33ff99oRA3|r|h: %s"):format(chatMsg:gsub("|", "@"), msg))
 	end
 end
 
@@ -815,8 +815,8 @@ function module:OnRegister()
 
 	-- Enable shift-clicking the line to print in chat.
 	hooksecurefunc("SetItemRef", function(link)
-		if strsub(link, 1, 3) == "ora" and IsModifiedClick("CHATLINK") then
-			local _, msg = strsplit(":", link, 2)
+		local _, ora, msg = strsplit(":", link, 3)
+		if ora == "oRA" and IsShiftKeyDown() then
 			msg = msg:gsub("@", "|")
 			local editBox = _G.ChatEdit_ChooseBoxForSend()
 			_G.ChatEdit_ActivateChat(editBox)
@@ -833,7 +833,7 @@ function module:OnEnable()
 end
 
 function module:PLAYER_ENTERING_WORLD()
-	wipe(petOwnerMap) -- clear out the cache every now and again
+	petOwnerMap = {} -- clear out the cache every now and again
 	UpdatePets()
 end
 
