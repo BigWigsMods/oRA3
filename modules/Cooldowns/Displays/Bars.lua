@@ -179,7 +179,7 @@ do
 
 	local shorts = setmetatable({}, { __index = function(self, key)
 		if type(key) == "nil" then return end
-		local p1, p2, p3, p4 = string.split(" ", (key:gsub(":", " :")))
+		local p1, p2, p3, p4 = strsplit(" ", (key:gsub(":", " :")))
 		if not p2 then
 			self[key] = utf8trunc(key, 4)
 		elseif not p3 then

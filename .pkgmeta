@@ -19,6 +19,7 @@ externals:
     libs/LibGroupInSpecT-1.1: https://repos.wowace.com/wow/libgroupinspect/trunk
 
 ignore:
+  - .luacheckrc
   - .travis.yml
   - ISSUE_TEMPLATE.md
   - README.md

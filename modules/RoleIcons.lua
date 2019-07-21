@@ -14,7 +14,7 @@ do
 		local icon = CreateFrame("Frame", nil, parent)
 		icon:SetSize(14, 14)
 		icon:SetPoint("RIGHT", parent.subframes.level, "LEFT", 2, 0)
-		RaiseFrameLevel(icon)
+		icon:SetFrameLevel(icon:GetFrameLevel()+1)
 
 		local texture = icon:CreateTexture(nil, "ARTWORK")
 		texture:SetAllPoints()
