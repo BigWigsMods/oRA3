@@ -371,10 +371,6 @@ end
 -- Output Results
 
 do
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", function(self, event, msg)
-		if msg:sub(1, 5) == "oRA3>" then return true end
-	end)
-
 	local function send(name, text)
 		SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
 	end
