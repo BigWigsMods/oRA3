@@ -1,4 +1,9 @@
 
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	print("|cFF33FF99oRA3|r: You're trying to run the Classic version of oRA3 on a live server.")
+	return
+end
+
 local addonName, scope = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
@@ -11,7 +16,7 @@ local L = scope.locale
 -- luacheck: globals RAID_CLASS_COLORS StoreFrame_IsShown
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
-local LGIST = LibStub("LibGroupInSpecT-1.1")
+--local LGIST = LibStub("LibGroupInSpecT-1.1")
 local LibDialog = LibStub("LibDialog-1.0")
 
 BINDING_HEADER_oRA3 = addonName
@@ -268,7 +273,6 @@ end
 
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("oRA3DB", defaults, true)
-	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "oRA")
 
 	-- Comm register
 	C_ChatInfo.RegisterAddonMessagePrefix("oRA")
@@ -290,7 +294,6 @@ function addon:OnInitialize()
 	options.args.general.args.profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	options.args.general.args.profileOptions.order = 1
 	options.args.general.args.profileOptions.args.desc.fontSize = "medium"
-	LibStub("LibDualSpec-1.0"):EnhanceOptions(options.args.general.args.profileOptions, self.db)
 
 	local function OnRaidHide()
 		if addon:IsEnabled() and db.toggleWithRaid then
@@ -327,9 +330,9 @@ function addon:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("CHAT_MSG_ADDON", "OnCommReceived")
-	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
-	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
-	LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_Update")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
 
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
@@ -422,45 +425,45 @@ do
 	end
 
 	function addon:GroupInSpecT_Update(_, guid, unit, info)
-		if not guid or not info.class then return end
+		--if not guid or not info.class then return end
 
-		if not playerCache[guid] then
-			playerCache[guid] = {
-				guid = guid,
-				class = info.class,
-				race = info.race,
-				talents = {},
-			}
-		end
-		local cache = playerCache[guid]
-		cache.name = info.name
-		cache.level = UnitLevel(unit)
-		cache.unit = unit
+		--if not playerCache[guid] then
+		--	playerCache[guid] = {
+		--		guid = guid,
+		--		class = info.class,
+		--		race = info.race,
+		--		talents = {},
+		--	}
+		--end
+		--local cache = playerCache[guid]
+		--cache.name = info.name
+		--cache.level = UnitLevel(unit)
+		--cache.unit = unit
 
-		if info.global_spec_id and info.global_spec_id > 0 then
-			cache.spec = info.global_spec_id
-
-			wipe(cache.talents)
-			for talentId, talentInfo in next, info.talents do
-				-- easier to look up by index than to try and check multiple talent spell ids
-				local index = 3 * (talentInfo.tier - 1) + talentInfo.column
-				cache.talents[index] = talentId
-			end
-		end
-		self.callbacks:Fire("OnPlayerUpdate", guid, unit, cache)
+		--if info.global_spec_id and info.global_spec_id > 0 then
+		--	cache.spec = info.global_spec_id
+		--
+		--	wipe(cache.talents)
+		--	for talentId, talentInfo in next, info.talents do
+		--		-- easier to look up by index than to try and check multiple talent spell ids
+		--		local index = 3 * (talentInfo.tier - 1) + talentInfo.column
+		--		cache.talents[index] = talentId
+		--	end
+		--end
+		--self.callbacks:Fire("OnPlayerUpdate", guid, unit, cache)
 	end
 
 	function addon:GroupInSpecT_Remove(_, guid)
-		self.callbacks:Fire("OnPlayerRemove", guid, playerCache[guid])
-		playerCache[guid] = nil
+		--self.callbacks:Fire("OnPlayerRemove", guid, playerCache[guid])
+		--playerCache[guid] = nil
 	end
 
 	function addon:GroupInSpecT_InspectReady(_, guid, unit)
-		self.callbacks:Fire("OnPlayerInspect", guid, unit)
+		--self.callbacks:Fire("OnPlayerInspect", guid, unit)
 	end
 
 	function addon:InspectGroup(guid)
-		LGIST:Rescan(guid)
+		--LGIST:Rescan(guid)
 	end
 
 	function addon:GetPlayerInfo(guid)

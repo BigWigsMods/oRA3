@@ -1,4 +1,8 @@
 
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	return
+end
+
 -- Latency is requested/transmitted when opening the list.
 -- This module is a display wrapper for LibLatency.
 

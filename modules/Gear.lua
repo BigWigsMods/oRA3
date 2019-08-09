@@ -1,4 +1,8 @@
 
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	return
+end
+
 -- Gear status is requested/transmitted when opening the list.
 
 local addonName, scope = ...

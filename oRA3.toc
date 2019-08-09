@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 11302
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
@@ -18,7 +18,7 @@
 ## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
 ## X-Website: https://github.com/BigWigsMods/oRA3
 ## X-Curse-Project-ID: 15655
-## X-WoWI-ID: 14635
+# X-WoWI-ID: 14635
 
 ## SavedVariables: oRA3DB
 ## OptionalDeps: Ace3, LibCandyBar-3.0, LibSharedMedia-3.0, LibDDI-1.0, LibGroupInSpecT-1.1, LibDualSpec-1.0, LibChatAnims, LibLatency, LibDurability, LibDialog-1.0, Masque
@@ -46,7 +46,6 @@ modules\Consumables.lua
 modules\Cooldowns\module.xml
 modules\ReadyCheck.lua
 # modules with no settings
-modules\Difficulty.lua
 modules\Durability.lua
 modules\Gear.lua
 modules\Invite.lua

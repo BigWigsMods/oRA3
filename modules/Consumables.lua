@@ -1,4 +1,8 @@
 
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	return
+end
+
 local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
@@ -29,7 +33,7 @@ local spells = setmetatable({}, {
 		if k == nil then return end
 		local name = GetSpellInfo(k)
 		if not name then
-			print("oRA3: Invalid spell id", k)
+			--print("oRA3: Invalid spell id", k)
 			name = "" -- only print once
 		end
 		t[k] = name

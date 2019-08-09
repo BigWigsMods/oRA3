@@ -1,3 +1,8 @@
+
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	return
+end
+
 local addon = LibStub("AceAddon-3.0"):GetAddon("oRA3")
 
 local prototype = {}

@@ -1,4 +1,8 @@
 
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	return
+end
+
 local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Alerts", "AceTimer-3.0")
