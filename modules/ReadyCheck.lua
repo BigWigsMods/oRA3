@@ -17,14 +17,14 @@ local UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible = UnitIsConnected, UnitI
 local GetSpellDescription, GetSpellInfo, GetRaidRosterInfo = GetSpellDescription, GetSpellInfo, GetRaidRosterInfo
 local GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers = GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers
 local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime
-local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
+local IsInRaid, IsInGroup = IsInRaid, IsInGroup
 local PlaySound, DoReadyCheck, StopSound = PlaySound, DoReadyCheck, StopSound
 
 -- luacheck: globals ChatTypeInfo ChatFrame_GetMessageEventFilters GameFontNormal UISpecialFrames
 -- luacheck: globals READY_CHECK_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_WAITING_TEXTURE
 -- luacheck: globals GameTooltip_Hide
 
-local consumables = oRA:GetModule("Consumables")
+local consumables = oRA:GetModule("Consumables", true)
 
 local readycheck = {} -- table containing ready check results
 local readygroup = {}
@@ -147,6 +147,7 @@ local options = {
 			type = "group",
 			name = L.consumables,
 			inline = true,
+			hidden = not consumables,
 			order = 10,
 			args = {
 				showBuffs = {
@@ -213,7 +214,7 @@ local options = {
 
 
 local function shouldShowBuffs()
-	if module.db.profile.showBuffs then
+	if module.db.profile.showBuffs and consumables then
 		local _, type, diff = GetInstanceInfo()
 		return type == "raid" or (type == "party" and (diff == 8 or diff == 23)) -- in raid or challenge mode
 	end
@@ -537,7 +538,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 
 	local color = oRA.classColors[class]
 	local cleanName = name:gsub("%-.+", "*")
-	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], cleanName)
+	f.NameText:SetText(cleanName)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 	f:Show()
@@ -757,6 +758,9 @@ local function createWindow()
 	check:SetSize(12, 12)
 	check:SetPoint("LEFT", ready, "RIGHT", 2, 0)
 	check.SetDisabled = function(self, value)
+		if not consumables then
+			value = true
+		end
 		self:GetNormalTexture():SetDesaturated(value)
 		self.disabled = value
 	end
