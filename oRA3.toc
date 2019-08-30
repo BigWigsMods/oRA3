@@ -40,10 +40,10 @@ oRA3.lua
 modulePrototype.lua
 
 # module order in options
-modules\Alerts.lua
-modules\BattleRes.lua
-modules\Consumables.lua
-modules\Cooldowns\module.xml
+#modules\Alerts.lua
+#modules\BattleRes.lua
+#modules\Consumables.lua
+#modules\Cooldowns\module.xml
 modules\ReadyCheck.lua
 # modules with no settings
 modules\Durability.lua
@@ -51,6 +51,6 @@ modules\Gear.lua
 modules\Invite.lua
 modules\Latency.lua
 modules\Promote.lua
-modules\RoleIcons.lua
+#modules\RoleIcons.lua
 modules\Tanks.lua
 modules\Zone.lua
