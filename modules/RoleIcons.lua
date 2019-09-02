@@ -31,7 +31,20 @@ do
 		return icon
 	end })
 
+	local function GetRole(unit)
+		if GetPartyAssignment("MAINTANK", unit) then
+			return "TANK"
+		else
+			return "DAMAGER"
+		end
+	end
+
 	local count = {}
+	local coords = {
+		["TANK"] = {0, 0.296875, 0.34375, 0.640625},
+		["HEALER"] = {0.3125, 0.609375, 0.015625, 0.3125},
+		["DAMAGER"] = {0.3125, 0.609375, 0.34375, 0.640625},
+	}
 	function updateIcons()
 		if not oRA.db.profile.showRoleIcons then
 			countIcons:Hide()
@@ -50,9 +63,9 @@ do
 			local button = _G["RaidGroupButton"..i]
 			if button and button.subframes then -- make sure the raid button is set up
 				local icon = roleIcons[i]
-				local role = UnitGroupRolesAssigned("raid"..i)
+				local role = GetRole("raid"..i)
 				if role and role ~= "NONE" then
-					icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
+					icon.texture:SetTexCoord(unpack(coords[role]))
 					icon:Show()
 					count[role] = (count[role] or 0) + 1
 				else
@@ -96,7 +109,7 @@ do
 
 	function createCountIcons()
 		countIcons = CreateFrame("Frame", "oRA3RaidFrameRoleIcons", RaidFrame)
-		countIcons:SetFrameLevel(FriendsFrame.NineSlice:GetFrameLevel() + 1) -- the nine slice textures sit at 500 for some reason
+		countIcons:SetFrameLevel(1000)
 		countIcons:SetPoint("TOPLEFT", 51, 8)
 		countIcons:SetSize(30, 30)
 

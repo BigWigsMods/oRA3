@@ -167,7 +167,7 @@ function module:CheckRoleAssignments()
 		local updateSort = false
 		local members = oRA:GetGroupMembers()
 		for k,member in next, members do
-			local role = UnitGroupRolesAssigned(member)
+			local tank = GetPartyAssignment("MAINTANK", member)
 			--[[ IF requested at a later to auto-remove non tank role from tank list this can accomplish that.
 			if role ~= "TANK" and util.inTable(allIndexedTanks, member) then
 				for k, v in next, allIndexedTanks do
@@ -182,7 +182,7 @@ function module:CheckRoleAssignments()
 				end
 			end
 			--]]
-			if role == "TANK" and not deletedTanks[member] and not util.inTable(allIndexedTanks, member) then
+			if tank and not deletedTanks[member] and not util.inTable(allIndexedTanks, member) then
 				allIndexedTanks[#allIndexedTanks + 1] = member
 				sessionTanks[member] = true
 				namedTanks[member] = true

@@ -204,21 +204,14 @@ end
 
 function module:OnStartup()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckOpen")
-	self:RegisterEvent("CHALLENGE_MODE_START")
 	oRA.RegisterCallback(self, "OnGroupChanged", "CheckOpen")
 	self:CheckOpen()
 end
 
 function module:OnShutdown()
 	self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
-	self:UnregisterEvent("CHALLENGE_MODE_START")
 	oRA.UnregisterCallback(self, "OnGroupChanged")
 	self:Close()
-end
-
-function module:CHALLENGE_MODE_START()
-	self:CheckOpen()
-	self:ScheduleTimer("CheckOpen", 1)
 end
 
 do

@@ -54,65 +54,65 @@ end
 do
 	local prev = 0
 	function module:OnListSelected(_, list)
-		if list == L.gear then
-			-- Fill the list with all players
-			for unit in self:IterateGroup() do
-				local player = self:UnitName(unit)
-				if player then
-					local k = inTable(gearTbl, player, 1)
-					if not k then
-						k = #gearTbl + 1
-						gearTbl[k] = { player }
-					end
-				end
-			end
-
-			local t = GetTime()
-			if t-prev > 15 then
-				prev = t
-				self:SendComm("QueryGear")
-				oRA:InspectGroup()
-			end
-		end
+		--if list == L.gear then
+		--	-- Fill the list with all players
+		--	for unit in self:IterateGroup() do
+		--		local player = self:UnitName(unit)
+		--		if player then
+		--			local k = inTable(gearTbl, player, 1)
+		--			if not k then
+		--				k = #gearTbl + 1
+		--				gearTbl[k] = { player }
+		--			end
+		--		end
+		--	end
+		--
+		--	local t = GetTime()
+		--	if t-prev > 15 then
+		--		prev = t
+		--		self:SendComm("QueryGear")
+		--		oRA:InspectGroup()
+		--	end
+		--end
 	end
 end
 
 function module:OnPlayerInspect(_, _, unit)
-	local player = self:UnitName(unit)
-	if not player or syncList[player] then return end
-
-	local enchants, gems, ilvl = self:ScanGear(unit)
-	if ilvl then
-		local k = inTable(gearTbl, player, 1)
-		if not k then
-			k = #gearTbl + 1
-			gearTbl[k] = { player }
-		end
-		gearTbl[k][2] = floor(tonumber(ilvl))
-		gearTbl[k][3] = tonumber(gems)
-		gearTbl[k][4] = tonumber(enchants)
-
-		oRA:UpdateList(L.gear)
-	end
+	--local player = self:UnitName(unit)
+	--if not player or syncList[player] then return end
+	--
+	--local enchants, gems, ilvl = self:ScanGear(unit)
+	--if ilvl then
+	--	local k = inTable(gearTbl, player, 1)
+	--	if not k then
+	--		k = #gearTbl + 1
+	--		gearTbl[k] = { player }
+	--	end
+	--	gearTbl[k][2] = floor(tonumber(ilvl))
+	--	gearTbl[k][3] = tonumber(gems)
+	--	gearTbl[k][4] = tonumber(enchants)
+	--
+	--	oRA:UpdateList(L.gear)
+	--end
 end
 
 function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
-	if prefix == "QueryGear" then
-		local missingEnchants, emptySockets, equipped = self:ScanGear("player")
-		self:SendComm("Gear", floor(equipped), emptySockets, missingEnchants)
-	elseif prefix == "Gear" then
-		local k = inTable(gearTbl, sender, 1)
-		if not k then
-			k = #gearTbl + 1
-			gearTbl[k] = { sender }
-		end
-		gearTbl[k][2] = tonumber(ilvl)
-		gearTbl[k][3] = tonumber(gems)
-		gearTbl[k][4] = tonumber(enchants)
-
-		oRA:UpdateList(L.gear)
-		syncList[sender] = true
-	end
+	--if prefix == "QueryGear" then
+	--	local missingEnchants, emptySockets, equipped = self:ScanGear("player")
+	--	self:SendComm("Gear", floor(equipped), emptySockets, missingEnchants)
+	--elseif prefix == "Gear" then
+	--	local k = inTable(gearTbl, sender, 1)
+	--	if not k then
+	--		k = #gearTbl + 1
+	--		gearTbl[k] = { sender }
+	--	end
+	--	gearTbl[k][2] = tonumber(ilvl)
+	--	gearTbl[k][3] = tonumber(gems)
+	--	gearTbl[k][4] = tonumber(enchants)
+	--
+	--	oRA:UpdateList(L.gear)
+	--	syncList[sender] = true
+	--end
 end
 
 do

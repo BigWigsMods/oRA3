@@ -337,7 +337,7 @@ function updateDifficultyDropdown()
 	else
 		difficultyDropdown:SetDisabled(true)
 	end
-	difficultyDropdown:SetValue(GetRaidDifficultyID())
+	difficultyDropdown:SetValue(14) -- XXX fixme
 	frame:ResumeLayout()
 	frame:DoLayout()
 end
@@ -366,7 +366,7 @@ function module:CreateFrame()
 	difficulty:SetMultiselect(false)
 	difficulty:SetLabel(RAID_DIFFICULTY)
 	difficulty:SetList(modes)
-	difficulty:SetValue(GetRaidDifficultyID())
+	difficulty:SetValue(14) -- XXX fixme
 	difficulty:SetCallback("OnValueChanged", difficultyCallback)
 	difficulty:SetFullWidth(true)
 	difficulty:SetDisabled(IsInGroup() and not UnitIsGroupLeader("player"))
