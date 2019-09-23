@@ -724,20 +724,22 @@ local function setupGUI()
 	disband.tooltipText = L.disbandGroup
 	disband.newbieText = L.disbandGroupDesc
 
-	local consumables = addon:GetModule("Consumables")
-	local check = CreateFrame("Button", "oRA3CheckButton", frame, "UIPanelButtonTemplate")
-	check:SetWidth(120)
-	check:SetHeight(22)
-	check:SetNormalFontObject(GameFontNormalSmall)
-	check:SetHighlightFontObject(GameFontHighlightSmall)
-	check:SetDisabledFontObject(GameFontDisableSmall)
-	check:SetText(L.consumables)
-	check:SetEnabled(IsInGroup() and (consumables.db.profile.output > 1 or consumables.db.profile.whisper))
-	check:SetPoint("TOPRIGHT", -40, -37)
-	check:SetScript("OnClick", function()
-		consumables:OutputResults(true)
-	end)
-	check.module = consumables
+	local consumables = addon:GetModule("Consumables", true)
+	if consumables then
+		local check = CreateFrame("Button", "oRA3CheckButton", frame, "UIPanelButtonTemplate")
+		check:SetWidth(120)
+		check:SetHeight(22)
+		check:SetNormalFontObject(GameFontNormalSmall)
+		check:SetHighlightFontObject(GameFontHighlightSmall)
+		check:SetDisabledFontObject(GameFontDisableSmall)
+		check:SetText(L.consumables)
+		check:SetEnabled(IsInGroup() and (consumables.db.profile.output > 1 or consumables.db.profile.whisper))
+		check:SetPoint("TOPRIGHT", -40, -37)
+		check:SetScript("OnClick", function()
+			consumables:OutputResults(true)
+		end)
+		check.module = consumables
+	end
 
 	local opt = CreateFrame("Button", "oRA3OptionsButton", frame)
 	opt:SetFrameLevel(drag:GetFrameLevel() + 1)
