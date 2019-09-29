@@ -529,7 +529,7 @@ local spells = {
 		[1022] = {300, 48, nil, {[66]=-12}}, -- Blessing of Protection
 		[31850] = {120, 50, 66}, -- Ardent Defender
 		[633] = {600, 55}, -- Lay on Hands
-		[6940] = {150, 56, {65, 66}}, -- Blessing of Sacrifice
+		[6940] = {120, 56, {65, 66}}, -- Blessing of Sacrifice
 		[31821] = {180, 70, 65}, -- Aura Mastery
 		[86659] = {300, 70, 66}, -- Guardian of Ancient Kings
 		[31884] = {120, 80}, -- Avenging Wrath
