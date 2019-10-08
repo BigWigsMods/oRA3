@@ -111,15 +111,21 @@ local scrollheaders = {} -- scrollheader frames
 local scrollhighs = {} -- scroll highlights
 local secureScrollhighs = {} -- clickable secure scroll highlights
 
-local function actuallyDisband()
-	if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
-		SendChatMessage("<oRA3> ".. L.disbandingGroupChatMsg, IsInRaid() and "RAID" or "PARTY")
+local actuallyDisband
+do
+	local function uninviteAll()
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
 				UninviteUnit(unit)
 			end
 		end
-		addon:ScheduleTimer(LeaveParty, 2)
+	end
+	function actuallyDisband()
+		if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
+			SendChatMessage("<oRA3> ".. L.disbandingGroupChatMsg, IsInRaid() and "RAID" or "PARTY")
+			addon:ScheduleTimer(uninviteAll, 1)
+			addon:ScheduleTimer(C_PartyInfo.LeaveParty, 3)
+		end
 	end
 end
 

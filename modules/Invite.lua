@@ -47,7 +47,7 @@ do
 	local function waitForParty()
 		if IsInGroup() then
 			if not IsInRaid() then
-				ConvertToRaid()
+				C_PartyInfo.ConvertToRaid()
 			end
 			module:ScheduleTimer(waitForRaid, 1)
 		else
@@ -59,7 +59,7 @@ do
 		if type(player) == "number" then
 			BNInviteFriend(player)
 		else
-			InviteUnit(player)
+			C_PartyInfo.InviteUnit(player)
 		end
 	end
 
@@ -70,7 +70,7 @@ do
 			local pNum = GetNumSubgroupMembers() + 1 -- 1-5
 			if pNum == 5 then
 				-- party is full, convert to raid and invite the rest
-				ConvertToRaid()
+				C_PartyInfo.ConvertToRaid()
 				module:ScheduleTimer(waitForRaid, 1)
 			else
 				-- invite people until the party is full
@@ -84,7 +84,7 @@ do
 						-- need someone to accept an invite before we can make a raid
 						module:ScheduleTimer(waitForParty, 1)
 					else
-						ConvertToRaid()
+						C_PartyInfo.ConvertToRaid()
 						module:ScheduleTimer(waitForRaid, 1)
 					end
 				end
