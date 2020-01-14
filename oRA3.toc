@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80300
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
