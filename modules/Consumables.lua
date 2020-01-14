@@ -73,7 +73,19 @@ do
 		[298645] = 2359, -- The Queen's Court
 		[298646] = 2349, -- Za'qul, Harbinger of Ny'alotha
 		[302914] = 2361, -- Queen Azshara
-
+		-- Ny'alotha
+		[306475] = 2368, -- Wrathion, the Black Emperor
+		[306480] = 2365, -- Maut
+		[306476] = 2369, -- The Prophet Skitra
+		[306477] = 2377, -- Dark Inquisitor Xanesh
+		[306479] = 2370, -- Vexiona
+		[306478] = 2372, -- The Hivemind
+		[313550] = 2364, -- Ra-Den the Despoiled
+		[306484] = 2367, -- Shad'har the Insatiable
+		[306485] = 2373, -- Drest'agath
+		[313551] = 2374, -- Il'gynoth, Corruption Reborn
+		[313554] = 2366, -- Carapace of N'Zoth
+		[313556] = 2375, -- N'Zoth the Corruptor
 	}
 
 	local buffs = {}
