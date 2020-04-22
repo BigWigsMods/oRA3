@@ -1658,7 +1658,9 @@ local function upgradeDB(db)
 	-- remove unused spells from the db
 	for displayName, dspells in next, db.spells do
 		for spell in next, dspells do
-			if not classLookup[spell] then
+			-- Special case for Bloodlust/Heroism. Each id isn't set for the opposite
+			-- faction so they would get pruned from profiles shared between factions.
+			if not classLookup[spell] and spell ~= 2825 and spell ~= 32182 then
 				dspells[spell] = nil
 			end
 		end
