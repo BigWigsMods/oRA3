@@ -113,8 +113,8 @@ end
 local getRune
 do
 	local runes = {
-		270058, -- Battle-Scarred Augmentation (BfA)
-		317065, -- Lightning-Forged Augment Rune (BfA Infinite Rune)
+		270058, -- Battle-Scarred Augmentation
+		317065, -- Battle-Scarred Augmentation (Lightning-Forged Augment Rune)
 	}
 
 	function getRune(player)
