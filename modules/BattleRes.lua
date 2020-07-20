@@ -5,8 +5,6 @@ local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = scope.locale
 local coloredNames = oRA.coloredNames
 
---luacheck: globals GameFontNormal
-
 local resAmount = 0
 local badBuffs = {
 	27827, -- Spirit of Redemption
@@ -16,6 +14,7 @@ local resSpells = {
 	[20484] = true,  -- Rebirth
 	[61999] = true,  -- Raise Ally
 	[95750] = true,  -- Soulstone Resurrection
+	[265116] = true, -- Unstable Temporal Time Shifter
 }
 local theDead = {}
 local updateFunc
