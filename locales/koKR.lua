@@ -247,6 +247,8 @@ L.lockMonitor = "모니터 고정"
 L.battleResLockDesc = "모니터 고정을 전환합니다. 제목 문자, 배경을 숨기고 이동을 방지합니다."
 L.showMonitor = "모니터 표시"
 L.battleResShowDesc = "모니터를 표시하거나 숨깁니다."
+-- L.battleResAlwaysShow = "Always show"
+-- L.battleResAlwaysShowDesc = "Show the display even when no class in the group can use a battle res."
 
 -- Consumables Module
 L.consumables = "소비용품 확인"

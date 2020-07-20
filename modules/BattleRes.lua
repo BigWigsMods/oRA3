@@ -123,6 +123,7 @@ end
 local defaults = {
 	profile = {
 		showDisplay = true,
+		alwaysShow = false,
 		lock = false,
 	}
 }
@@ -176,6 +177,22 @@ local options = {
 			order = 2,
 			width = "full",
 		},
+		alwaysShow = {
+			type = "toggle",
+			name = colorize(L.battleResAlwaysShow),
+			desc = L.battleResAlwaysShowDesc,
+			descStyle = "inline",
+			set = function(_, v)
+				module.db.profile.alwaysShow = v
+				if v then
+					module:CheckOpen()
+				else
+					module:Close()
+				end
+			end,
+			order = 3,
+			width = "full",
+		},
 		lock = {
 			type = "toggle",
 			name = colorize(L.lockMonitor),
@@ -185,7 +202,7 @@ local options = {
 				module.db.profile.lock = v
 				toggleLock()
 			end,
-			order = 3,
+			order = 4,
 			width = "full",
 		},
 	}
@@ -283,6 +300,10 @@ do
 
 	local p = {}
 	local function canGroupRes()
+		if module.db.profile.alwaysShow then
+			return true
+		end
+
 		isEngineer = false
 		for _, player in next, oRA:GetGroupMembers() do
 			local _, class = UnitClass(player)

@@ -248,6 +248,8 @@ L["lockMonitor"] = "Verrouiller le moniteur"
 L["battleResLockDesc"] = "Verrouille ou non le moniteur. Ceci masquera le texte d'en-tête, l'arrière-plan, et empêchera son déplacement."
 L["showMonitor"] = "Afficher le moniteur"
 L["battleResShowDesc"] = "Affiche ou cache le moniteur."
+-- L["battleResAlwaysShow"] = "Always show"
+-- L["battleResAlwaysShowDesc"] = "Show the display even when no class in the group can use a battle res."
 
 -- Consumables Module
 L["consumables"] = "Vérif. des consommables"
