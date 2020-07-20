@@ -299,10 +299,6 @@ do
 
 	local p = {}
 	local function canGroupRes()
-		if module.db.profile.alwaysShow then
-			return true
-		end
-
 		isEngineer = false
 		for _, player in next, oRA:GetGroupMembers() do
 			local _, class = UnitClass(player)
@@ -323,7 +319,7 @@ do
 			end
 		end
 
-		return false
+		return module.db.profile.alwaysShow
 	end
 
 	function module:CheckOpen()
