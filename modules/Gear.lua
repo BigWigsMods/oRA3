@@ -84,7 +84,7 @@ function module:OnPlayerInspect(_, _, unit)
 			k = #gearTbl + 1
 			gearTbl[k] = { player }
 		end
-		gearTbl[k][2] = floor(tonumber(ilvl))
+		gearTbl[k][2] = tonumber(ilvl)
 		gearTbl[k][3] = tonumber(gems)
 		gearTbl[k][4] = tonumber(enchants)
 
@@ -95,7 +95,7 @@ end
 function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 	if prefix == "QueryGear" then
 		local missingEnchants, emptySockets, equipped = self:ScanGear("player")
-		self:SendComm("Gear", floor(equipped), emptySockets, missingEnchants)
+		self:SendComm("Gear", equipped, emptySockets, missingEnchants)
 	elseif prefix == "Gear" then
 		local k = inTable(gearTbl, sender, 1)
 		if not k then
@@ -135,16 +135,10 @@ do
 
 	function module:ScanGear(unit)
 		local missingEnchants, emptySockets, averageItemLevel = 0, 0, 0
-		local hasOffhand, totalItemLevel, missingSlots = false, 0, 0
-		local artifactItemLevel = 0
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
-			local itemLevel = itemLink and GetDetailedItemLevelInfo(itemLink)
-			if not itemLevel and i ~= 4 and i ~= 17 then
-				missingSlots = missingSlots + 1
-			end
-			if itemLevel and i ~= 4 then -- skip the shirt
+			if itemLink and i ~= 4 then -- skip the shirt
 				-- http://www.wowpedia.org/ItemString
 				-- item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2:...[:upgradeValue]:unknown1:unknown2:unknown3
 				-- |cffff8000|Hitem:102247::::::::100:105:4:::493|h[Jina-Kang, Kindness of Chi-Ji]|h|r
@@ -171,34 +165,14 @@ do
 				if finalCount > 0 then
 					emptySockets = emptySockets + finalCount
 				end
-
-				-- Handle item level
-				if i == 17 then
-					hasOffhand = true
-				end
-
-				-- For artifacts with an offhand, one will be 750 the other will be the actual item level
-				if (i == 16 or i == 17) and GetInventoryItemQuality(unit, i) == LE_ITEM_QUALITY_ARTIFACT then
-					artifactItemLevel = max(artifactItemLevel, itemLevel)
-					hasOffhand = false
-				else
-					totalItemLevel = totalItemLevel + itemLevel
-				end
 			end
 		end
 
-		if unit == "player" then
+		if UnitIsUnit(unit, "player") then
 			local _, equipped = GetAverageItemLevel()
-			averageItemLevel = equipped
-		elseif totalItemLevel == 0 or (UnitLevel(unit) > 60 and missingSlots > 5) then
-			-- Requeue the inspect
-			local guid = UnitGUID(unit)
-			if guid then
-				oRA:ScheduleTimer("InspectGroup", 3, guid)
-			end
-			return
+			averageItemLevel = floor(equipped)
 		else
-			averageItemLevel = (totalItemLevel + artifactItemLevel) / (hasOffhand and 16 or 15)
+			averageItemLevel = C_PaperDollInfo.GetInspectItemLevel(unit)
 		end
 
 		return missingEnchants, emptySockets, averageItemLevel
