@@ -21,8 +21,8 @@ local consumablesList = {}
 local playerBuffs = {}
 local missingFood, missingFlasks, missingRunes, missingBuffs = {}, {}, {}, {}
 
-local YES = ("|cff20ff20%s|r"):format(YES)
-local NO = ("|cffff2020%s|r"):format(NO)
+local YES = ("|cff20ff20%s|r"):format(L.yes)
+local NO = ("|cffff2020%s|r"):format(L.no)
 
 local spells = setmetatable({}, {
 	__index = function(t, k)

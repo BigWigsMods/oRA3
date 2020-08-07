@@ -13,6 +13,8 @@ L.disbandingGroupChatMsg = "Disbanding group."
 L.disbandGroupWarning = "Are you sure you want to disband your group?"
 L.unknown = "Unknown"
 L.profile = "Profile"
+L.yes = _G.YES
+L.no = _G.NO
 
 -- Core
 L.togglePane = "Toggle oRA3 Pane"

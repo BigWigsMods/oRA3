@@ -696,8 +696,8 @@ local function setupGUI()
 	LibDialog:Register("oRA3DisbandGroup", {
 		text = L.disbandGroupWarning,
 		buttons = {
-			{ text = YES, on_click = actuallyDisband, },
-			{ text = NO, },
+			{ text = L.yes, on_click = actuallyDisband, },
+			{ text = L.no, },
 		},
 		no_close_button = true,
 		hide_on_escape = true,
