@@ -212,7 +212,6 @@ globals = {
 	"GetTrackedAchievements",
 	"GuildControlGetNumRanks",
 	"GuildControlGetRankName",
-	"GuildRoster",
 	"InCombatLockdown",
 	"IsAddOnLoadOnDemand",
 	"IsAddOnLoaded",
