@@ -348,7 +348,7 @@ function addon:OnEnable()
 
 	-- init groupStatus
 	self:GROUP_ROSTER_UPDATE()
-	if IsInGuild() then GuildRoster() end
+	if IsInGuild() then C_GuildInfo.GuildRoster() end
 
 	if CUSTOM_CLASS_COLORS then
 		local function updateClassColors()

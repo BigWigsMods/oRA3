@@ -112,6 +112,7 @@ globals = {
 	"C_ChatInfo",
 	"C_EncounterJournal",
 	"C_FriendList",
+	"C_GuildInfo",
 	"C_Map",
 	"C_PaperDollInfo",
 	"C_PartyInfo",
