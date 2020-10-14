@@ -119,7 +119,7 @@ end
 
 local function inviteGuild()
 	if not canInvite() then return end
-	GuildRoster()
+	C_GuildInfo.GuildRoster()
 	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
 	SendChatMessage(L.invitePrintMaxLevel, "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
@@ -127,7 +127,7 @@ end
 
 local function inviteZone()
 	if not canInvite() then return end
-	GuildRoster()
+	C_GuildInfo.GuildRoster()
 	local currentZone = GetRealZoneText()
 	SendChatMessage((L.invitePrintZone):format(currentZone), "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, nil, currentZone, nil)
