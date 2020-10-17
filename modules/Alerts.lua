@@ -91,8 +91,7 @@ combatLogMap.SPELL_AURA_APPLIED = {
 	[62124] = "Taunt",  -- Hand of Reckoning (Paladin)
 	[116189] = "Taunt", -- Provoke (Monk)
 	[118635] = "TauntAE", -- Provoke (Monk, Black Ox Statue)
-	[185245] = "Taunt", -- Torment (Vengeance Demon Hunter)
-	[281854] = "Taunt", -- Torment (Havoc Demon Hunter)
+	[185245] = "Taunt", -- Torment (Demon Hunter)
 	-- Pet Taunts
 	[17735] = "TauntPet",   -- Suffering (Warlock Pet)
 	[2649] = "TauntPet",    -- Growl (Hunter Pet)
