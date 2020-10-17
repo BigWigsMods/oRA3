@@ -18,7 +18,6 @@ externals:
 
 ignore:
   - .luacheckrc
-  - .travis.yml
   - ISSUE_TEMPLATE.md
   - README.md
   - modules/Cooldowns/README.md
