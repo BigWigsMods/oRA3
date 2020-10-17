@@ -5,8 +5,7 @@ local module = oRA:NewModule("RoleIcons")
 
 -- luacheck: globals NUM_RAID_GROUPS RaidFrame
 
-local countIcons -- frame containing the totals by role
-
+-- Icons on the player buttons
 local updateIcons
 do
 	local roleIcons = setmetatable({}, { __index = function(t,i)
@@ -27,21 +26,17 @@ do
 		return icon
 	end })
 
-	local count = {}
 	function updateIcons()
 		if not oRA.db.profile.showRoleIcons then
-			countIcons:Hide()
 			for _,icon in next, roleIcons do
 				icon:Hide()
 			end
 			return
 		end
 		if not IsInRaid() then
-			countIcons:Hide()
 			return
 		end
 
-		wipe(count)
 		for i = 1, GetNumGroupMembers() do
 			local button = _G["RaidGroupButton"..i]
 			if button and button.subframes then -- make sure the raid button is set up
@@ -50,25 +45,23 @@ do
 				if role and role ~= "NONE" then
 					icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
 					icon:Show()
-					count[role] = (count[role] or 0) + 1
 				else
 					icon:Hide()
 				end
 			end
 		end
-		for role, icon in next, countIcons.icons do
-			icon.count:SetText(count[role] or 0)
-		end
-		countIcons:Show()
 	end
 end
 
+-- Icons on the raid frame
 local createCountIcons
 do
 	local roster = {}
 	for i=1,NUM_RAID_GROUPS do roster[i] = {} end
 	local function sortColoredNames(a, b) return a:sub(11) < b:sub(11) end
+
 	local function onEnter(self)
+		if not IsInRaid() then return end
 		local role = self.role
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
 		GameTooltip:SetText(_G["INLINE_" .. role .. "_ICON"] .. _G[role])
@@ -91,50 +84,28 @@ do
 	end
 
 	function createCountIcons()
-		countIcons = CreateFrame("Frame", "oRA3RaidFrameRoleIcons", RaidFrame)
-		countIcons:SetFrameLevel(FriendsFrame.NineSlice:GetFrameLevel() + 1) -- the nine slice textures sit at 500 for some reason
-		countIcons:SetPoint("TOPLEFT", 51, 8)
-		countIcons:SetSize(30, 30)
-
-		countIcons.icons = {}
-		for i, role in ipairs({"TANK", "HEALER", "DAMAGER"}) do
-			local frame = CreateFrame("Frame", nil, countIcons)
-			frame:SetPoint("LEFT", 30 * (i - 1) - 2 * (i - 1), 0)
-			frame:SetSize(30, 30)
-
-			local texture = frame:CreateTexture(nil, "OVERLAY")
-			texture:SetTexture(337499) --Interface\\LFGFrame\\UI-LFG-ICON-ROLES
-			texture:SetTexCoord(GetTexCoordsForRole(role))
-			texture:SetAllPoints()
-			frame.texture = texture
-
-			local count = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-			count:SetPoint("BOTTOMRIGHT", -2, 2)
-			count:SetText(0)
-			frame.count = count
-
-			frame.role = role
+		local parent = RaidFrame.RoleCount
+		for _, role in next, {"Tank", "Healer", "Damager"} do
+			local frame = CreateFrame("Frame", nil, parent)
+			frame.role = role:upper()
+			frame:SetAllPoints(parent[role.."Icon"])
 			frame:SetScript("OnEnter", onEnter)
 			frame:SetScript("OnLeave", GameTooltip_Hide)
-
-			countIcons.icons[role] = frame
 		end
 	end
 end
 
 function module:OnRegister()
 	self:RegisterEvent("ADDON_LOADED")
+	createCountIcons()
 end
 
 function module:ADDON_LOADED(name)
 	if name == "Blizzard_RaidUI" then
 		self:UnregisterEvent("ADDON_LOADED")
-
-		createCountIcons()
 		if RaidFrame:IsShown() then
 			updateIcons()
 		end
-
 		hooksecurefunc("RaidGroupFrame_Update", updateIcons)
 	end
 end
