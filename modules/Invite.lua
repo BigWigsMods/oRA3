@@ -254,7 +254,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAc
 	sender = Ambiguate(sender, "none")
 	if shouldInvite(msg, sender) then
 		local inInstance, instanceType = IsInInstance()
-		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
+		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4 and not IsInRaid()) or GetNumGroupMembers() == 40 then
 			if bnetIDAccount > 0 then
 				BNSendWhisper(bnetIDAccount, "<oRA> ".. L.inviteGroupIsFull)
 			else
