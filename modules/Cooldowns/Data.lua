@@ -250,6 +250,10 @@ data.talentCooldowns = {
 	end,
 }
 
+-- Properly handle spell ranks this time around
+data.levelCooldowns = {
+}
+
 data.combatResSpells = {
 	[20484] = true, -- Rebirth
 	[95750] = true, -- Soulstone Resurrection

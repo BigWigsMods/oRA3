@@ -32,6 +32,7 @@ local instanceType, instanceDifficulty = nil, nil
 
 local spells = data.spells
 local syncSpells = data.syncSpells
+local levelCooldowns = data.levelCooldowns
 local talentCooldowns = data.talentCooldowns
 local chargeSpells, combatResSpells = data.chargeSpells, data.combatResSpells
 local cdModifiers, chargeModifiers = data.cdModifiers, data.chargeModifiers
@@ -1257,6 +1258,10 @@ function module:OnPlayerUpdate(_, guid, unit, info)
 				syncSpells[spellId] = true
 			end
 		end
+	end
+
+	if levelCooldowns[info.class] then
+		levelCooldowns[info.class](info)
 	end
 
 	for talentIndex, talentId in next, info.talents do
