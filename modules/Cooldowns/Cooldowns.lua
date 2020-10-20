@@ -1336,10 +1336,17 @@ do
 		return pet, guid
 	end
 
-	local function resetCooldown(info, spellId, remaining, charges)
+	local function resetCooldown(info, spellId, change, charges)
 		local guid, player, class = info.guid, info.name, info.class
+		local remaining = module:GetRemainingCooldown(guid, spellId)
+		if remaining == 0 then return end -- Don't need to do anything
+
 		callbacks:Fire("oRA3CD_StopCooldown", guid, spellId)
-		if remaining and remaining > 0 then
+		if change then
+			remaining = remaining - change
+			if remaining < 0 then -- don't restart it
+				return resetCooldown(info, spellId)
+			end
 			if not spellsOnCooldown[spellId] then spellsOnCooldown[spellId] = {} end
 			spellsOnCooldown[spellId][guid] = GetTime() + remaining
 			callbacks:Fire("oRA3CD_StartCooldown", guid, player, class, spellId, remaining)
@@ -1367,14 +1374,8 @@ do
 	local function armyOfTheDamned(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[19] == 22030 then -- Army of the Damned
-			local remaining = module:GetRemainingCooldown(srcGUID, 42650) -- Army of the Dead
-			if remaining > 0 then
-				resetCooldown(info, 42650, remaining - 5)
-			end
-			remaining = module:GetRemainingCooldown(srcGUID, 275699) -- Apocalypse
-			if remaining > 0 then
-				resetCooldown(info, 275699, remaining - 1)
-			end
+			resetCooldown(info, 42650, 5) -- Army of the Dead
+			resetCooldown(info, 275699, 1) -- Apocalypse
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[207317] = armyOfTheDamned -- Epidemic
@@ -1385,10 +1386,7 @@ do
 
 		local info = infoCache[srcGUID]
 		if info and info.talents[20] == 21208 then -- Red Thirst
-			local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
-			if remaining > 0 then
-				resetCooldown(info, 55233, remaining - 6)
-			end
+			resetCooldown(info, 55233, 6) -- Vampiric Blood
 		end
 	end
 
@@ -1407,10 +1405,7 @@ do
 					amount = 6
 				end
 			end
-			local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
-			if remaining > 0 then
-				resetCooldown(info, 55233, remaining - amount)
-			end
+			resetCooldown(info, 55233, amount) -- Vampiric Blood
 		end
 	end
 
@@ -1418,10 +1413,7 @@ do
 	specialEvents.SPELL_CAST_SUCCESS[327574] = function(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[20] == 21208 then -- Red Thirst
-			local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
-			if remaining > 0 then
-				resetCooldown(info, 55233, remaining - 3)
-			end
+			resetCooldown(info, 55233, 3) -- Vampiric Blood
 		end
 	end
 
@@ -1429,10 +1421,7 @@ do
 	specialEvents.SPELL_CAST_SUCCESS[61999] = function(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[20] == 21208 then -- Red Thirst
-			local remaining = module:GetRemainingCooldown(srcGUID, 55233) -- Vampiric Blood
-			if remaining > 0 then
-				resetCooldown(info, 55233, remaining - 4.5)
-			end
+			resetCooldown(info, 55233, 4.5)-- Vampiric Blood
 		end
 	end
 
@@ -1473,10 +1462,7 @@ do
 			if scratch[srcGUID][id] then
 				local crit = select(7, ...)
 				if crit then
-					local remaining = module:GetRemainingCooldown(srcGUID, 51271) -- Pillar of Frost
-					if remaining > 0 then
-						resetCooldown(info, 51271, remaining - 4)
-					end
+					resetCooldown(info, 51271, 4) -- Pillar of Frost
 				end
 				scratch[srcGUID][id] = nil
 			end
@@ -1514,7 +1500,7 @@ do
 			local t = GetTime()
 			if t-(scratch[srcGUID] or 0) > 2 then
 				scratch[srcGUID] = t
-				resetCooldown(info, 198793, module:GetRemainingCooldown(srcGUID, 198793) - 5) -- Vengeful Retreat
+				resetCooldown(info, 198793, 5) -- Vengeful Retreat
 			end
 		end
 	end
@@ -1530,20 +1516,14 @@ do
 		if info and info.level > 33 then -- Bestial Wrath (Rank 2)
 			-- Bestial Wrath's remaining cooldown is reduced
 			-- by 12 sec each time you use Barbed Shot
-			local remaining = module:GetRemainingCooldown(srcGUID, 19574) -- Bestial Wrath
-			if remaining > 0 then
-				resetCooldown(info, 19574, remaining - 12)
-			end
+			resetCooldown(info, 19574, 12) -- Bestial Wrath
 		end
 	end
 
 	local function callingTheShots(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[19] then -- Calling the Shots
-			local remaining = module:GetRemainingCooldown(srcGUID, 193526) -- Trueshot
-			if remaining > 0 then
-				resetCooldown(info, 193526, remaining - 2.5)
-			end
+			resetCooldown(info, 288613, 2.5) -- Trueshot
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[185358] = callingTheShots -- Arcane Shot
@@ -1563,10 +1543,7 @@ do
 			scratch[srcGUID][1] = (scratch[srcGUID][1] or 0) + 1
 
 			if scratch[srcGUID][1] < 6 then
-				local remaining = module:GetRemainingCooldown(srcGUID, 259495) -- Wildfire Bomb
-				if remaining > 0 then
-					resetCooldown(info, 259495, remaining - 1)
-				end
+				resetCooldown(info, 259495, 1) -- Wildfire Bomb
 			end
 		end
 	end
@@ -1600,10 +1577,7 @@ do
 			if info.level > 46 then -- Blizzard (Rank 2)
 				-- Each time Blizzard deals damage, the cooldown
 				-- of Frozen Orb is reduced by 0.5 sec
-				local remaining = module:GetRemainingCooldown(srcGUID, 84714) -- Frozen Orb
-				if remaining > 0 then
-					resetCooldown(info, 84714, remaining - 0.5)
-				end
+				resetCooldown(info, 84714, 0.5) -- Frozen Orb
 			end
 		end
 	end
@@ -1614,10 +1588,7 @@ do
 
 		local info = infoCache[srcGUID]
 		if info and info.talents[19] then -- Kindling
-			local remaining = module:GetRemainingCooldown(srcGUID, 190319) -- Combustion
-			if remaining > 0 then
-				resetCooldown(info, 190319, remaining - 1)
-			end
+			resetCooldown(info, 190319, 1) -- Combustion
 		end
 	end
 	specialEvents.SPELL_DAMAGE[133] = kindling -- Fireball
@@ -1632,18 +1603,9 @@ do
 		local info = infoCache[srcGUID]
 		if info then
 			local amount = info.talents[21] and 5 or 3
-			local remaining = module:GetRemainingCooldown(srcGUID, 322507) -- Celestial Brew
-			if remaining > 0 then
-				resetCooldown(info, 322507, remaining - amount)
-			end
-			remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
-			if remaining > 0 then
-				resetCooldown(info, 115203, remaining - amount)
-			end
-			remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
-			if remaining > 0 then
-				resetCooldown(info, 115399, remaining - amount)
-			end
+			resetCooldown(info, 322507, amount) -- Celestial Brew
+			resetCooldown(info, 115203, amount) -- Fortifying Brew
+			resetCooldown(info, 115399, amount) -- Black Ox Brew
 		end
 	end
 
@@ -1651,18 +1613,9 @@ do
 	specialEvents.SPELL_CAST_SUCCESS[100780] = function(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.spec == 268 then
-			local remaining = module:GetRemainingCooldown(srcGUID, 322507) -- Celestial Brew
-			if remaining > 0 then
-				resetCooldown(info, 322507, remaining - 1)
-			end
-			remaining = module:GetRemainingCooldown(srcGUID, 115203) -- Fortifying Brew
-			if remaining > 0 then
-				resetCooldown(info, 115203, remaining - 1)
-			end
-			remaining = module:GetRemainingCooldown(srcGUID, 115399) -- Black Ox Brew
-			if remaining > 0 then
-				resetCooldown(info, 115399, remaining - 1)
-			end
+			resetCooldown(info, 322507, 1) -- Celestial Brew
+			resetCooldown(info, 115203, 1) -- Fortifying Brew
+			resetCooldown(info, 115399, 1) -- Black Ox Brew
 		end
 	end
 
@@ -1682,24 +1635,15 @@ do
 			if info.talents[7] then -- Fist of Justice
 				-- Each Holy Power spent reduces the remaining
 				-- cooldown on Hammer of Justice by 2 sec.
-				local remaining = module:GetRemainingCooldown(srcGUID, 853) -- Hammer of Justice
-				if remaining > 0 then
-					local amount = spellId == 215661 and 10 or 6 -- Justicar's Vengeance is 5, everything else is 3
-					resetCooldown(info, 853, remaining - amount)
-				end
+				local amount = spellId == 215661 and 10 or 6 -- Justicar's Vengeance is 5, everything else is 3
+				resetCooldown(info, 853, amount) -- Hammer of Justice
 			end
 			if info.talents[20] == 21202 then -- Righteous Protector
 				-- Each Holy Power spent reduces the remaining
 				-- cooldown on Avenging Wrath and Guardian of
 				-- Ancient Kings by 1 sec.
-				local remaining = module:GetRemainingCooldown(srcGUID, 31884) -- Avenging Wrath
-				if remaining > 0 then
-					resetCooldown(info, 31884, remaining - 3)
-				end
-				remaining = module:GetRemainingCooldown(srcGUID, 86659) -- Avenging Wrath
-				if remaining > 0 then
-					resetCooldown(info, 86659, remaining - 3)
-				end
+				resetCooldown(info, 31884, 3) -- Avenging Wrath
+				resetCooldown(info, 86659, 3) -- Guardian of Ancient Kings
 			end
 		end
 	end
@@ -1722,10 +1666,7 @@ do
 			elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
 				amount = 12
 			end
-			local remaining = module:GetRemainingCooldown(srcGUID, 88625) -- Holy Word: Chastise
-			if remaining > 0 then
-				resetCooldown(info, 88625, remaining - amount)
-			end
+			resetCooldown(info, 88625, amount) -- Holy Word: Chastise
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[585] = holyWordChastise -- Smite
@@ -1740,10 +1681,7 @@ do
 			elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
 				amount = 18
 			end
-			local remaining = module:GetRemainingCooldown(srcGUID, 34861) -- Holy Word: Sanctify
-			if remaining > 0 then
-				resetCooldown(info, 34861, remaining - amount)
-			end
+			resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
 		end
 	end
 
@@ -1757,20 +1695,14 @@ do
 			elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
 				amount = 6
 			end
-			local remaining = module:GetRemainingCooldown(srcGUID, 34861) -- Holy Word: Sanctify
-			if remaining > 0 then
-				resetCooldown(info, 34861, remaining - amount)
-			end
+			resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
 		end
 	end
 
 	local function holyWordSalvation(srcGUID)
 		local info = infoCache[srcGUID]
 		if info and info.talents[21] then
-			local remaining = module:GetRemainingCooldown(srcGUID, 265202) -- Holy Word: Salvation
-			if remaining > 0 then
-				resetCooldown(info, 265202, remaining - 30)
-			end
+			resetCooldown(info, 265202, 30) -- Holy Word: Salvation
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[2050] = holyWordSalvation -- Holy Word: Serenity
@@ -1787,7 +1719,7 @@ do
 			-- the target from death, reduce its remaining
 			-- cooldown to 60 seconds.
 			if GetTime() - scratch[srcGUID.."gs"] > 9.7 then
-				resetCooldown(info, 47788, module:GetRemainingCooldown(srcGUID, 47788) - 60)
+				resetCooldown(info, 47788, 60)
 			end
 		end
 		scratch[srcGUID] = nil
@@ -1841,7 +1773,7 @@ do
 		if info and info.talents[9] then -- Static Charge
 			scratch[srcGUID] = scratch[srcGUID] + 1
 			if scratch[srcGUID] < 5 then
-				resetCooldown(info, 192058, module:GetRemainingCooldown(srcGUID, 192058) - 5) -- Capacitor Totem
+				resetCooldown(info, 192058, 5) -- Capacitor Totem
 			end
 		end
 	end
@@ -1859,9 +1791,9 @@ do
 		local info = infoCache[srcGUID]
 		if info and scratch[srcGUID.."sp"] and GetTime()-scratch[srcGUID.."sp"] < 14.7 then -- Surge of Power
 			if info.talents[11] then
-				resetCooldown(info, 192249, module:GetRemainingCooldown(srcGUID, 192249) - 6) -- Storm Elemental
+				resetCooldown(info, 192249, 6) -- Storm Elemental
 			else
-				resetCooldown(info, 198067, module:GetRemainingCooldown(srcGUID, 198067) - 6) -- Fire Elemental
+				resetCooldown(info, 198067, 6) -- Fire Elemental
 			end
 		end
 	end
@@ -1877,7 +1809,7 @@ do
 		if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
 			scratch[srcGUID] = scratch[srcGUID] + 1
 			if scratch[srcGUID] > 2 then
-				resetCooldown(info, 46968, module:GetRemainingCooldown(srcGUID, 46968) - 15) -- Shockwave
+				resetCooldown(info, 46968, 15) -- Shockwave
 				scratch[srcGUID] = nil
 			end
 		end
@@ -1895,14 +1827,14 @@ do
 
 	-- 		if info.spec == 71 then
 	-- 			if info.talents[14] then
-	-- 				resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+	-- 				resetCooldown(info, 262161, amount) -- Warbreaker
 	-- 			else
-	-- 				resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+	-- 				resetCooldown(info, 167105, amount) -- Colossus Smash
 	-- 			end
-	-- 			resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+	-- 			resetCooldown(info, 227847, amount) -- Blade Storm
 	-- 		elseif info.spec == 73 then
-	-- 			resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-	-- 			resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+	-- 			resetCooldown(info, 107574, amount) -- Avatar
+	-- 			resetCooldown(info, 871, amount) -- Shield Wall
 	-- 		end
 	-- 	end
 	-- end
@@ -1916,14 +1848,14 @@ do
 
 			if info.spec == 71 then
 				if info.talents[14] then
-					resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+					resetCooldown(info, 262161, amount) -- Warbreaker
 				else
-					resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+					resetCooldown(info, 167105, amount) -- Colossus Smash
 				end
-				resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+				resetCooldown(info, 227847, amount) -- Blade Storm
 			elseif info.spec == 73 then
-				resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-				resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+				resetCooldown(info, 107574, amount) -- Avatar
+				resetCooldown(info, 871, amount) -- Shield Wall
 			end
 		end
 	end
@@ -1936,16 +1868,16 @@ do
 
 			if info.spec == 71 then
 				if info.talents[14] then
-					resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+					resetCooldown(info, 262161, amount) -- Warbreaker
 				else
-					resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+					resetCooldown(info, 167105, amount) -- Colossus Smash
 				end
-				resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+				resetCooldown(info, 227847, amount) -- Blade Storm
 			elseif info.spec == 72 then
-				resetCooldown(info, 1719, module:GetRemainingCooldown(srcGUID, 1719) - amount) -- Recklessness
+				resetCooldown(info, 1719, amount) -- Recklessness
 			elseif info.spec == 73 then
-				resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-				resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+				resetCooldown(info, 107574, amount) -- Avatar
+				resetCooldown(info, 871, amount) -- Shield Wall
 			end
 		end
 	end
@@ -1958,16 +1890,16 @@ do
 
 			if info.spec == 71 then
 				if info.talents[14] then
-					resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+					resetCooldown(info, 262161, amount) -- Warbreaker
 				else
-					resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+					resetCooldown(info, 167105, amount) -- Colossus Smash
 				end
-				resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+				resetCooldown(info, 227847, amount) -- Blade Storm
 			elseif info.spec == 72 then
-				resetCooldown(info, 1719, module:GetRemainingCooldown(srcGUID, 1719) - amount) -- Recklessness
+				resetCooldown(info, 1719, amount) -- Recklessness
 			elseif info.spec == 73 then
-				resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-				resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+				resetCooldown(info, 107574, amount) -- Avatar
+				resetCooldown(info, 871, amount) -- Shield Wall
 			end
 		end
 	end
@@ -1980,16 +1912,16 @@ do
 
 			if info.spec == 71 then
 				if info.talents[14] then
-					resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+					resetCooldown(info, 262161, amount) -- Warbreaker
 				else
-					resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+					resetCooldown(info, 167105, amount) -- Colossus Smash
 				end
-				resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+				resetCooldown(info, 227847, amount) -- Blade Storm
 			elseif info.spec == 72 then
-				resetCooldown(info, 1719, module:GetRemainingCooldown(srcGUID, 1719) - amount) -- Recklessness
+				resetCooldown(info, 1719, amount) -- Recklessness
 			elseif info.spec == 73 then
-				resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-				resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+				resetCooldown(info, 107574, amount) -- Avatar
+				resetCooldown(info, 871, amount) -- Shield Wall
 			end
 		end
 	end
@@ -2002,16 +1934,16 @@ do
 
 			if info.spec == 71 then
 				if info.talents[14] then
-					resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+					resetCooldown(info, 262161, amount) -- Warbreaker
 				else
-					resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+					resetCooldown(info, 167105, amount) -- Colossus Smash
 				end
-				resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+				resetCooldown(info, 227847, amount) -- Blade Storm
 			elseif info.spec == 72 then
-				resetCooldown(info, 1719, module:GetRemainingCooldown(srcGUID, 1719) - amount) -- Recklessness
+				resetCooldown(info, 1719, amount) -- Recklessness
 			elseif info.spec == 73 then
-				resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-				resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+				resetCooldown(info, 107574, amount) -- Avatar
+				resetCooldown(info, 871, amount) -- Shield Wall
 			end
 		end
 	end
@@ -2024,11 +1956,11 @@ do
 			local amount = rage/per
 
 			if info.talents[14] then
-				resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+				resetCooldown(info, 262161, amount) -- Warbreaker
 			else
-				resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+				resetCooldown(info, 167105, amount) -- Colossus Smash
 			end
-			resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+			resetCooldown(info, 227847, amount) -- Blade Storm
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[772] = function(srcGUID) -- Rend
@@ -2039,11 +1971,11 @@ do
 			local amount = rage/per
 
 			if info.talents[14] then
-				resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+				resetCooldown(info, 262161, amount) -- Warbreaker
 			else
-				resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+				resetCooldown(info, 167105, amount) -- Colossus Smash
 			end
-			resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+			resetCooldown(info, 227847, amount) -- Blade Storm
 		end
 	end
 	specialEvents.SPELL_CAST_SUCCESS[845] = function(srcGUID) -- Cleave
@@ -2054,11 +1986,11 @@ do
 			local amount = rage/per
 
 			if info.talents[14] then
-				resetCooldown(info, 262161, module:GetRemainingCooldown(srcGUID, 262161) - amount) -- Warbreaker
+				resetCooldown(info, 262161, amount) -- Warbreaker
 			else
-				resetCooldown(info, 167105, module:GetRemainingCooldown(srcGUID, 167105) - amount) -- Colossus Smash
+				resetCooldown(info, 167105, amount) -- Colossus Smash
 			end
-			resetCooldown(info, 227847, module:GetRemainingCooldown(srcGUID, 227847) - amount) -- Blade Storm
+			resetCooldown(info, 227847, amount) -- Blade Storm
 		end
 	end
 	-- Fury
@@ -2069,7 +2001,7 @@ do
 			local per = 20
 			local amount = rage/per
 
-			resetCooldown(info, 1719, module:GetRemainingCooldown(srcGUID, 1719) - amount) -- Recklessness
+			resetCooldown(info, 1719, amount) -- Recklessness
 		end
 	end
 	-- Protection
@@ -2079,9 +2011,9 @@ do
 			local rage = 20
 			local per = 10
 			local amount = rage/per
-			-- XXX wait, how does this work with free Revenges
-			resetCooldown(info, 107574, module:GetRemainingCooldown(srcGUID, 107574) - amount) -- Avatar
-			resetCooldown(info, 871, module:GetRemainingCooldown(srcGUID, 871) - amount) -- Shield Wall
+			-- XXX how does this work with free Revenges
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
 		end
 	end
 
