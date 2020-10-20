@@ -212,8 +212,8 @@ local function getBattleNetCharacter(bnetIDAccount)
 	for i = 1, C_BattleNet.GetFriendNumGameAccounts(friendIndex) do
 		local info = C_BattleNet.GetFriendGameAccountInfo(friendIndex, i)
 		local charName, realmName = info.characterName, info.realmName
-		if info.clientProgram == BNET_CLIENT_WOW and info.factionName == playerFaction and info.realmID > 0 then
-			if realmName ~= "" and realmName ~= playerRealm then
+		if info.clientProgram == BNET_CLIENT_WOW and info.wowProjectID == WOW_PROJECT_MAINLINE and info.factionName == playerFaction and info.realmID > 0 then
+			if realmName and realmName ~= "" and realmName ~= playerRealm then
 				-- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
 				realmName = realmName:gsub("[%s%-]", "")
 				charName = FULL_PLAYER_NAME:format(charName, realmName)
