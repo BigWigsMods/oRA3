@@ -83,6 +83,7 @@ globals = {
 	"wipe",
 
 	-- framexml
+	"AuraUtil",
 	"CopyTable",
 	"getprinthandler",
 	"hash_SlashCmdList",
