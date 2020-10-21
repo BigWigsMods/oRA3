@@ -396,7 +396,7 @@ data.chargeSpells = {
 --   with the cd (for dynamic cooldowns with hard to track conditions)
 data.spells = {
 	DEATHKNIGHT = {
-		[43265] = {30, 3, nil, {[252]=-18}}, -- Death and Decay XXX make sure replacement works for just one spec
+		[43265] = {30, 3, nil, {[250]=false,[251]=false,[252]=-18}}, -- Death and Decay
 		[49576] = {25, 5, 250}, -- Death Grip
 		[47528] = {15, 7}, -- Mind Freeze
 		[48707] = {60, 9}, -- Anti-Magic Shell
@@ -550,7 +550,7 @@ data.spells = {
 		[162488] = {30, 35, 255, 11}, -- Steel Trap
 		[131894] = {60, {[253]=35,[254]=15,[255]=35}, nil, {[253]=12,[254]=3,[255]=12}, true}, -- A Murder of Crows
 		[109248] = {45, 40, nil, 15}, -- Binding Shot
-		[120360] = {20, {[253]=35,[254]=25}, {[253]=17,[254]=5}, 17}, -- Barrage
+		[120360] = {20, {[253]=35,[254]=25}, nil, {[253]=17,[254]=5}}, -- Barrage
 		[260402] = {60, 45, 254, 18}, -- Double Tap
 		[201430] = {120, 45, 253, 18}, -- Stampede
 		[269751] = {40, 45, 255, 18}, -- Flanking Strike
