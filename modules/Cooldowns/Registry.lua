@@ -211,7 +211,7 @@ do
 		bd:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 1, -1)
 		bd:Show()
 
-		local borders = nil
+		local borders
 		if #freeBorderSets > 0 then
 			borders = tremove(freeBorderSets)
 			for i, border in next, borders do

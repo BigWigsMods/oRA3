@@ -1,16 +1,17 @@
 std = "lua51"
 max_line_length = false
+codes = true
 exclude_files = {
 	"**/libs",
-}
-only = {
-	"011", -- syntax
-	"1", -- globals
 }
 ignore = {
 	"11/SLASH_.*", -- slash handlers
 	"11/BINDING_.*", -- keybinds
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
+	"211", -- Unused local variable
+	"212", -- Unused argument
+	"213", -- Unused loop variable
+	"432/self", -- Shadowing an upvalue argument
 }
 globals = {
 	-- wow std api

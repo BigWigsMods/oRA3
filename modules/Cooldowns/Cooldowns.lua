@@ -6,7 +6,7 @@ local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
-local data = scope.cooldownData
+local cooldownData = scope.cooldownData
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
 local LibDialog = LibStub("LibDialog-1.0")
 
@@ -30,12 +30,12 @@ local playerGUID = UnitGUID("player")
 local _, playerClass = UnitClass("player")
 local instanceType, instanceDifficulty = nil, nil
 
-local spells = data.spells
-local syncSpells = data.syncSpells
-local levelCooldowns = data.levelCooldowns
-local talentCooldowns = data.talentCooldowns
-local chargeSpells, combatResSpells = data.chargeSpells, data.combatResSpells
-local cdModifiers, chargeModifiers = data.cdModifiers, data.chargeModifiers
+local spells = cooldownData.spells
+local syncSpells = cooldownData.syncSpells
+local levelCooldowns = cooldownData.levelCooldowns
+local talentCooldowns = cooldownData.talentCooldowns
+local chargeSpells, combatResSpells = cooldownData.chargeSpells, cooldownData.combatResSpells
+local cdModifiers, chargeModifiers = cooldownData.cdModifiers, cooldownData.chargeModifiers
 
 local mergeSpells = {}
 local allSpells = {}
@@ -43,7 +43,7 @@ module.allSpells = allSpells
 local classLookup = {}
 module.classLookup = classLookup
 
-for class, classSpells in next, data.spells do
+for class, classSpells in next, cooldownData.spells do
 	for spellId, info in next, classSpells do
 		if type(info) == "number" then
 			-- merge multiple ids into one option
@@ -124,8 +124,8 @@ function module:CheckFilter(display, player)
 
 	local index = info and info.unit:match("raid(%d+)")
 	if index then
-		local _, _, group = GetRaidRosterInfo(index)
-		if db.hideGroup[group] then return end
+		local _, _, subgroup = GetRaidRosterInfo(index)
+		if db.hideGroup[subgroup] then return end
 	end
 
 	return true

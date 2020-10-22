@@ -63,8 +63,8 @@ do
 			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			if not spellId then return end
 
-			for i = 1, num do
-				if list[i] == name then
+			for j = 1, num do
+				if list[j] == name then
 					return name, expirationTime, spellId
 				end
 			end
@@ -82,8 +82,8 @@ do
 			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			if not spellId then return end
 
-			for i = 1, num do
-				if list[i] == spellId then
+			for j = 1, num do
+				if list[j] == spellId then
 					return name, expirationTime, spellId
 				end
 			end

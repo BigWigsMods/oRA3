@@ -236,7 +236,7 @@ end
 do
 	local GetTime, GetSpellCharges = GetTime, GetSpellCharges
 	local function updateTime()
-		local charges, maxCharges, started, duration = GetSpellCharges(20484) -- Rebirth
+		local charges, _, started, duration = GetSpellCharges(20484) -- Rebirth
 		if not charges then return end
 		local time = duration - (GetTime() - started)
 		local m = floor(time/60)
@@ -311,7 +311,7 @@ do
 		for i = 1, 2 do
 			local index = p[i]
 			if index then
-				local _, _, rank, maxRank, _, _, skillLine, _, _, _, skillLineName = GetProfessionInfo(index)
+				local _, _, rank, _, _, _, _, _, _, _, skillLineName = GetProfessionInfo(index)
 				if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2499) and rank > 85 then -- Zandalari/Kul Tiran Engineering
 					isEngineer = true
 					return true

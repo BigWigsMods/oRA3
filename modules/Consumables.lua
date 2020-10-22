@@ -4,10 +4,9 @@ local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
 local L = scope.locale
 
-local tonumber, print, next, select = tonumber, print, next, select
 local format = string.format
 local tconcat, sort, wipe = table.concat, table.sort, table.wipe
-local GetSpellInfo, GetSpellDescription = GetSpellInfo, GetSpellDescription
+local GetSpellInfo = GetSpellInfo
 local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsInRaid, IsInInstance
 local UnitName, UnitIsConnected, UnitIsVisible = UnitName, UnitIsConnected, UnitIsVisible
 local GetTime, UnitIsDeadOrGhost = GetTime, UnitIsDeadOrGhost
@@ -472,7 +471,7 @@ do
 					if noFlasks[player] then
 						warnings[#warnings + 1] = L.noFlask
 					else
-						local flask, expires = getFlask(player)
+						local _, expires = getFlask(player)
 						local remaining = expires and (expires - t) or 0
 						if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
 							whisper(player, L.flaskExpires)

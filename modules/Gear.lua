@@ -134,7 +134,7 @@ do
 	}
 
 	function module:ScanGear(unit)
-		local missingEnchants, emptySockets, averageItemLevel = 0, 0, 0
+		local missingEnchants, emptySockets = 0, 0
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
@@ -168,6 +168,7 @@ do
 			end
 		end
 
+		local averageItemLevel
 		if UnitIsUnit(unit, "player") then
 			local _, equipped = GetAverageItemLevel()
 			averageItemLevel = floor(equipped)
