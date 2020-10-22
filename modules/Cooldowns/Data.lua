@@ -9,7 +9,7 @@ local cdModifiers = data.cdModifiers
 data.chargeModifiers = {}
 local chargeModifiers = data.chargeModifiers
 data.syncSpells = {}
-local syncSpells = {}
+local syncSpells = data.syncSpells
 
 local function addMod(guid, spell, modifier, charges)
 	if modifier ~= 0 then
@@ -84,7 +84,7 @@ data.talentCooldowns = {
 	end,
 
 	-- Mage
-	[23072] = function(info, playerGUID) -- Arcane: Master of Time
+	[23072] = function(info) -- Arcane: Master of Time
 		addMod(info.guid, 342245, 30) -- Alter Time
 	end,
 	[22448] = function(info) -- Ice Ward
@@ -144,7 +144,7 @@ data.talentCooldowns = {
 	[19237] = function(info) -- Outlaw: Retractable Hook
 		addMod(info.guid, 195457, 15) -- Grappling Hook
 	end,
-	[19237] = function(info) -- Outlaw: Blinding Powder
+	[22114] = function(info) -- Outlaw: Blinding Powder
 		addMod(info.guid, 2094, 30) -- Blind
 	end,
 	[22336] = function(info) -- Subtlety: Enveloping Shadows
@@ -416,7 +416,7 @@ data.spells = {
 		[61999] = {600, 39}, -- Raise Ally
 		[42650] = {480, 44, 252}, -- Army of the Dead
 		[279302] = {180, 44, 251}, -- Frostwyrm's Fury
-		[49039] = {120, 47}, -- Anti-Magic Zone
+		[51052] = {120, 47}, -- Anti-Magic Zone
 		[47568] = {120, 48, 251}, -- Empower Rune Weapon
 		[327574] = {120, 54}, -- Sacrificial Pact
 
@@ -737,7 +737,7 @@ data.spells = {
 		[196937] = {35, 15, 260, 3, true}, -- Ghostly Strike
 		[137619] = {60, 30, nil, 12, true}, -- Marked for Death
 		[200806] = {45, 45, 259, 18}, -- Exsanguinate
-		[200806] = {90, 45, 260, 18}, -- Dreadblades
+		[343142] = {90, 45, 260, 18}, -- Dreadblades
 		[271877] = {45, 50, 260, 20, true}, -- Blade Rush
 		[51690] = {120, 50, 260, 21, true}, -- Killing Spree
 		[280719] = {45, 50, 261, 20, true}, -- Secret Technique
