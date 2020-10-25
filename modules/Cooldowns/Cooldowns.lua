@@ -1555,7 +1555,7 @@ do
 	-- Alter Time
 	specialEvents.SPELL_AURA_REMOVED[342246] = function(srcGUID)
 		local info = infoCache[srcGUID]
-		if info and info.talent[4] == 23072 then -- Master of Time
+		if info and info.talents[4] == 23072 then -- Master of Time
 			resetCooldown(info, 1953)
 		end
 	end
