@@ -10,11 +10,13 @@ local badBuffs = {
 	27827, -- Spirit of Redemption
 	5384, -- Feign Death
 }
+local engineerItem = 184308 -- Disposable Spectrophasic Reanimator
+local engineerSpell = GetItemSpell(engineerItem)
 local resSpells = {
-	[20484] = true,  -- Rebirth
-	[61999] = true,  -- Raise Ally
-	[95750] = true,  -- Soulstone Resurrection
-	[265116] = true, -- Unstable Temporal Time Shifter
+	[20484] = true, -- Rebirth
+	[61999] = true, -- Raise Ally
+	[95750] = true, -- Soulstone Resurrection
+	[engineerSpell] = true, -- Disposable Spectrophasic Reanimator
 }
 local theDead = {}
 local updateFunc
@@ -78,7 +80,7 @@ local function createFrame()
 	icon:SetWidth(20)
 	icon:SetHeight(20)
 	icon:SetPoint("LEFT", remaining, "LEFT", 20, 0)
-	icon:SetTexture(2115322) -- inv_eng_unstabletemporaltimeshifter
+	icon:SetTexture(GetSpellTexture(engineerSpell))
 	icon:Hide()
 	brez.icon = icon
 
@@ -278,7 +280,7 @@ do
 					brez.remaining:SetTextColor(0,1,0)
 				end
 				if isEngineer then
-					local count = GetItemCount(158379) -- Unstable Temporal Time Shifter
+					local count = GetItemCount(engineerItem)
 					if count > 0 then
 						brez.icon:SetVertexColor(1, 1, 1)
 					else
@@ -312,7 +314,7 @@ do
 			local index = p[i]
 			if index then
 				local _, _, rank, _, _, _, _, _, _, _, skillLineName = GetProfessionInfo(index)
-				if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2499) and rank > 85 then -- Zandalari/Kul Tiran Engineering
+				if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2755) and rank > 50 then -- Shadowlands Engineering
 					isEngineer = true
 					return true
 				end

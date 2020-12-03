@@ -165,6 +165,7 @@ globals = {
 	"GetInventoryItemLink",
 	"GetInventoryItemQuality",
 	"GetItemCount",
+	"GetItemSpell",
 	"GetItemStats",
 	"GetLFGMode",
 	"GetLocale",
