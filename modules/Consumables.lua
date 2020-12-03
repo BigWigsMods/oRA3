@@ -39,52 +39,17 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
-		-- Uldir
-		[269276] = 2168, -- Taloc
-		[269405] = 2167, -- MOTHER
-		[269407] = 2169, -- Zek'voz
-		[269408] = 2146, -- Fetid Devourer
-		[269409] = 2166, -- Vectis
-		[269411] = 2195, -- Zul
-		[269412] = 2194, -- Mythrax
-		[269413] = 2147, -- G'hunn
-		-- Battle of Dazar'alor
-		[285535] = 2333, -- Champion of the Light
-		[285536] = 2325, -- Grong, the Jungle Lord (Horde)
-		[289194] = 2340, -- Grong, the Revenant (Alliance)
-		[285537] = 2323, -- Jadefire Masters
-		[289196] = 2323, -- Jadefire Masters
-		[285538] = 2342, -- Opulence
-		[285539] = 2330, -- Conclave of the Chosen
-		[285540] = 2335, -- King Rastakhan
-		[285541] = 2334, -- High Tinker Mekkatorque
-		[285542] = 2337, -- Stormwall Blockade
-		[285543] = 2343, -- Lady Jaina Proudmoore
-		-- Crucible of Storms
-		[285900] = 2328, -- The Restless Cabal
-		[285901] = 2332, -- Uu'nat, Harbinger of the Void
-		-- The Eternal Palace
-		[298622] = 2352, -- Abyssal Commander Sivara
-		[298640] = 2353, -- Radiance of Aszhara
-		[298642] = 2347, -- Blackwater Behemoth
-		[298643] = 2354, -- Lady Ashvane
-		[298644] = 2351, -- Orgozoa
-		[298645] = 2359, -- The Queen's Court
-		[298646] = 2349, -- Za'qul, Harbinger of Ny'alotha
-		[302914] = 2361, -- Queen Azshara
-		-- Ny'alotha
-		[306475] = 2368, -- Wrathion, the Black Emperor
-		[306480] = 2365, -- Maut
-		[306476] = 2369, -- The Prophet Skitra
-		[306477] = 2377, -- Dark Inquisitor Xanesh
-		[306479] = 2370, -- Vexiona
-		[306478] = 2372, -- The Hivemind
-		[313550] = 2364, -- Ra-Den the Despoiled
-		[306484] = 2367, -- Shad'har the Insatiable
-		[306485] = 2373, -- Drest'agath
-		[313551] = 2374, -- Il'gynoth, Corruption Reborn
-		[313554] = 2366, -- Carapace of N'Zoth
-		[313556] = 2375, -- N'Zoth the Corruptor
+		-- Castle Nathria
+		[311445] = 2393, -- Shriekwing
+		[311446] = 2428, -- Hungering Destroyer
+		[311448] = 2422, -- Sun King's Salvation
+		[311447] = 2418, -- Artificer Xy'mox
+		[311449] = 2420, -- Lady Inerva Darkvein
+		[311450] = 2426, -- The Council of Blood
+		[311451] = 2394, -- Sludgefist
+		[311452] = 2425, -- Stone Legion Generals
+		[334131] = 2424, -- Sire Denathrius
+		[334132] = 2429, -- Huntsman Altimor
 	}
 
 	local buffs = {}
@@ -113,7 +78,7 @@ local getRune
 do
 	local runes = {
 		270058, -- Battle-Scarred Augmentation
-		317065, -- Battle-Scarred Augmentation (Lightning-Forged Augment Rune)
+		347901, -- Veiled Augmentation
 	}
 
 	function getRune(player)
@@ -136,6 +101,9 @@ do
 		298837, -- Greater Flask of Endless Fathoms
 		298839, -- Greater Flask of the Vast Horizon
 		298841, -- Greater Flask of the Undertow
+		-- Shadowlands
+		307185, -- Spectral Flask of Power
+		307187, -- Spectral Stamina Flask
 	}
 
 	function getFlask(player)
@@ -169,15 +137,12 @@ end
 local raidBuffs = {
 	{ -- Intellect
 		1459,   -- Arcane Intellect
-		264760, -- War-Scroll of Intellect
 	},
 	{ -- Stamina
 		21562,  -- Power Word: Fortitude
-		264764, -- War-Scroll of Fortitude
 	},
 	{ -- Attack Power
 		6673,   -- Battle Shout
-		264761, -- War-Scroll of Battle Shout
 	},
 }
 local raidBuffNames = {
@@ -352,26 +317,23 @@ end
 do
 	local best = {
 		-- Food
-		[297039] = true, -- crit
-		[297034] = true, -- haste
-		[297035] = true, -- mastery
-		[297037] = true, -- versatility
-		[297116] = true, -- agi
-		[297117] = true, -- int
-		[297118] = true, -- str
-		[297040] = true, -- sta (stamina is not gained from feasts now)
-		[297119] = true, -- sta (not sure where this comes from, better not be a feast)
+		[308434] = true, -- crit
+		[308488] = true, -- haste
+		[308506] = true, -- mastery
+		[308514] = true, -- versatility
+		[308525] = true, -- stamina
+		[327709] = true, -- agi
+		[327708] = true, -- int
+		[327706] = true, -- str
 
 		-- Flasks
-		[298836] = true, -- agi
-		[298837] = true, -- int
-		[298839] = true, -- sta
-		[298841] = true, -- str
+		[307185] = true, -- Spectral Flask of Power
+		[307187] = true, -- Spectral Stamina Flask
 
 		-- Buffs
-		[1459] = true,   -- Arcane Intellect
-		[21562] = true,  -- Power Word: Fortitude
-		[264761] = true, -- War-Scroll of Battle Shout
+		[1459] = true,  -- Arcane Intellect
+		[21562] = true, -- Power Word: Fortitude
+		[6637] = true,  -- Battle Shout
 	}
 
 	function module:IsBest(id)
@@ -379,6 +341,7 @@ do
 	end
 
 	local food = {
+		--- BfA
 		-- Deserts
 		[257408] = 8, -- crit
 		[257413] = 8, -- haste
@@ -387,15 +350,14 @@ do
 		[288074] = 17, -- stamina
 		-- Large Meals
 		[257410] = 10, -- crit
-		[257415] = 10, -- haste
-		[257420] = 10, -- mastery
-		[257424] = 10, -- versatility
-		[288075] = 22, -- stamina
-
 		[297039] = 14, -- crit
+		[257415] = 10, -- haste
 		[297034] = 14, -- haste
+		[257420] = 10, -- mastery
 		[297035] = 14, -- mastery
+		[257424] = 10, -- versatility
 		[297037] = 14, -- versatility
+		[288075] = 22, -- stamina
 		[297040] = 29, -- stamina
 		-- Galley Banquet
 		[259448] = 11, -- agi
@@ -413,10 +375,43 @@ do
 		[297116] = 19, -- agi
 		[297117] = 19, -- int
 		[297118] = 19, -- str
+
+		--- Shadowlands
+		-- Light Meals
+		[308430] = 18, -- crit
+		[308474] = 18, -- haste
+		[308504] = 18, -- mastery
+		[308509] = 18, -- versatility
+		[308520] = 14, -- stamina
+		-- Large Meals
+		[308434] = 30, -- crit
+		[308488] = 30, -- haste
+		[308506] = 30, -- mastery
+		[308514] = 30, -- versatility
+		[308525] = 22, -- stamina
+		-- Surprisingly Palatable Feast
+		[327705] = 18, -- agi
+		[327704] = 18, -- int
+		[327701] = 18, -- str
+		-- Feast of Gluttonous Hedonism
+		[327709] = 20, -- agi
+		[327708] = 20, -- int
+		[327706] = 20, -- str
 	}
 
 	function module:GetFoodValue(id)
 		return food[id]
+	end
+
+	local flasks = {
+		[251836] = 25, [251837] = 25, [251838] = 25, [251839] = 25, -- Flask (BfA)
+		[298836] = 38, [298837] = 38, [298839] = 38, [298841] = 38, -- Greater Flask (BfA)
+		[307185] = 70, -- Spectral Flask of Power
+		[307187] = 105, -- Spectral Stamina Flask
+	}
+
+	function module:GetFlaskValue(id)
+		return flasks[id]
 	end
 end
 
@@ -545,16 +540,6 @@ end
 do
 	local prev = 0
 
-	-- >.>
-	local function getFlaskValue(id)
-		if not id then return end
-		if id < 251836 or id > 298841 then return end
-		if id < 298836 then
-			return 25
-		end
-		return 38
-	end
-
 	function module:CheckGroup()
 		local t = GetTime()
 		if t-prev < GROUP_CHECK_THROTTLE then
@@ -598,7 +583,7 @@ do
 				consumablesList[#consumablesList + 1] = {
 					player:gsub("%-.*", ""),
 					food and (food < 0 and spells[161715] or self:GetFoodValue(food) or YES) or NO, -- 161715 = Eating
-					flask and (getFlaskValue(flask) or YES) or NO,
+					flask and (self:GetFlaskValue(flask) or YES) or NO,
 					rune and YES or NO,
 					getVantusBoss(vantus) or NO,
 					("%d/%d"):format(numBuffs, #buffs),
