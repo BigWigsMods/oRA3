@@ -11,12 +11,12 @@ local badBuffs = {
 	5384, -- Feign Death
 }
 local engineerItem = 184308 -- Disposable Spectrophasic Reanimator
-local engineerSpell = GetItemSpell(engineerItem)
+local engineerIcon = 3610508
 local resSpells = {
 	[20484] = true, -- Rebirth
 	[61999] = true, -- Raise Ally
 	[95750] = true, -- Soulstone Resurrection
-	[engineerSpell] = true, -- Disposable Spectrophasic Reanimator
+	[345130] = true, -- Disposable Spectrophasic Reanimator
 }
 local theDead = {}
 local updateFunc
@@ -80,7 +80,7 @@ local function createFrame()
 	icon:SetWidth(20)
 	icon:SetHeight(20)
 	icon:SetPoint("LEFT", remaining, "LEFT", 20, 0)
-	icon:SetTexture(GetSpellTexture(engineerSpell))
+	icon:SetTexture(engineerIcon)
 	icon:Hide()
 	brez.icon = icon
 
