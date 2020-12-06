@@ -43,8 +43,8 @@ function module:OnGroupChanged(_, _, members)
 end
 
 function module:OnShutdown()
-	wipe(gearTbl)
-	wipe(syncList)
+	gearTbl = {}
+	syncList = {}
 end
 
 do
@@ -112,13 +112,12 @@ function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 end
 
 do
-	local statsTable = {}
 	local enchantableItems = {
 		false, -- INVSLOT_HEAD -- 1
 		false, -- INVSLOT_NECK -- 2
 		false, -- INVSLOT_SHOULDER -- 3
 		false, -- INVSLOT_BODY -- 4
-		false, -- INVSLOT_CHEST -- 5
+		true, -- INVSLOT_CHEST -- 5
 		false, -- INVSLOT_WAIST -- 6
 		false, -- INVSLOT_LEGS -- 7
 		false, -- INVSLOT_FEET -- 8
@@ -128,13 +127,26 @@ do
 		true, -- INVSLOT_FINGER2 -- 12
 		false, -- INVSLOT_TRINKET1 -- 13
 		false, -- INVSLOT_TRINKET2 -- 14
-		false, -- INVSLOT_BACK -- 15
+		true, -- INVSLOT_BACK -- 15
 		true, -- INVSLOT_MAINHAND -- 16
 		false, -- INVSLOT_OFFHAND -- 17
+	}
+	local specialEnchant = {
+		10, -- LE_UNIT_STAT_STRENGTH = 1 -- (hand: 10)
+		8, -- LE_UNIT_STAT_AGILITY = 2 -- (feet: 8)
+		false, -- LE_UNIT_STAT_STAMINA = 3
+		9, -- LE_UNIT_STAT_INTELLECT = 4 -- (wrist: 9)
 	}
 
 	function module:ScanGear(unit)
 		local missingEnchants, emptySockets = 0, 0
+
+		local specialSlot
+		if UnitIsUnit(unit, "player") then
+			local spec = GetSpecialization() -- Finding primary stat, copied from PaperDollFrame
+			local _, _, _, _, _, primaryStat = GetSpecializationInfo(spec or 0)
+			specialSlot = specialEnchant[primaryStat]
+		end
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
@@ -145,14 +157,14 @@ do
 				local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d*):(%d*):(%d*):(%d*):(%d*):")
 
 				-- Handle missing enchants
-				if enchantableItems[i] and enchant == "" then
+				if (enchantableItems[i] or specialSlot == i) and enchant == "" then
 					missingEnchants = missingEnchants + 1
 				end
 
 				-- Handle missing gems
 				local totalItemSockets = 0
 
-				wipe(statsTable)
+				local statsTable = {}
 				GetItemStats(itemLink, statsTable)
 				for k, v in next, statsTable do
 					if k:find("EMPTY_SOCKET_", nil, true) then
