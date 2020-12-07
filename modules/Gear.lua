@@ -132,21 +132,14 @@ do
 		false, -- INVSLOT_OFFHAND -- 17
 	}
 	local specialEnchant = {
-		10, -- LE_UNIT_STAT_STRENGTH = 1 -- (hand: 10)
-		8, -- LE_UNIT_STAT_AGILITY = 2 -- (feet: 8)
-		false, -- LE_UNIT_STAT_STAMINA = 3
-		9, -- LE_UNIT_STAT_INTELLECT = 4 -- (wrist: 9)
+		-- [5] = "ITEM_MOD_STAMINA_SHORT", -- chest (temporary)
+		[8] = "ITEM_MOD_AGILITY_SHORT", -- feet
+		[9] = "ITEM_MOD_STAMINA_SHORT", -- -- wrist
+		[10] = "ITEM_MOD_STRENGTH_SHORT", -- hand
 	}
 
 	function module:ScanGear(unit)
 		local missingEnchants, emptySockets = 0, 0
-
-		local specialSlot
-		if UnitIsUnit(unit, "player") then
-			local spec = GetSpecialization() -- Finding primary stat, copied from PaperDollFrame
-			local _, _, _, _, _, primaryStat = GetSpecializationInfo(spec or 0)
-			specialSlot = specialEnchant[primaryStat]
-		end
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
@@ -155,11 +148,6 @@ do
 				-- item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs:bonusID1:bonusID2:...[:upgradeValue]:unknown1:unknown2:unknown3
 				-- |cffff8000|Hitem:102247::::::::100:105:4:::493|h[Jina-Kang, Kindness of Chi-Ji]|h|r
 				local enchant, gem1, gem2, gem3, gem4 = itemLink:match("item:%d+:(%d*):(%d*):(%d*):(%d*):(%d*):")
-
-				-- Handle missing enchants
-				if (enchantableItems[i] or specialSlot == i) and enchant == "" then
-					missingEnchants = missingEnchants + 1
-				end
 
 				-- Handle missing gems
 				local totalItemSockets = 0
@@ -176,6 +164,11 @@ do
 				local finalCount = totalItemSockets - filledSockets
 				if finalCount > 0 then
 					emptySockets = emptySockets + finalCount
+				end
+
+				-- Handle missing enchants
+				if (enchantableItems[i] or statsTable[specialEnchant[i]]) and enchant == "" then
+					missingEnchants = missingEnchants + 1
 				end
 			end
 		end
