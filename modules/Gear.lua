@@ -132,9 +132,8 @@ do
 		false, -- INVSLOT_OFFHAND -- 17
 	}
 	local specialEnchant = {
-		-- [5] = "ITEM_MOD_STAMINA_SHORT", -- chest (temporary)
 		[8] = "ITEM_MOD_AGILITY_SHORT", -- feet
-		[9] = "ITEM_MOD_INTELLECT_SHORT", -- -- wrist
+		[9] = "ITEM_MOD_INTELLECT_SHORT", -- wrist
 		[10] = "ITEM_MOD_STRENGTH_SHORT", -- hand
 	}
 
