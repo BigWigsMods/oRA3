@@ -132,13 +132,29 @@ do
 		false, -- INVSLOT_OFFHAND -- 17
 	}
 	local specialEnchant = {
-		[8] = "ITEM_MOD_AGILITY_SHORT", -- feet
-		[9] = "ITEM_MOD_INTELLECT_SHORT", -- wrist
-		[10] = "ITEM_MOD_STRENGTH_SHORT", -- hand
+		-- [8] = "ITEM_MOD_AGILITY_SHORT", -- feet
+		-- [9] = "ITEM_MOD_INTELLECT_SHORT", -- wrist
+		-- [10] = "ITEM_MOD_STRENGTH_SHORT", -- hand
+
+		[250] = 10, [251] = 10, [252] = 10, -- Death Knight
+		[577] = 8, [581] = 8, -- Demon Hunter
+		[102] = 9, [103] = 8, [104] = 8, [105] = 9, -- Druid
+		[253] = 8, [254] = 8, [255] = 8, -- Hunter
+		[62] = 9, [63] = 9, [64] = 9, -- Mage
+		[268] = 8, [269] = 8, [270] = 8, -- Monk
+		[65] = 9, [66] = 10, [70] = 10, -- Paladin
+		[256] = 9, [257] = 9, [258] = 9, -- Priest
+		[259] = 8, [260] = 8, [261] = 8, -- Rogue
+		[262] = 8, [263] = 8, [264] = 9, -- Shaman
+		[265] = 9, [266] = 9, [267] = 9, -- Warlock
+		[71] = 10, [72] = 10, [73] = 10, -- Warrior
 	}
 
 	function module:ScanGear(unit)
 		local missingEnchants, emptySockets = 0, 0
+
+		local info = oRA:GetPlayerInfo(UnitGUID(unit))
+		local specialSlot = info and specialEnchant[info.spec]
 
 		for i = 1, 17 do
 			local itemLink = GetInventoryItemLink(unit, i)
@@ -151,8 +167,7 @@ do
 				-- Handle missing gems
 				local totalItemSockets = 0
 
-				local statsTable = {}
-				GetItemStats(itemLink, statsTable)
+				local statsTable = GetItemStats(itemLink)
 				for k, v in next, statsTable do
 					if k:find("EMPTY_SOCKET_", nil, true) then
 						totalItemSockets = totalItemSockets + v
@@ -166,7 +181,7 @@ do
 				end
 
 				-- Handle missing enchants
-				if (enchantableItems[i] or statsTable[specialEnchant[i]]) and enchant == "" then
+				if (enchantableItems[i] or specialSlot == i) and enchant == "" then
 					missingEnchants = missingEnchants + 1
 				end
 			end
