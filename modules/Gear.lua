@@ -167,7 +167,8 @@ do
 				-- Handle missing gems
 				local totalItemSockets = 0
 
-				local statsTable = GetItemStats(itemLink)
+				local statsTable = {}
+				GetItemStats(itemLink, statsTable)
 				for k, v in next, statsTable do
 					if k:find("EMPTY_SOCKET_", nil, true) then
 						totalItemSockets = totalItemSockets + v
