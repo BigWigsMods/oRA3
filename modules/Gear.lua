@@ -43,7 +43,7 @@ function module:OnGroupChanged(_, _, members)
 end
 
 function module:OnShutdown()
-	gearTbl = {}
+	wipe(gearTbl)
 	syncList = {}
 end
 
