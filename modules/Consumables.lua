@@ -102,6 +102,7 @@ do
 		298839, -- Greater Flask of the Vast Horizon
 		298841, -- Greater Flask of the Undertow
 		-- Shadowlands
+		307166, -- Eternal Flask (Cauldron)
 		307185, -- Spectral Flask of Power
 		307187, -- Spectral Stamina Flask
 	}
@@ -327,6 +328,7 @@ do
 		[327706] = true, -- str
 
 		-- Flasks
+		[307166] = true, -- Eternal Flask (Cauldron)
 		[307185] = true, -- Spectral Flask of Power
 		[307187] = true, -- Spectral Stamina Flask
 
@@ -406,6 +408,7 @@ do
 	local flasks = {
 		[251836] = 25, [251837] = 25, [251838] = 25, [251839] = 25, -- Flask (BfA)
 		[298836] = 38, [298837] = 38, [298839] = 38, [298841] = 38, -- Greater Flask (BfA)
+		[307166] = 70, -- Eternal Flask (Cauldron)
 		[307185] = 70, -- Spectral Flask of Power
 		[307187] = 105, -- Spectral Stamina Flask
 	}
