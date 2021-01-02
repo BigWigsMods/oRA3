@@ -31,6 +31,11 @@ function module:OnRegister()
 	end
 end
 
+function module:OnStartup()
+	self:SendComm("QueryGear")
+	oRA:InspectGroup()
+end
+
 function module:OnGroupChanged(_, _, members)
 	for index = #gearTbl, 1, -1 do
 		local player = gearTbl[index][1]
