@@ -195,6 +195,7 @@ combatLogMap.SPELL_MISSED = {
 	[6552] = "InterruptMiss",  -- Pummel (Warrior)
 	[96231] = "InterruptMiss", -- Rebuke (Paladin)
 	[183752] = "InterruptMiss",-- Consume Magic (Demon Hunter)
+	[116705] = "InterruptMiss",-- Spear Hand Strike (Monk)
 	-- Pet Interrupts
 	[19647] = "InterruptMiss",  -- Felhunter Spell Lock (Normal, originates from pet)
 	[119910] = "InterruptMiss", -- Felhunter Spell Lock (via Command Demon, originates from player)
