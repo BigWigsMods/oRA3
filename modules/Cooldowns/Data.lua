@@ -753,6 +753,7 @@ data.spells = {
 		[51533] = {120, 34, 263}, -- Feral Spirit
 		[198103] = {300, 37, 262}, -- Earth Elemental
 		[108280] = {180, 38, 264}, -- Healing Tide Totem
+		[16191] = {180, 38, 264}, -- Mana Tide Totem
 		[51514] = {30, 41}, -- Hex (Frog)
 		[211004] = 51514, -- Spider
 		[211015] = 51514, -- Cockroach
