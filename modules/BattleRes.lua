@@ -266,7 +266,7 @@ do
 		if charges then
 			if not inCombat then
 				inCombat = true
-				wipe(theDead)
+				theDead = {}
 				timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
 				brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 				brez.scroll:Clear()
