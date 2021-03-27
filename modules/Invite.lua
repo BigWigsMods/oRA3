@@ -120,7 +120,7 @@ end
 local function inviteGuild()
 	if not canInvite() then return end
 	C_GuildInfo.GuildRoster()
-	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
+	local maxLevel = GetMaxLevelForLatestExpansion()
 	SendChatMessage(L.invitePrintMaxLevel, "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
 end

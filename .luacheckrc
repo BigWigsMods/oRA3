@@ -170,6 +170,7 @@ globals = {
 	"GetLFGMode",
 	"GetLocale",
 	"GetMaxBattlefieldID",
+	"GetMaxLevelForLatestExpansion",
 	"GetNumAddOns",
 	"GetNumDisplayChannels",
 	"GetNumFactions",
