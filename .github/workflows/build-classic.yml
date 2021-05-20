@@ -1,0 +1,38 @@
+name: Package Classic
+
+on:
+  push:
+    branches:
+      - classic
+    tags:
+      - '**-classic'
+
+env:
+  CF_API_KEY: ${{ secrets.CF_API_KEY }}
+  WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 100
+
+      - name: Run luacheck
+        uses: BigWigsMods/actions/luacheck@master
+        with:
+          args: -q
+
+      - name: Package Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g classic
+
+      - name: Package BC Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc
