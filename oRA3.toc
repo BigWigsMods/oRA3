@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
