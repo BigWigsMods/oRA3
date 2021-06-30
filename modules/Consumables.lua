@@ -50,6 +50,17 @@ do
 		[311452] = 2425, -- Stone Legion Generals
 		[334131] = 2424, -- Sire Denathrius
 		[334132] = 2429, -- Huntsman Altimor
+		-- Sanctum of Domination
+		[354384] = 2435, -- The Tarragrue
+		[354385] = 2442, -- The Eye of the Jailer
+		[354386] = 2439, -- The Nine
+		[354387] = 2444, -- Remnant of Ner'zhul
+		[354388] = 2445, -- Soulrender Dormazain
+		[354389] = 2443, -- Painsmith Raznal
+		[354390] = 2446, -- Guardian of the First Ones
+		[354391] = 2447, -- Fatescribe Roh-Kalo
+		[354392] = 2440, -- Kel'Thuzad
+		[354393] = 2441, -- Sylvanas Windrunner
 	}
 
 	local buffs = {}
