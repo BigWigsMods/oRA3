@@ -61,6 +61,18 @@ do
 		[354391] = 2447, -- Fatescribe Roh-Kalo
 		[354392] = 2440, -- Kel'Thuzad
 		[354393] = 2441, -- Sylvanas Windrunner
+		-- Sepulcher of the First Ones
+		[359893] = 2458, -- Vigilant Guardian (Progenitor Defense System)
+		[367121] = 2465, -- Skolex, the Insatiable Ravener
+		[367124] = 2470, -- Artificer Xy'mox
+		[367126] = 2459, -- Dausegne, the Fallen Oracle
+		[367128] = 2460, -- Prototype Pantheon
+		[367130] = 2461, -- Lihuvim, Principal Architect
+		[367132] = 2463, -- Halondrus the Reclaimer
+		[367134] = 2469, -- Anduin Wrynn
+		[367136] = 2457, -- Lords of Dread
+		[367140] = 2467, -- Rygelon
+		[367143] = 2464, -- The Jailer, Zovaal
 	}
 
 	local buffs = {}
