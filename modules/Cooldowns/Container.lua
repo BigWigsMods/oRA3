@@ -93,7 +93,11 @@ do
 		if not frame then
 			frame = CreateFrame("Frame", frameName, UIParent)
 			frame:SetFrameStrata("BACKGROUND")
-			frame:SetMinResize(100, 20)
+			if frame.SetResizeBounds then -- XXX Dragonflight compat
+				frame:SetResizeBounds(100, 20)
+			else
+				frame:SetMinResize(100, 20)
+			end
 			frame:SetWidth(200)
 			frame:SetHeight(148)
 

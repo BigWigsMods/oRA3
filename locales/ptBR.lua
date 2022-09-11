@@ -256,3 +256,5 @@ L["whisperMissing"] = "Sussurro ausente"
 L["whisperMissingDesc"] = "Sussurrar jogadores que estão sem buffs."
 L["world"] = "Global"
 L["zone"] = "Zona"
+
+L.sound = "Som"

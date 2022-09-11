@@ -44,6 +44,7 @@ oRA3 sports a range of slash commands to aid you in fast-paced raiding. In case 
 ]]
 
 -- Ready Check module
+L.sound = "Sound"
 L.playersNotReady = "The following players are Not Ready: %s"
 L.readyCheckSeconds = "Ready Check (%d seconds)"
 L.ready = "Ready"

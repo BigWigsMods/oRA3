@@ -262,3 +262,5 @@ L["whisperMissing"] = "密語缺少者"
 L["whisperMissingDesc"] = "密語缺少增益的玩家。"
 L["world"] = "世界"
 L["zone"] = "區域"
+
+L.sound = "音效"

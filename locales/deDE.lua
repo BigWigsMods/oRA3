@@ -264,3 +264,5 @@ L["whisperMissing"] = "Fehlende anflüstern"
 L["whisperMissingDesc"] = "Flüstert Spieler, denen Stärkungszaubern fehlen, an."
 L["world"] = "Welt"
 L["zone"] = "Zone"
+
+L.sound = "Sound"

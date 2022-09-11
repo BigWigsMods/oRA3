@@ -261,3 +261,5 @@ L["whatIsThis"] = "到底怎麽回事?"
 -- L["whisperMissingDesc"] = "Whisper players that are missing buffs."
 -- L["world"] = "World"
 L["zone"] = "地区"
+
+L.sound = "声音"

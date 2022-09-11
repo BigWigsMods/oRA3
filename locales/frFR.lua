@@ -281,3 +281,5 @@ L["checkRuneDesc"] = "Inclure les runes d'amélioration lors de la vérification
 L["vantus"] = "Vantus"
 L["notBestBuff"] = "Pas le consommable avec les plus hautes stats de disponible"
 L["outOfRange"] = "Joueur hors de portée"
+
+L.sound = "Son"

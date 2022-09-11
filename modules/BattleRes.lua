@@ -44,7 +44,7 @@ local function createFrame()
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA:SavePosition("oRA3BattleResMonitor") end)
 	brez:SetScript("OnEvent", updateFunc)
 
-	local bg = brez:CreateTexture(nil, "PARENT")
+	local bg = brez:CreateTexture()
 	bg:SetAllPoints(brez)
 	bg:SetBlendMode("BLEND")
 	bg:SetColorTexture(0, 0, 0, 0.3)
