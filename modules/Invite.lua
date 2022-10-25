@@ -439,7 +439,7 @@ function module:CreateFrame()
 		if oRA.db.profile.showHelpTexts then
 			frame:AddChildren(difficulty, kwDescription, keyword, raidonly)
 		else
-			frame:AddChild(difficulty, keyword, raidonly)
+			frame:AddChildren(difficulty, keyword, raidonly)
 		end
 	end
 
