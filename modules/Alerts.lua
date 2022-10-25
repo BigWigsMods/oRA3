@@ -62,7 +62,9 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[57994] = "InterruptCast", -- Wind Shear (Shaman)
 	[6552] = "InterruptCast",  -- Pummel (Warrior)
 	[96231] = "InterruptCast", -- Rebuke (Paladin)
+	[116705] = "InterruptCast",-- Spear Hand Strike (Monk)
 	[183752] = "InterruptCast",-- Consume Magic (Demon Hunter)
+	[351338] = "InterruptCast",-- Quell (Evoker)
 	-- Reincarnation
 	[21169] = "Reincarnation", -- Reincarnation
 	[199115] = "Reincarnation", -- Failure Detection Pylon
@@ -73,16 +75,17 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[212051] = "MassResurrection", -- Reawaken (Monk)
 	[212040] = "MassResurrection", -- Revitalize (Druid)
 	-- Bloodlust
-	[2825] = "Bloodlust", -- Bloodlust
-	[32182] = "Bloodlust", -- Heroism
-	[80353] = "Bloodlust", -- Time Warp
-	[264667] = "Bloodlust", -- Primal Rage
-	[309658] = "Bloodlust", -- Drums of Deathly Ferocity (Shadowlands)
-	-- These don't work past lv50
+	[2825] = "Bloodlust", -- Bloodlust (Shaman)
+	[32182] = "Bloodlust", -- Heroism (Shaman)
+	[80353] = "Bloodlust", -- Time Warp (Mage)
+	[264667] = "Bloodlust", -- Primal Rage (Hunter)
+	[390386] = "Bloodlust", -- Fury of the Aspects (Evoker)
+	-- These don't work past lv60
 	[178207] = "Bloodlust", -- Drums of Fury (WoD)
 	[230935] = "Bloodlust", -- Drums of the Mountain (Legion)
 	[256740] = "Bloodlust", -- Drums of the Maelstrom (BfA)
 	[292686] = "Bloodlust", -- Mallet of Thunderous Skins (BfA)
+	[309658] = "Bloodlust", -- Drums of Deathly Ferocity (Shadowlands)
 }
 combatLogMap.SPELL_AURA_APPLIED = {
 	-- Taunts
@@ -135,6 +138,10 @@ combatLogMap.SPELL_CREATE = {
 	[297048] = "Feast", -- Famine Evaluator And Snack Table (+16)
 	[308458] = "Feast", -- Surprisingly Palatable Feast (+18)
 	[308462] = "Feast", -- Feast of Gluttonous Hedonism (+20)
+	[359336] = "Feast", -- Kettle of Stone Soup (+20, contribution feast)
+	[382427] = "Feast", -- Grand Banquet of the Kalu'ak (+90)
+	[383063] = "Feast", -- Growing Hoard of Draconic Delicacies (+90, contribution feast)
+	[382423] = "Feast", -- Yusa's Hearty Stew (+83 lowest secondary? lol)
 	-- Instant Rituals
 	[29893] = "Feast", -- Create Soulwell (Warlock)
 	[190336] = "Feast", -- Conjure Refreshment (Mage)
@@ -154,6 +161,7 @@ combatLogMap.SPELL_RESURRECT = {
 	[20484] = "CombatResurrect",  -- Rebirth (Druid)
 	[61999] = "CombatResurrect",  -- Raise Ally (Death Knight)
 	[95750] = "CombatResurrect",  -- Soulstone Resurrection (Warlock)
+	[391054] = "CombatResurrect", -- Intercession (Paladin)
 	[265116] = "CombatResurrect", -- Unstable Temporal Time Shifter (Engineer)
 	[345130] = "CombatResurrect", -- Disposable Spectrophasic Reanimator (Engineer)
 }
@@ -194,8 +202,9 @@ combatLogMap.SPELL_MISSED = {
 	[57994] = "InterruptMiss", -- Wind Shear (Shaman)
 	[6552] = "InterruptMiss",  -- Pummel (Warrior)
 	[96231] = "InterruptMiss", -- Rebuke (Paladin)
-	[183752] = "InterruptMiss",-- Consume Magic (Demon Hunter)
 	[116705] = "InterruptMiss",-- Spear Hand Strike (Monk)
+	[183752] = "InterruptMiss",-- Consume Magic (Demon Hunter)
+	[351338] = "InterruptMiss",-- Quell (Evoker)
 	-- Pet Interrupts
 	[19647] = "InterruptMiss",  -- Felhunter Spell Lock (Normal, originates from pet)
 	[119910] = "InterruptMiss", -- Felhunter Spell Lock (via Command Demon, originates from player)
@@ -245,6 +254,8 @@ combatLogMap.SPELL_AURA_BROKEN_SPELL = {
 	[115078] = "CrowdControl", -- Paralysis (Monk)
 	[217832] = "CrowdControl", -- Imprision (Demon Hunter)
 	[207685] = "CrowdControl", -- Sigil of Misery (Demon Hunter)
+	[355689] = "CrowdControl", -- Landslide (Evoker)
+	[360806] = "CrowdControl", -- Sleep Walk (Evoker)
 }
 combatLogMap.SPELL_AURA_BROKEN = combatLogMap.SPELL_AURA_BROKEN_SPELL -- for SWING_DAMAGE breaks
 
@@ -573,7 +584,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 	-- Codex handling
 	local prev = nil
 	function module:UNIT_SPELLCAST_SUCCEEDED(unit, spellCastGUID, spellId)
-		if (spellId == 226241 or spellId == 256230) and spellCastGUID ~= prev then -- Codex of the Tranquil/Quiet Mind
+		if (spellId == 226241 or spellId == 256230  or spellId == 324029) and spellCastGUID ~= prev then -- Codex of the Tranquil/Quiet/Still Mind
 			prev = spellCastGUID
 			local srcName, srcGUID, srcRaidFlags = self:UnitName(unit), UnitGUID(unit), 0
 			local icon = GetRaidTargetIndex(unit)
