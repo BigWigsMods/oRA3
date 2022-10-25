@@ -704,7 +704,7 @@ data.spells = {
 		[200183] = {120, 50, 257, 20}, -- Apotheosis
 		[246287] = {90, 50, 256, 21}, -- Evangelism
 		[265202] = {720, 50, 257, 21}, -- Holy Word: Salvation
-		[193223] = {90, 50, 258, 21}, -- Surrender to Madness
+		-- [193223] = {90, 50, 258, 21}, -- Surrender to Madness
 	},
 	ROGUE = {
 		-- Restless Blades (Outlaw, 41): Finishing moves reduce the remaining cooldown
