@@ -84,7 +84,7 @@ end
 
 -- Locals
 
-local oRA3Frame = CreateFrame("Frame", "oRA3Frame", UIParent)
+local oRA3Frame = CreateFrame("Frame", "oRA3Frame", UIParent) -- "PortraitFrameFlatTemplate"
 oRA3Frame:Hide()
 
 local playerName = addon:UnitName("player")
@@ -669,8 +669,12 @@ local function setupGUI()
 	botright:SetHeight(256)
 	botright:SetPoint("BOTTOMRIGHT")
 
-	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", -30, -8)
+	local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton") -- "UIPanelCloseButtonDefaultAnchors"
+	if frame.SetResizeBounds then -- XXX Dragonflight compat
+		close:SetPoint("TOPRIGHT", -35, -12)
+	else
+		close:SetPoint("TOPRIGHT", -30, -8)
+	end
 
 	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	title:SetWidth(256)
@@ -743,7 +747,7 @@ local function setupGUI()
 	opt:SetHighlightTexture(311225) --"Interface\\Worldmap\\Gear_64"
 	opt:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
 	opt:SetSize(16, 16)
-	opt:SetPoint("RIGHT", title, "RIGHT")
+	opt:SetPoint("RIGHT", close, "LEFT", -1, 0)
 	opt:SetScript("OnClick", function()
 		LibStub("AceConfigDialog-3.0"):SelectGroup("oRA", "general")
 		LibStub("AceConfigDialog-3.0"):Open("oRA")
@@ -754,7 +758,7 @@ local function setupGUI()
 		addon:SelectPanel(self:GetText())
 	end
 	for i, tab in ipairs(panels) do
-		local f = CreateFrame("Button", "oRA3FrameTab"..i, frame, "CharacterFrameTabButtonTemplate")
+		local f = CreateFrame("Button", "oRA3FrameTab"..i, frame, frame.SetResizeBounds and "CharacterFrameTabTemplate" or "CharacterFrameTabButtonTemplate") -- XXX Dragonflight compat
 		if i > 1 then
 			f:SetPoint("TOPLEFT", _G["oRA3FrameTab"..(i - 1)], "TOPRIGHT", -16, 0)
 		else
