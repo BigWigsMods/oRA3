@@ -114,7 +114,7 @@ local secureScrollhighs = {} -- clickable secure scroll highlights
 local function actuallyDisband()
 	if groupStatus > 0 and groupStatus < 3 and (addon:IsPromoted() or 0) > 1 then
 		SendChatMessage("<oRA3> ".. L.disbandingGroupChatMsg, IsInRaid() and "RAID" or "PARTY")
-		C_Timer.After(3, C_PartyInfo.LeaveParty)
+		C_Timer.After(3, function() C_PartyInfo.LeaveParty() end)
 		for _, unit in next, groupMembers do
 			if not UnitIsUnit(unit, "player") then
 				UninviteUnit(unit)
