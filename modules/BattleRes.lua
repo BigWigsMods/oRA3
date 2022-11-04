@@ -16,6 +16,7 @@ local resSpells = {
 	[20484] = true, -- Rebirth
 	[61999] = true, -- Raise Ally
 	[95750] = true, -- Soulstone Resurrection
+	[391054] = true, -- Intercession
 	[345130] = true, -- Disposable Spectrophasic Reanimator
 }
 local theDead = {}
