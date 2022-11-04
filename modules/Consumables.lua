@@ -102,6 +102,8 @@ do
 	local runes = {
 		270058, -- Battle-Scarred Augmentation
 		347901, -- Veiled Augmentation
+		367405, -- Eternal Augmentation
+		393438, -- Draconic Augmentation
 	}
 
 	function getRune(player)
@@ -366,6 +368,9 @@ do
 		[1459] = true,  -- Arcane Intellect
 		[21562] = true, -- Power Word: Fortitude
 		[6637] = true,  -- Battle Shout
+
+		-- Rune
+		[367405] = true, -- Eternal Augmentation
 	}
 
 	function module:IsBest(id)
