@@ -124,6 +124,7 @@ local function actuallyDisband()
 end
 
 local lists = {}
+local listSortOrder = {}
 local panels = {}
 
 local db
@@ -1173,21 +1174,52 @@ function addon:CreateScrollEntry(header)
 	return f
 end
 
-local sortIndex -- current index (scrollheader) being sorted
-local function sortAsc(a, b) return (b[sortIndex] or 0) > (a[sortIndex] or 0) end
-local function sortDesc(a, b) return (a[sortIndex] or 0) > (b[sortIndex] or 0) end
-local function toggleColumn(header)
-	local list = lists[openedList]
-	local nr = header.headerIndex
-	scrollheaders[nr].sortDir = not scrollheaders[nr].sortDir
-	sortIndex = nr
-	if scrollheaders[nr].sortDir then
-		table.sort(list.contents, sortAsc)
-	else
-		table.sort(list.contents, sortDesc)
+function addon:SetListSort(listName, ...)
+	for i, list in next, lists do
+		if list.name == listName then
+			listSortOrder[i] = {...}
+			return
+		end
 	end
-	PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
-	addon:UpdateScroll()
+end
+
+local toggleColumn do
+	local sortIndex -- current index (scrollheader) being sorted
+	local sortMap = nil
+	local function sortAsc(a, b)
+		local aa, bb = sortMap[a[sortIndex]] or a[sortIndex], sortMap[b[sortIndex]] or b[sortIndex]
+		if not aa or not bb then
+			aa, bb = tostring(aa or ""), tostring(bb or "")
+		end
+		if aa == bb and sortIndex > 1 then
+			return a[1] < b[1]
+		end
+		return aa < bb
+	end
+	local function sortDesc(a, b)
+		local aa, bb = sortMap[a[sortIndex]] or a[sortIndex], sortMap[b[sortIndex]] or b[sortIndex]
+		if not aa or not bb then
+			aa, bb = tostring(aa or ""), tostring(bb or "")
+		end
+		if aa == bb and sortIndex > 1 then
+			return a[1] < b[1]
+		end
+		return aa > bb
+	end
+	function toggleColumn(header)
+		local list = lists[openedList]
+		local nr = header.headerIndex
+		scrollheaders[nr].sortDir = not scrollheaders[nr].sortDir
+		sortIndex = nr
+		sortMap = listSortOrder[openedList] and listSortOrder[openedList][sortIndex-1] or {}
+		if scrollheaders[nr].sortDir then
+			table.sort(list.contents, sortAsc)
+		else
+			table.sort(list.contents, sortDesc)
+		end
+		PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+		addon:UpdateScroll()
+	end
 end
 
 local function createHighlights( secure )

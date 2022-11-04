@@ -281,6 +281,13 @@ function module:OnRegister()
 		L.vantus,
 		L.raidBuffs
 	)
+	oRA:SetListSort(L.buffs,
+		{[YES] = 1, [NO] = 0},
+		{[YES] = 1, [NO] = 0},
+		{[YES] = 1, [NO] = 0},
+		{[NO] = ""},
+		{["1/3"] = 1, ["2/3"] = 2, ["3/3"] = 3, ["0/3"] = 0}
+	)
 
 	oRA.RegisterCallback(self, "OnStartup")
 	oRA.RegisterCallback(self, "OnListSelected")
@@ -613,6 +620,15 @@ do
 					rune and YES or NO,
 					getVantusBoss(vantus) or NO,
 					("%d/%d"):format(numBuffs, #buffs),
+				}
+			else
+				consumablesList[#consumablesList + 1] = {
+					player:gsub("%-.*", ""),
+					nil,
+					nil,
+					nil,
+					nil,
+					nil,
 				}
 			end
 		end
