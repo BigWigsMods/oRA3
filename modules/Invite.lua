@@ -233,18 +233,12 @@ local function checkKeywords(msg, ...)
 	end
 end
 
-local function shouldInvite(msg, sender)
-	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then return false end
-
-	msg = msg:trim():lower()
-	if msg == "" then return false end
-
-	return (db.keyword and checkKeywords(msg, strsplit(";", db.keyword))) or (db.guildkeyword and oRA:IsGuildMember(sender) and checkKeywords(msg, strsplit(";", db.guildkeyword)))
-end
-
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount)
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
+	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then return end
+	msg = msg:trim():lower()
+	if msg == "" then return end
 
 	local gameAccountID
 	if bnetIDAccount > 0 then
@@ -252,7 +246,10 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAc
 		if not gameAccountID then return end
 	end
 	sender = Ambiguate(sender, "none")
-	if shouldInvite(msg, sender) then
+
+	if (db.keyword and checkKeywords(msg, strsplit(";", db.keyword))) or
+	   (db.guildkeyword and oRA:IsGuildMember(sender) and checkKeywords(msg, strsplit(";", db.guildkeyword)))
+	then
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if bnetIDAccount > 0 then
