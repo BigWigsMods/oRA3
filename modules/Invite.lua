@@ -211,14 +211,15 @@ local function getBattleNetCharacter(bnetIDAccount)
 	local accountInfo = C_BattleNet.GetFriendAccountInfo(friendIndex)
 	for i = 1, C_BattleNet.GetFriendNumGameAccounts(friendIndex) do
 		local info = C_BattleNet.GetFriendGameAccountInfo(friendIndex, i)
-		local charName, realmName = info.characterName, info.realmName
-		if info.clientProgram == BNET_CLIENT_WOW and info.wowProjectID == WOW_PROJECT_MAINLINE and info.factionName == playerFaction and info.realmID > 0 then
-			if realmName and realmName ~= "" and realmName ~= playerRealm then
-				-- To my knowledge there is no API for trimming server names. I can only guess this is what Blizzard uses internally.
-				realmName = realmName:gsub("[%s%-]", "")
+		if info.clientProgram == BNET_CLIENT_WOW and info.wowProjectID == WOW_PROJECT_ID and info.playerGuid and
+		   info.realmID > 0 and (info.factionName == playerFaction or C_PartyInfo.CanFormCrossFactionParties())
+		then
+			local charName, realmName = info.characterName, info.realmName or ""
+			if realmName ~= "" then
+				realmName = realmName:gsub("[%s%-]", "") -- strip spaces and hyphens
 				charName = FULL_PLAYER_NAME:format(charName, realmName)
 			end
-			return charName, accountInfo.bnetAccountID
+			return charName, info.gameAccountID
 		end
 	end
 end
@@ -244,10 +245,11 @@ end
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount)
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
+
+	local gameAccountID
 	if bnetIDAccount > 0 then
-		local id
-		sender, id = getBattleNetCharacter(bnetIDAccount)
-		if not id then return end
+		sender, gameAccountID = getBattleNetCharacter(bnetIDAccount)
+		if not gameAccountID then return end
 	end
 	sender = Ambiguate(sender, "none")
 	if shouldInvite(msg, sender) then
@@ -259,7 +261,7 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAc
 				SendChatMessage("<oRA> ".. L.inviteGroupIsFull, "WHISPER", nil, sender)
 			end
 		else
-			peopleToInvite[#peopleToInvite + 1] = sender
+			peopleToInvite[#peopleToInvite + 1] = gameAccountID or sender
 			doActualInvites()
 		end
 	end
