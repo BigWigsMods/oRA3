@@ -4,6 +4,8 @@ local _, scope = ...
 scope.cooldownData = {}
 local data = scope.cooldownData
 
+-- Spell Data
+
 data.cdModifiers = {}
 local cdModifiers = data.cdModifiers
 data.chargeModifiers = {}
@@ -911,3 +913,674 @@ data.spells = {
 		[312924] = {180, 1, nil, nil, nil, "Mechgnome"}, -- Hyper Organic Light Originator (Mechgnome)
 	}
 }
+
+
+-- Combat Log Event Modifiers
+
+data.userdata = {}
+local scratch = data.userdata
+
+data.specialEvents = {}
+local specialEvents = setmetatable(data.specialEvents, {__index=function(t, k)
+	t[k] = {}
+	return t[k]
+end})
+
+local infoCache = {}
+local resetCooldown = nil
+
+data.SetupCLEU = function(playerTable, resetFunc)
+	infoCache = playerTable
+	resetCooldown = resetFunc
+end
+
+-- Death Knight
+
+local function armyOfTheDamned(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[19] == 22030 then -- Army of the Damned
+		resetCooldown(info, 42650, 5) -- Army of the Dead
+		resetCooldown(info, 275699, 1) -- Apocalypse
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[207317] = armyOfTheDamned -- Epidemic
+
+-- Death Coil
+specialEvents.SPELL_CAST_SUCCESS[47541] = function(srcGUID)
+	armyOfTheDamned(srcGUID)
+
+	local info = infoCache[srcGUID]
+	if info and info.talents[20] == 21208 then -- Red Thirst
+		resetCooldown(info, 55233, 6) -- Vampiric Blood
+	end
+end
+
+-- Death Strike
+specialEvents.SPELL_CAST_SUCCESS[49998] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[20] == 21208 then -- Red Thirst
+		local amount = 6.75
+		if info.level >= 58 then -- Ossuary
+			-- While you have at least 5 Bone Shield charges, the cost of Death Strike is reduced by 5 Runic Power.
+			local _, _, stacks = AuraUtil.FindAura(function(spellIdToFind, ...)
+				local spellId = select(12, ...)
+				return spellIdToFind == spellId
+			end, info.unit, "HELPFUL", 195181)
+			if stacks and stacks > 4 then
+				amount = 6
+			end
+		end
+		resetCooldown(info, 55233, amount) -- Vampiric Blood
+	end
+end
+
+-- Sacrificial Pact
+specialEvents.SPELL_CAST_SUCCESS[327574] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[20] == 21208 then -- Red Thirst
+		resetCooldown(info, 55233, 3) -- Vampiric Blood
+	end
+end
+
+-- Raise Ally
+specialEvents.SPELL_CAST_SUCCESS[61999] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[20] == 21208 then -- Red Thirst
+		resetCooldown(info, 55233, 4.5)-- Vampiric Blood
+	end
+end
+
+specialEvents.SPELL_AURA_APPLIED_DOSE[195181] = function(srcGUID, _, _, _, amount) -- Bone Shield
+	local info = infoCache[srcGUID]
+	if info and info.talents[9] then -- Blood Tap
+		scratch[srcGUID] = amount
+	end
+end
+specialEvents.SPELL_AURA_REMOVED_DOSE[195181] = function(srcGUID, _, _, _, amount) -- Bone Shield
+	local info = infoCache[srcGUID]
+	if info and info.talents[9] then -- Blood Tap
+		scratch[srcGUID] = amount
+		resetCooldown(info, 221699, 2) -- Blood Tap
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[195181] = function(srcGUID) -- Bone Shield
+	local info = infoCache[srcGUID]
+	if info and info.talents[9] then -- Blood Tap
+		if scratch[srcGUID] == 1 then
+			-- Wish _DOSE filed for 1->0
+			-- Hopefully it didn't just drop off at 1
+			resetCooldown(info, 221699, 2) -- Blood Tap
+		end
+	end
+end
+
+local function icecap(srcGUID, _, spellId, ...)
+	local info = infoCache[srcGUID]
+	if info and scratch[srcGUID] then -- Icecap
+		-- only count it once x.x
+		local id = 3
+		if spellId == 222024 or spellId == 66198 then
+			id = 1
+		elseif spellId == 222026 or spellId == 66196 then
+			id = 2
+		end
+		if scratch[srcGUID][id] then
+			local crit = select(7, ...)
+			if crit then
+				resetCooldown(info, 51271, 4) -- Pillar of Frost
+			end
+			scratch[srcGUID][id] = nil
+		end
+	end
+end
+specialEvents.SPELL_DAMAGE[207230] = icecap -- Frostscythe
+specialEvents.SPELL_DAMAGE[222024] = icecap -- Obliterate
+specialEvents.SPELL_DAMAGE[66198] = icecap -- Obliterate Off-Hand
+specialEvents.SPELL_DAMAGE[222026] = icecap -- Frost Strike
+specialEvents.SPELL_DAMAGE[66196] = icecap -- Frost Strike Off-Hand
+
+local function icecapCast(srcGUID, _, spellId)
+	local info = infoCache[srcGUID]
+	if info and info.talents[19] then -- Icecap
+		if not scratch[srcGUID] then scratch[srcGUID] = {} end
+		local id = 3
+		if spellId == 222024 or spellId == 66198 then
+			id = 1
+		elseif spellId == 222026 or spellId == 66196 then
+			id = 2
+		end
+		scratch[srcGUID][id] = true
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[49020] = icecapCast -- Obliterate
+specialEvents.SPELL_CAST_SUCCESS[49143] = icecapCast -- Frost Strike
+specialEvents.SPELL_CAST_SUCCESS[207230] = icecapCast -- Frostscythe
+
+-- Demon Hunter
+
+-- Vengeful Retreat
+specialEvents.SPELL_DAMAGE[198813] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[20] then -- Momentum
+		local t = GetTime()
+		if t-(scratch[srcGUID] or 0) > 2 then
+			scratch[srcGUID] = t
+			resetCooldown(info, 198793, 5) -- Vengeful Retreat
+		end
+	end
+end
+
+-- Druid
+-- TODO Handle Incarnation/Berserk
+
+-- Hunter
+
+-- Barbed Shot
+specialEvents.SPELL_CAST_SUCCESS[185358] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.level > 33 then -- Bestial Wrath (Rank 2)
+		-- Bestial Wrath's remaining cooldown is reduced
+		-- by 12 sec each time you use Barbed Shot
+		resetCooldown(info, 19574, 12) -- Bestial Wrath
+	end
+end
+
+local function callingTheShots(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[19] then -- Calling the Shots
+		resetCooldown(info, 288613, 2.5) -- Trueshot
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[185358] = callingTheShots -- Arcane Shot
+specialEvents.SPELL_CAST_SUCCESS[257620] = callingTheShots -- Multi-Shot (Marksmanship)
+
+local function beastialWrath2(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.level > 31 then -- Carve (Rank 2)
+		-- Carve reduces the remaining cooldown on
+		-- Wildfire Bomb by 1 sec for each target hit, up to 5.
+		if not scratch[srcGUID] then scratch[srcGUID] = {} end
+		local t = GetTime()
+		if t-(scratch[srcGUID][0] or 0) > 1 then
+			wipe(scratch[srcGUID])
+		end
+		scratch[srcGUID][0] = t
+		scratch[srcGUID][1] = (scratch[srcGUID][1] or 0) + 1
+
+		if scratch[srcGUID][1] < 6 then
+			resetCooldown(info, 259495, 1) -- Wildfire Bomb
+		end
+	end
+end
+specialEvents.SPELL_DAMAGE[187708] = beastialWrath2 -- Carve
+specialEvents.SPELL_DAMAGE[212436] = beastialWrath2 -- Butchery
+
+-- Mage
+
+-- Alter Time
+specialEvents.SPELL_AURA_REMOVED[342246] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[4] == 23072 then -- Master of Time
+		resetCooldown(info, 1953)
+	end
+end
+
+-- Cold Snap
+specialEvents.SPELL_CAST_SUCCESS[235219] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		resetCooldown(info, 120) -- Cone of Cold
+		resetCooldown(info, 122) -- Frost Nova
+		resetCooldown(info, 11426) -- Ice Barrier
+	end
+end
+
+-- Blizzard
+specialEvents.SPELL_DAMAGE[190356] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		if info.level > 46 then -- Blizzard (Rank 2)
+			-- Each time Blizzard deals damage, the cooldown
+			-- of Frozen Orb is reduced by 0.5 sec
+			resetCooldown(info, 84714, 0.5) -- Frozen Orb
+		end
+	end
+end
+
+local function kindling(srcGUID, ...)
+	local critical = select(9, ...)
+	if not critical then return end
+
+	local info = infoCache[srcGUID]
+	if info and info.talents[19] then -- Kindling
+		resetCooldown(info, 190319, 1) -- Combustion
+	end
+end
+specialEvents.SPELL_DAMAGE[133] = kindling -- Fireball
+specialEvents.SPELL_DAMAGE[11366] = kindling -- Pyroblast
+specialEvents.SPELL_DAMAGE[108853] = kindling -- Fire Blast
+specialEvents.SPELL_DAMAGE[257541] = kindling -- Phoenix Flames
+
+-- Monk
+
+-- Keg Smash
+specialEvents.SPELL_CAST_SUCCESS[121253] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		local amount = info.talents[21] and 5 or 3
+		resetCooldown(info, 322507, amount) -- Celestial Brew
+		resetCooldown(info, 115203, amount) -- Fortifying Brew
+		resetCooldown(info, 115399, amount) -- Black Ox Brew
+	end
+end
+
+-- Tiger Palm (Brewmaster)
+specialEvents.SPELL_CAST_SUCCESS[100780] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.spec == 268 then
+		resetCooldown(info, 322507, 1) -- Celestial Brew
+		resetCooldown(info, 115203, 1) -- Fortifying Brew
+		resetCooldown(info, 115399, 1) -- Black Ox Brew
+	end
+end
+
+-- Black Ox Brew
+specialEvents.SPELL_CAST_SUCCESS[115399] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		resetCooldown(info, 322507) -- Celestial Brew
+	end
+end
+
+-- Paladin
+
+local function fistOfJustice(srcGUID, _, spellId)
+	local info = infoCache[srcGUID]
+	if info then
+		if info.talents[7] then -- Fist of Justice
+			-- Each Holy Power spent reduces the remaining
+			-- cooldown on Hammer of Justice by 2 sec.
+			local amount = spellId == 215661 and 10 or 6 -- Justicar's Vengeance is 5, everything else is 3
+			resetCooldown(info, 853, amount) -- Hammer of Justice
+		end
+		if info.talents[20] == 21202 then -- Righteous Protector
+			-- Each Holy Power spent reduces the remaining
+			-- cooldown on Avenging Wrath and Guardian of
+			-- Ancient Kings by 1 sec.
+			resetCooldown(info, 31884, 3) -- Avenging Wrath
+			resetCooldown(info, 86659, 3) -- Guardian of Ancient Kings
+		end
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[210191] = fistOfJustice -- Word of Glory
+specialEvents.SPELL_CAST_SUCCESS[53600] = fistOfJustice -- Shield of the Righteous
+specialEvents.SPELL_CAST_SUCCESS[85222] = fistOfJustice -- Light of Dawn
+specialEvents.SPELL_CAST_SUCCESS[53385] = fistOfJustice -- Divine Storm
+specialEvents.SPELL_CAST_SUCCESS[85256] = fistOfJustice -- Templar's Verdict
+specialEvents.SPELL_CAST_SUCCESS[267798] = fistOfJustice -- Execution Sentence
+specialEvents.SPELL_CAST_SUCCESS[215661] = fistOfJustice -- Justicar's Vengeance
+
+-- Priest
+
+local function holyWordChastise(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.level > 26 then -- Holy Words
+		local amount = 4
+		if info.talents[19] then -- Light of the Naaru
+			amount = 5
+		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
+			amount = 12
+		end
+		resetCooldown(info, 88625, amount) -- Holy Word: Chastise
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[585] = holyWordChastise -- Smite
+
+-- Prayer of Healing
+specialEvents.SPELL_CAST_SUCCESS[596] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.level > 26 then -- Holy Words
+		local amount = 6
+		if info.talents[19] then -- Light of the Naaru
+			amount = 8
+		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
+			amount = 18
+		end
+		resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
+	end
+end
+
+-- Renew
+specialEvents.SPELL_CAST_SUCCESS[139] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.level > 26 then -- Holy Words
+		local amount = 2
+		if info.talents[19] then -- Light of the Naaru
+			amount = 3
+		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
+			amount = 6
+		end
+		resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
+	end
+end
+
+local function holyWordSalvation(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[21] then
+		resetCooldown(info, 265202, 30) -- Holy Word: Salvation
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[2050] = holyWordSalvation -- Holy Word: Serenity
+specialEvents.SPELL_CAST_SUCCESS[34861] = holyWordSalvation -- Holy Word: Sanctify
+
+-- Guardian Spirit
+specialEvents.SPELL_AURA_APPLIED[47788] = function(srcGUID)
+	scratch[srcGUID.."gs"] = GetTime()
+end
+specialEvents.SPELL_AURA_REMOVED[47788] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[8] and scratch[srcGUID.."gs"] then -- Guardian Angel
+		-- When Guardian Spirit expires without saving
+		-- the target from death, reduce its remaining
+		-- cooldown to 60 seconds.
+		if GetTime() - scratch[srcGUID.."gs"] > 9.7 then
+			resetCooldown(info, 47788, 60)
+		end
+	end
+	scratch[srcGUID] = nil
+end
+
+-- Apotheosis
+specialEvents.SPELL_AURA_APPLIED[200183] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		scratch[srcGUID.."ap"] = true
+		resetCooldown(info, 34861) -- Holy Word: Sanctify
+		resetCooldown(info, 88625) -- Holy Word: Chastise
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[200183] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		scratch[srcGUID.."ap"] = nil
+	end
+end
+
+-- Rogue
+
+-- Marked for Death
+specialEvents.SPELL_AURA_APPLIED[137619] = function(srcGUID, destGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		scratch[srcGUID..destGUID] = GetTime()
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[137619] = function(srcGUID, destGUID)
+	local info = infoCache[srcGUID]
+	if info and scratch[srcGUID..destGUID] then
+		if GetTime() - scratch[srcGUID..destGUID] < 59.7 then
+			resetCooldown(info, 137619) -- Marked for Death
+		end
+		scratch[srcGUID..destGUID] = nil
+	end
+end
+
+-- Shaman
+
+-- Capacitor Totem
+specialEvents.SPELL_CAST_SUCCESS[192058] = function(srcGUID)
+	scratch[srcGUID] = 0
+end
+
+-- Static Charge
+specialEvents.SPELL_AURA_APPLIED[118905] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[9] then -- Static Charge
+		scratch[srcGUID] = scratch[srcGUID] + 1
+		if scratch[srcGUID] < 5 then
+			resetCooldown(info, 192058, 5) -- Capacitor Totem
+		end
+	end
+end
+
+-- Earth Shock
+specialEvents.SPELL_CAST_SUCCESS[8042] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[16] then -- Surge of Power
+		scratch[srcGUID.."sp"] = GetTime()
+	end
+end
+
+-- Lava Burst
+specialEvents.SPELL_CAST_SUCCESS[51505] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and scratch[srcGUID.."sp"] and GetTime()-scratch[srcGUID.."sp"] < 14.7 then -- Surge of Power
+		if info.talents[11] then
+			resetCooldown(info, 192249, 6) -- Storm Elemental
+		else
+			resetCooldown(info, 198067, 6) -- Fire Elemental
+		end
+	end
+end
+
+-- Warrior
+
+-- Shockwave
+specialEvents.SPELL_CAST_SUCCESS[46968] = function(srcGUID)
+	scratch[srcGUID] = 0
+end
+specialEvents.SPELL_DAMAGE[46968] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
+		scratch[srcGUID] = scratch[srcGUID] + 1
+		if scratch[srcGUID] > 2 then
+			resetCooldown(info, 46968, 15) -- Shockwave
+			scratch[srcGUID] = nil
+		end
+	end
+end
+
+--- Anger Management
+-- All
+-- XXX fml this doesn't actually fire
+-- specialEvents.SPELL_ENERGIZE[163201] = function(srcGUID, _, _, amount, over) -- Execute
+-- 	local info = infoCache[srcGUID]
+-- 	if info and info.talents[18] and info.spec ~= 72 then -- Execute is a generator for Fury
+-- 		local rage = (amount + (over or 0)) / 0.2 -- 20% is refunded
+-- 		local per = info.spec == 73 and 10 or 20
+-- 		local amount = rage/per
+
+-- 		if info.spec == 71 then
+-- 			if info.talents[14] then
+-- 				resetCooldown(info, 262161, amount) -- Warbreaker
+-- 			else
+-- 				resetCooldown(info, 167105, amount) -- Colossus Smash
+-- 			end
+-- 			resetCooldown(info, 227847, amount) -- Blade Storm
+-- 		elseif info.spec == 73 then
+-- 			resetCooldown(info, 107574, amount) -- Avatar
+-- 			resetCooldown(info, 871, amount) -- Shield Wall
+-- 		end
+-- 	end
+-- end
+-- Potential to drift 1-2s per execute :\
+specialEvents.SPELL_CAST_SUCCESS[163201] = function(srcGUID) -- Execute
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] and info.spec ~= 72 then -- Execute is a generator for Fury
+		local rage = 30 -- 20-40 /wrists
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		if info.spec == 71 then
+			if info.talents[14] then
+				resetCooldown(info, 262161, amount) -- Warbreaker
+			else
+				resetCooldown(info, 167105, amount) -- Colossus Smash
+			end
+			resetCooldown(info, 227847, amount) -- Blade Storm
+		elseif info.spec == 73 then
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
+		end
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[190456] = function(srcGUID) -- Ignore Pain
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = info.spec == 72 and 60 or 40
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		if info.spec == 71 then
+			if info.talents[14] then
+				resetCooldown(info, 262161, amount) -- Warbreaker
+			else
+				resetCooldown(info, 167105, amount) -- Colossus Smash
+			end
+			resetCooldown(info, 227847, amount) -- Blade Storm
+		elseif info.spec == 72 then
+			resetCooldown(info, 1719, amount) -- Recklessness
+		elseif info.spec == 73 then
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
+		end
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[2565] = function(srcGUID) -- Shield Block
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 30
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		if info.spec == 71 then
+			if info.talents[14] then
+				resetCooldown(info, 262161, amount) -- Warbreaker
+			else
+				resetCooldown(info, 167105, amount) -- Colossus Smash
+			end
+			resetCooldown(info, 227847, amount) -- Blade Storm
+		elseif info.spec == 72 then
+			resetCooldown(info, 1719, amount) -- Recklessness
+		elseif info.spec == 73 then
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
+		end
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[1464] = function(srcGUID) -- Slam
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 20
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		if info.spec == 71 then
+			if info.talents[14] then
+				resetCooldown(info, 262161, amount) -- Warbreaker
+			else
+				resetCooldown(info, 167105, amount) -- Colossus Smash
+			end
+			resetCooldown(info, 227847, amount) -- Blade Storm
+		elseif info.spec == 72 then
+			resetCooldown(info, 1719, amount) -- Recklessness
+		elseif info.spec == 73 then
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
+		end
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[202168] = function(srcGUID) -- Impending Victory
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 10
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		if info.spec == 71 then
+			if info.talents[14] then
+				resetCooldown(info, 262161, amount) -- Warbreaker
+			else
+				resetCooldown(info, 167105, amount) -- Colossus Smash
+			end
+			resetCooldown(info, 227847, amount) -- Blade Storm
+		elseif info.spec == 72 then
+			resetCooldown(info, 1719, amount) -- Recklessness
+		elseif info.spec == 73 then
+			resetCooldown(info, 107574, amount) -- Avatar
+			resetCooldown(info, 871, amount) -- Shield Wall
+		end
+	end
+end
+-- Arms
+specialEvents.SPELL_CAST_SUCCESS[12294] = function(srcGUID) -- Mortal Strike
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 30
+		local per = 20
+		local amount = rage/per
+
+		if info.talents[14] then
+			resetCooldown(info, 262161, amount) -- Warbreaker
+		else
+			resetCooldown(info, 167105, amount) -- Colossus Smash
+		end
+		resetCooldown(info, 227847, amount) -- Blade Storm
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[772] = function(srcGUID) -- Rend
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 30
+		local per = 20
+		local amount = rage/per
+
+		if info.talents[14] then
+			resetCooldown(info, 262161, amount) -- Warbreaker
+		else
+			resetCooldown(info, 167105, amount) -- Colossus Smash
+		end
+		resetCooldown(info, 227847, amount) -- Blade Storm
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[845] = function(srcGUID) -- Cleave
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 20
+		local per = 20
+		local amount = rage/per
+
+		if info.talents[14] then
+			resetCooldown(info, 262161, amount) -- Warbreaker
+		else
+			resetCooldown(info, 167105, amount) -- Colossus Smash
+		end
+		resetCooldown(info, 227847, amount) -- Blade Storm
+	end
+end
+-- Fury
+specialEvents.SPELL_CAST_SUCCESS[184367] = function(srcGUID) -- Rampage
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 80
+		local per = 20
+		local amount = rage/per
+
+		resetCooldown(info, 1719, amount) -- Recklessness
+	end
+end
+-- Protection
+specialEvents.SPELL_CAST_SUCCESS[6572] = function(srcGUID) -- Revenge
+	local info = infoCache[srcGUID]
+	if info and info.talents[18] then
+		local rage = 20
+		local per = 10
+		local amount = rage/per
+		-- XXX how does this work with free Revenges
+		resetCooldown(info, 107574, amount) -- Avatar
+		resetCooldown(info, 871, amount) -- Shield Wall
+	end
+end
+
+-- stop autovivification
+setmetatable(specialEvents, nil)
