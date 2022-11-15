@@ -44,12 +44,14 @@ function module:UpdateZoneList()
 	if IsInGroup() then
 		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
-			if not UnitIsConnected(name) then -- GetRaidRosterInfo is slow to mark offline
-				zone = OFFLINE
-			elseif not zone then
-				zone = UNKNOWN
+			if name then
+				if not UnitIsConnected(name) then -- GetRaidRosterInfo is slow to mark offline
+					zone = OFFLINE
+				elseif not zone then
+					zone = UNKNOWN
+				end
+				zones[#zones + 1] = { name, zone }
 			end
-			zones[#zones + 1] = { name, zone }
 		end
 	else
 		local name, zone = UnitName("player"), GetRealZoneText() or UNKNOWN
