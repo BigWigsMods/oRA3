@@ -32,17 +32,12 @@ local list = {} -- temp table to concat from
 local lastUpdate = 0
 
 local missingBuffs = {}
-local buffAvailable = {}
-local buffProvider = {
-	MAGE = 1,
-	PRIEST = 2,
-	WARRIOR = 3,
-}
 
 local BUFF_ICON_SIZE = 12
+local NUM_RAID_BUFFS = 4
 
 local playerName = UnitName("player")
-local _, playerClass = UnitClass("player")
+local playerClass = UnitClassBase("player")
 local topMemberFrames, bottomMemberFrames = {}, {} -- ready check member frames
 local delayedSpellUpdates = {}
 
@@ -258,13 +253,12 @@ do
 			if self.text then
 				self.text:SetText("")
 			end
-			return
+		else
+			self.name = name
+			self.icon:SetTexture(icon)
+			self.icon:SetDesaturated(false)
+			self.icon:SetVertexColor(1, 1, 1, 1) -- restore color
 		end
-
-		self.name = name
-		self.icon:SetTexture(icon)
-		self.icon:SetDesaturated(false)
-		self.icon:SetVertexColor(1, 1, 1, 1) -- restore color
 	end
 
 	function addBuffFrame(name, parent, tooltip, icon, ...)
@@ -315,23 +309,27 @@ local function addIconAndName(frame)
 
 	-- Battle Shout
 	local name, _, icon = GetSpellInfo(6673)
-	frame.GroupBuff3 = addBuffFrame("GroupBuff3", frame, name, icon, "RIGHT", -6 - (0*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff3.groupBuff = name -- ITEM_MOD_ATTACK_POWER_SHORT
+	frame.GroupBuff1 = addBuffFrame("GroupBuff1", frame, name, icon, "RIGHT", -6 - (0*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff1.groupBuff = name -- ITEM_MOD_ATTACK_POWER_SHORT
+	frame.GroupBuff1.classProvider = "WARRIOR"
 
 	-- Power Word: Fortitude
 	name, _, icon = GetSpellInfo(21562)
 	frame.GroupBuff2 = addBuffFrame("GroupBuff2", frame, name, icon, "RIGHT", -6 - (1*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff2.groupBuff = name -- ITEM_MOD_STAMINA_SHORT
+	frame.GroupBuff2.classProvider = "PRIEST"
 
 	-- Arcane Intellect
 	name, _, icon = GetSpellInfo(1459)
-	frame.GroupBuff1 = addBuffFrame("GroupBuff1", frame, name, icon, "RIGHT", -6 - (2*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff1.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
+	frame.GroupBuff3 = addBuffFrame("GroupBuff3", frame, name, icon, "RIGHT", -6 - (2*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff3.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
+	frame.GroupBuff3.classProvider = "MAGE"
 
 	-- Mark of the Wild
 	name, _, icon = GetSpellInfo(1126)
 	frame.GroupBuff4 = addBuffFrame("GroupBuff4", frame, name, icon, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff4.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
+	frame.GroupBuff4.classProvider = "DRUID"
 
 	-- consumable buffs
 	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", -6 - (4*BUFF_ICON_SIZE), 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
@@ -378,7 +376,17 @@ local function createBottomFrame()
 end
 
 local function anchorBuffs(f)
-	local i = 4
+	local i = 0
+	for j = 1, NUM_RAID_BUFFS do
+		local bf = f[("GroupBuff%d"):format(j)]
+		if oRA:HasClassMembers(bf.classProvider) then
+			i = i + 1
+			bf:SetPoint("RIGHT", -6 - ((i-1)*BUFF_ICON_SIZE), 0)
+		else
+			-- just unanchor instead of another show flag? sounds good
+			bf:ClearAllPoints()
+		end
+	end
 	if module.db.profile.showVantus then
 		i = i + 1
 		f.VantusBuff:SetPoint("RIGHT", -6 - ((i-1)*BUFF_ICON_SIZE), 0)
@@ -415,10 +423,10 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.FoodBuff:SetShown(not food)
 				f.FlaskBuff:SetShown(not flask)
 				f.RuneBuff:SetShown(not rune)
-				f.GroupBuff1:SetShown(not buffs[1])
-				f.GroupBuff2:SetShown(not buffs[2])
-				f.GroupBuff3:SetShown(not buffs[3])
-				f.GroupBuff4:SetShown(not buffs[4])
+				f.GroupBuff1:SetShown(buffs[1] == false)
+				f.GroupBuff2:SetShown(buffs[2] == false)
+				f.GroupBuff3:SetShown(buffs[3] == false)
+				f.GroupBuff4:SetShown(buffs[4] == false)
 			else
 				f.FoodBuff:SetShown(food)
 				f.FlaskBuff:SetShown(flask)
@@ -471,27 +479,13 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.VantusBuff:SetSpell(vantus)
 			end
 
-			for i = 1, #buffs do
+			for i = 1, NUM_RAID_BUFFS do
 				local id = buffs[i]
 				local icon = f[("GroupBuff%d"):format(i)]
 				icon:SetSpell(id)
-				if not id then
-					missingBuffs[icon.groupBuff] = true
-				end
-				if buffAvailable[i] and (not id or not consumables:IsBest(id)) then
+				if id == false then -- missing while available
 					ready = false
 					missingBuffs[icon.groupBuff] = true
-					if id and not consumables:IsBest(id) then -- using a scroll
-						icon.tooltip = L.notBestBuff
-						if showMissing then
-							icon.icon:SetDesaturated(true)
-							icon.icon:SetVertexColor(1, 1, 0.5, 1) -- yellow
-							icon:Show()
-						else
-							icon.icon:SetDesaturated(true)
-							icon.icon:SetVertexColor(1, 0.5, 0.5, 1) -- red
-						end
-					end
 				end
 			end
 		end
@@ -591,7 +585,7 @@ function updateWindow(force)
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = module:UnitName(unit)
-			local _, class = UnitClass(unit)
+			local class = UnitClassBase(unit)
 			setMemberStatus(i+1, false, name, class, update)
 		end
 	end
@@ -947,7 +941,6 @@ function module:OnGroupChanged(_, status, members)
 
 	local checkupdate = readychecking and self.db.profile.readyByGroup
 	local update = nil
-	wipe(buffAvailable)
 
 	for i = 1, GetNumGroupMembers() do
 		local name, _, group, _, class = GetRaidRosterInfo(i)
@@ -960,10 +953,6 @@ function module:OnGroupChanged(_, status, members)
 					readygroup[name] = nil
 					update = true
 				end
-			end
-			local buff = buffProvider[class]
-			if buff then
-				buffAvailable[buff] = true
 			end
 		end
 	end

@@ -258,6 +258,7 @@ globals = {
 	"UnitCastingInfo",
 	"UnitChannelInfo",
 	"UnitClass",
+	"UnitClassBase",
 	"UnitDetailedThreatSituation",
 	"UnitEffectiveLevel",
 	"UnitExists",

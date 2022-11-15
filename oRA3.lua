@@ -529,6 +529,14 @@ do
 		end
 		return tmp
 	end
+	function addon:HasClassMembers(class)
+		for _, unit in next, groupMembers do
+			if UnitClassBase(unit) == class then
+				return true
+			end
+		end
+		return false
+	end
 	function addon:GetBlizzardTanks() return tanks end
 
 	local tmpGroup = {}

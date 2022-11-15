@@ -180,6 +180,12 @@ local raidBuffNames = {
 	(GetSpellInfo(6673)),  -- ITEM_MOD_ATTACK_POWER_SHORT,
 	(GetSpellInfo(1126)),  -- ITEM_MOD_VERSATILITY,
 }
+local raidBuffProviders = {
+	"MAGE",
+	"PRIEST",
+	"WARRIOR",
+	"DRUID",
+}
 
 ---------------------------------------
 -- Options
@@ -292,7 +298,12 @@ function module:OnRegister()
 		{[YES] = 1, [NO] = 0},
 		{[YES] = 1, [NO] = 0},
 		{[NO] = ""},
-		{["1/4"] = 1, ["2/4"] = 2, ["3/4"] = 3, ["4/4"] = 4, ["0/4"] = 0}
+		{ -- these are currently clamped, but just in case
+			["1/1"] = 1, ["2/1"] = 2, ["3/1"] = 3, ["4/1"] = 4, ["0/1"] = 0,
+			["1/2"] = 1, ["2/2"] = 2, ["3/2"] = 3, ["4/2"] = 4, ["0/2"] = 0,
+			["1/3"] = 1, ["2/3"] = 2, ["3/3"] = 3, ["4/3"] = 4, ["0/3"] = 0,
+			["1/4"] = 1, ["2/4"] = 2, ["3/4"] = 3, ["4/4"] = 4, ["0/4"] = 0,
+		}
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
@@ -367,12 +378,6 @@ do
 		[307166] = true, -- Eternal Flask (Cauldron)
 		[307185] = true, -- Spectral Flask of Power
 		[307187] = true, -- Spectral Stamina Flask
-
-		-- Buffs
-		[1459] = true,  -- Arcane Intellect
-		[21562] = true, -- Power Word: Fortitude
-		[6637] = true,  -- Battle Shout
-		[1126] = true,  -- Mark of the Wild
 
 		-- Rune
 		[367405] = true, -- Eternal Augmentation
@@ -563,8 +568,12 @@ function module:CheckPlayer(player)
 	local vantus = getVantus(player)
 	local buffs = cache[5] or {}
 	for i = 1, #raidBuffs do
-		local _, _, id = self:UnitBuffByIDs(player, raidBuffs[i])
-		buffs[i] = id or false
+		if oRA:HasClassMembers(raidBuffProviders[i]) then
+			local _, _, id = self:UnitBuffByIDs(player, raidBuffs[i])
+			buffs[i] = id or false
+		else
+			buffs[i] = nil
+		end
 	end
 
 	cache[0] = t
@@ -596,6 +605,13 @@ do
 		wipe(missingRunes)
 		wipe(missingBuffs)
 
+		local numRaidBuffs = 0
+		for i = 1, #raidBuffs do
+			if oRA:HasClassMembers(raidBuffProviders[i]) then
+				numRaidBuffs = numRaidBuffs + 1
+			end
+		end
+
 		local groupMembers = oRA:GetGroupMembers()
 		if not groupMembers[1] then groupMembers[1] = UnitName("player") end
 		for _, player in next, groupMembers do
@@ -615,11 +631,11 @@ do
 					missingRunes[player] = true
 				end
 
-				for i = 1, #buffs do
-					if not buffs[i] then
-						missingBuffs[raidBuffNames[i]] = true
-					else
+				for i = 1, #raidBuffs do
+					if buffs[i] then
 						numBuffs = numBuffs + 1
+					elseif buffs[i] == false then -- missing while available
+						missingBuffs[raidBuffNames[i]] = true
 					end
 				end
 
@@ -629,7 +645,7 @@ do
 					flask and (self:GetFlaskValue(flask) or YES) or NO,
 					rune and YES or NO,
 					getVantusBoss(vantus) or NO,
-					("%d/%d"):format(numBuffs, #buffs),
+					("%d/%d"):format(numBuffs, numRaidBuffs),
 				}
 			else
 				consumablesList[#consumablesList + 1] = {
