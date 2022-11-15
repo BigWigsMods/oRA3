@@ -170,11 +170,15 @@ local raidBuffs = {
 	{ -- Attack Power
 		6673,   -- Battle Shout
 	},
+	{ -- Versatility
+		1126,   -- Mark of the Wild
+	},
 }
 local raidBuffNames = {
-	ITEM_MOD_INTELLECT_SHORT,
-	ITEM_MOD_STAMINA_SHORT,
-	ITEM_MOD_ATTACK_POWER_SHORT,
+	(GetSpellInfo(1459)),  -- ITEM_MOD_INTELLECT_SHORT,
+	(GetSpellInfo(21562)), -- ITEM_MOD_STAMINA_SHORT,
+	(GetSpellInfo(6673)),  -- ITEM_MOD_ATTACK_POWER_SHORT,
+	(GetSpellInfo(1126)),  -- ITEM_MOD_VERSATILITY,
 }
 
 ---------------------------------------
@@ -288,7 +292,7 @@ function module:OnRegister()
 		{[YES] = 1, [NO] = 0},
 		{[YES] = 1, [NO] = 0},
 		{[NO] = ""},
-		{["1/3"] = 1, ["2/3"] = 2, ["3/3"] = 3, ["0/3"] = 0}
+		{["1/4"] = 1, ["2/4"] = 2, ["3/4"] = 3, ["4/4"] = 4, ["0/4"] = 0}
 	)
 
 	oRA.RegisterCallback(self, "OnStartup")
@@ -368,6 +372,7 @@ do
 		[1459] = true,  -- Arcane Intellect
 		[21562] = true, -- Power Word: Fortitude
 		[6637] = true,  -- Battle Shout
+		[1126] = true,  -- Mark of the Wild
 
 		-- Rune
 		[367405] = true, -- Eternal Augmentation

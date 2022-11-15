@@ -316,23 +316,28 @@ local function addIconAndName(frame)
 	-- Battle Shout
 	local name, _, icon = GetSpellInfo(6673)
 	frame.GroupBuff3 = addBuffFrame("GroupBuff3", frame, name, icon, "RIGHT", -6 - (0*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff3.groupBuff = ITEM_MOD_ATTACK_POWER_SHORT
+	frame.GroupBuff3.groupBuff = name -- ITEM_MOD_ATTACK_POWER_SHORT
 
 	-- Power Word: Fortitude
 	name, _, icon = GetSpellInfo(21562)
 	frame.GroupBuff2 = addBuffFrame("GroupBuff2", frame, name, icon, "RIGHT", -6 - (1*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff2.groupBuff = ITEM_MOD_STAMINA_SHORT
+	frame.GroupBuff2.groupBuff = name -- ITEM_MOD_STAMINA_SHORT
 
 	-- Arcane Intellect
 	name, _, icon = GetSpellInfo(1459)
 	frame.GroupBuff1 = addBuffFrame("GroupBuff1", frame, name, icon, "RIGHT", -6 - (2*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff1.groupBuff = ITEM_MOD_INTELLECT_SHORT
+	frame.GroupBuff1.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
+
+	-- Mark of the Wild
+	name, _, icon = GetSpellInfo(1126)
+	frame.GroupBuff4 = addBuffFrame("GroupBuff4", frame, name, icon, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0)
+	frame.GroupBuff4.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
 
 	-- consumable buffs
-	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
-	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", -6 - (4*BUFF_ICON_SIZE), 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
-	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", -6 - (5*BUFF_ICON_SIZE), 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
-	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", -6 - (6*BUFF_ICON_SIZE), 0) -- 136000="Interface\\Icons\\spell_misc_food"
+	frame.VantusBuff = addBuffFrame("Vantus", frame, "", 1392952, "RIGHT", -6 - (4*BUFF_ICON_SIZE), 0) -- 1392952="Interface/Icons/70_inscription_vantus_rune_nightmare"
+	frame.RuneBuff = addBuffFrame("Rune", frame, L.noRune, 134425, "RIGHT", -6 - (5*BUFF_ICON_SIZE), 0) -- 134425="Interface\\Icons\\inv_misc_rune_12"
+	frame.FlaskBuff = addBuffFrame("Flask", frame, L.noFlask, 967546, "RIGHT", -6 - (6*BUFF_ICON_SIZE), 0) -- 967546="Interface\\Icons\\trade_alchemy_dpotion_c22"
+	frame.FoodBuff = addBuffFrame("Food", frame, L.noFood, 136000, "RIGHT", -6 - (7*BUFF_ICON_SIZE), 0) -- 136000="Interface\\Icons\\spell_misc_food"
 	local text = frame.FoodBuff:CreateFontString(nil, "OVERLAY")
 	text:SetPoint("BOTTOMRIGHT")
 	text:SetJustifyH("RIGHT")
@@ -373,7 +378,7 @@ local function createBottomFrame()
 end
 
 local function anchorBuffs(f)
-	local i = 3
+	local i = 4
 	if module.db.profile.showVantus then
 		i = i + 1
 		f.VantusBuff:SetPoint("RIGHT", -6 - ((i-1)*BUFF_ICON_SIZE), 0)
@@ -413,6 +418,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.GroupBuff1:SetShown(not buffs[1])
 				f.GroupBuff2:SetShown(not buffs[2])
 				f.GroupBuff3:SetShown(not buffs[3])
+				f.GroupBuff4:SetShown(not buffs[4])
 			else
 				f.FoodBuff:SetShown(food)
 				f.FlaskBuff:SetShown(flask)
@@ -420,6 +426,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 				f.GroupBuff1:SetShown(buffs[1])
 				f.GroupBuff2:SetShown(buffs[2])
 				f.GroupBuff3:SetShown(buffs[3])
+				f.GroupBuff4:SetShown(buffs[4])
 			end
 			f.VantusBuff:SetShown(vantus and module.db.profile.showVantus)
 
@@ -497,6 +504,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 		f.GroupBuff1:Hide()
 		f.GroupBuff2:Hide()
 		f.GroupBuff3:Hide()
+		f.GroupBuff4:Hide()
 	end
 
 	local color = oRA.classColors[class]
