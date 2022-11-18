@@ -34,6 +34,7 @@ local _testUnits = {
 	Tor = "SHAMAN",
 	Ling = "MONK",
 	Donk = "DEMONHUNTER",
+	Bruce = "EVOKER",
 }
 addon._testUnits = _testUnits
 

@@ -575,6 +575,7 @@ do
 		MAGE = 10,
 		PRIEST = 11,
 		SHAMAN = 12,
+		EVOKER = 13,
 	}
 	local function sort(a, b)
 		local _, aC = UnitClass(a)

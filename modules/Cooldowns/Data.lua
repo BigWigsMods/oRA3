@@ -518,6 +518,8 @@ data.spells = {
 		[33891]  = {180, 40, 105, 15}, -- Incarnation: Tree of Life
 		[197721] = {90, 50, 21}, -- Flourish
 	},
+	EVOKER = {
+	},
 	HUNTER = {
 		[781] = {20, 4}, -- Disengage
 		[186257] = {180, 5}, -- Aspect of the Cheetah
