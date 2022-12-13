@@ -67,25 +67,29 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[351338] = "InterruptCast",-- Quell (Evoker)
 	-- Reincarnation
 	[21169] = "Reincarnation", -- Reincarnation
-	[199115] = "Reincarnation", -- Failure Detection Pylon
+	[199115] = "Reincarnation", -- Failure Detection Pylon (lv50)
+	[385969] = "Reincarnation", -- S.A.V.I.O.R.
 	-- Mass Resurrection
 	[212056] = "MassResurrection", -- Absolution (Paladin)
 	[212048] = "MassResurrection", -- Ancestral Vision (Shaman)
 	[212036] = "MassResurrection", -- Mass Resurrection (Priest)
 	[212051] = "MassResurrection", -- Reawaken (Monk)
 	[212040] = "MassResurrection", -- Revitalize (Druid)
+	[361178] = "MassResurrection", -- Mass Return (Evoker)
 	-- Bloodlust
 	[2825] = "Bloodlust", -- Bloodlust (Shaman)
 	[32182] = "Bloodlust", -- Heroism (Shaman)
 	[80353] = "Bloodlust", -- Time Warp (Mage)
 	[264667] = "Bloodlust", -- Primal Rage (Hunter)
 	[390386] = "Bloodlust", -- Fury of the Aspects (Evoker)
-	-- These don't work past lv60
-	[178207] = "Bloodlust", -- Drums of Fury (WoD)
-	[230935] = "Bloodlust", -- Drums of the Mountain (Legion)
-	[256740] = "Bloodlust", -- Drums of the Maelstrom (BfA)
-	[292686] = "Bloodlust", -- Mallet of Thunderous Skins (BfA)
-	[309658] = "Bloodlust", -- Drums of Deathly Ferocity (Shadowlands)
+	-- Drums (15%)
+	[146555] = "Bloodlust", -- Drums of Rage (lv50)
+	[178207] = "Bloodlust", -- Drums of Fury (WoD) (lv50)
+	[230935] = "Bloodlust", -- Drums of the Mountain (Legion) (lv50)
+	[256740] = "Bloodlust", -- Drums of the Maelstrom (BfA) (lv50)
+	[292686] = "Bloodlust", -- Mallet of Thunderous Skins (BfA) (lv50)
+	[309658] = "Bloodlust", -- Drums of Deathly Ferocity (Shadowlands) (lv60)
+	[381301] = "Bloodlust", -- Feral Hide Drums (DF)
 }
 combatLogMap.SPELL_AURA_APPLIED = {
 	-- Taunts
@@ -129,6 +133,7 @@ combatLogMap.SPELL_CREATE = {
 	[281400] = "Portal", -- Boralus
 	[281402] = "Portal", -- Dazar'alor
 	[344597] = "Portal", -- Oribos
+	[395289] = "Portal", -- Valdrakken
 	-- Feasts
 	[201351] = "Feast", -- Hearty Feast (+11)
 	[259409] = "Feast", -- Galley Banquet (+11)
@@ -139,15 +144,12 @@ combatLogMap.SPELL_CREATE = {
 	[308458] = "Feast", -- Surprisingly Palatable Feast (+18)
 	[308462] = "Feast", -- Feast of Gluttonous Hedonism (+20)
 	[359336] = "Feast", -- Kettle of Stone Soup (+20, contribution feast)
-	[382427] = "Feast", -- Grand Banquet of the Kalu'ak (+90)
-	[383063] = "Feast", -- Growing Hoard of Draconic Delicacies (+90, contribution feast)
-	[382423] = "Feast", -- Yusa's Hearty Stew (+83 lowest secondary? lol)
+	[382427] = "Feast", -- Grand Banquet of the Kalu'ak (+76)
+	[383063] = "Feast", -- Growing Hoard of Draconic Delicacies (+76, contribution feast)
+	[382423] = "Feast", -- Yusa's Hearty Stew (+105 lowest secondary? lol)
 	-- Instant Rituals
 	[29893] = "Feast", -- Create Soulwell (Warlock)
 	[190336] = "Feast", -- Conjure Refreshment (Mage)
-	[276972] = "Feast", -- Mystical Cauldron
-	[298861] = "Feast", -- Greater Mystical Cauldron
-	[188036] = "Feast", -- Spirit Cauldron
 }
 combatLogMap.SPELL_RESURRECT = {
 	["*"] = "Resurrect",
@@ -157,6 +159,7 @@ combatLogMap.SPELL_RESURRECT = {
 	[212036] = false, -- Mass Resurrection (Priest)
 	[212051] = false, -- Reawaken (Monk)
 	[212040] = false, -- Revitalize (Druid)
+	[361178] = false, -- Mass Return (Evoker)
 	-- Combat Res
 	[20484] = "CombatResurrect",  -- Rebirth (Druid)
 	[61999] = "CombatResurrect",  -- Raise Ally (Death Knight)
@@ -164,6 +167,7 @@ combatLogMap.SPELL_RESURRECT = {
 	[391054] = "CombatResurrect", -- Intercession (Paladin)
 	[265116] = "CombatResurrect", -- Unstable Temporal Time Shifter (Engineer)
 	[345130] = "CombatResurrect", -- Disposable Spectrophasic Reanimator (Engineer)
+	[393795] = "CombatResurrect", -- Arclight Vital Correctors (Engineer)
 }
 combatLogMap.SPELL_AURA_REMOVED = {
 	[20707] = "Soulstone",  --  Buff removed on death
