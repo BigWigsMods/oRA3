@@ -39,40 +39,15 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
-		-- Castle Nathria
-		[311445] = 2393, -- Shriekwing
-		[311446] = 2428, -- Hungering Destroyer
-		[311448] = 2422, -- Sun King's Salvation
-		[311447] = 2418, -- Artificer Xy'mox
-		[311449] = 2420, -- Lady Inerva Darkvein
-		[311450] = 2426, -- The Council of Blood
-		[311451] = 2394, -- Sludgefist
-		[311452] = 2425, -- Stone Legion Generals
-		[334131] = 2424, -- Sire Denathrius
-		[334132] = 2429, -- Huntsman Altimor
-		-- Sanctum of Domination
-		[354384] = 2435, -- The Tarragrue
-		[354385] = 2442, -- The Eye of the Jailer
-		[354386] = 2439, -- The Nine
-		[354387] = 2444, -- Remnant of Ner'zhul
-		[354388] = 2445, -- Soulrender Dormazain
-		[354389] = 2443, -- Painsmith Raznal
-		[354390] = 2446, -- Guardian of the First Ones
-		[354391] = 2447, -- Fatescribe Roh-Kalo
-		[354392] = 2440, -- Kel'Thuzad
-		[354393] = 2441, -- Sylvanas Windrunner
-		-- Sepulcher of the First Ones
-		[359893] = 2458, -- Vigilant Guardian (Progenitor Defense System)
-		[367121] = 2465, -- Skolex, the Insatiable Ravener
-		[367124] = 2470, -- Artificer Xy'mox
-		[367126] = 2459, -- Dausegne, the Fallen Oracle
-		[367128] = 2460, -- Prototype Pantheon
-		[367130] = 2461, -- Lihuvim, Principal Architect
-		[367132] = 2463, -- Halondrus the Reclaimer
-		[367134] = 2469, -- Anduin Wrynn
-		[367136] = 2457, -- Lords of Dread
-		[367140] = 2467, -- Rygelon
-		[367143] = 2464, -- The Jailer, Zovaal
+		-- Vault of the Incarnates
+		[384192] = 2480, [384201] = 2480, [384203] = 2480, -- Eranog
+		[384214] = 2486, [384215] = 2486, [384216] = 2486, -- The Primal Council
+		[384208] = 2500, [384209] = 2500, [384210] = 2500, -- Terros
+		[384221] = 2482, [384220] = 2482, [384222] = 2482, -- Sennarth
+		[384227] = 2502, [384228] = 2502, [384229] = 2502, -- Dathea
+		[384239] = 2491, [384240] = 2491, [384241] = 2491, -- Kurog
+		[384233] = 2493, [384234] = 2493, [384235] = 2493, -- Diurna
+		[384245] = 2499, [384246] = 2499, [384247] = 2499, -- Raszageth
 	}
 
 	local buffs = {}
@@ -118,18 +93,21 @@ end
 local getFlask
 do
 	local flasks = {
-		251836, -- Flask of the Currents
-		251837, -- Flask of Endless Fathoms
-		251838, -- Flask of the Vast Horizon
-		251839, -- Flask of the Undertow
-		298836, -- Greater Flask of the Currents
-		298837, -- Greater Flask of Endless Fathoms
-		298839, -- Greater Flask of the Vast Horizon
-		298841, -- Greater Flask of the Undertow
 		-- Shadowlands
 		307166, -- Eternal Flask (Cauldron)
 		307185, -- Spectral Flask of Power
 		307187, -- Spectral Stamina Flask
+		-- Dragonflight
+		370652, -- Phial of Static Empowerment
+		371036, -- Phial of Icy Preservation
+		371172, -- Phial of Tepid Versatility
+		371186, -- Charged Phial of Alacrity
+		371204, -- Phial of Still Air
+		371339, -- Phial of Elemental Chaos
+		371354, -- Phial of the Eye in the Storm
+		371386, -- Phial of Charged Isolation
+		373257, -- Phial of Glacial Fury
+		374000, -- Iced Phial of Corrupting Rage
 	}
 
 	function getFlask(player)
@@ -365,22 +343,29 @@ end
 do
 	local best = {
 		-- Food
-		[308434] = true, -- crit
-		[308488] = true, -- haste
-		[308506] = true, -- mastery
-		[308514] = true, -- versatility
-		[308525] = true, -- stamina
-		[327709] = true, -- agi
-		[327708] = true, -- int
-		[327706] = true, -- str
+		[396092] = true, -- Fated Fortune Cookie/Feast (76 primary stat)
+		[382145] = true, -- haste
+		[382146] = true, -- crit
+		[382149] = true, -- vers
+		[382150] = true, -- mastery
+		[382152] = true, -- haste/crit
+		[382153] = true, -- haste/vers
+		[382154] = true, -- haste/mastery
+		[382155] = true, -- crit/vers
+		[382156] = true, -- crit/mastery
+		[382157] = true, -- vers/mastery
 
 		-- Flasks
-		[307166] = true, -- Eternal Flask (Cauldron)
-		[307185] = true, -- Spectral Flask of Power
-		[307187] = true, -- Spectral Stamina Flask
+		[373257] = true, -- Phial of Glacial Fury
+		[371172] = true, -- Phial of Tepid Versatility
+		[371339] = true, -- Phial of Elemental Chaos
+		[370652] = true, -- Phial of Static Empowerment
+		[371354] = true, -- Phial of the Eye in the Storm
+		[374000] = true, -- Iced Phial of Corrupting Rage
+		[371386] = true, -- Phial of Charged Isolation
 
 		-- Rune
-		[367405] = true, -- Eternal Augmentation
+		[393438] = true, -- Draconic Augmentation
 	}
 
 	function module:IsBest(id)
@@ -444,6 +429,28 @@ do
 		[327709] = 20, -- agi
 		[327708] = 20, -- int
 		[327706] = 20, -- str
+
+		--- Dragonflight
+		[382145] = 70, -- haste
+		[382146] = 70, -- crit
+		[382149] = 70, -- vers
+		[382150] = 45, -- mastery
+		[382152] = 45, -- haste/crit
+		[382153] = 45, -- haste/vers
+		[382154] = 45, -- haste/mastery
+		[382155] = 45, -- crit/vers
+		[382156] = 45, -- crit/mastery
+		[382157] = 45, -- vers/mastery
+		[382230] = 22, -- str
+		[382231] = 22, -- agi
+		[382232] = 22, -- int
+		[382234] = 32, -- str
+		[382235] = 32, -- agi
+		[382236] = 32, -- int
+		[382246] = 60, -- sta
+		[382247] = 90, -- sta
+		[393372] = 176, -- Feast (+lowest stat)
+		[396092] = 76, -- Fated Fortune Cookie/Feast (+primary stat)
 	}
 
 	function module:GetFoodValue(id)
@@ -451,11 +458,12 @@ do
 	end
 
 	local flasks = {
-		[251836] = 25, [251837] = 25, [251838] = 25, [251839] = 25, -- Flask (BfA)
-		[298836] = 38, [298837] = 38, [298839] = 38, [298841] = 38, -- Greater Flask (BfA)
-		[307166] = 70, -- Eternal Flask (Cauldron)
-		[307185] = 70, -- Spectral Flask of Power
-		[307187] = 105, -- Spectral Stamina Flask
+		[251836] = 39, [251837] = 39, [251838] = 39, [251839] = 39, -- Flask (BfA)
+		[298836] = 59, [298837] = 59, [298839] = 59, [298841] = 59, -- Greater Flask (BfA)
+		[307185] = 69, -- Spectral Flask of Power
+		[307187] = 104, -- Spectral Stamina Flask
+		-- XXX Dragonflight flasks are all over the place, just show the buff texture?
+		-- allowing a tooltip for food and flasks would be good
 	}
 
 	function module:GetFlaskValue(id)
