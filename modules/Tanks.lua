@@ -425,6 +425,7 @@ function module:CreateFrame()
 			stank.icon:SetTexture("Interface\\AddOns\\oRA3\\media\\maintank")
 			stank:SetAttribute("type", "maintank")
 			stank:SetAttribute("action", "toggle")
+			stank:RegisterForClicks("AnyUp", "AnyDown")
 			if oRA:IsPromoted() then
 				stank:Enable()
 			else
