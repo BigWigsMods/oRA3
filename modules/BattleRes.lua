@@ -18,6 +18,7 @@ local resSpells = {
 	[95750] = true, -- Soulstone Resurrection
 	[391054] = true, -- Intercession
 	[345130] = true, -- Disposable Spectrophasic Reanimator
+	[385403] = true, -- Tinker: Arclight Vital Correctors
 }
 local theDead = {}
 local updateFunc
