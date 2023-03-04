@@ -306,7 +306,7 @@ do
 		isEngineer = false
 		for _, player in next, oRA:GetGroupMembers() do
 			local _, class = UnitClass(player)
-			if class == "DRUID" or class == "DEATHKNIGHT" or class == "WARLOCK" then
+			if class == "DRUID" or class == "DEATHKNIGHT" or class == "WARLOCK" or class == "PALADIN" then
 				return true
 			end
 		end
