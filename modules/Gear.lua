@@ -124,7 +124,7 @@ do
 		false, -- INVSLOT_BODY -- 4
 		true, -- INVSLOT_CHEST -- 5
 		false, -- INVSLOT_WAIST -- 6
-		false, -- INVSLOT_LEGS -- 7
+		true, -- INVSLOT_LEGS -- 7
 		true, -- INVSLOT_FEET -- 8
 		true, -- INVSLOT_WRIST -- 9
 		false, -- INVSLOT_HAND -- 10
