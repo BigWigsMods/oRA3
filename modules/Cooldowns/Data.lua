@@ -1,5 +1,6 @@
 
 local _, scope = ...
+local module = nil
 
 scope.cooldownData = {}
 local data = scope.cooldownData
@@ -12,6 +13,8 @@ data.chargeModifiers = {}
 local chargeModifiers = data.chargeModifiers
 data.syncSpells = {}
 local syncSpells = data.syncSpells
+
+local playerGUID = UnitGUID("player")
 
 local function addMod(guid, spell, modifier, charges)
 	if modifier ~= 0 then
@@ -26,329 +29,575 @@ end
 
 data.talentCooldowns = {
 	-- Death Knight
-	[22014] = function(info) -- Blood: Anti-Magic Barrier
+	[96174] = function(info) -- Class: Anti-Magic Barrier
 		addMod(info.guid, 48707, 20) -- Anti-Magic Shell
 	end,
-	[19226] = function(info) -- Blood: Tightening Grasp
+	[96175] = function(info) -- Class: Acclimation
+		addMod(info.guid, 48792, 20) -- Icebound Fortitude
+	end,
+	[96186] = function(info) -- Class: Death's Reach
+		-- Reset on exp/honor kills
+		if info.guid == playerGUID then
+			syncSpells[43265] = true
+		end
+	end,
+	[96184] = function(info) -- Class: Death's Echo
+		addMod(info.guid, 43265, 0, 2) -- Death and Decay
+		addMod(info.guid, 48265, 0, 2) -- Death's Advance
+		addMod(info.guid, 49576, 0, 2) -- Death Grip
+	end,
+	[96265] = function(info) -- Blood: Tightening Grasp
 		addMod(info.guid, 108199, 30) -- Gorefiend's Grasp
+	end,
+	[96263] = function(info) -- Blood: Red Thirst
+		-- Reduces the cooldown on Vampiric Blood by 1s per 10 rp spent.
+		if info.guid == playerGUID then
+			syncSpells[55233] = true -- Vampiric Blood
+		end
+	end,
+	[96229] = function(info) -- Frost: Empower Rune Weapon
+		if info.talents[96178] then -- Empower Rune Weapon (Class talent)
+			addMod(info.guid, 47568, 0, 2) -- Empower Rune Weapon
+		end
+	end,
+	[96325] = function(info) -- Unholy: Raise Dead
+		addMod(info.guid, 46584, 90) -- Raise Dead (spell override)
+	end,
+	[96331] = function(info, rank) -- Unholy: Unholy Command
+		addMod(info.guid, 63560, rank * 8) -- Dark Transformation
+	end,
+	[96287] = function(info) -- Unholy: Army of the Damned
+		addMod(info.guid, 275699, 45) -- Apocalypse
 	end,
 
 	-- Demon Hunter
-	[21869] = function(info) -- Havoc: Unleashed Power
-		addMod(info.guid, 179057, 20) -- Chaos Nova
+	[112844] = function(info) -- Class: Rush of Chaos
+		addMod(info.guid, 187827, 60) -- Metamorphosis
 	end,
-	[21901] = function(info) -- Havoc: Momentum
-		addMod(info.guid, 198793, 5) -- Vengeful Retreat
+	[112909] = function(info) -- Class: Unleashed Power
+		addMod(info.guid, 179057, 12) -- Chaos Nova
 	end,
-	[22502] = function(info) -- Vengeance: Abyssal Strike
-		addMod(info.guid, 189110, 8) -- Infernal Strike
+	[112922] = function(info) -- Class: First of the Illidari
+		addMod(info.guid, 187827, 60) -- Metamorphosis
 	end,
-	[22510] = function(info) -- Vengeance: Quickened Sigils
+	[112858] = function(info) -- Class: Improved Sigil of Misery
+		addMod(info.guid, 207684, 30) -- Sigil of Misery
+	end,
+	[112914] = function(info, rank) -- Class: Erratic Felheart
+		addMod(info.guid, 195072, rank) -- Fel Rush
+	end,
+	[112919] = function(info) -- Class: Pitch Black
+		addMod(info.guid, 196718, 120) -- Darkness
+	end,
+	[112915] = function(info) -- Class: Quickened Sigils
 		addMod(info.guid, 202137, 12) -- Sigil of Silence
 		addMod(info.guid, 204596, 6)  -- Sigil of Flame
-		addMod(info.guid, 207684, 18) -- Sigil of Misery
-		-- TODO this also affects the Kyrian Covenant power
+		addMod(info.guid, 207684, 24) -- Sigil of Misery
+		addMod(info.guid, 202138, 12) -- Sigil of Chains
+		addMod(info.guid, 390163, 12) -- Elysian Decree
+	end,
+	[112944] = function(info) -- Havoc: Tactical Retreat
+		addMod(info.guid, 198793, 5) -- Vengeful Retreat
+	end,
+	[112866] = function(info) -- Vengeance: Meteoric Strike
+		addMod(info.guid, 189110, 8) -- Infernal Strike
+	end,
+	[112876] = function(info) -- Vengeance: Down in Flames
+		addMod(info.guid, 204021, 15, 2) -- Fiery Brand
 	end,
 
 	-- Druid
-	[22364] = function(info, playerGUID) -- Feral: Predator
+	[114298] = function(info) -- Class: Incessant Tempest
+		addMod(info.guid, 132469, 5) -- Typhoon
+	end,
+	[103308] = function(info) -- Class: Improved Stampeding Roar
+		addMod(info.guid, 106898, 60) -- Stampeding Roar
+	end,
+	[109856] = function(info) -- Balance: Orbital Strike
+		addMod(info.guid, 194223, 60) -- Celestial Alignment
+	end,
+	[109864] = function(info) -- Balance: Elune's Guidance
+		if info.talents[109838] then
+			addMod(info.guid, 391528, 60) -- Convoke the Spirits
+		end
+	end,
+	[109847] = function(info) -- Balance: Radiant Moonlight
+		addMod(info.guid, 202770, 15) -- Fury of Elune
+	end,
+	[103186] = function(info) -- Feral: Predator
 		-- The cooldown on Tiger's Fury resets when a
 		-- target dies with one of your Bleed effects active
 		if info.guid == playerGUID then
 			syncSpells[5217] = true -- Tiger's Fury
 		end
 	end,
-	[21713] = function(info) -- Guardian: Survival of the Fittest
-		addMod(info.guid, 22812, 20) -- Barkskin
-		addMod(info.guid, 61336, 60) -- Survival Instincts
+	[103166] = function(info) -- Feral: Berserk: Heart of the Lion
+		-- Each combo point spent reduces the cooldown
+		-- of Berserk by 0.5 sec.
+		if info.guid == playerGUID then
+			if info.talents[103178] then -- Incarnation: Avatar of Ashamane
+				syncSpells[102543] = true
+			else
+				syncSpells[106951] = true -- Berserk
+			end
+		end
 	end,
-	[21716] = function(info) -- Restoration: Inner Peace
+	[103176] = function(info) -- Feral: Ashamane's Guidance
+		if info.talents[103177] then
+			addMod(info.guid, 391528, 60) -- Convoke the Spirits
+		end
+	end,
+	[103192] = function(info) -- Guardian: Improved Survival Instincts
+		addMod(info.guid, 61336, 0, 2) -- Survival Instincts
+	end,
+	[103229] = function(info) -- Guardian: Innate Resolve
+		addMod(info.guid, 22842, 0, 2) -- Frenzied Regeneration
+	end,
+	[103226] = function(info, rank) -- Guardian: Reinvigoration
+		addMod(info.guid, 22842, rank * 7.2) -- Frenzied Regeneration
+	end,
+	[103210] = function(info, rank) -- Guardian: Survival of the Fittest
+		addMod(info.guid, 22812, rank * 9) -- Barkskin
+		addMod(info.guid, 61336, rank * 27) -- Survival Instincts
+	end,
+	[103199] = function(info) -- Guardian: Ursoc's Guidance
+		if info.talents[103200] then
+			addMod(info.guid, 391528, 60) -- Convoke the Spirits
+		end
+	end,
+	[103102] = function(info) -- Restoration: Passing Seasons
+		addMod(info.guid, 132158, 12) -- Nature's Swiftness
+	end,
+	[103107] = function(info) -- Restoration: Inner Peace
 		addMod(info.guid, 740, 60) -- Tranquility
+	end,
+	[103139] = function(info) -- Restoration: Improved Ironbark
+		addMod(info.guid, 102342, 20) -- Ironbark
+	end,
+	[103118] = function(info) -- Restoration: Cenarius' Guidance
+		if info.talents[103119] then
+			addMod(info.guid, 391528, 60) -- Convoke the Spirits
+		end
+	end,
+
+	-- Evoker
+	[87584] = function(info) -- Class: Forger of Mountains
+		addMod(info.guid, 358385, 30) -- Landslide
+	end,
+	[87701] = function(info) -- Class: Obsidian Bulwark
+		addMod(info.guid, 363916, 0, 2) -- Obsidian Scales
+	end,
+	[87585] = function(info) -- Class: Clobbering Sweep
+		addMod(info.guid, 368970, 45) -- Tail Swipe
+	end,
+	[87586] = function(info) -- Class: Heavy Wingbeats
+		addMod(info.guid, 357214, 45) -- Wing Buffet
+	end,
+	[87686] = function(info) -- Class: Aerial Mastery
+		addMod(info.guid, 358267, 0, 2) -- Hover
+	end,
+	[87680] = function(info) -- Class: Fire Within
+		addMod(info.guid, 374348, 30) -- Renewing Blaze
+	end,
+	[87667] = function(info) -- Devatation: Imposing Presence
+		addMod(info.guid, 351338, 20) -- Quell
+	end,
+	[87654] = function(info) -- Devatation: Onyx Legacy
+		addMod(info.guid, 357210, 60) -- Deep Breath
+	end,
+	[87601] = function(info) -- Preservation: Just in Time
+		-- Cooldown is reduced by 2s each time you
+		-- cast an Essence ability.
+		if info.guid == playerGUID then
+			syncSpells[357170] = true -- Time Dilation
+		end
+	end,
+	[87619] = function(info) -- Preservation: Temporal Artificer
+		addMod(info.guid, 363534, 60) -- Rewind
 	end,
 
 	-- Hunter
-	[19348] = function(info, playerGUID) -- All: Natural Mending
+	[100636] = function(info, rank) -- Class: Improved Traps
+		local cdMod = rank * 2.5
+		addMod(info.guid, 187650, cdMod) -- Freezing Trap
+		addMod(info.guid, 187698, cdMod) -- Tar Trap
+		addMod(info.guid, 162488, cdMod) -- Steel Trap
+		addMod(info.guid, 236776, cdMod) -- High Explosive Trap
+	end,
+	[100522] = function(info) -- Class: Lone Survivor
+		addMod(info.guid, 264735, 30)   -- Survival of the Fittest
+	end,
+	[100638] = function(info) -- Class: Natural Mending
 		-- Focus you spend reduces the remaining
 		-- cooldown on Exhilaration by 1 sec.
 		if info.guid == playerGUID then
 			syncSpells[109304] = true -- Exhilaration
 		end
 	end,
-	[22268] = function(info) -- All: Born To Be Wild
-		addMod(info.guid, 186257, 36) -- Aspect of the Cheetah
-		addMod(info.guid, 186265, 36) -- Aspect of the Turtle
+	[100646] = function(info, rank) -- Class: Born To Be Wild
+		local cdMod = rank * 18
+		addMod(info.guid, 186257, cdMod) -- Aspect of the Cheetah
+		addMod(info.guid, 186265, cdMod) -- Aspect of the Turtle
+		addMod(info.guid, 264735, cdMod) -- Survival of the Fittest
 		if info.spec == 255 then -- Survival
-			addMod(info.guid, 186289, 18) -- Aspect of the Eagle
+			addMod(info.guid, 186289, rank * 9) -- Aspect of the Eagle
 		end
 	end,
-	[21997] = function(info) -- Survival: Guerrilla Tactics
+	[100524] = function(info) -- Beast Mastery: Barbed Wrath
+		addMod(info.guid, 259495, 0, 2) -- Wildfire Bomb
+	end,
+	[100609] = function(info) -- Marksmanship: Calling the Shots
+		-- Every 50 Focus spent reduces the cooldown
+		-- of Trueshot by 2.5 sec.
+		if info.guid == playerGUID then
+			syncSpells[288613] = true -- Trueshot
+		end
+	end,
+	[100563] = function(info, rank) -- Survival: Explosives Expert
+		addMod(info.guid, 259495, rank) -- Wildfire Bomb
+	end,
+	[100572] = function(info) -- Survival: Guerrilla Tactics
 		addMod(info.guid, 259495, 0, 2) -- Wildfire Bomb
 	end,
 
 	-- Mage
-	[23072] = function(info) -- Arcane: Master of Time
-		addMod(info.guid, 342245, 30) -- Alter Time
+	[80182] = function(info) -- Class: Winter's Protection
+		addMod(info.guid, 45438, 20) -- Ice Block
 	end,
-	[22448] = function(info) -- Ice Ward
+	[80159] = function(info) -- Class: Master of Time
+		addMod(info.guid, 342245, 10) -- Alter Time
+	end,
+	[80145] = function(info) -- Class: Volatile Detonation
+		addMod(info.guid, 157981, 5) -- Blast Wave
+	end,
+	[80153] = function(info, rank) -- Class: Flow of Time
+		if info.talents[80163] then
+			addMod(info.guid, 212653, rank) -- Shimmer
+		else
+			addMod(info.guid, 157981, rank) -- Blink
+		end
+	end,
+	[80142] = function(info) -- Class: Ice Ward
 		addMod(info.guid, 122, 0, 2) -- Frost Nova
+	end,
+	[80217] = function(info) -- Frost: Icy Propulsion
+		-- Cooldown is reduced by 1s each time your
+		-- single target spells crit.
+		if info.guid == playerGUID then
+			syncSpells[12472] = true -- Icy Veins
+		end
 	end,
 
 	-- Monk
-	[19304] = function(info) -- Celerity
-		addMod(info.guid, 109132, 5, 3) -- Roll
+	[101531] = function(info) -- Class: Improved Roll
+		addMod(info.guid, 109132, 0, info.talents[101503] and 3 or 2) -- Roll
+		addMod(info.guid, 115008, 0, 2) -- Chi Torpedo
 	end,
-	[19993] = function(info) -- Tiger Tail Sweep
-		addMod(info.guid, 119381, 10) -- Leg Sweep
+	[101414] = function(info, rank) -- Class: Tiger Tail Sweep
+		addMod(info.guid, 119381, rank * 5) -- Leg Sweep
+	end,
+	[101505] = function(info) -- Class: Improved Paralysis
+		addMod(info.guid, 119381, 15) -- Paralysis
+	end,
+	[101503] = function(info) -- Class: Celerity
+		addMod(info.guid, 109132, 5, info.talents[101531] and 3 or 2) -- Roll
+	end,
+	[101497] = function(info) -- Class: Expeditious Fortification
+		addMod(info.guid, 115203, 120) -- Fortifying Brew
+	end,
+	[101521] = function(info) -- Class: Fatal Touch
+		addMod(info.guid, 115080, 45) -- Touch of Death
+	end,
+	[101471] = function(info) -- Brewmaster: Improved Purifying Brew
+		addMod(info.guid, 119582, 0, 2) -- Purifying Brew
+	end,
+	[101439] = function(info) -- Brewmaster: Fundamental Observation
+		addMod(info.guid, 115176, 75) -- Zen Meditation
+	end,
+	[101448] = function(info) -- Brewmaster: Light Brewing
+		addMod(info.guid, 119582, 4) -- Purifying Brew
+		addMod(info.guid, 322507, 12) -- Celestial Brew
+	end,
+	[101442] = function(info) -- Brewmaster: Face Palm
+		-- Tiger Palm has a 50% chance to reduce the remaining cooldown
+		--  of your Brews by 1 sec.
+		if info.guid == playerGUID then
+			syncSpells[115203] = true -- Fortifying Brew
+			syncSpells[119582] = true -- Purifying Brew
+			syncSpells[322507] = true -- Celestial Brew
+			syncSpells[115399] = true -- Black Ox Brew
+		end
+	end,
+	[101446] = function(info) -- Brewmaster: Anvil & Stave
+		-- Each time you dodge or an enemy misses you, the remaining
+		-- cooldown on your Brews is reduced by 0.5 sec. This effect
+		-- can only occur once every 3 sec.
+		if info.guid == playerGUID then
+			syncSpells[115203] = true -- Fortifying Brew
+			syncSpells[119582] = true -- Purifying Brew
+			syncSpells[322507] = true -- Celestial Brew
+			syncSpells[115399] = true -- Black Ox Brew
+		end
+	end,
+	[101431] = function(info) -- Windwalker: Meridian Strikes
+		-- Each time you Combo Strike, the cooldown of
+		-- Touch of Death is reduced by 0.35 sec.
+		if info.guid == playerGUID then
+			syncSpells[115080] = true -- Touch of Death
+		end
+	end,
+	[101481] = function(info) -- Mistweaver: Xuen's Bond
+		-- Abilities that activate Combo Strikes reduce the cooldown
+		-- of Inboke Xuen by 0.1 sec.
+		if info.guid == playerGUID then
+			syncSpells[123904] = true -- Invoke Xuen, the White Tiger
+		end
+	end,
+	[114297] = function(info) -- Mistweaver: Burst of Life
+		addMod(info.guid, 116849, 20) -- Life Cocoon
+	end,
+	[101381] = function(info) -- Mistweaver: Gift of the Celestials
+		addMod(info.guid, 322118, 120) -- Invoke Yu'lon, the Jade Serpent
 	end,
 
 	-- Paladin
-	[22433] = function(info) -- Unbreakable Spirit (-30%)
-		addMod(info.guid, 642, 90) -- Divine Shield
-		addMod(info.guid, 633, 180) -- Lay on Hands
-
-		if info.spec == 65 then
-			addMod(info.guid, 498, 18) -- Divine Protection (Holy)
-		elseif info.spec == 66 then
-			addMod(info.guid, 31850, 36) -- Ardent Defender (Protection)
-		elseif info.spec == 70 then
-			addMod(info.guid, 184662, 36) -- Shield of Vengeance (Retribution)
-		end
-	end,
-	[22434] = function(info) -- Cavalier
+	[102592] = function(info) -- Class: Cavalier
 		addMod(info.guid, 190784, 0, 2) -- Divine Steed
+	end,
+	[102593] = function(info) -- Class: Avenging Wrath
+		addMod(info.guid, 190784, 0, 2) -- Divine Steed
+	end,
+	[102595] = function(info) -- Class: Sacrifice of the Just
+		addMod(info.guid, 6940, 60) -- Blessing of Sacrifice
+	end,
+	[102603] = function(info) -- Class: Unbreakable Spirit (-30%)
+		addMod(info.guid, 642, 90) -- Divine Shield
+		if info.spec == 65 then -- Holy
+			addMod(info.guid, 498, 18) -- Divine Protection
+		elseif info.spec == 70 then -- Retribution
+			addMod(info.guid, 184662, 18) -- Shield of Vengeance
+			addMod(info.guid, 498, 27) -- Divine Protection
+		end
+		addMod(info.guid, 633, 180) -- Lay on Hands
+	end,
+	[102606] = function(info) -- Class: Improved Blessing of Protection
+		addMod(info.guid, 1022, 60) -- Blessing of Protection
+	end,
+	[115467] = function(info) -- Class: Quickened Evocation
+		addMod(info.guid, 375576, 15) -- Divine Toll
+	end,
+	[102547] = function(info) -- Holy: Unwavering Spirit
+		addMod(info.guid, 31821, 30) -- Aura Mastery
 	end,
 
 	-- Priest
-	[19759] = function(info) -- Disciple: Psychic Voice
-		addMod(info.guid, 8122, 30) -- Psychic Scream
+	[103845] = function(info) -- Class: Psychic Voice
+		addMod(info.guid, 8122, 15) -- Psychic Scream
 	end,
-	[21750] = function(info) -- Holy: Psychic Voice
-		addMod(info.guid, 8122, 30) -- Psychic Scream
+	[103848] = function(info) -- Class: Improved Mass Dispel
+		addMod(info.guid, 32375, 25) -- Mass Dispel
 	end,
-	[22325] = function(info, playerGUID) -- Holy: Angel's Mercy
-		-- Damage you take reduces the cooldown of Desperate Prayer, based on the
-		-- amount of damage taken.
-		if info.guid == playerGUID then
-			syncSpells[19236] = true -- Desperate Prayer
-		end
-	end,
-	[23374] = function(info) -- Shadow: San'layn
+	[103840] = function(info) -- Class: San'layn
 		addMod(info.guid, 15286, 45) -- Vampiric Embrace
 	end,
-	[21976] = function(info) -- Shadow: Intangibility
+	[103836] = function(info) -- Class: Improved Fade
+		addMod(info.guid, 586, 5) -- Fade
+	end,
+	[103721] = function(info) -- Discipline: Light's Promise
+		addMod(info.guid, 194509, 0, 2) -- Power Word: Radiance
+	end,
+	[103714] = function(info) -- Discipline: Protector of the Fall
+		addMod(info.guid, 33206, 0, 2) -- Pain Suppression
+	end,
+	[103794] = function(info) -- Shadow: Last Word
+		addMod(info.guid, 15487, 15)  -- Silence
+	end,
+	[103801] = function(info) -- Shadow: Intangibility
 		addMod(info.guid, 47585, 30) -- Dispersion
 	end,
-	[23137] = function(info) -- Shadow: Last Word
-		addMod(info.guid, 15487, 15) -- Silence
+	[103797] = function(info) -- Shadow: Malediction
+		addMod(info.guid, 341374, 15) -- Damnation
+		addMod(info.guid, 263165, 15) -- Void Torrent
 	end,
 
 	-- Rogue
-	[19237] = function(info) -- Outlaw: Retractable Hook
+	[112636] = function(info) -- Class: Improved Sprint
+		addMod(info.guid, 2983, 60) -- Sprint
+	end,
+	[112569] = function(info) -- Outlaw: Retractable Hook
 		addMod(info.guid, 195457, 15) -- Grappling Hook
 	end,
-	[22114] = function(info) -- Outlaw: Blinding Powder
+	[112529] = function(info) -- Outlaw: Blinding Powder
 		addMod(info.guid, 2094, 30) -- Blind
 	end,
-	[22336] = function(info) -- Subtlety: Enveloping Shadows
-		addMod(info.guid, 185313, 0, 2) -- Shadow Dance
+	[112544] = function(info) -- Outlaw: Restless Blades
+		-- Finishing moves reduce the remaining cooldown
+		-- of man Rogue skills by 1 sec per combo point
+		-- spent.
+		if info.guid == playerGUID then
+			-- Between the Eyes
+			syncSpells[2983] = true -- Sprint
+			syncSpells[1856] = true -- Vanish
+			syncSpells[137619] = true -- Marked for Death
+			syncSpells[13877] = true -- Blade Flurry
+			syncSpells[195457] = true -- Grappling Hook
+			syncSpells[13750] = true -- Adrenaline Rush
+			syncSpells[315508] = true -- Roll the Bones
+			syncSpells[196937] = true -- Ghostly Strike
+			syncSpells[271877] = true -- Blade Rush
+			syncSpells[343142] = true -- Dreadblades
+			syncSpells[51690] = true -- Killing Spree
+			syncSpells[381989] = true -- Keep It Rolling
+		end
+	end,
+	[112536] = function(info) -- Outlaw: Float like a Butterfly
+		-- Restless Blades affects addition skills
+		if info.guid == playerGUID then
+			syncSpells[5277] = true -- Evasion
+			syncSpells[1966] = true -- Feint
+		end
+	end,
+	[112617] = function(info) -- Subtlety: Shadowstep
+		if info.talents[112583] then -- Shadowstep (Class)
+			addMod(info.guid, 36554, 0, 2) -- Shadowstep
+		end
+	end,
+	[112616] = function(info) -- Subtlety: Quick Decisions
+		addMod(info.guid, 36554, 6) -- Shadowstep
+	end,
+	[112589] = function(info) -- Subtlety: Swift Death
+		addMod(info.guid, 212283, 5) -- Symbols of Death
+	end,
+	[112612] = function(info) -- Subtlety: Deepening Shadows
+		if info.guid == playerGUID then
+			syncSpells[185313] = true -- Shadow Dance
+		end
+	end,
+	[112590] = function(info) -- Subtlety: Without a Trace
+		addMod(info.guid, 1856, 0, 2) -- Vanish
 	end,
 
 	-- Shaman
-	[21970] = function(info) -- Enhancement: Elemental Spirits
-		addMod(info.guid, 51533, 30) -- Feral Spirit
+	[101944] = function(info) -- Class: Planes Traveler
+		addMod(info.guid, 108271, 30) -- Astral Shift
 	end,
-	[22492] = function(info) -- Restoration: Graceful Spirit
-		addMod(info.guid, 79206, 60) -- Spiritwalker's Grace
+	[101979] = function(info) -- Class: Brimming with Life
+		-- Reincarnation cools down faster while at full health
+		if info.guid == playerGUID then
+			syncSpells[21169] = true -- Reincarnation
+		end
+	end,
+	[101971] = function(info) -- Class: Voodoo Mastery
+		addMod(info.guid, 51514, 15) -- Hex
+	end,
+	[101954] = function(info) -- Class: Graceful Spirit
+		addMod(info.guid, 79206, 30) -- Spiritwalker's Grace
+	end,
+	[102002] = function(info) -- Class: Totemic Surge
+		-- all totem abilities -3s
+		--[[
+		addMod(info.guid, 0000, 3)
+
+		[2484] = {30, 5}, -- Earthbind Totem
+		[192058] = {60, 1, nil, 101961}, -- Capacitor Totem
+		[5394] = {30, 1, nil, 101998}, -- Healing Stream Totem
+		[8143] = {60, 1, nil, 101958}, -- Tremor Totem
+		[51485] = {30, 1, nil, 101975}, -- Earthgrab Totem
+		[192077] = {120, 1, nil, 101976}, -- Wind Rush Totem
+		[383013] = {45, 1, nil, 101989}, -- Poison Cleansing Totem
+		[383019] = {60, 1, nil, 101991}, -- Tranquil Air Totem
+		[383017] = {30, 1, nil, 101992}, -- Stoneskin Totem
+		--]]
+	end,
+	[101984] = function(info) -- Class: Go with the Flow
+		addMod(info.guid, 58875, 10) -- Spirit Walk
+		addMod(info.guid, 192063, 5) -- Gust of Wind
+	end,
+	[101994] = function(info) -- Class: Thunderstruck
+		addMod(info.guid, 51490, 5) -- Spirit Walk
+	end,
+	[101986] = function(info) -- Class: Call of the Elements
+		addMod(info.guid, 108285, 60) -- Totemic Recall
+	end,
+	[101876] = function(info, rank) -- Elemental: Oath of the Far Seer
+		addMod(info.guid, 114049, rank * 30) -- Ascendance
+	end,
+	[101900] = function(info, rank) -- Restoration: Healing Stream Totem
+		if info.talents[101998] then
+			addMod(info.guid, 5394, 0, 2)
+		end
+	end,
+	[114811] = function(info) -- Restoration: Current Control
+		addMod(info.guid, 108280, 30) -- Healing Tide Totem
 	end,
 
 	-- Warlock
-	[22047] = function(info) -- Darkfury
+	[91440] = function(info) -- Class: Fel Pact
+		addMod(info.guid, 333889, 30) -- Fel Domination
+	end,
+	[91443] = function(info) -- Class: Teachings of the Satyr
+		addMod(info.guid, 327884, 15) -- Amplify Curse
+	end,
+	[91467] = function(info) -- Class: Dark Accord
+		addMod(info.guid, 104773, 45) -- Unending Resolve
+	end,
+	[91445] = function(info) -- Class: Frequent Donor
+		addMod(info.guid, 108416, 15) -- Dark Pact
+	end,
+	[91451] = function(info) -- Class: Darkfury
 		addMod(info.guid, 30283, 15) -- Shadowfury
 	end,
-	[23139] = function(info) -- Affliction: Dark Caller
-		addMod(info.guid, 205180, 60) -- Summon Darkglare
+	[91421] = function(info) -- Class: Resolute Barrier
+		-- damage that does atleast 5% max hp reduces the cd of UR by 10s once every 25s
+		if info.guid == playerGUID then
+			syncSpells[104773] = true -- Unending Resolve
+		end
 	end,
 
 	-- Warrior
-	[19676] = function(info) -- Double Time
-		addMod(info.guid, 100, 3, 2) -- Charge
+	[112191] = function(info) -- Class: Concussive Blows
+		addMod(info.guid, 6552, 1) -- Pummel
 	end,
-	[22627] = function(info) -- Bounding Stride
+	[112219] = function(info) -- Class: Bounding Stride
 		addMod(info.guid, 52174, 15) -- Heroic Leap
 	end,
-	[21204] = function(info, playerGUID) -- Anger Management
-		-- Rage you spend reduces the remaining cooldown on [Spell] by 1 sec.
-		if info.guid == playerGUID then
-			if info.spec == 71 then -- Arms
-				if info.talents[14] then
-					syncSpells[262161] = true -- Warbreaker
-				else
-					syncSpells[167105] = true -- Colossus Smash
-				end
-				syncSpells[227847] = true -- Bladestorm
-			elseif info.spec == 72 then -- Fury
-				syncSpells[1719] = true -- Recklessness
-			elseif info.spec == 73 then -- Protection
-				syncSpells[107574] = true -- Avatar
-				syncSpells[871] = true -- Shield Wall
-			end
-		end
+	[112218] = function(info) -- Class: Honed Reflexes
+		addMod(info.guid, 6552, 1) -- Pummel
 	end,
-	[22488] = function(info) -- Protection: Bolster
+	[112249] = function(info) -- Class: Double Time
+		addMod(info.guid, 100, 3, 2) -- Charge
+	end,
+	[112221] = function(info) -- Class: Uproar
+		addMod(info.guid, 384318, 30) -- Thunderous Roar
+	end,
+	[112315] = function(info) -- Arms: Valor in Victory
+		addMod(info.guid, 118038, 30) -- Die By the Sword
+	end,
+	[112258] = function(info) -- Fury: Storm of Steel
+		addMod(info.guid, 152277, 0, 2) -- Ravager
+	end,
+	[112115] = function(info) -- Protection: Bolster
 		addMod(info.guid, 12975, 60) -- Last Stand
+	end,
+	[112165] = function(info) -- Protection: Defender's Aegis
+		addMod(info.guid, 871, 30, 2) -- Shield Wall
+	end,
+	[112303] = function(info) -- Protection: Storm of Steel
+		addMod(info.guid, 152277, 0, 2) -- Ravager
 	end,
 }
 
--- Properly handle spell ranks this time around
+-- Specialization passive / spell ranks
 data.levelCooldowns = {
-	DEATHKNIGHT = function(info)
-		if info.spec == 250 then
-			if info.level >= 44 then
-				addMod(info.guid, 194679, 0, 2) -- Rune Tap
-			end
-		elseif info.spec == 251 then
-			if info.level >= 49 then
-				addMod(info.guid, 275699, 15) -- Apocalypse
-			end
-			if info.level >= 29 then
-				addMod(info.guid, 46584, 90) -- Raise Dead
-			end
-		end
-	end,
-	DEMONHUNTER = function(info)
-		if info.level >= 42 then
-			addMod(info.guid, 188501, 30) -- Fel Rush
-		end
-		if info.spec == 577 then
-			if info.level >= 28 then
-				addMod(info.guid, 195072, 0, 2) -- Fel Rush
-			end
-			if info.level >= 47 then
-				addMod(info.guid, 196718, 120) -- Darkness
-			end
-			if info.level >= 48 then
-				addMod(info.guid, 187827, 60) -- Metamorphosis
-			end
-		elseif info.spec == 581 then
-			if info.level >= 20 then
-				addMod(info.guid, 187827, 60) -- Metamorphosis
-			end
-			if info.level >= 27 then
-				addMod(info.guid, 258920, 15) -- Immolation Aura
-			end
-			if info.level >= 28 then
-				addMod(info.guid, 189110, 0, 2) -- Infernal Strike
-			end
-			if info.level >= 33 then
-				addMod(info.guid, 207684, 90) -- Sigil of Misery
-			end
-			if info.level >= 48 then
-				addMod(info.guid, 187827, 60) -- Metamorphosis
-			end
-			if info.level >= 48 then
-				addMod(info.guid, 202137, 60) -- Sigil of Silence
-			end
-		end
-	end,
-	DRUID = function(info)
-		if info.spec == 104 then -- Guardian
-			if info.level >= 39 then
-				addMod(info.guid, 22842, 0, 2) -- Frenzied Regen
-			end
-			if info.level >= 47 then
-				addMod(info.guid, 61336, 0, 2) -- Survival Instincts
-			end
-			if info.level >= 49 then
-				addMod(info.guid, 106898, 60) -- Stampeding Roar
-			end
-		end
-	end,
-	HUNTER = function(info)
-		if info.spec == 253 then -- Beast Master
-			if info.level >= 56 then -- Improved Traps
-				addMod(info.guid, 187650, 5) -- Freezing Trap
-				addMod(info.guid, 187698, 5) -- Tar Trap
-			end
-		elseif info.spec == 255 then -- Survival
-			if info.level >= 38 then
-				addMod(info.guid, 190925, 10) -- Harpoon
-			end
-		end
-	end,
-	MAGE = function(info)
-		if info.spec == 62 then -- Arcane
-			if info.level >= 43 then
-				addMod(info.guid, 12051, 90) -- Evocation
-			end
-		elseif info.spec == 63 then -- Fire
-			if info.level >= 38 then
-				addMod(info.guid, 31661, 2) -- Dragon's Breath
-			end
-		elseif info.spec == 64 then -- Frost
-			if info.level >= 54 then
-				addMod(info.guid, 235219, 30) -- Cold Snap
-			end
-		end
-	end,
-	MONK = function(info)
-		if info.level >= 9 then
-			addMod(info.guid, 109132, 0, 2) -- Roll
-		end
-		if info.level >= 56 then
-			addMod(info.guid, 115078, 15) -- Paralysis
-		end
-		if info.spec ~= 268 then
-			if info.level >= 28 then
-				-- Starting CD is 420
-				addMod(info.guid, 115203, -60) -- Fortifying Brew
-			end
-			if info.level >= 48 then
-				-- Final CD is 180
-				addMod(info.guid, 115203, 240) -- Fortifying Brew
-			end
-		end
-		if info.spec == 269 then
-			if info.level >= 54 then
-				addMod(info.guid, 101545, 5) -- Flying Serpent Kick
-			end
-		end
-	end,
 	PALADIN = function(info)
-		if info.level >= 43 then
+		if info.spec == 70 then
 			addMod(info.guid, 31884, 60) -- Avenging Wrath
-		end
-		if info.level >= 49 then
-			addMod(info.guid, 190784, 15) -- Divine Steed
+			addMod(info.guid, 498, -30) -- Divine Protection
 		end
 	end,
 	ROGUE = function(info)
-		if info.level >= 31 then
-			addMod(info.guid, 2983, 60) -- Sprint
-		end
-		if info.spec == 260 and info.level >= 56 then
-			addMod(info.guid, 195457, 15) -- Grappling Hook
-		end
-	end,
-	SHAMAN = function(info)
-		if info.level >= 56 then
-			addMod(info.guid, 51514, 10) -- Hex
-		end
-	end,
-	WARRIOR = function(info)
-		if info.spec == 71 then -- Arms
-			if info.level >= 37 then
-				addMod(info.guid, 167105, 45) -- Colossus Smash
-			end
-			if info.level >= 42 then
-				addMod(info.guid, 260708, 15) -- Sweeping Strikes
-			end
-			if info.level >= 52 then
-				addMod(info.guid, 118038, 60) -- Die by the Sword
-			end
-		elseif info.spec == 72 then -- Fury
-			if info.level >= 32 then
-				addMod(info.guid, 184364, 60) -- Enraged Regeneration
-			end
+		if info.spec == 259 or info.spec == 261 then
+			addMod(info.guid, 137619, 30) -- Marked for Death
 		end
 	end,
 }
@@ -357,19 +606,31 @@ data.combatResSpells = {
 	[20484] = true, -- Rebirth
 	[95750] = true, -- Soulstone Resurrection
 	[61999] = true, -- Raise Ally
+	[391054] = true, -- Intercession
+	-- Engineering
+	[345130] = true, -- Disposable Spectrophasic Reanimator
+	[385403] = true, -- Tinker: Arclight Vital Correctors
 }
 
 data.chargeSpells = {
 	-- Death Knight
-	[194679] = 1, -- Rune Tap (Blood) (2 at 44)
-	[221699] = 2, -- Blood Tap (Blood talent)
+	[43265] = 1, -- Death and Decay
+	[48265] = 1, -- Death's Advance
+	[49576] = 1, -- Death Grip
+	[194679] = 2, -- Rune Tap (Blood)
+	[221699] = 2, -- Blood Tap (Blood)
+	[47568] = 1, -- Empower Rune Weapon
 	-- Demon Hunter
 	[195072] = 2, -- Fel Rush (Havoc)
-	[189110] = 1, -- Infernal Strike (Vengeance) (2 at 28)
+	[189110] = 1, -- Infernal Strike (Vengeance)
+	[204021] = 1, -- Fiery Brand (Vengeance)
 	-- Druid
 	[61336] = 1, -- Survival Instincts
 	[22842] = 1, -- Frenzied Regeneration
-	[274281] = 3, -- New Moon (Balance talent)
+	[274281] = 3, -- New Moon
+	-- Evoker
+	[363916] = 1, -- Obsidian Scales
+	[358267] = 1, -- Hover
 	-- Hunter
 	[259495] = 1, -- Wildfire Bomb
 	-- Mage
@@ -378,147 +639,205 @@ data.chargeSpells = {
 	[108839] = 3, -- Ice Floes
 	-- Monk
 	[109132] = 1, -- Roll
-	[122281] = 2, -- Healing Elixir (Talent)
+	[115008] = 1, -- Chi Torpedo
+	[119582] = 1, -- Purifying Brew
+	[122281] = 2, -- Healing Elixir
 	-- Paladin
 	[190784] = 1, -- Divine Steed
+	-- Priest
+	[121536] = 3, -- Angelic Feather
+	[194509] = 1, -- Power Word: Radiance
+	[33206] = 1, -- Pain Suppression
 	-- Rogue
-	[36554] = 2, -- Shadowstep
+	[36554] = 1, -- Shadowstep
 	[185313] = 1, -- Shadow Dance
+	[1856] = 1, -- Vanish
+	-- Shaman
+	[5394] = 1, -- Healing Stream Totem
 	-- Warrior
 	[100] = 1, -- Charge
-	[198304] = 2, -- Intercept
+	[152277] = 1, -- Ravager
+	[871] = 1, -- Shield Wall
 }
 
--- { cd, level, spec id, talent index, sync, race }
+-- { cd, level, spec id, talent entry id, sync, race }
 -- level can be a hash of spec=level for talents in different locations
 -- spec id can be a table of specs and is optional if level or talent are a table
--- talent index can be negative to indicate a talent replaces the spell
---   and can be a hash of spec=index for talents in different locations
+-- talent entry id can be negative to indicate a talent replaces the spell
+--   and can be a hash of spec=id for spec talents
 -- sync will register SPELL_UPDATE_COOLDOWN and send "CooldownUpdate" syncs
 --   with the cd (for dynamic cooldowns with hard to track conditions)
 data.spells = {
 	DEATHKNIGHT = {
-		[43265] = {30, 3, nil, {[250]=false,[251]=false,[252]=-18}}, -- Death and Decay
-		[49576] = {25, 5, 250}, -- Death Grip
-		[47528] = {15, 7}, -- Mind Freeze
-		[48707] = {60, 9}, -- Anti-Magic Shell
-		[46584] = {120, 12}, -- Raise Dead
-		[275699] = {90, 19, 252}, -- Apocalypse
-		[127344] = {15, 19}, -- Corpse Exploder
-		[196770] = {20, 19, 251}, -- Remorseless Winder
-		[194679] = {25, 19, 250}, -- Rune Tap (2 charges)
-		[221562] = {45, 21, 250}, -- Asphyxiate
-		[51271] = {45, 29, 251}, -- Pillar of Frost
-		[55233] = {90, 29, 250}, -- Vampiric Blood
-		[63560] = {60, 32, 252}, -- Dark Transformation
-		[108199] = {120, 32, 250}, -- Gorefiend's Grasp
-		[49039] = {120, 33}, -- Lichborne
-		[49028] = {120, 34, 250}, -- Dancing Rune Weapon
-		[48792] = {180, 38}, -- Icebound Fortitude
-		[61999] = {600, 39}, -- Raise Ally
-		[42650] = {480, 44, 252}, -- Army of the Dead
-		[279302] = {180, 44, 251}, -- Frostwyrm's Fury
-		[51052] = {120, 47}, -- Anti-Magic Zone
-		[47568] = {120, 48, 251}, -- Empower Rune Weapon
-		[327574] = {120, 54}, -- Sacrificial Pact
+		[43265] = {30, 3, nil, {[250]=false,[251]=false,[252]=-96315}}, -- Death and Decay
+		[49576] = {25, 5}, -- Death Grip
+		[48265] = {45, 9}, -- Death's Advance
+		[49039] = {120, 9}, -- Lichborne
+		[61999] = {600, 19}, -- Raise Ally
 
-		[206931] = {30, 15, 250, 2}, -- Blooddrinker
-		[219809] = {60, 15, 250, 3}, -- Tombstone
-		[274156] = {30, 25, 250, 6}, -- Consumption
-		[57330] = {45, 25, 251, 6}, -- Horn of Winter
-		[115989] = {45, 25, 252, 6}, -- Unholy Blight
-		[108194] = {45, 30, nil, {[251]=8, [252]=9}}, -- Asphyxiate
-		[207167] = {60, 30, 251, 9}, -- Blinding Sleet
-		[221699] = {60, 30, 250, 9}, -- Blood Tap (2 charges)
-		[212552] = {60, 40, nil, {[250]=15, [251]=14, [252]=14}}, -- Wraith Walk
-		[48743] = {120, 45, nil, {[250]=17, [251]=15, [252]=15}}, -- Death Pact
-		[152280] = {20, 45, 252, 18}, -- Defile
-		[49206] = {180, 50, 252, 20}, -- Summon Gargoyle
-		[152279] = {120, 50, 251, 21}, -- Breath of Sindragosa
-		[194844] = {60, 50, 250, 21}, -- Bonestorm
-		[207289] = {75, 50, 252, 21}, -- Unholy Assault
+		[46584] = {120, 1, nil, 96201}, -- Raise Dead
+		[47528] = {15, 1, nil, 96211}, -- Mind Freeze
+		[48707] = {60, 1, nil, 96199}, -- Anti-Magic Shell
+		[207167] = {60, 1, nil, 96172}, -- Blinding Sleet
+		[327574] = {120, 1, nil, 96203}, -- Sacrificial Pact
+		[48792] = {180, 1, nil, 96213}, -- Icebound Fortitude
+		[51052] = {120, 1, nil, 96194}, -- Anti-Magic Zone
+		[221562] = {45, 1, nil, 96193}, -- Asphyxiate
+		[48743] = {120, 1, nil, 96206}, -- Death Pact
+		[212552] = {60, 1, nil, 96207}, -- Wraith Walk
+		[47568] = {120, 1, nil, {[250]=96178,[251]={96178,96229},[252]=96178}}, -- Empower Rune Weapon
+		[383269] = {120, 1, nil, 96177}, -- Abomination Limb
+
+		[55233] = {90, 1, 250, 96308}, -- Vampiric Blood
+		[194679] = {25, 1, 250, 96278}, -- Rune Tap (2 charges)
+		[49028] = {120, 1, 250, 96269}, -- Dancing Rune Weapon
+		[274156] = {30, 1, 250, 96275}, -- Consumption
+		[206931] = {30, 1, 250, 96276}, -- Blooddrinker
+		[221699] = {60, 1, 250, 96274}, -- Blood Tap (2 charges)
+		[219809] = {60, 1, 250, 96270}, -- Tombstone
+		[108199] = {120, 1, 250, 96267}, -- Gorefiend's Grasp
+		[194844] = {60, 1, 250, 96258}, -- Bonestorm
+
+		[196770] = {20, 1, 251, 96242}, -- Remorseless Winder
+		[51271] = {45, 1, 251, 96234}, -- Pillar of Frost
+		[57330] = {45, 1, 251, 96240}, -- Horn of Winter
+		[305392] = {45, 1, 251, 96228}, -- Chill Streak
+		[279302] = {180, 1, 251, 96224}, -- Frostwyrm's Fury
+		[152279] = {120, 1, 251, 96222}, -- Breath of Sindragosa
+
+		[63560] = {60, 1, 252, 96324}, -- Dark Transformation
+		[115989] = {45, 1, 252, 96296}, -- Unholy Blight
+		[275699] = {90, 1, 252, 96322}, -- Apocalypse
+		[152280] = {20, 1, 252, 96315}, -- Defile
+		[390279] = {90, 1, 252, 96293}, -- Vile Contagion
+		[42650] = {480, 1, 252, 96333}, -- Army of the Dead
+		[49206] = {180, 1, 252, 96311}, -- Summon Gargoyle
+		[207289] = {75, 1, 252, 96285}, -- Unholy Assault
 	},
 	DEMONHUNTER = {
-		[179057] = {60, 1, 577}, -- Chaos Nova
-		[195072] = {10, 1, 577}, -- Fel Rush
-		[204021] = {60, 1, 581}, -- Fiery Brand
+		[195072] = {10, 1}, -- Fel Rush
 		[189110] = {20, 1, 581}, -- Infernal Strike
-		[187827] = {300, 1}, -- Metamorphosis (Vengeance)
-		[200166] = 187827, -- Metamorphosis (Havoc)
 		[188501] = {60, 1}, -- Spectral Sight
-		[198793] = {25, 1, 577}, -- Vengeful Retreat
-		[212084] = {60, 11, 581}, -- Fel Devastation
-		[204596] = {30, 12, 581}, -- Sigil of Flame
 		[258920] = {30, 14}, -- Immolation Aura
-		[278326] = {10, 17}, -- Consume Magic
-		[207684] = {180, 21, 581}, -- Sigil of Misery
-		[183752] = {15, 29}, -- Disrupt
-		[198589] = {60, 33, 577}, -- Blur
-		[217832] = {45, 34}, -- Imprison
-		[196718] = {300, 39, 577}, -- Darkness
-		[202137] = {120, 39, 581}, -- Sigil of Silence
+		[198589] = {60, 18}, -- Blur
+		[212800] = 198589,
+		[183752] = {15, 20}, -- Disrupt
+		[187827] = {300, 20}, -- Metamorphosis (Vengeance)
+		[200166] = 187827, -- Metamorphosis (Havoc)
+		[390163] = {60, 1, nil, {[577]=112930,[581]=112874}}, -- Elysian Decree
 
-		[232893] = {15, 15, nil, 3}, -- Felblade
-		[342817] = {20, 30, 577, 9}, -- Glaive Tempest
-		[196555] = {180, 35, 577, 12}, -- Netherwalk
-		[258860] = {20, 40, 577, 15}, -- Essence Break
-		[202138] = {90, 40, 581, 15}, -- Sigil of Chains
-		[211881] = {30, 45, 577, 18}, -- Fel Eruption
-		[263648] = {30, 45, 581, 18}, -- Soul Barrier
-		[258925] = {60, 50, 577, 21}, -- Fel Barrage
-		[320341] = {90, 50, 581, 21}, -- Bulk Extraction
+		[198793] = {25, 1, nil, 112853}, -- Vengeful Retreat
+		[204596] = {30, 1, nil, 112854}, -- Sigil of Flame
+		[217832] = {45, 1, nil, 112927}, -- Imprison
+		[278326] = {10, 1, nil, 112926}, -- Consume Magic
+		[179057] = {60, 1, nil, 112911}, -- Chaos Nova
+		[207684] = {180, 1, nil, 112859}, -- Sigil of Misery
+		[196718] = {300, 1, nil, 112921}, -- Darkness
+		[370965] = {90, 1, nil, 112837}, -- The Hunt
+
+		[196555] = {180, 1, 577, 112821}, -- Netherwalk
+		[211881] = {30, 1, 577, 112935}, -- Fel Eruption
+		[342817] = {20, 1, 577, 112946}, -- Glaive Tempest
+		[258925] = {60, 1, 577, 112945}, -- Fel Barrage
+		[258860] = {20, 1, 577, 112956}, -- Essence Break
+
+		[212084] = {60, 1, 581, 112908}, -- Fel Devastation
+		[204021] = {60, 1, 581, 112864}, -- Fiery Brand
+		[202137] = {60, 1, 581, 112904}, -- Sigil of Silence
+		[320341] = {90, 1, 581, 112869}, -- Bulk Extraction
+		[263648] = {30, 1, 581, 112870}, -- Soul Barrier
+		[202138] = {90, 1, 581, 112867}, -- Sigil of Chains
+		[214743] = {60, 1, 581, 112898}, -- Soul Carver
+
 	},
 	DRUID = {
 		[1850] = {120, 6}, -- Dash
-		[5217] = {30, 12, 103}, -- Tiger's Fury
-		[102342] = {90, 12, 105}, -- Ironbark
-		[22842] = {36, 21, nil, {[102]=8,[103]=8,[104]=false,[105]=8}}, -- Frenzied Regeneration (2 charges at 39)
-		[22812] = {60, 24}, -- Barkskin
-		[106839] = {15, 26, {103, 104}}, -- Skull Bash
-		[78675] = {60, 26, 102}, -- Solar Beam
-		[99] = {30, 28, 104}, -- Incapacitating Roar
-		[132469] = {30, 28, 102}, -- Typhoon
-		[61391] = 132469, -- Typhoon (actual event)
-		[102793] = {60, 28, nil, {[102]=9,[103]=9,[104]=9,[105]=false}}, -- Ursol's Vortex
-		[20484] = {600, 29}, -- Rebirth
-		[61336] = {180, 32, {103, 104}}, -- Survival Instincts (2 charges at 47)
-		[106951] = {180, 34, 103, -15}, -- Berserk
-		[740] = {180, 37, 105}, -- Tranquility
-		[194223] = {180, 39, 102, -15}, -- Celestial Alignment
-		[2908] = {10, 41}, -- Soothe
-		[29166] = {180, 42, {102, 105}}, -- Innervate
-		[106898] = {120, 43}, -- Stampeding Roar
-		-- [77761] = 106898, -- Stampeding Roar (Guardian, 60s)
-		-- [77764] = 106898, -- Stampeding Roar (Feral, 120s)
-		[132158] = {60, 58, 105}, -- Nature's Swiftness
+		[22812] = {60, 10}, -- Barkskin
+		[20484] = {600, 19}, -- Rebirth
+		[391528] = {120, 1, nil, {[102]=109838,[103]=103177,[104]=103200,[105]=103119}}, -- Convoke the Spirits
 
-		[202425] = {45, 15, 102, 2}, -- Warrior of Elune
-		[205636] = {60, 15, 102, 3}, -- Force of Nature
-		[155835] = {40, 15, 104, 3}, -- Bristling Fur
-		[102351] = {30, 15, 105, 3}, -- Cenarion Ward
-		[252216] = {45, 25, nil, 4}, -- Tiger Dash
-		[108238] = {90, 25, nil, 5}, -- Renewel
-		[132302] = {15, 25, nil, 6}, -- Wild Charge
+		[22842] = {36, 1, nil, 103298}, -- Frenzied Regeneration
+		[252216] = {45, 1, nil, 103275}, -- Tiger Dash
+		[132302] = {15, 1, nil, 103276}, -- Wild Charge
+		[102401] = 132302, -- Wild Charge (Caster)
 		[16979]  = 132302, -- Wild Charge (Bear)
 		[49376]  = 132302, -- Wild Charge (Cat)
 		[102383] = 132302, -- Wild Charge (Moonkin)
 		[102416] = 132302, -- Wild Charge (Aquatic)
 		[102417] = 132302, -- Wild Charge (Travel)
-		[5211]   = {50, 35, nil, 10}, -- Mighty Bash
-		[102359] = {30, 35, nil, 11}, -- Mass Entanglement
-		[319454] = {300, 35, nil, 12}, -- Heart of the Wild
-		[102560] = {180, 40, 102, 15}, -- Incarnation: Chosen of Elune
-		[102543] = {180, 40, 103, 15}, -- Incarnation: King of the Jungle
-		[102558] = {180, 40, 104, 15}, -- Incarnation: Guardian of Ursoc
-		[203651] = {60, 45, 105, 18}, -- Overgrowth
-		[202770] = {60, 50, 102, 20}, -- Fury of Elune
-		[274837] = {45, 50, 103, 21}, -- Feral Frenzy
-		[274281] = {20, 50, 102, 21}, -- New Moon (3 charges)
-		[80313] = {45, 50, 104, 21}, -- Lunar Beam
-		[33891]  = {180, 40, 105, 15}, -- Incarnation: Tree of Life
-		[197721] = {90, 50, 21}, -- Flourish
+		[106839] = {15, 1, nil, 103302}, -- Skull Bash
+		[2908] = {10, 1, nil, 103307}, -- Soothe
+		[132469] = {30, 1, nil, 103287}, -- Typhoon
+		[61391] = 132469, -- Typhoon (actual event)
+		[106898] = {120, 1, nil, 103312}, -- Stampeding Roar
+		-- [77761] = 106898, -- Stampeding Roar (Guardian, 60s)
+		-- [77764] = 106898, -- Stampeding Roar (Feral, 120s)
+		[99] = {30, 1, nil, 103316}, -- Incapacitating Roar
+		[5211] = {50, 1, nil, 103315}, -- Mighty Bash
+		[102359] = {30, 1, nil, 103322}, -- Mass Entanglement
+		[102793] = {60, 1, nil, 103321}, -- Ursol's Vortex
+		[108238] = {90, 1, nil, 103310}, -- Renewel
+		[29166] = {180, 1, nil, 103323}, -- Innervate
+		[319454] = {300, 1, nil, 103309}, -- Heart of the Wild
+		[124974] = {90, 1, nil, 103324}, -- Nature's Vigil
+
+		[78675] = {60, 1, 102, 109867}, -- Solar Beam
+		[205636] = {60, 1, 102, 109844}, -- Force of Nature
+		[202425] = {45, 1, 102, 114648}, -- Warrior of Elune
+		[194223] = {180, 1, 102, 109849}, -- Celestial Alignment
+		[202359] = {60, 1, 102, 109871}, -- Astral Communion
+		[102560] = {180, 1, 102, 109839}, -- Incarnation: Chosen of Elune
+		[202770] = {60, 1, 102, 109859}, -- Fury of Elune
+		[274281] = {20, 1, 102, 109860}, -- New Moon (3 charges)
+
+		[5217] = {30, 1, 103, 103188}, -- Tiger's Fury
+		[61336] = {180, 1, nil, {[103]=103180,[104]=103193}}, -- Survival Instincts
+		[106951] = {180, 1, 103, {103162,-103178}}, -- Berserk
+		[391888] = {25, 1, nil, {[103]=103175,[105]=103123}}, -- Adaptive Swarm
+		[102543] = {180, 1, 103, 103178}, -- Incarnation: Avatar of Ashamane
+		[274837] = {45, 1, 103, 103170}, -- Feral Frenzy
+
+		[155835] = {40, 1, 104, 103230},  -- Bristling Fur
+		-- [50334] = {180, 1, 104, 103216}, -- Berserk: Ravage -- XXX does this use the base berserk id?
+		[80313] = {45, 1, 104, 103222}, -- Pulverize
+		[102558] = {180, 1, 104, 103201}, -- Incarnation: Guardian of Ursoc
+		[200851] = {60, 1, 104, 103207}, -- Rage of the Sleeper
+		[204066] = {60, 1, 104, 114700}, -- Lunar Beam
+
+		[132158] = {60, 1, 105, 103101}, -- Nature's Swiftness
+		[102351] = {30, 1, 105, 103104}, -- Cenarion Ward
+		[740] = {180, 1, 105, 103108}, -- Tranquility
+		[102342] = {90, 1, 105, 103141}, -- Ironbark
+		[203651] = {60, 1, 105, 103115}, -- Overgrowth
+		[33891]  = {180, 1, 105, 103120}, -- Incarnation: Tree of Life
+		[197721] = {90, 1, 105, 103136}, -- Flourish
+		[392160] = {20, 1, 105, 103133}, -- Invigorate
 	},
 	EVOKER = {
+		[357210] = {120, 1}, -- Deep Breath
+		[358267] = {35, 1}, -- Hover
+		[390386] = {300, 60}, -- Fury of the Aspects
+
+		[358385] = {90, 1, nil, 87708}, -- Landslide
+		[363916] = {90, 1, nil, 87702}, -- Obsidian Scales
+		[360995] = {24, 1, nil, 87715}, -- Verdant Embrace
+		[351338] = {40, 1, nil, 87692}, -- Quell
+		[374251] = {60, 1, nil, 87700}, -- Cauterizing Flame
+		[370553] = {120, 1, nil, 87713}, -- Tip the Scales
+		[360806] = {15, 1, nil, 87587}, -- Sleep Walk
+		[372048] = {120, 1, nil, 87695}, -- Oppressing Roar
+		[370665] = {60, 1, nil, 87685}, -- Rescue
+		[374348] = {90, 1, nil, 87679}, -- Renewing Blaze
+		[374968] = {120, 1, nil, 87676}, -- Time Spiral
+		[374227] = {120, 1, nil, 87682}, -- Zephyr
+
+		[375087] = {120, 1, nil, 87665}, -- Dragonrage
+
+		[363534] = {240, 1, nil, 87612}, -- Rewind
+		[357170] = {60, 1, nil, 87613}, -- Time Dilation
+		[370960] = {180, 1, nil, 87594}, -- Emerald Communion
+		[359816] = {120, 1, nil, 87597}, -- Dream Flight
+		[370537] = {90, 1, nil, 87603}, -- Stasis
 	},
 	HUNTER = {
 		[781] = {20, 4}, -- Disengage
@@ -528,237 +847,305 @@ data.spells = {
 		[186265] = {180, 8}, -- Aspect of the Turtle
 		[109304] = {120, 9}, -- Exhilaration
 		[187650] = {30, 10}, -- Freezing Trap
-		[186387] = {30, 12, 254}, -- Bursting Shot
-		[190925] = {30, 14, 255}, -- Harpoon
-		[147362] = {24, 18, {253, 254}}, -- Counter Shot
-		[187707] = {15, 18, 255}, -- Muzzle
-		[61648] = {180, 19}, -- Aspect of the Chameleon
 		[1543] = {20, 19}, -- Flare
 		[19574] = {90, 20, 253}, -- Bestial Wrath
-		-- [257044] = {20, 20, 254}, -- Rapid Fire (Lethal Shots randomly reduces it)
-		[259495] = {18, 20, 255}, -- Wildfire Bomb
-		[270335] = 259495, -- Shrapnel Bomb (20: Wildfire Infusion)
-		[270323] = 259495, -- Pheromone Bomb (20: Wildfire Infusion)
-		[271045] = 259495, -- Volatile Bomb (20: Wildfire Infusion)
-		[187698] = {30, 21, 255}, -- Tar Trap
-		[186289] = {90, 24, 255}, -- Aspect of the Eagle
-		[34477] = {30, 27}, -- Misdirection
-		[19577] = {60, 33, {253,255}}, -- Intimidation
-		[266779] = {120, 34, 255}, -- Coordinated Assault
-		[288613] = {120, 34, 254}, -- Trueshot
-		[19801] = {10, 37}, -- Tranquilizing Shot
-		[193530] = {120, 38, 253}, -- Aspect of the Wild
-
-		[212431] = {30, 25, 254, 6}, -- Explosive Shot
-		[199483] = {60, 30, nil, 9}, -- Camouflage
-		[162488] = {30, 35, 255, 11}, -- Steel Trap
-		[131894] = {60, {[253]=35,[254]=15,[255]=35}, nil, {[253]=12,[254]=3,[255]=12}, true}, -- A Murder of Crows
-		[109248] = {45, 40, nil, {[253]=15,[254]=false,[255]=15}}, -- Binding Shot
-		[120360] = {20, {[253]=35,[254]=25}, nil, {[253]=17,[254]=5}}, -- Barrage
-		[260402] = {60, 45, 254, 18}, -- Double Tap
-		[201430] = {120, 45, 253, 18}, -- Stampede
-		[269751] = {40, 45, 255, 18}, -- Flanking Strike
-		[321530] = {60, 50, 253, 21}, -- Bloodshed
-		[260243] = {45, 50, 254, 21}, -- Volley
-		[259391] = {20, 50, 255, 21}, -- Chakrams
-
 		-- Command Pet XXX Not sure how do deal with these for available cds
-		[53271] = {45, 22}, -- Master's Call (Cunning)
-		[264735] = {180, 22}, -- Survival of the Fittest (Tenacity)
-		[272678] = {360, 22}, -- Primal Rage (Ferocity)
+		[53271] = {45, 28}, -- Master's Call (Cunning)
+		[272682] = 53271, -- Command Pet
+		[388035] = {120, 1}, -- Fortitude of the Bear (Tenacity)
+		[272679] = 388035, -- Command Pet
+		[264667] = {360, 48}, -- Primal Rage (Ferocity)
+		[272678] = 264667, -- Command Pet
+
+		[187707] = {15, 1, 255, 100543}, -- Muzzle
+		[147362] = {24, 1, {253,254}, 100624}, -- Counter Shot
+		[187698] = {30, 1, nil, 100641}, -- Tar Trap
+		[34477] = {30, 1, nil, 100637}, -- Misdirection
+		[264735] = {180, 1, nil, 100523}, -- Survival of the Fittest
+		[19801] = {10, 1, nil, 100617}, -- Tranquilizing Shot
+		[236776] = {40, 1, nil, 100620}, -- High Explosive Trap
+		[19577] = {60, 1, nil, 100621}, -- Intimidation
+		[109248] = {45, 1, nil, 100650}, -- Binding Shot
+		[213691] = {30, 1, nil, 100651}, -- Scatter Shot
+		[199483] = {60, 1, nil, 100647}, -- Camouflage
+		[162488] = {25, 1, nil, 100618}, -- Steel Trap
+		[375891] = {45, 1, nil, 100628}, -- Death Chakram
+		[201430] = {120, 1, nil, 100629}, -- Stampede
+		[212431] = {30, 1, nil, 100626}, -- Explosive Shot
+		[120360] = {20, 1, nil, 100526}, -- Barrage
+
+		[131894] = {60, 1, 253, 100657, true}, -- A Murder of Crows
+		[321530] = {60, 1, 253, 100525}, -- Bloodshed
+		[392060] = {60, 1, nil, {[253]=100652,[254]=100590}}, -- Wailing Arrow
+		[193530] = {120, 1, 253, 100664}, -- Aspect of the Wild
+		[359844] = {180, 1, 235, 100682}, -- Call of the Wild
+
+		-- [257044] = {20, 1, 254, 100585, true}, -- Rapid Fire (randomly reduced/reset)
+		[186387] = {30, 1, 254, 100577}, -- Bursting Shot
+		[260243] = {45, 1, 254, 100595}, -- Volley
+		[288613] = {120, 1, 254, 100587}, -- Trueshot
+		[400456] = {45, 1, 254, 100534}, -- Salvo
+
+		[259495] = {18, 1, 255, 100568}, -- Wildfire Bomb
+		[270335] = 259495, -- Shrapnel Bomb (Wildfire Infusion)
+		[270323] = 259495, -- Pheromone Bomb (Wildfire Infusion)
+		[271045] = 259495, -- Volatile Bomb (Wildfire Infusion)
+		[190925] = {30, 1, 255, 100546}, -- Harpoon
+		[186289] = {90, 1, 255, 100562}, -- Aspect of the Eagle
+		[269751] = {40, 1, 255, 100545}, -- Flanking Strike
+		[266779] = {120, 1, 255, 100570}, -- Coordinated Assault
+		-- [203415] = {45, 1, 255, 100557, true}, -- Fury of the Eagle (random resets)
+		[360966] = {90, 1, 255, 100571}, -- Spearhead
 	},
 	MAGE = {
-		[45438] = {240, 22}, -- Ice Block
 		[122] = {30, 3}, -- Frost Nova
-		[1953] = {15, 4, nil, -5}, -- Blink
-		-- [342247] = {60, {[62]=19,[63]=58,[64]=58}}, -- Alter Time -- XXX same spell id to cancel the effect
+		[1953] = {15, 4, nil, -80163}, -- Blink
 		[2139] = {24, 7}, -- Counterspell
-		[31687] = {30, 12, 64, -2}, -- Summon Water Elemental
-		[120] = {12, 18, 64}, -- Cone of Cold
-		[235450] = {25, 21, 62}, -- Prismatic Barrier
-		[235313] = {25, 21, 63}, -- Blazing Barrier
-		[11426] = {25, 21, 64}, -- Ice Barrier
-		[33395] = {25, 23, 62}, -- Freeze (Pet)
-		[31661] = {20, 27, 63}, -- Dragon's Breath
-		[12051] = {180, 27, 62}, -- Evocation
-		[12042] = {120, 29, 62}, -- Arcane Power
-		[12472] = {180, 29, 64}, -- Icy Veins
-		[190319] = {120, 29, 63}, -- Combustion
-		[321507] = {45, 33, 62}, -- Touch of the Magi
-		[66] = {300, 34}, -- Invisibility
-		[84714] = {60, 38, 64}, -- Frozen Orb
-		[205025] = {60, 42, 62}, -- Presence of Mind
-		[235219] = {300, 42, 64}, -- Cold Snap
-		[55342]  = {120, 44}, -- Mirror Image
-		[110959] = {120, 47, 62}, -- Greater Invisibility
+		[120] = {12, 18}, -- Cone of Cold
 		[80353] = {300, 49}, -- Time Warp
 
-		[205022] = {10, 15, 62, 3}, -- Arcane Familiar
-		[157997] = {25, 15, 64, 3}, -- Ice Nova
-		[212653] = {15, 25, nil, 5}, -- Shimmer (2 charges)
-		[157981] = {25, 25, 63, 6}, -- Blast Wave
-		[108839] = {20, 25, 64, 6}, -- Ice Floes (3 charges)
-		[116011] = {120, 30, nil, 9}, -- Rune of Power
-		[257537] = {45, 35, 64, 12}, -- Ebonbolt
-		[113724] = {45, 40, nil, 15}, -- Ring of Frost
-		[153626] = {20, 45, 62, 17}, -- Arcane Orb
-		[157980] = {25, 45, 62, 18}, -- Supernova
-		[44457]  = {12, 45, 63, 18}, -- Living Bomb
-		[153595] = {30, 45, 64, 18}, -- Comet Storm
-		[153561] = {45, 50, 63, 21}, -- Meteor
-		[205021] = {75, 50, 64, 20}, -- Ray of Frost
+		[235450] = {25, 1, 62, 80180}, -- Prismatic Barrier
+		[235313] = {25, 1, 63, 80178}, -- Blazing Barrier
+		[11426] = {25, 1, 64, 80176}, -- Ice Barrier
+		[45438] = {240, 1, nil, 80181}, -- Ice Block
+		[66] = {300, 1, nil, 80177}, -- Invisibility
+		[55342] = {120, 1, nil, 80183}, -- Mirror Image
+		[116011] = {45, 1, nil, 80171}, -- Rune of Power
+		[342245] = {60, 1, nil, 80174}, -- Alter Time
+		[383121] = {60, 1, nil, 80164}, -- Mass Polymorph
+		[113724] = {45, 1, nil, 80144}, -- Ring of Frost
+		[157997] = {25, 1, nil, 80186}, -- Ice Nova
+		[108839] = {20, 1, nil, 80162}, -- Ice Floes (3 charges)
+		[212653] = {25, 1, nil, 80163}, -- Shimmer (2 charges)
+		[157981] = {30, 1, nil, 80160}, -- Blast Wave
+		[110959] = {120, 1, nil, 80152}, -- Greater Invisibility
+		[31661] = {45, 1, nil, 80147}, -- Dragon's Breath
+		[382440] = {60, 1, nil, 80141}, -- Shifting Power -- XXX ...
+		[389713] = {45, 1, nil, 80148}, -- Displacement
+		[153561] = {45, 1, nil, 80145}, -- Meteor
+
+		[153626] = {20, 1, 62, 80308}, -- Arcane Orb
+		[365350] = {90, 1, 62, 80299}, -- Arcane Surge
+		[205022] = {10, 1, 62, 80207}, -- Arcane Familiar
+		[205025] = {45, 1, 62, 80208}, -- Presence of Mind
+		[321507] = {45, 1, 62, 80302}, -- Touch of the Magi
+		[157980] = {25, 1, 62, 80290}, -- Supernova
+		[12051] = {90, 1, 62, 80209}, -- Evocation
+		[376103] = {30, 1, 62, 80304}, -- Radiant Spark
+
+		[190319] = {120, 1, 63, 80275}, -- Combustion
+		[44457]  = {12, 1, 63, 80260}, -- Living Bomb
+
+		[84714] = {60, 1, 64, 80242}, -- Frozen Orb
+		[235219] = {300, 1, 64, 80239}, -- Cold Snap
+		[31687] = {30, 1, 64, 80237}, -- Summon Water Elemental
+		[33395] = {25, 23, 64, 80237}, -- Freeze (Water Elemental)
+		[257537] = {45, 1, 64, 80245}, -- Ebonbolt
+		[12472] = {180, 1, 64, 80235}, -- Icy Veins
+		[153595] = {30, 1, 64, 80249}, -- Comet Storm
+		[205021] = {75, 1, 64, 80226}, -- Ray of Frost
 	},
 	MONK = {
-		[109132] = {20, 3, nil, -5}, -- Roll
+		[109132] = {20, 3, nil, -101502}, -- Roll
 		[119381] = {60, 6}, -- Leg Sweep
 		[115080] = {180, 10}, -- Touch of Death
 		[169340] = {90, 17}, -- Touch of Fatality
-		[116705] = {15, 18, {268, 269}}, -- Spear Hand Strike
-		[101545] = {25, 21, 269}, -- Flying Serpent Kick
-		[115078] = {45, 22}, -- Paralysis
-		[116680] = {30, 23, 270}, -- Thunder Focus Tea
-		[322507] = {60, 27, 268}, -- Celestial Brew
-		[116849] = {120, 27, 270}, -- Life Cocoon
-		[115203] = {360, 28}, -- Fortifying Brew (Brewmaster)
-		[243435] = 115203, -- Fortifying Brew (Windwalker, Mistweaver)
-		[122470] = {90, 29, 269}, -- Touch of Karma
-		[115176] = {300, 34, 268}, -- Zen Meditation
-		[132578] = {180, 42, 268}, -- Invoke Niuzao, the Black Ox
-		[123904] = {120, 42, 269}, -- Invoke Xuen, the White Tiger
-		[322118] = {180, 42, 270, -18}, -- Invoke Yu'lon, the Jade Serpent
-		[115310] = {180, 46, 270}, -- Revival
-		[324312] = {30, 54, 268}, -- Clash
 
-		[115008] = {20, 25, nil, 5}, -- Chi Torpedo
-		[116841] = {30, 25, nil, 6}, -- Tiger's Lust
-		[115399] = {120, 30, 268, 9}, -- Black Ox Brew
-		[115288] = {60, 30, 269, 9}, -- Energizing Elixir
-		[197908] = {90, 30, 270, 9}, -- Mana Tea
-		[115315] = {10, 35, 268, 11}, -- Summon Black Ox Statue
-		[198898] = {30, 35, 270, 11}, -- Song of Chi-Ji
-		[116844] = {45, 35, nil, 12}, -- Ring of Peace
-		[122281] = {30, 40, nil, {[268]=14,[270]=16}}, -- Healing Elixir
-		[122783] = {90, 40, {269,270}, 14}, -- Diffuse Magic
-		[122278] = {120, 40, nil, 15}, -- Dampen Harm
-		[325153] = {60, 45, 268, 18}, -- Exploding Keg
-		[325197] = {180, 45, 270, 18}, -- Invoke Chi-Ji, the Red Crane
-		[152173] = {90, 50, 269, 21}, -- Serenity
+		[116841] = {30, 1, nil, 101507}, -- Tiger's Lust
+		[115078] = {45, 1, nil, 101506}, -- Paralysis
+		[116705] = {15, 1, nil, 101504}, -- Spear Hand Strike
+		[115203] = {360, 1, nil, 101496}, -- Fortifying Brew (Brewmaster)
+		[243435] = 115203, -- Fortifying Brew (Windwalker, Mistweaver)
+		[116844] = {45, 1, nil, 101516}, -- Ring of Peace
+		[115008] = {20, 1, nil, 101502}, -- Chi Torpedo
+		[122783] = {90, 1, nil, 101515}, -- Diffuse Magic
+		[122278] = {120, 1, nil, 101522}, -- Dampen Harm
+		[115313] = {10, 1, nil, 101532}, -- Summon Jade Serpent Statue
+		[388686] = {120, 1, nil, 101519}, -- SUmmon White Tiger Statue
+		[115315] = {10, 1, nil, 101535}, -- Summon Black Ox Statue
+
+		[119582] = {20, 1, 268, 101453}, -- Purifying Brew
+		[122281] = {30, 1, nil, {[268]=101458,[270]=101374}}, -- Healing Elixir
+		[322507] = {60, 1, 268, 101463}, -- Celestial Brew
+		[115176] = {300, 1, 268, 101547}, -- Zen Meditation
+		[324312] = {30, 1, 268, 101440}, -- Clash
+		[115181] = {15, 1, 268, 101464}, -- Breath of Fire
+		[115399] = {120, 1, 268, 101450}, -- Black Ox Brew
+		[132578] = {180, 1, 268, 101544}, -- Invoke Niuzao, the Black Ox
+		[386276] = {60, 1, nil, {[268]=101552,[269]=101485}}, -- Bonedust Brew
+		[325153] = {60, 1, 268, 101542}, -- Exploding Keg
+		[387184] = {120, 1, 268, 101539}, -- Weapons of Order
+
+		[122470] = {90, 1, 269, 101420}, -- Touch of Karma
+		[101545] = {25, 1, 269, 101432}, -- Flying Serpent Kick
+		[152173] = {90, 1, 269, 101428}, -- Serenity
+		[392983] = {40, 1, 269, 101491}, -- Strike of the Windlord
+		[123904] = {120, 1, 269, 101473}, -- Invoke Xuen, the White Tiger
+
+		[116849] = {120, 1, 270, 101390}, -- Life Cocoon
+		[116680] = {30, 1, 270, 101410}, -- Thunder Focus Tea
+		[115310] = {180, 1, 270, 101378}, -- Revival
+		[388615] = {180, 1, 270, 101377}, -- Restoral
+		[198898] = {30, 1, 270, 101360}, -- Song of Chi-Ji
+		[325197] = {180, 1, 270, 101396}, -- Invoke Chi-Ji, the Red Crane
+		[322118] = {180, 1, 270, 101397}, -- Invoke Yu'lon, the Jade Serpent
+		[197908] = {90, 1, 270, 101379}, -- Mana Tea
 	},
 	PALADIN = {
 		[853] = {60, 5}, -- Hammer of Justice
-		[633] = {600, 9}, -- Lay on Hands
 		[642] = {300, 10}, -- Divine Shield
-		[190784] = {60, 17}, -- Divine Steed
-		[183218] = {30, 18, 70}, -- Hand of Hindrance
-		[1044] = {25, 22}, -- Blessing of Freedom
-		[10326] = {15, 24}, -- Turn Evil
-		[498] = {60, 26, {65, 66}}, -- Divine Protection
-		[184662] = {120, 26, 70}, -- Shield of Vengeance
-		[96231] = {15, 27, {66, 70}}, -- Rebuke
-		[6940] = {120, 32}, -- Blessing of Sacrifice
-		[31884] = {180, 37, nil, {[65]=-17}}, -- Avenging Wrath
-		[31821] = {180, 39, 65}, -- Aura Mastery
-		[86659] = {300, 39, 66}, -- Guardian of Ancient Kings
-		[255937] = {45, 39, 70}, -- Wake of Ashes
-		[1022] = {300, 41, nil, {[66]=-15}}, -- Blessing of Protection
-		[31850] = {120, 42, 66}, -- Ardent Defender
+		[391054] = {600, 19}, -- Intercession
+		[498] = {60, 26, {65,70}}, -- Divine Protection
 
-		[114158] = {60, 15, 65, 3}, -- Light's Hammer
-		[327193] = {90, 25, 66, 6}, -- Moment of Glory
-		[343527] = {60, 15, 70, 3}, -- Execution Sentence
-		[114165] = {20, 25, 65, 14}, -- Holy Prism
-		[20066] = {15, 30, nil, 8}, -- Repentance
-		[115750] = {90, 30, nil, 9}, -- Blinding Light
-		[204018] = {180, 35, 66, 12}, -- Blessing of Spellwarding
-		[105809] = {180, 40, nil, 14}, -- Holy Avenger
-		[152262] = {45, 40, nil, 15}, -- Seraphim
-		[216331] = {120, 45, 65, 17}, -- Avenging Crusader
-		[205191] = {60, 35, 70, 15}, -- Eye for an Eye
-		[231895] = 31884, -- Crusade (Replaces Avenging Wrath has the same CD)
-		[343721] = {60, 50, 70, 21}, -- Final Reckoning
+		[633] = {600, 1, nil, 102583}, -- Lay on Hands
+		[1044] = {25, 1, nil, 102587}, -- Blessing of Freedom
+		[10326] = {15, 1, nil, 102623}, -- Turn Evil
+		[190784] = {45, 1, nil, 102625}, -- Divine Steed
+		[20066] = {15, 1, nil, 102582}, -- Repentance
+		[115750] = {90, 1, nil, 102584}, -- Blinding Light
+		[96231] = {15, 1, nil, 102591}, -- Rebuke
+		[31884] = {120, 1, nil, 102593}, -- Avenging Wrath
+		[231895] = 31884, -- Avenging Wrath: Might / Sanctified Wrath / Crusade
+		[6940] = {120, 1, nil, 102602}, -- Blessing of Sacrifice
+		[1022] = {300, 1, nil, 102604}, -- Blessing of Protection
+		[375576] = {60, 1, nil, 102465}, -- Divine Toll
+
+		[31821] = {180, 1, 65, 102548}, -- Aura Mastery
+		[210294] = {30, 1, 65, 102551}, -- Divine Favor
+		[414273] = {90, 1, 65, 115876}, -- Hand of Divinity
+		[114158] = {60, 1, 65, 102561}, -- Light's Hammer
+		[114165] = {20, 1, 65, 102560}, -- Holy Prism
+		[216331] = {60, 1, 65, 102568}, -- Avenging Crusader
+		[148039] = {30, 1, 65, 115882}, -- Barrier of Faith
+		[414170] = {60, 1, 65, 102563}, -- Daybreak
+		[388007] = {45, 1, 65, 116183}, -- Blessing of Summer
+		[200652] = {90, 1, 65, 102573}, -- Tyr's Deliverance
+
+		[31850] = {120, 1, 66, 102445}, -- Ardent Defender
+		[204018] = {300, 1, 66, 11886}, -- Blessing of Spellwarding
+		[389539] = {120, 1, 66, 102447}, -- Sentinel
+		[378974] = {120, 1, 66, 102454}, -- Bastion of Light
+		[86659] = {300, 1, 66, 102456}, -- Guardian of Ancient Kings
+		[387174] = {45, 1, 66, 102466}, -- Eye of Tyr
+		[327193] = {90, 1, 66, 102474}, -- Moment of Glory
+
+		[184662] = {60, 1, 70, 102519}, -- Shield of Vengeance
+		[343721] = {60, 1, 70, 102513}, -- Final Reckoning
+		[343527] = {60, 1, 70, 115435}, -- Execution Sentence
+		[255937] = {30, 1, 70, 115043}, -- Wake of Ashes
 	},
 	PRIEST = {
-		[8122] = {60, 7, nil, {[258]=-11}}, -- Psychic Scream
+		[8122] = {60, 7}, -- Psychic Scream
 		[19236] = {90, 8}, -- Desperate Prayer
 		[586] = {30, 9}, -- Fade
-		[47585] = {120, 16, 258}, -- Dispersion
-		[34433] = {180, 20, {256, 258}, {[256]=-8,[258]=-17}}, -- Shadowfiend
-		[194509] = {20, 23, 256}, -- Power Word: Radiance
-		[88625] = {60, 23, 257}, -- Holy Word: Chastise
-		[15286] = {120, 25, 258}, -- Vampiric Embrace
-		[15487] = {45, 29, 258}, -- Silence
-		[47788] = {180, 30, 257}, -- Guardian Spirit
-		[33206] = {180, 38, 256}, -- Pain Suppression
-		[47536] = {90, 41, 256}, -- Rapture
-		[34861] = {60, 41, 257}, -- Holy Word: Sanctify
-		[32375] = {45, 42}, -- Mass Dispel
-		[62618] = {180, 44, 256}, -- Power Word: Barrier
-		[64843] = {180, 44, 257}, -- Divine Hymn
-		[64901] = {300, 47, 257}, -- Symbol of Hope
-		[73325] = {90, 49}, -- Leap of Faith
-		[10060] = {120, 58}, -- Power Infusion
 
-		[123040] = {60, {[256]=30,[258]=45}, nil, {[256]=8,[258]=17}}, -- Mindbender
+		[34433] = {180, 1, nil, {[256]={103865,-103710},[257]=103865,[258]={103865,-103788}}}, -- Shadowfiend
+		[121536] = {20, 1, nil, 103853}, -- Angelic Feather
+		[73325] = {90, 1, nil, 103868}, -- Leap of Faith
+		[108920] = {60, 1, nil, 103859}, -- Void Tendrils
+		[205364] = {30, 1, nil, 103678}, -- Dominate Mind
+		[32375] = {45, 1, nil, 103849}, -- Mass Dispel
+		[10060] = {120, 1, nil, 103844}, -- Power Infusion
+		[15286] = {120, 1, nil, 114735}, -- Vampiric Embrace
+		[120517] = {40, 1, nil, 103827}, -- Halo
+		[122121] = {15, 1, nil, 103828}, -- Divine Star
+		[375901] = {45, 1, nil, 103837}, -- Mindgames
+		[373481] = {30, 1, nil, 103822}, -- Power Word: Life
+		[108968] = {300, 1, nil, 103820}, -- Void Shift
+
+		[194509] = {20, 1, 256, 103722}, -- Power Word: Radiance
+		[33206] = {120, 1, 256, 103713}, -- Pain Suppression
+		[214621] = {24, 1, 256, 103704}, -- Schism
+		[62618] = {180, 1, 256, 103687}, -- Power Word: Barrier
+		[47536] = {90, 1, 256, 103727}, -- Rapture
+		[314867] = {30, 1, 256, 103706}, -- Shadow Covenant
+		[373178] = {90, 1, 256, 103700}, -- Light's Wrath
+		[246287] = {90, 1, 256, 103691}, -- Evangelism
+		[123040] = {60, 1, nil, {[256]=103710,[258]=103788}}, -- Mindbender
 		[200174] = 123040, -- Mindbender (Shadow)
-		[205369] = {30, 35, 258, 11}, -- Mind Bomb
-		[204263] = {45, 35, {256, 257}, 12}, -- Shining Force
-		[64044] = {45, 35, 258, 12}, -- Psychic Horror
-		[120517] = {40, 45, {256, 257}, 18}, -- Halo
-		[109964] = {90, 50, 256, 20}, -- Spirit Shell
-		[200183] = {120, 50, 257, 20}, -- Apotheosis
-		[246287] = {90, 50, 256, 21}, -- Evangelism
-		[265202] = {720, 50, 257, 21}, -- Holy Word: Salvation
-		-- [193223] = {90, 50, 258, 21}, -- Surrender to Madness
+
+		[2050] = {60, 1, 257, 103775}, -- Holy Word: Serenty
+		[47788] = {180, 1, 257, 103774}, -- Guardian Spirit
+		[88625] = {60, 1, 257, 103776}, -- Holy Word: Chastise
+		[34861] = {60, 1, 257, 103767}, -- Holy Word: Sanctify
+		[372616] = {60, 1, 257, 103777}, -- Empyreal Blaze
+		[64843] = {180, 1, 257, 103755}, -- Divine Hymn
+		[64901] = {180, 1, 257, 103751}, -- Symbol of Hope
+		[265202] = {720, 1, 257, 103742}, -- Holy Word: Salvation
+		[200183] = {120, 1, 257, 103743}, -- Apotheosis
+		[372835] = {180, 1, 257, 103733}, -- Lightwell
+		[372760] = {60, 1, 257, 103675}, -- Divine Word
+
+		[47585] = {120, 1, 258, 103806}, -- Dispersion
+		[15487] = {45, 1, 258, 103792}, -- Silence
+		[64044] = {45, 1, 258, 103793}, -- Psychic Horror
+		[263346] = {30, 1, 258, 103790}, -- Dark Void
+		[391109] = {60, 1, 258, 103680}, -- Dark Ascension
+		[228260] = {120, 1, 258, 103674}, -- Void Eruption
+		[205385] = {30, 1, 258, 103803}, -- Shadow Crash
+		[341374] = {60, 1, 258, 103796}, -- Damnation
+		[263165] = {60, 1, 258, 103679}, -- Void Torrent
 	},
 	ROGUE = {
-		-- Restless Blades (Outlaw, 41): Finishing moves reduce the remaining cooldown
-		-- of Adrenaline Rush, Between the Eyes, Sprint, Grappling Hook, Ghostly
-		-- Strike, Marked for Death, Blade Rush, Killing Spree, and Vanish by 1 sec
-		-- per combo point spent.
-
 		[2983] = {120, 5}, -- Sprint
 		[1766] = {15, 6}, -- Kick
 		[185311] = {30, 8}, -- Crimson Vial
+		[1966] = {15, 12}, -- Feint
 		[408] = {20, 13}, -- Kidney Shot
-		[36554] = {30, 18, {259,261}}, -- Shadowstep
-		[195457] = {60, 18, 260, nil, true}, -- Grappling Hook
-		[13877] = {30, 19, 260}, -- Blade Flurry
-		[5277] = {120, 21}, -- Evasion
-		[185313] = {60, 22, 261, nil, true}, -- Shadow Dance - 41 Deepening Shadows: Your finishing moves reduce the remaining cooldown on Shadow Dance per combo point spent.
-		[1856] = {120, 23, nil, nil, {[260]=true}}, -- Vanish
+		[1856] = {120, 23}, -- Vanish
 		[1725] = {30, 28}, -- Distract
-		[212283] = {30, 29, 261}, -- Symbols of Death
-		[1966] = {15, 34}, -- Feint
-		[2094] = {120, 39}, -- Blind
-		[79140] = {120, 42, 259}, -- Vendetta
-		[13750] = {180, 42, 260, nil, true}, -- Adrenaline Rush
-		[121471] = {180, 42, 261}, -- Shadow Blades
-		[1776]  = {15, 46, 260}, -- Gouge
-		[31224] = {120, 47}, -- Cloak of Shadows
-		[57934] = {30, 48}, -- Tricks of the Trade
 		[114018] = {360, 49}, -- Shroud of Concealment
 
-		[196937] = {35, 15, 260, 3, true}, -- Ghostly Strike
-		[137619] = {60, 30, nil, 12, true}, -- Marked for Death
-		[200806] = {45, 45, 259, 18}, -- Exsanguinate
-		[343142] = {90, 45, 260, 18}, -- Dreadblades
-		[271877] = {45, 50, 260, 20, true}, -- Blade Rush
-		[51690] = {120, 50, 260, 21, true}, -- Killing Spree
-		[280719] = {45, 50, 261, 20, true}, -- Secret Technique
-		[277925] = {60, 50, 261, 21}, -- Shuriken Tornado
+		[5938] = {25, 1, nil, 112630}, -- Shiv
+		[2094] = {120, 1, nil, 112572}, -- Blind
+		[5277] = {120, 1, nil, 112657}, -- Evasion
+		[31224] = {120, 1, nil, 112585}, -- Cloak of Shadows
+		[1776]  = {20, 1, nil, 112631}, -- Gouge
+		[57934] = {30, 1, nil, 112574}, -- Tricks of the Trade
+		[36554] = {30, 1, nil, {[259]={112583,112675},[260]=112583,[261]={112583,112617}}}, -- Shadowstep
+		[382245] = {45, 1, nil, 112639}, -- Cold Blood
+		[385616] = {45, 1, nil, 112525}, -- Echoing Reprimand
+		[137619] = {60, 1, nil, 112641}, -- Marked for Death
+		[381623] = {60, 1, nil, 112648}, -- Thistle Tea
+		[185313] = {60, 1, nil, 112577}, -- Shadow Dance
+
+		[360194] = {120, 1, 259, 112662}, -- Deathmark
+		[200806] = {180, 1, 259, 112672}, -- Exsanguinate
+		[385408] = {90, 1, nil, {[259]=112507,[260]=112565,[261]=112592}}, -- Sepsis
+		[385424] = {30, 1, 259, 112506}, -- Serrated Bone Spike
+		[385627] = {60, 1, 259, 114736}, -- Kingsbane
+		[381802] = {45, 1, 259, 112667}, -- Indiscriminate Carnage
+
+		[13877] = {30, 1, 260, 112561}, -- Blade Flurry
+		[195457] = {45, 1, 260, 112570}, -- Grappling Hook
+		[13750] = {180, 1, 260, 112545}, -- Adrenaline Rush
+		[315508] = {45, 1, 260, 112543}, -- Roll the Bones
+		[196937] = {35, 1, 260, 112564}, -- Ghostly Strike
+		[271877] = {45, 1, 260, 112530}, -- Blade Rush
+		[343142] = {120, 1, 260, 112550}, -- Dreadblades
+		[51690] = {120, 1, 260, 112551}, -- Killing Spree
+		[381989] = {420, 1, 260, 112538}, -- Keep It Rolling
+
+		[212283] = {30, 29, 261}, -- Symbols of Death
+		[121471] = {120, 1, 261, 113614}, -- Shadow Blades
+		[277925] = {60, 1, 261, 112604}, -- Shuriken Tornado
+		[384631] = {90, 1, 261, 112606}, -- Flagellation
 	},
 	SHAMAN = {
 		[2484] = {30, 5}, -- Earthbind Totem
 		[20608] = {1800, 8}, -- Reincarnation
 		[21169] = 20608, -- Reincarnation (Resurrection)
-		[57994] = {12, 12}, -- Wind Shear
-		[192058] = {60, 23}, -- Capacitor Totem
-		[198067] = {150, 34, 262, -11}, -- Fire Elemental
-		[51533] = {120, 34, 263}, -- Feral Spirit
-		[198103] = {300, 37, 262}, -- Earth Elemental
-		[108280] = {180, 38, 264}, -- Healing Tide Totem
-		[16191] = {180, 38, 264}, -- Mana Tide Totem
-		[51514] = {30, 41}, -- Hex (Frog)
+		[UnitFactionGroup("player") == "Horde" and 2825 or 32182] = {300, 48}, -- Bloodlust/Heroism
+
+		[108271] = {120, 1, nil, 101945}, -- Astral Shift
+		[57994] = {12, 1, nil, 101957}, -- Wind Shear
+		[198103] = {300, 1, nil, 101952}, -- Earth Elemental
+		[192058] = {60, 1, nil, 101961}, -- Capacitor Totem
+		[5394] = {30, 1, nil, {[262]=101998,[263]=101998,[264]={101998,-101933,101900}}}, -- Healing Stream Totem
+		[8143] = {60, 1, nil, 101958}, -- Tremor Totem
+		[51485] = {30, 1, nil, 101975}, -- Earthgrab Totem
+		[192077] = {120, 1, nil, 101976}, -- Wind Rush Totem
+		[51514] = {30, 1, nil, 101972}, -- Hex (Frog)
 		[211004] = 51514, -- Spider
 		[211015] = 51514, -- Cockroach
 		[277778] = 51514, -- Zandalari Tendonripper
@@ -767,99 +1154,119 @@ data.spells = {
 		[211010] = 51514, -- Snake
 		[269352] = 51514, -- Skeletal Hatchling
 		[277784] = 51514, -- Wicker Mongrel
-		[108271] = {90, 42}, -- Astral Shift
-		[98008] = {180, 43, 264}, -- Spirit Link Totem
-		[58875] = {60, 44, 263}, -- Spirit Walk
-		[79206] = {120, 44, {262,264}}, -- Spiritwalker's Grace
-		[8143] = {60, 47}, -- Tremor Totem
-		[UnitFactionGroup("player") == "Horde" and 2825 or 32182] = {300, 48}, -- Bloodlust/Heroism
-		[51490] = {45, 49, 262}, -- Thunderstorm
+		[79206] = {120, 1, nil, 101955}, -- Spiritwalker's Grace
+		[51490] = {45, 1, nil, 101995}, -- Thunderstorm
+		[192063] = {30, 1, nil, 101982}, -- Gust of Wind
+		[58875] = {60, 1, nil, 101983}, -- Spirit Walk
+		[108281] = {120, 1, nil, 102000}, -- Ancestral Guidance
+		[305483] = {45, 1, nil, 101993}, -- Lightning Lasso
+		[383013] = {45, 1, nil, 101989}, -- Poison Cleansing Totem
+		[108285] = {180, 1, nil, 101987}, -- Totemic Recall
+		[378081] = {60, 1, nil, 101997}, -- Nature's Swiftness
+		[383019] = {60, 1, nil, 101991}, -- Tranquil Air Totem
+		[383017] = {30, 1, nil, 101992}, -- Stoneskin Totem
 
-		[342243] = {30, 15, 262, 3}, -- Static Discharge
-		[320125] = {30, 25, 262, 5}, -- Echoing Shock
-		[342240] = {15, 25, 263, 6}, -- Ice Strike
-		[51485] = {30, 30, 264, 8}, -- Earthgrab Totem
-		[192249] = {150, 35, 262, 11}, -- Storm Elemental
-		[198838] = {60, 35, 264, 11}, -- Earthen Wall Totem
-		[192222] = {60, 35, 262, 12}, -- Liquid Magma Totem
-		[207399] = {300, 35, 264, 12}, -- Ancestral Protection Totem
-		[108281] = {120, 40, 262, 14}, -- Ancestral Guidance
-		[196884] = {30, 40, 263, 14}, -- Feral Lunge
-		[192077] = {120, 40, nil, 15}, -- Wind Rush Totem
-		[210714] = {30, 45, 262, 18}, -- Icefury
-		[191634] = {60, {[262]=50,[263]=45}, nil, {[262]=20,[263]=17}}, -- Stormkeeper (Elemental)
-		[320137] = 191634, -- Stormkeeper (Enhancement)
-		[197214] = {40, 45, 263, 18}, -- Sundering
-		[157153] = {30, 45, 264, 18}, -- Cloudburst Totem
-		[114049] = {180, 50, nil, 21}, -- Ascendance (old id, but keeping it for compat as the master option for the 3 merged spells)
+		[192249] = {150, 1, 262, 101849}, -- Storm Elemental
+		[198067] = {150, 1, 262, 101850}, -- Fire Elemental
+		[210714] = {30, 1, 262, 101870}, -- Icefury
+		[191634] = {60, 1, nil, {[262]=101860,[264]=101901}}, -- Stormkeeper (Elemental)
+		[383009] = 191634, -- Stormkeeper (Restoration)
+		[114049] = {180, 1, nil, {[262]=101877,[263]=114291,[264]=101942}}, -- Ascendance
 		[114050] = 114049, -- Ascendance (Elemental)
 		[114051] = 114049, -- Ascendance (Enhancement)
 		[114052] = 114049, -- Ascendance (Restoration)
+		[192222] = {60, 1, 262, 101884}, -- Liquid Magma Totem
+
+		[196884] = {30, 1, 263, 101810}, -- Feral Lunge
+		[342240] = {15, 1, 263, 101821}, -- Ice Strike
+		[384352] = {90, 1, 263, 101824}, -- Doom Winds
+		[197214] = {40, 1, 263, 101841}, -- Sundering
+		[51533] = {90, 1, 263, 101838}, -- Feral Spirit
+
+		[98008] = {180, 1, 264, 101913}, -- Spirit Link Totem
+		[157153] = {45, 1, 264, 101933}, -- Cloudburst Totem (replaces Healing Stream Totem)
+		[108280] = {180, 1, 264, 101912}, -- Healing Tide Totem
+		[16191] = {180, 1, 264, 101929}, -- Mana Tide Totem
+		[207399] = {300, 1, 264, 101930}, -- Ancestral Protection Totem
+		[198838] = {60, 1, 264, 101931}, -- Earthen Wall Totem
 	},
 	WARLOCK = {
 		[104773] = {180, 4}, -- Unending Resolve
-		[333889] = {180, 22}, -- Fel Domination
-		[80240] = {30, 27, 267}, -- Havoc
-		[19647] = {24, 29}, -- Spell Lock (Felhunter)
+		[20707] = {600, 14}, -- Soulstone
+		[95750] = 20707, -- Soulstone Resurrection (combat)
+		[19647] = {24, 23}, -- Spell Lock (Felhunter)
 		[119910] = 19647, -- Spell Lock (Command Demon)
 		[132409] = 19647, -- Spell Lock (Grimoire of Sacrifice Command Demon)
 		[698] = {120, 33}, -- Ritual of Summoning
-		[30283] = {60, 38}, -- Shadowfury
-		[205180] = {180, 42, 265}, -- Summon Darkglare
-		[265187] = {90, 42, 266}, -- Summon Demonic Tyrant
-		[1122] = {180, 42, 267}, -- Summon Infernal
 		[29893] = {120, 47}, -- Create Soulwell
-		[20707] = {600, 32}, -- Soulstone
-		[95750] = 20707, -- Soulstone Resurrection (combat)
 
-		[267211] = {30, 15, 266, 2}, -- Bilescourge Bombers
-		[267171] = {60, 15, 266, 3}, -- Demonic Strength
-		[264130] = {30, 25, 266, 5}, -- Power Siphon
-		[108416] = {60, 30, nil, 9}, -- Dark Pact
-		[205179] = {45, 35, 265, 11}, -- Phantom Singularity
-		[278350] = {20, 35, 265, 12}, -- Vile Taint
-		[264119] = {45, 35, 266, 12}, -- Summon Vilefiend
-		[152108] = {30, 35, 267, 12}, -- Cataclysm
-		[6789] = {45, 40, nil, 14}, -- Mortal Coil
-		[5484] = {40, 40, nil, 15}, -- Howl of Terror
-		[111898] = {120, 45, 266, 18}, -- Grimoire: Felguard
-		[113860] = {120, 50, 265, 21}, -- Dark Soul: Misery
-		[267217] = {180, 50, 266, 21}, -- Nether Portal
-		[113858] = {120, 50, 267, 21}, -- Dark Soul: Instability
+		[333889] = {180, 1, nil, 91439}, -- Fel Domination
+		[5484] = {40, 1, nil, 91458}, -- Howl of Terror
+		[6789] = {45, 1, nil, 91457}, -- Mortal Coil
+		[327884] = {60, 1, nil, 91442}, -- Amplify Curse
+		[108416] = {60, 1, nil, 91444}, -- Dark Pact
+		[30283] = {60, 1, nil, 91452}, -- Shadowfury
+		[384069] = {15, 1, nil, 91450}, -- Shadowflame
+
+		[205179] = {45, 1, 265, 91557}, -- Phantom Singularity
+		[278350] = {30, 1, 265, 91556}, -- Vile Taint
+		[205180] = {120, 1, 265, 91554}, -- Summon Darkglare
+
+		[264119] = {45, 1, 266, 91538}, -- Summon Vilefiend
+		[267211] = {30, 1, 266, 91541}, -- Bilescourge Bombers
+		[267171] = {60, 1, 266, 91540}, -- Demonic Strength
+		[264130] = {30, 1, 266, 91521}, -- Power Siphon
+		[111898] = {120, 1, 266, 91531}, -- Grimoire: Felguard
+		[267217] = {180, 1, 266, 91515}, -- Nether Portal
+		[265187] = {90, 1, 266, 91550}, -- Summon Demonic Tyrant
+		[386833] = {45, 1, 266, 115460}, -- Guillotine
+
+		[80240] = {30, 1, 267, 91493}, -- Havoc
+		[196447] = {25, 1, 267, 91586}, -- Channel Demonfire
+		[152108] = {30, 1, 267, 91487}, -- Cataclysm
+		[1122] = {180, 1, 267, 91502}, -- Summon Infernal
 	},
 	WARRIOR = {
+		[260708] = {30, 1}, -- Sweeping Strikes
 		[100] = {20, 2}, -- Charge
 		[6552] = {15, 7}, -- Pummel
-		[167105] = {90, 19, 71}, -- Colossus Smash
-		[12323] = {30, 21, {71,72}}, -- Piercing Howl
-		[46968] = {40, 21, 73}, -- Shockwave
-		[260708] = {45, 22, 71, -15}, -- Sweeping Strikes
-		[118038] = {180, 23, 71}, -- Die by the Sword
-		[184364] = {180, 23, 72}, -- Enraged Regeneration
-		[871] = {240, 23, 73}, -- Shield Wall
-		[1160] = {45, 27, 73}, -- Demoralizing Shout
-		[18499] = {60, 29}, -- Berserk Rage
-		[52174] = {45, 33}, -- Heroic Leap
-		[5246] = {90, 34}, -- Intimidating Shout
-		[227847] = {90, {[71]=38,[72]=45}, nil, {[71]=-21,[72]=18}}, -- Bladestorm (Arms)
-		[12975] = {180, 38, 73}, -- Last Stand
-		[1719] = {90, 38, 72}, -- Recklessness
-		[64382] = {180, 41}, -- Shattering Throw
-		[3411] = {30, 43}, -- Intervene
-		[97462] = {180, 46}, -- Rallying Cry
-		[23920] = {25, 47, 73}, -- Spell Reflection
-		[1161] = {240, 54}, -- Challenging Shout
 
-		[260643] = {21, 15, 71, 3}, -- Skullsplitter
-		[107570] = {30, 25, nil, 6}, -- Storm Bolt
-		[262161] = {45, 40, 71, 14}, -- Warbreaker
-		[118000] = {35, {[72]=45,[73]=30}, nil, {[72]=17,[73]=9}}, -- Dragon Roar
-		[107574] = {90, {[71]=45,[73]=32}, nil, {[71]=17,[73]=false}}, -- Avatar (Protection always has it)
-		[262228] = {60, 45, 71, 18}, -- Deadly Calm
-		[152277] = {45, {[71]=50,[73]=45}, nil, {[71]=21,[73]=18}}, -- Ravager (Arms)
+		[18499] = {60, 1, nil, {[71]={112239,-112211},[72]={112239,-112211},[73]={112239,-112211}}}, -- Berserker Rage
+		[3411] = {30, 1, nil, 112186}, -- Intervene
+		[97462] = {180, 1, nil, 112188}, -- Rallying Cry
+		[384100] = {60, 1, nil, 112211}, -- Berserker Shout
+		[12323] = {30, 1, nil, 112210}, -- Piercing Howl
+		[23920] = {25, 1, nil, 112253}, -- Spell Reflection
+		[52174] = {45, 1, nil, 112208}, -- Heroic Leap
+		[5246] = {90, 1, nil, 112252}, -- Intimidating Shout
+		[64382] = {180, 1, nil, 112214}, -- Shattering Throw
+		[384110] = {45, 1, nil, 112215}, -- Wrecking Throw
+		[107570] = {30, 1, nil, 112198}, -- Storm Bolt
+		[383762] = {180, 1, nil, 112220}, -- Bitter Immunity
+		[107574] = {90, 1, nil, 112232}, -- Avatar
+		[384318] = {90, 1, nil, 112223}, -- Thunderous Roar
+		[376079] = {90, 1, nil, 112247}, -- Spear of Bastion
+		[46968] = {40, 1, nil, 112242}, -- Shockwave
+
+		[118038] = {120, 1, 71, 112128}, -- Die by the Sword
+		[167105] = {45, 1, nil, {[71]={112144,112139}}}, -- Colossus Smash
+		[262161] = 167105, -- Warbreaker
+		[260643] = {21, 1, 71, 112133}, -- Skullsplitter
+		[227847] = {90, 1, nil, 112314}, -- Bladestorm
+
+		[184364] = {120, 1, 72, 112264}, -- Enraged Regeneration
+		[1719] = {90, 1, 72, 112281}, -- Recklessness
+		[385059] = {45, 1, 72, 112289}, -- Odyn's Fury
+		[152277] = {90, 1, nil, {[72]=112256,[73]=112304}}, -- Ravager
 		[228920] = 152277, -- Ravager (Protection)
-		[46924] = 227847, -- Bladestorm (Fury talent 18)
-		[280772] = {30, 50, 72, 21}, -- Siegebreaker
+
+		[1160] = {45, 1, 73, 112159}, -- Demoralizing Shout
+		[12975] = {180, 1, 73, 112151}, -- Last Stand
+		[1161] = {120, 1, nil, {[73]={112163,-112161}}}, -- Challenging Shout
+		[386071] = {90, 1, 73, 112161}, -- Disrupting Shout
+		[871] = {210, 1, 73, 112167}, -- Shield Wall
+		[392966] = {90, 1, 73, 112110}, -- Spell Block
+		[385952] = {45, 1, 73, 112173}, -- Shield Charge
 	},
 	RACIAL = {
 		--  Arcane Torrent (Blood Elf)
@@ -913,6 +1320,8 @@ data.spells = {
 		[291944] = {150, 1, nil, nil, nil, "ZandalariTroll"}, -- Regeneratin' (Zandalari Troll)
 		[312411] = {90, 1, nil, nil, nil, "Vulpera"}, -- Bag of Tricks (Vulpera)
 		[312924] = {180, 1, nil, nil, nil, "Mechgnome"}, -- Hyper Organic Light Originator (Mechgnome)
+		[357214] = {90, 1, nil, nil, nil, "Dracthyr"}, -- Wing Buffet (Dracthyr)
+		[368970] = {90, 1, nil, nil, nil, "Dracthyr"}, -- Tail Swipe (Dracthyr)
 	}
 }
 
@@ -932,44 +1341,45 @@ local infoCache = {}
 local resetCooldown = nil
 
 data.SetupCLEU = function(playerTable, resetFunc)
+	module = scope.addon:GetModule("Cooldowns")
 	infoCache = playerTable
 	resetCooldown = resetFunc
 end
 
 -- Death Knight
 
-local function armyOfTheDamned(srcGUID)
+-- Mind Freeze
+specialEvents.SPELL_INTERRUPT[47528] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[19] == 22030 then -- Army of the Damned
-		resetCooldown(info, 42650, 5) -- Army of the Dead
-		resetCooldown(info, 275699, 1) -- Apocalypse
+	if info and info.talents[96173] then -- Coldthirst
+		resetCooldown(info, 47528, 3) -- Mind Freeze
 	end
 end
-specialEvents.SPELL_CAST_SUCCESS[207317] = armyOfTheDamned -- Epidemic
 
 -- Death Coil
 specialEvents.SPELL_CAST_SUCCESS[47541] = function(srcGUID)
-	armyOfTheDamned(srcGUID)
-
 	local info = infoCache[srcGUID]
-	if info and info.talents[20] == 21208 then -- Red Thirst
-		resetCooldown(info, 55233, 6) -- Vampiric Blood
+	if not info then return end
+
+	if info.talents[96263] then -- Red Thirst
+		resetCooldown(info, 55233, 3) -- Vampiric Blood
+	end
+	if info.talents[96287] then -- Army of the Damned
+		resetCooldown(info, 42650, 5) -- Army of the Dead
 	end
 end
 
 -- Death Strike
 specialEvents.SPELL_CAST_SUCCESS[49998] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[20] == 21208 then -- Red Thirst
-		local amount = 6.75
-		if info.level >= 58 then -- Ossuary
-			-- While you have at least 5 Bone Shield charges, the cost of Death Strike is reduced by 5 Runic Power.
-			local _, _, stacks = AuraUtil.FindAura(function(spellIdToFind, ...)
-				local spellId = select(12, ...)
-				return spellIdToFind == spellId
-			end, info.unit, "HELPFUL", 195181)
+	if info and info.talents[96263] then -- Red Thirst
+		local amount = 4.5
+		if info.talents[96277] then -- Ossuary
+			-- While you have at least 5 Bone Shield charges, the
+			-- cost of Death Strike is reduced by 5 Runic Power.
+			local stacks = scratch[srcGUID]
 			if stacks and stacks > 4 then
-				amount = 6
+				amount = 4
 			end
 		end
 		resetCooldown(info, 55233, amount) -- Vampiric Blood
@@ -979,73 +1389,80 @@ end
 -- Sacrificial Pact
 specialEvents.SPELL_CAST_SUCCESS[327574] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[20] == 21208 then -- Red Thirst
-		resetCooldown(info, 55233, 3) -- Vampiric Blood
+	if info and info.talents[96263] then -- Red Thirst
+		resetCooldown(info, 55233, 2) -- Vampiric Blood
 	end
 end
 
 -- Raise Ally
 specialEvents.SPELL_CAST_SUCCESS[61999] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[20] == 21208 then -- Red Thirst
-		resetCooldown(info, 55233, 4.5)-- Vampiric Blood
+	if info and info.talents[96263] then -- Red Thirst
+		resetCooldown(info, 55233, 3)-- Vampiric Blood
 	end
 end
 
-specialEvents.SPELL_AURA_APPLIED_DOSE[195181] = function(srcGUID, _, _, _, amount) -- Bone Shield
+-- Bonestorm
+specialEvents.SPELL_AURA_APPLIED[194844] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[9] then -- Blood Tap
-		scratch[srcGUID] = amount
+	if info and info.talents[96263] then -- Red Thirst
+		scratch[srcGUID .. "bs"] = GetTime()
 	end
 end
-specialEvents.SPELL_AURA_REMOVED_DOSE[195181] = function(srcGUID, _, _, _, amount) -- Bone Shield
+specialEvents.SPELL_AURA_REMOVED[194844] = function(srcGUID)
+	local t = scratch[srcGUID .. "bs"]
+	if t then
+		scratch[srcGUID .. "bs"] = nil
+		local duration = math.floor(GetTime() - t) -- 1s of Bonestorm = 10 rp
+		if duration > 0 and infoCache[srcGUID] then
+			resetCooldown(infoCache[srcGUID], 55233, duration) -- Vampiric Blood
+		end
+	end
+end
+
+-- Bone Shield
+specialEvents.SPELL_AURA_APPLIED_DOSE[195181] = function(srcGUID, _, _, _, amount)
 	local info = infoCache[srcGUID]
-	if info and info.talents[9] then -- Blood Tap
-		scratch[srcGUID] = amount
+	if not info then return end
+
+	scratch[srcGUID] = amount
+end
+specialEvents.SPELL_AURA_REMOVED_DOSE[195181] = function(srcGUID, _, _, _, amount)
+	local info = infoCache[srcGUID]
+	if not info then return end
+
+	scratch[srcGUID] = amount
+
+	if info.talents[96274] then -- Blood Tap
 		resetCooldown(info, 221699, 2) -- Blood Tap
 	end
+	if info.talents[96260] then -- Insatiable Blade
+		resetCooldown(info, 49028, 5) -- Dancing Rune Weapon
+	end
 end
-specialEvents.SPELL_AURA_REMOVED[195181] = function(srcGUID) -- Bone Shield
+specialEvents.SPELL_AURA_REMOVED[195181] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[9] then -- Blood Tap
-		if scratch[srcGUID] == 1 then
-			-- Wish _DOSE filed for 1->0
-			-- Hopefully it didn't just drop off at 1
+	if not info then return end
+
+	if scratch[srcGUID] == 1 then
+		-- Wish _DOSE filed for 1->0
+		-- Hopefully it didn't just drop off at 1
+		if info.talents[96274] then -- Blood Tap
 			resetCooldown(info, 221699, 2) -- Blood Tap
 		end
+		if info.talents[96260] then -- Insatiable Blade
+			resetCooldown(info, 49028, 5) -- Dancing Rune Weapon
+		end
 	end
-end
 
-local function icecap(srcGUID, _, spellId, ...)
-	local info = infoCache[srcGUID]
-	if info and scratch[srcGUID] then -- Icecap
-		-- only count it once x.x
-		local id = 3
-		if spellId == 222024 or spellId == 66198 then
-			id = 1
-		elseif spellId == 222026 or spellId == 66196 then
-			id = 2
-		end
-		if scratch[srcGUID][id] then
-			local crit = select(7, ...)
-			if crit then
-				resetCooldown(info, 51271, 4) -- Pillar of Frost
-			end
-			scratch[srcGUID][id] = nil
-		end
-	end
+	scratch[srcGUID] = nil
 end
-specialEvents.SPELL_DAMAGE[207230] = icecap -- Frostscythe
-specialEvents.SPELL_DAMAGE[222024] = icecap -- Obliterate
-specialEvents.SPELL_DAMAGE[66198] = icecap -- Obliterate Off-Hand
-specialEvents.SPELL_DAMAGE[222026] = icecap -- Frost Strike
-specialEvents.SPELL_DAMAGE[66196] = icecap -- Frost Strike Off-Hand
 
 local function icecapCast(srcGUID, _, spellId)
 	local info = infoCache[srcGUID]
-	if info and info.talents[19] then -- Icecap
+	if info and info.talents[96162] then -- Icecap
 		if not scratch[srcGUID] then scratch[srcGUID] = {} end
-		local id = 3
+		local id = 0
 		if spellId == 222024 or spellId == 66198 then
 			id = 1
 		elseif spellId == 222026 or spellId == 66196 then
@@ -1056,51 +1473,126 @@ local function icecapCast(srcGUID, _, spellId)
 end
 specialEvents.SPELL_CAST_SUCCESS[49020] = icecapCast -- Obliterate
 specialEvents.SPELL_CAST_SUCCESS[49143] = icecapCast -- Frost Strike
-specialEvents.SPELL_CAST_SUCCESS[207230] = icecapCast -- Frostscythe
 
--- Demon Hunter
-
--- Vengeful Retreat
-specialEvents.SPELL_DAMAGE[198813] = function(srcGUID)
+local function icecap(srcGUID, _, spellId, ...)
 	local info = infoCache[srcGUID]
-	if info and info.talents[20] then -- Momentum
-		local t = GetTime()
-		if t-(scratch[srcGUID] or 0) > 2 then
-			scratch[srcGUID] = t
-			resetCooldown(info, 198793, 5) -- Vengeful Retreat
+	if info and scratch[srcGUID] then -- Icecap
+		-- only count it once x.x
+		local id = 0
+		if spellId == 222024 or spellId == 66198 then
+			id = 1
+		elseif spellId == 222026 or spellId == 66196 then
+			id = 2
+		end
+		if scratch[srcGUID][id] then
+			local crit = select(7, ...)
+			if crit then
+				resetCooldown(info, 51271, 2) -- Pillar of Frost
+			end
+			scratch[srcGUID][id] = nil
 		end
 	end
 end
+specialEvents.SPELL_DAMAGE[222024] = icecap -- Obliterate
+specialEvents.SPELL_DAMAGE[66198] = icecap -- Obliterate Off-Hand
+specialEvents.SPELL_DAMAGE[222026] = icecap -- Frost Strike
+specialEvents.SPELL_DAMAGE[66196] = icecap -- Frost Strike Off-Hand
+
+-- Demon Hunter
+
+-- Metamorphosis
+specialEvents.SPELL_AURA_REMOVED[187827] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[112947] then -- Restless Hunter (Havoc)
+		resetCooldown(info, 195072, nil, 1) -- Fel Rush
+	end
+end
+
+-- Cycle of Binding
+local function sigils(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[112878] then -- Cycle of Binding
+		resetCooldown(info, 202137, 3) -- Sigil of Silence
+		resetCooldown(info, 204596, 3) -- Sigil of Flame
+		resetCooldown(info, 207684, 3) -- Sigil of Misery
+		resetCooldown(info, 202138, 3) -- Sigil of Chains
+		resetCooldown(info, 390163, 3) -- Elysian Decree
+	end
+end
+specialEvents.SPELL_AURA_APPLIED[204490] = sigils -- Sigil of Silence
+specialEvents.SPELL_AURA_APPLIED[204598] = sigils -- Sigil of Flame
+specialEvents.SPELL_AURA_APPLIED[207685] = sigils -- Sigil of Misery
+specialEvents.SPELL_AURA_APPLIED[204843] = sigils -- Sigil of Chains
+specialEvents.SPELL_DAMAGE[389860] = sigils -- Elysian Decree
 
 -- Druid
--- TODO Handle Incarnation/Berserk
+
+-- Solar Beam
+specialEvents.SPELL_INTERRUPT[78675] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[109845] then -- Light of the Sun
+		resetCooldown(info, 78675, 15) -- Solar Beam
+	end
+end
+
+-- TODO Dreamstate
+-- Tranquility
+-- specialEvents.SPELL_CAST_SUCCESS[740] = function(srcGUID)
+-- 	local info = infoCache[srcGUID]
+-- 	if info and info.talents[103106] then -- Dreamstate
+-- 		-- reduce a bunch of spells by 20s? 5s/tick?
+-- 	end
+-- end
+
+-- Regrowth
+specialEvents.SPELL_HEAL[8936] = function(srcGUID, _, _, _, _, _, _, _, _, critical)
+	if not critical then return end
+
+	local info = infoCache[srcGUID]
+	if info and info.talents[103118] and info.talents[103120] then -- Cenarius' Guidance / Incarnation
+		resetCooldown(info, 33891, 1) -- Incarnation: Tree of Life
+	end
+end
+
+-- Lifebloom
+specialEvents.SPELL_AURA_REMOVED[33763] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[103118] and info.talents[103120] then -- Cenarius' Guidance / Incarnation
+		resetCooldown(info, 33891, 2) -- Incarnation: Tree of Life
+	end
+end
+
+-- Evoker
+
+-- Oppressing Roar
+specialEvents.SPELL_DISPEL[372048] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[87687] then -- Overawe
+		resetCooldown(info, 372048, 20) -- Oppressing Roar
+	end
+end
+
 
 -- Hunter
 
 -- Barbed Shot
 specialEvents.SPELL_CAST_SUCCESS[185358] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.level > 33 then -- Bestial Wrath (Rank 2)
+	if info and info.talents[100524] then -- Barbed Wrath
 		-- Bestial Wrath's remaining cooldown is reduced
 		-- by 12 sec each time you use Barbed Shot
 		resetCooldown(info, 19574, 12) -- Bestial Wrath
 	end
 end
 
-local function callingTheShots(srcGUID)
-	local info = infoCache[srcGUID]
-	if info and info.talents[19] then -- Calling the Shots
-		resetCooldown(info, 288613, 2.5) -- Trueshot
-	end
-end
-specialEvents.SPELL_CAST_SUCCESS[185358] = callingTheShots -- Arcane Shot
-specialEvents.SPELL_CAST_SUCCESS[257620] = callingTheShots -- Multi-Shot (Marksmanship)
 
-local function beastialWrath2(srcGUID)
+-- TODO Calling the Shots
+
+local function frenzyStrikes(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.level > 31 then -- Carve (Rank 2)
-		-- Carve reduces the remaining cooldown on
-		-- Wildfire Bomb by 1 sec for each target hit, up to 5.
+	if info and info.talents[100548] then -- Frenzy Strikes
+		-- Reduce the remaining cooldown by 1 sec
+		-- for each target hit, up to 5.
 		if not scratch[srcGUID] then scratch[srcGUID] = {} end
 		local t = GetTime()
 		if t-(scratch[srcGUID][0] or 0) > 1 then
@@ -1110,42 +1602,156 @@ local function beastialWrath2(srcGUID)
 		scratch[srcGUID][1] = (scratch[srcGUID][1] or 0) + 1
 
 		if scratch[srcGUID][1] < 6 then
-			resetCooldown(info, 259495, 1) -- Wildfire Bomb
+			resetCooldown(info, 269751, 1) -- Wildfire Bomb
+			resetCooldown(info, 259495, 1) -- Flanking Strike
 		end
 	end
 end
-specialEvents.SPELL_DAMAGE[187708] = beastialWrath2 -- Carve
-specialEvents.SPELL_DAMAGE[212436] = beastialWrath2 -- Butchery
+specialEvents.SPELL_DAMAGE[187708] = frenzyStrikes -- Carve
+specialEvents.SPELL_DAMAGE[212436] = frenzyStrikes -- Butchery
+
+-- Coordinated Assault
+specialEvents.SPELL_AURA_APPLIED[266779] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if not info then return end
+
+	if info.talents[100510] then -- Bombardier
+		resetCooldown(info, 269751) -- Wildfire Bomb
+	end
+	if info.talents[100528] then -- Coordinated Kill
+		-- add 50% reduction
+		local cdMod = info.talents[100563] and 7.5 or 9
+		addMod(info.guid, 259495, cdMod) -- Wildfire Bomb
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[266779] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if not info then return end
+
+	if info.talents[100510] then -- Bombardier
+		resetCooldown(info, 269751) -- Wildfire Bomb
+	end
+	if info.talents[100528] then -- Coordinated Kill
+		-- remove 50% reduction
+		local cdMod = info.talents[100563] and 7.5 or 9
+		addMod(info.guid, 259495, -cdMod) -- Wildfire Bomb
+	end
+end
+
+-- Fury of the Eagle
+specialEvents.SPELL_DAMAGE[203415] = function(srcGUID, _, _, _, _, _, _, _, _, critical)
+	local info = infoCache[srcGUID]
+	if info and info.talents[100533] and critical then -- Ruthless Marauder
+		resetCooldown(info, 269751, 0.5) -- Wildfire Bomb
+		resetCooldown(info, 259495, 0.5) -- Flanking Strike
+	end
+end
 
 -- Mage
 
--- Alter Time
-specialEvents.SPELL_AURA_REMOVED[342246] = function(srcGUID)
+-- Counterspell
+specialEvents.SPELL_INTERRUPT[2139] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[4] == 23072 then -- Master of Time
-		resetCooldown(info, 1953)
+	if info and info.talents[80161] then -- Quick Witted
+		resetCooldown(info, 2139, 4) -- Counterspell
 	end
 end
+
+-- TODO Mirror Image Reduplication 80185 -10s
+-- SPELL_SUMMON -> UNIT_DIED UNIT_DESTROYED UNIT_DISSIPATES ?
+
+-- Alter Time
+specialEvents.SPELL_AURA_APPLIED[342246] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		scratch[srcGUID .. "at"] = GetTime()
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[342246] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		if info.talents[80159] then -- Master of Time
+			resetCooldown(info, 1953) -- Blink
+		end
+		if scratch[srcGUID .. "at"] then
+			-- Fix the cooldown when casting again to relocate
+			local duration = GetTime() - scratch[srcGUID .. "at"]
+			if duration > 0 and duration < 10.2 then
+				resetCooldown(info, 342245, duration) -- Alter Time
+			end
+		end
+	end
+	scratch[srcGUID .. "at"] = nil
+end
+
+local function timeManipulation(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[80189] then -- Time Manipulation
+		resetCooldown(info, 122, 1) -- Frost Nova
+		resetCooldown(info, 383121, 1) -- Mass Polymorph
+		resetCooldown(info, 113724, 1) -- Ring of Frost
+		resetCooldown(info, 1953, 1) -- Ice Nova
+		if info.talents[80143] then -- Freezing Cold
+			resetCooldown(info, 120, 1) -- Cone of Cold
+		end
+		resetCooldown(info, 1953, 1) -- Dragon's Breath
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[108853] = timeManipulation -- Fire Blast
+-- specialEvents.SPELL_CAST_SUCCESS[5143] = timeManipulation -- Clearcasting Arcane Missiles
+-- specialEvents.SPELL_CAST_SUCCESS[30455] = timeManipulation -- Ice Lance on Frozen targets
+
+-- Shifting Power
+specialEvents.SPELL_AURA_APPLIED[382440] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info then
+		scratch[srcGUID] = GetTime()
+	end
+end
+specialEvents.SPELL_AURA_REMOVED[382440] = function(srcGUID)
+	if not scratch[srcGUID] then return end
+
+	local info = infoCache[srcGUID]
+	if info then
+		-- Every 1 sec, reduce the remaining cooldown of your abilities by 3 sec.
+		local duration = math.floor(GetTime() - scratch[srcGUID])
+		if duration > 0 and duration < 5 then
+			for spellId in next, data.spells.MAGE do
+				resetCooldown(info, spellId, duration * 3)
+			end
+		end
+	end
+	scratch[srcGUID] = nil
+end
+
+-- Clearcasting
+local function clearcasting(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[80196] then -- Orb Barrage
+		resetCooldown(info, 153626, 2) -- Arcane Orb
+	end
+end
+specialEvents.SPELL_AURA_REMOVED_DOSE[79684] = clearcasting
+specialEvents.SPELL_AURA_REMOVED[79684] = clearcasting
 
 -- Cold Snap
 specialEvents.SPELL_CAST_SUCCESS[235219] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info then
-		resetCooldown(info, 120) -- Cone of Cold
-		resetCooldown(info, 122) -- Frost Nova
 		resetCooldown(info, 11426) -- Ice Barrier
+		resetCooldown(info, 122) -- Frost Nova
+		resetCooldown(info, 120) -- Cone of Cold
+		resetCooldown(info, 45438) -- Ice Block
 	end
 end
 
 -- Blizzard
 specialEvents.SPELL_DAMAGE[190356] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info then
-		if info.level > 46 then -- Blizzard (Rank 2)
-			-- Each time Blizzard deals damage, the cooldown
-			-- of Frozen Orb is reduced by 0.5 sec
-			resetCooldown(info, 84714, 0.5) -- Frozen Orb
-		end
+	if info and info.talents[80233] then -- Ice Caller
+		-- Each time Blizzard deals damage, the cooldown
+		-- of Frozen Orb is reduced by 0.5 sec
+		resetCooldown(info, 84714, 0.5) -- Frozen Orb
 	end
 end
 
@@ -1154,7 +1760,7 @@ local function kindling(srcGUID, ...)
 	if not critical then return end
 
 	local info = infoCache[srcGUID]
-	if info and info.talents[19] then -- Kindling
+	if info and info.talents[80265] then -- Kindling
 		resetCooldown(info, 190319, 1) -- Combustion
 	end
 end
@@ -1168,87 +1774,129 @@ specialEvents.SPELL_DAMAGE[257541] = kindling -- Phoenix Flames
 -- Keg Smash
 specialEvents.SPELL_CAST_SUCCESS[121253] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info then
-		local amount = info.talents[21] and 5 or 3
-		resetCooldown(info, 322507, amount) -- Celestial Brew
-		resetCooldown(info, 115203, amount) -- Fortifying Brew
-		resetCooldown(info, 115399, amount) -- Black Ox Brew
+	if not info then return end
+
+	if info.talents[101467] then -- Sal'salabim's Strength
+		resetCooldown(info, 115181) -- Breath of Fire
+	end
+	if info.talents[101543] then -- Walk with the Ox
+		resetCooldown(info, 132578, 0.25) -- Invoke Niuzao, the Black Ox
 	end
 end
 
--- Tiger Palm (Brewmaster)
-specialEvents.SPELL_CAST_SUCCESS[100780] = function(srcGUID)
+local function shuffleAbilities(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.spec == 268 then
-		resetCooldown(info, 322507, 1) -- Celestial Brew
-		resetCooldown(info, 115203, 1) -- Fortifying Brew
-		resetCooldown(info, 115399, 1) -- Black Ox Brew
+	if info and info.talents[101543] then -- Walk with the Ox
+		resetCooldown(info, 132578, 0.25) -- Invoke Niuzao, the Black Ox
 	end
 end
+specialEvents.SPELL_CAST_SUCCESS[100784] = shuffleAbilities -- Blackout Kick
+specialEvents.SPELL_CAST_SUCCESS[101546] = shuffleAbilities -- Spinning Crane Kick
 
 -- Black Ox Brew
 specialEvents.SPELL_CAST_SUCCESS[115399] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info then
+		resetCooldown(info, 119582, nil, 2) -- Purifying Brew
 		resetCooldown(info, 322507) -- Celestial Brew
 	end
 end
 
 -- Paladin
 
-local function fistOfJustice(srcGUID, _, spellId)
+local function holyPowerSpenders(srcGUID, _, spellId)
 	local info = infoCache[srcGUID]
 	if info then
-		if info.talents[7] then -- Fist of Justice
-			-- Each Holy Power spent reduces the remaining
-			-- cooldown on Hammer of Justice by 2 sec.
-			local amount = spellId == 215661 and 10 or 6 -- Justicar's Vengeance is 5, everything else is 3
-			resetCooldown(info, 853, amount) -- Hammer of Justice
+		-- local hp = spellId == 215661 and 5 or 3 -- Justicar's Vengeance is 5, everything else is 3
+		local hp = 3
+		if info.talents[102589] then -- Fist of Justice (Class)
+			-- Each Holy Power spent reduces the
+			-- remaining cooldown on Hammer of
+			-- Justice by 1 sec.
+			resetCooldown(info, 853, hp) -- Hammer of Justice
 		end
-		if info.talents[20] == 21202 then -- Righteous Protector
-			-- Each Holy Power spent reduces the remaining
-			-- cooldown on Avenging Wrath and Guardian of
-			-- Ancient Kings by 1 sec.
-			resetCooldown(info, 31884, 3) -- Avenging Wrath
-			resetCooldown(info, 86659, 3) -- Guardian of Ancient Kings
+		if info.talents[102556] then -- Tirion's Devotion (Holy)
+			-- Lay on Hands' cooldown is reduced by
+			-- 1.5 sec per Holy Power spent
+			resetCooldown(info, 633, hp * 1.5) -- Lay on Hands
+		end
+		if info.talents[102433] then -- Resolute Defender (Protection)
+			-- Each 3 Holy Power you spend reduces
+			-- the cooldown of Ardent Defender and
+			-- Divine Shield by 1.0 sec.
+			local amount = hp / 3 * 1.0
+			resetCooldown(info, 31850, amount) -- Ardent Defender
+			resetCooldown(info, 642, amount) -- Divine Shield
+		end
+		if info.talents[102440] then -- Righteous Protector (Protection)
+			-- Each Holy Power spent reduces the
+			-- remaining cooldown on Avenging
+			-- Wrath and Guardian of Ancient Kings
+			-- by 2.0 sec.
+			local amount = hp * 2.0
+			resetCooldown(info, 31884, amount) -- Avenging Wrath
+			resetCooldown(info, 86659, amount) -- Guardian of Ancient Kings
 		end
 	end
 end
-specialEvents.SPELL_CAST_SUCCESS[210191] = fistOfJustice -- Word of Glory
-specialEvents.SPELL_CAST_SUCCESS[53600] = fistOfJustice -- Shield of the Righteous
-specialEvents.SPELL_CAST_SUCCESS[85222] = fistOfJustice -- Light of Dawn
-specialEvents.SPELL_CAST_SUCCESS[53385] = fistOfJustice -- Divine Storm
-specialEvents.SPELL_CAST_SUCCESS[85256] = fistOfJustice -- Templar's Verdict
-specialEvents.SPELL_CAST_SUCCESS[267798] = fistOfJustice -- Execution Sentence
-specialEvents.SPELL_CAST_SUCCESS[215661] = fistOfJustice -- Justicar's Vengeance
+specialEvents.SPELL_CAST_SUCCESS[210191] = holyPowerSpenders -- Word of Glory
+specialEvents.SPELL_CAST_SUCCESS[53600] = holyPowerSpenders  -- Shield of the Righteous
+specialEvents.SPELL_CAST_SUCCESS[85222] = holyPowerSpenders  -- Light of Dawn
+specialEvents.SPELL_CAST_SUCCESS[53385] = holyPowerSpenders  -- Divine Storm
+specialEvents.SPELL_CAST_SUCCESS[85256] = holyPowerSpenders -- Templar's Verdict
+specialEvents.SPELL_CAST_SUCCESS[383328] = holyPowerSpenders -- Final Verdict
+specialEvents.SPELL_CAST_SUCCESS[215661] = holyPowerSpenders -- Justicar's Vengeance
 
 -- Priest
 
-local function holyWordChastise(srcGUID)
+local function manipulation(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.level > 26 then -- Holy Words
-		local amount = 4
-		if info.talents[19] then -- Light of the Naaru
-			amount = 5
-		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
-			amount = 12
-		end
-		resetCooldown(info, 88625, amount) -- Holy Word: Chastise
+	if not info then return end
+
+	if info.talents[103818] then -- Manipulation
+		resetCooldown(info, 375901, 0.5) -- Mindgames
+	end
+	if info.talents[103695] then -- Void Summoner
+		resetCooldown(info, 123040, 2) -- Mindbender
 	end
 end
-specialEvents.SPELL_CAST_SUCCESS[585] = holyWordChastise -- Smite
+specialEvents.SPELL_CAST_SUCCESS[129250] = manipulation -- PW: Solace
+specialEvents.SPELL_CAST_SUCCESS[8092] = manipulation -- Mind Blast
+specialEvents.SPELL_CAST_SUCCESS[47540] = manipulation -- Penance
+
+-- Smite
+specialEvents.SPELL_CAST_SUCCESS[585] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if not info then return end
+
+	if info.level > 26 then -- Holy Words
+		local cdMod = 4
+		if info.talents[103764] then -- Light of the Naaru
+			cdMod = cdMod + info.talents[103764] * 0.4
+		elseif info.talents[103743] and scratch[srcGUID.."ap"] then -- Apotheosis active
+			cdMod = 12
+		end
+		resetCooldown(info, 88625, cdMod) -- Holy Word: Chastise
+	end
+	if info.talents[103818] then -- Manipulation
+		resetCooldown(info, 375901, 0.5) -- Mindgames
+	end
+	if info.talents[103695] then -- Void Summoner
+		resetCooldown(info, 123040, 2) -- Mindbender
+	end
+end
 
 -- Prayer of Healing
 specialEvents.SPELL_CAST_SUCCESS[596] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info and info.level > 26 then -- Holy Words
-		local amount = 6
-		if info.talents[19] then -- Light of the Naaru
-			amount = 8
-		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
-			amount = 18
+		local cdMod = 6
+		if info.talents[103764] then  -- Light of the Naaru
+			cdMod = cdMod + info.talents[103764] * 0.6
+		elseif info.talents[103743] and scratch[srcGUID .. "ap"] then -- Apotheosis active
+			cdMod = 18
 		end
-		resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
+		resetCooldown(info, 34861, cdMod) -- Holy Word: Sanctify
 	end
 end
 
@@ -1256,19 +1904,19 @@ end
 specialEvents.SPELL_CAST_SUCCESS[139] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info and info.level > 26 then -- Holy Words
-		local amount = 2
-		if info.talents[19] then -- Light of the Naaru
-			amount = 3
-		elseif info.talents[20] and scratch[srcGUID.."ap"] then -- Apotheosis active
-			amount = 6
+		local cdMod = 2
+		if info.talents[103764] then -- Light of the Naaru
+			cdMod = cdMod + info.talents[103764] * 0.2
+		elseif info.talents[103743] and scratch[srcGUID .. "ap"] then -- Apotheosis active
+			cdMod = 6
 		end
-		resetCooldown(info, 34861, amount) -- Holy Word: Sanctify
+		resetCooldown(info, 34861, cdMod) -- Holy Word: Sanctify
 	end
 end
 
 local function holyWordSalvation(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[21] then
+	if info and info.talents[103742] then
 		resetCooldown(info, 265202, 30) -- Holy Word: Salvation
 	end
 end
@@ -1281,15 +1929,64 @@ specialEvents.SPELL_AURA_APPLIED[47788] = function(srcGUID)
 end
 specialEvents.SPELL_AURA_REMOVED[47788] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[8] and scratch[srcGUID.."gs"] then -- Guardian Angel
+	if info and info.talents[103773] and scratch[srcGUID.."gs"] then -- Guardian Angel
 		-- When Guardian Spirit expires without saving
 		-- the target from death, reduce its remaining
 		-- cooldown to 60 seconds.
 		if GetTime() - scratch[srcGUID.."gs"] > 9.7 then
-			resetCooldown(info, 47788, 60)
+			resetCooldown(info, 47788, 110) -- 180 - 10 - 60
 		end
 	end
 	scratch[srcGUID] = nil
+end
+
+-- Symbol of Hope
+specialEvents.SPELL_CAST_SUCCESS[64901] = function(srcGUID)
+	for _, info in next, infoCache do
+		if info.class == "DEATHKNIGHT" then
+			resetCooldown(info, 48792, 60) -- Icebound Fortitude
+		elseif info.class == "DEMONHUNTER" then
+			if info.spec == 577 then
+				resetCooldown(info, 198589, 60) -- Blur
+			elseif info.spec == 581 then
+				resetCooldown(info, 204021, 60) -- Fiery Brand
+			end
+		elseif info.class == "DRUID" then
+			resetCooldown(info, 22812, 60) -- Fiery Brand
+		elseif info.class == "EVOKER" then
+			resetCooldown(info, 363916, 60) -- Obsidian Scales
+		elseif info.class == "HUNTER" then
+			resetCooldown(info, 109304, 60) -- Exhilaration
+		elseif info.class == "MAGE" then
+			resetCooldown(info, 55342, 60) -- Mirror Image
+		elseif info.class == "MONK" then
+			resetCooldown(info, 115203, 60) -- Fortifying Brew
+		elseif info.class == "PALADIN" then
+			if info.spec == 65 then
+				resetCooldown(info, 498, 60) -- Divine Protection
+			elseif info.spec == 66 then
+				resetCooldown(info, 31850, 60) -- Ardent Defender
+			elseif info.spec == 70 then
+				resetCooldown(info, 184662, 60) -- Shield of Vengeance
+			end
+		elseif info.class == "PRIEST" then
+			resetCooldown(info, 19236, 60) -- Desperate Prayer
+		elseif info.class == "ROGUE" then
+			resetCooldown(info, 185311, 60) -- Crimson Vial
+		elseif info.class == "SHAMAN" then
+			resetCooldown(info, 108271, 60) -- Astral Shift
+		elseif info.class == "WARLOCK" then
+			resetCooldown(info, 104773, 60) -- Unending Resolve
+		elseif info.class == "WARRIOR" then
+			if info.spec == 71 then
+				resetCooldown(info, 118038, 60) -- Die by the Sword
+			elseif info.spec == 72 then
+				resetCooldown(info, 184364, 60) -- Enraged Regeneration
+			elseif info.spec == 73 then
+				resetCooldown(info, 871, 60) -- Shield Wall
+			end
+		end
+	end
 end
 
 -- Apotheosis
@@ -1327,6 +2024,27 @@ specialEvents.SPELL_AURA_REMOVED[137619] = function(srcGUID, destGUID)
 	end
 end
 
+-- Secret Technique
+specialEvents.SPELL_CAST_SUCCESS[280719] = function(srcGUID, destGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[112613] then -- Stiletto Staccato (Sub)
+		resetCooldown(info, 121471, 1) -- Shadow Blades
+	end
+end
+
+-- Vanish
+specialEvents.SPELL_CAST_SUCCESS[1856] = function(srcGUID, destGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[112594] then -- Invigorating Shadowdust (Sub)
+		-- Vanish reduces the remaining cooldown of your other Rogue abilities by 15.0 sec.
+		for spellId in next, data.spells.ROGUE do
+			if spellId ~= 1856 then
+				resetCooldown(info, spellId, 15)
+			end
+		end
+	end
+end
+
 -- Shaman
 
 -- Capacitor Totem
@@ -1337,7 +2055,7 @@ end
 -- Static Charge
 specialEvents.SPELL_AURA_APPLIED[118905] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[9] then -- Static Charge
+	if info and info.talents[101960] then -- Static Charge
 		scratch[srcGUID] = scratch[srcGUID] + 1
 		if scratch[srcGUID] < 5 then
 			resetCooldown(info, 192058, 5) -- Capacitor Totem
@@ -1345,38 +2063,108 @@ specialEvents.SPELL_AURA_APPLIED[118905] = function(srcGUID)
 	end
 end
 
--- Earth Shock
-specialEvents.SPELL_CAST_SUCCESS[8042] = function(srcGUID)
+-- Totemic Recall
+specialEvents.SPELL_CAST_SUCCESS[375956] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[16] then -- Surge of Power
-		scratch[srcGUID.."sp"] = GetTime()
-	end
-end
-
--- Lava Burst
-specialEvents.SPELL_CAST_SUCCESS[51505] = function(srcGUID)
-	local info = infoCache[srcGUID]
-	if info and scratch[srcGUID.."sp"] and GetTime()-scratch[srcGUID.."sp"] < 14.7 then -- Surge of Power
-		if info.talents[11] then
-			resetCooldown(info, 192249, 6) -- Storm Elemental
-		else
-			resetCooldown(info, 198067, 6) -- Fire Elemental
+	if info then
+		local totems = scratch[srcGUID .. "totems"]
+		if totems and totems[1] then
+			resetCooldown(info, totems[1])
+			if info.talents[101985] and totems[2] then -- Creation Core
+				resetCooldown(info, totems[2])
+			end
 		end
 	end
 end
+
+local function totemCasts(srcGUID, _, spellId)
+	local info = infoCache[srcGUID]
+	if info and info.talents[101987] then -- Totemic Recall
+		local totems = scratch[srcGUID .. "totems"] or {}
+		totems[2] = totems[1]
+		totems[1] = spellId
+		scratch[srcGUID .. "totems"] = totems
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[375956] = totemCasts -- Vesper Totem
+specialEvents.SPELL_CAST_SUCCESS[324386] = totemCasts -- Vesper Totem
+specialEvents.SPELL_CAST_SUCCESS[355580] = totemCasts -- Static Field Totem
+specialEvents.SPELL_CAST_SUCCESS[204336] = totemCasts -- Grounding Totem
+specialEvents.SPELL_CAST_SUCCESS[204331] = totemCasts -- Counterstrike Totem
+specialEvents.SPELL_CAST_SUCCESS[204330] = totemCasts -- Skyfury Totem
+specialEvents.SPELL_CAST_SUCCESS[383019] = totemCasts -- Tranquil Air Totem
+specialEvents.SPELL_CAST_SUCCESS[383017] = totemCasts -- Stoneskin Totem
+specialEvents.SPELL_CAST_SUCCESS[383013] = totemCasts -- Poison Cleansing Totem
+specialEvents.SPELL_CAST_SUCCESS[198838] = totemCasts -- Earthen Wall Totem
+specialEvents.SPELL_CAST_SUCCESS[192222] = totemCasts -- Liquid Magma Totem
+specialEvents.SPELL_CAST_SUCCESS[192077] = totemCasts -- Wind Rush Totem
+specialEvents.SPELL_CAST_SUCCESS[192058] = totemCasts -- Capacitor Totem
+specialEvents.SPELL_CAST_SUCCESS[157153] = totemCasts -- Cloudburst Totem
+specialEvents.SPELL_CAST_SUCCESS[51485] = totemCasts  -- Earthgrab Totem
+specialEvents.SPELL_CAST_SUCCESS[8512] = totemCasts   -- Windfury Totem (no cd? but counted on Totemic Surge)
+specialEvents.SPELL_CAST_SUCCESS[8143] = totemCasts   -- Tremor Totem
+specialEvents.SPELL_CAST_SUCCESS[2484] = totemCasts   -- Earthbind Totem
+specialEvents.SPELL_CAST_SUCCESS[3599] = totemCasts   -- Searing Totem
+specialEvents.SPELL_CAST_SUCCESS[5394] = totemCasts   -- Healing Stream Totem
+specialEvents.SPELL_CAST_SUCCESS[108270] = totemCasts -- Stone Bulwark Totem
+specialEvents.SPELL_CAST_SUCCESS[108273] = totemCasts -- Windwalk Totem
+specialEvents.SPELL_CAST_SUCCESS[114893] = totemCasts -- Stone Bulwark
+specialEvents.SPELL_CAST_SUCCESS[196932] = totemCasts -- Voodoo Totem
+
+-- Surge of Power
+local function sopStarters(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[101873] then -- Surge of Power
+		scratch[srcGUID.."sp"] = GetTime()
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[8042] = sopStarters -- Earth Shock
+specialEvents.SPELL_CAST_SUCCESS[117014] = sopStarters -- Elemental Blast
+specialEvents.SPELL_CAST_SUCCESS[61882] = sopStarters -- Earthquake
+
+local function sopCasts(srcGUID, _, spellId)
+	local info = infoCache[srcGUID]
+	if info and scratch[srcGUID.."sp"] then -- Surge of Power
+		if spellId == 51505 and GetTime() - scratch[srcGUID.."sp"] < 14.7 then -- Lava Burst
+			resetCooldown(info, 192249, 6) -- Storm Elemental
+			resetCooldown(info, 198067, 6) -- Fire Elemental
+		end
+		scratch[srcGUID.."sp"] = nil
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[188389] = sopCasts -- Flame Shock
+specialEvents.SPELL_CAST_SUCCESS[188196] = sopCasts -- Lightning Bolt
+specialEvents.SPELL_CAST_SUCCESS[188443] = sopCasts -- Chain Lightning
+specialEvents.SPELL_CAST_SUCCESS[51505] = sopCasts -- Lava Burst
+specialEvents.SPELL_CAST_SUCCESS[196840] = sopCasts -- Frost Shock
 
 -- Warrior
 
 -- Shockwave
 specialEvents.SPELL_CAST_SUCCESS[46968] = function(srcGUID)
-	scratch[srcGUID] = 0
+	scratch[srcGUID .. "sw"] = 0
 end
 specialEvents.SPELL_DAMAGE[46968] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[14] and scratch[srcGUID] then -- Rumbling Earth
-		scratch[srcGUID] = scratch[srcGUID] + 1
+	if info and info.talents[112241] and scratch[srcGUID .. "sw"] then -- Rumbling Earth
+		scratch[srcGUID .. "sw"] = scratch[srcGUID .. "sw"] + 1
 		if scratch[srcGUID] > 2 then
 			resetCooldown(info, 46968, 15) -- Shockwave
+			scratch[srcGUID] = nil
+		end
+	end
+end
+
+-- Thunderclap
+specialEvents.SPELL_CAST_SUCCESS[6343] = function(srcGUID)
+	scratch[srcGUID .. "tc"] = 0
+end
+specialEvents.SPELL_DAMAGE[6343] = function(srcGUID)
+	local info = infoCache[srcGUID]
+	if info and info.talents[112162] and scratch[srcGUID .. "tc"] then -- Thunderlord
+		scratch[srcGUID .. "tc"] = scratch[srcGUID .. "tc"] + 1
+		resetCooldown(info, 1160, 1.5) -- Demoralizing Shout
+		if scratch[srcGUID] > 2 then
 			scratch[srcGUID] = nil
 		end
 	end
@@ -1405,20 +2193,15 @@ end
 -- 		end
 -- 	end
 -- end
--- Potential to drift 1-2s per execute :\
 specialEvents.SPELL_CAST_SUCCESS[163201] = function(srcGUID) -- Execute
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] and info.spec ~= 72 then -- Execute is a generator for Fury
-		local rage = 30 -- 20-40 /wrists
+	if info and (info.talents[112143] or info.talents[112166]) then -- Anger Management
+		local rage = 30 -- 20-40 /wrists Potential to drift 1-2s per execute :\
 		local per = info.spec == 73 and 10 or 20
 		local amount = rage/per
 
 		if info.spec == 71 then
-			if info.talents[14] then
-				resetCooldown(info, 262161, amount) -- Warbreaker
-			else
-				resetCooldown(info, 167105, amount) -- Colossus Smash
-			end
+			resetCooldown(info, 167105, amount) -- Colossus Smash
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
@@ -1428,20 +2211,17 @@ specialEvents.SPELL_CAST_SUCCESS[163201] = function(srcGUID) -- Execute
 end
 specialEvents.SPELL_CAST_SUCCESS[190456] = function(srcGUID) -- Ignore Pain
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
-		local rage = info.spec == 72 and 60 or 40
+	if info and (info.talents[112143] or info.talents[112285] or info.talents[112166]) then -- Anger Management
+		local rage = 35
 		local per = info.spec == 73 and 10 or 20
 		local amount = rage/per
 
 		if info.spec == 71 then
-			if info.talents[14] then
-				resetCooldown(info, 262161, amount) -- Warbreaker
-			else
-				resetCooldown(info, 167105, amount) -- Colossus Smash
-			end
+			resetCooldown(info, 167105, amount) -- Colossus Smash
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
+			resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -1450,20 +2230,17 @@ specialEvents.SPELL_CAST_SUCCESS[190456] = function(srcGUID) -- Ignore Pain
 end
 specialEvents.SPELL_CAST_SUCCESS[2565] = function(srcGUID) -- Shield Block
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and (info.talents[112143] or info.talents[112285] or info.talents[112166]) then -- Anger Management
 		local rage = 30
 		local per = info.spec == 73 and 10 or 20
 		local amount = rage/per
 
 		if info.spec == 71 then
-			if info.talents[14] then
-				resetCooldown(info, 262161, amount) -- Warbreaker
-			else
-				resetCooldown(info, 167105, amount) -- Colossus Smash
-			end
+			resetCooldown(info, 167105, amount) -- Colossus Smash
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
+			resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -1472,20 +2249,17 @@ specialEvents.SPELL_CAST_SUCCESS[2565] = function(srcGUID) -- Shield Block
 end
 specialEvents.SPELL_CAST_SUCCESS[1464] = function(srcGUID) -- Slam
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and (info.talents[112143] or info.talents[112285] or info.talents[112166]) then -- Anger Management
 		local rage = 20
 		local per = info.spec == 73 and 10 or 20
 		local amount = rage/per
 
 		if info.spec == 71 then
-			if info.talents[14] then
-				resetCooldown(info, 262161, amount) -- Warbreaker
-			else
-				resetCooldown(info, 167105, amount) -- Colossus Smash
-			end
+			resetCooldown(info, 167105, amount) -- Colossus Smash
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
+			resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -1494,20 +2268,17 @@ specialEvents.SPELL_CAST_SUCCESS[1464] = function(srcGUID) -- Slam
 end
 specialEvents.SPELL_CAST_SUCCESS[202168] = function(srcGUID) -- Impending Victory
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and (info.talents[112143] or info.talents[112285] or info.talents[112166]) then -- Anger Management
 		local rage = 10
 		local per = info.spec == 73 and 10 or 20
 		local amount = rage/per
 
 		if info.spec == 71 then
-			if info.talents[14] then
-				resetCooldown(info, 262161, amount) -- Warbreaker
-			else
-				resetCooldown(info, 167105, amount) -- Colossus Smash
-			end
+			resetCooldown(info, 167105, amount) -- Colossus Smash
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
+			resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -1517,67 +2288,74 @@ end
 -- Arms
 specialEvents.SPELL_CAST_SUCCESS[12294] = function(srcGUID) -- Mortal Strike
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and info.talents[112143] then -- Anger Management
 		local rage = 30
 		local per = 20
 		local amount = rage/per
 
-		if info.talents[14] then
-			resetCooldown(info, 262161, amount) -- Warbreaker
-		else
-			resetCooldown(info, 167105, amount) -- Colossus Smash
-		end
+		resetCooldown(info, 167105, amount) -- Colossus Smash
 		resetCooldown(info, 227847, amount) -- Blade Storm
 	end
 end
 specialEvents.SPELL_CAST_SUCCESS[772] = function(srcGUID) -- Rend
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and info.talents[112143] then -- Anger Management
 		local rage = 30
 		local per = 20
 		local amount = rage/per
 
-		if info.talents[14] then
-			resetCooldown(info, 262161, amount) -- Warbreaker
-		else
-			resetCooldown(info, 167105, amount) -- Colossus Smash
-		end
+		resetCooldown(info, 167105, amount) -- Colossus Smash
 		resetCooldown(info, 227847, amount) -- Blade Storm
 	end
 end
 specialEvents.SPELL_CAST_SUCCESS[845] = function(srcGUID) -- Cleave
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and info.talents[112143] then -- Anger Management
 		local rage = 20
 		local per = 20
 		local amount = rage/per
 
-		if info.talents[14] then
-			resetCooldown(info, 262161, amount) -- Warbreaker
-		else
-			resetCooldown(info, 167105, amount) -- Colossus Smash
+		resetCooldown(info, 167105, amount) -- Colossus Smash
+		resetCooldown(info, 227847, amount) -- Blade Storm
+	end
+end
+specialEvents.SPELL_CAST_SUCCESS[1680] = function(srcGUID) -- Whirlwind
+	local info = infoCache[srcGUID]
+	if info and info.talents[112143] then -- Anger Management
+		local rage = 30
+		if info.talents[114293] then -- Class: Barbaric Training
+			rage = rage + 10
 		end
+		if info.talents[112119] then -- Storm of Swords
+			rage = rage + 20
+		end
+		local per = info.spec == 73 and 10 or 20
+		local amount = rage/per
+
+		resetCooldown(info, 167105, amount) -- Colossus Smash
 		resetCooldown(info, 227847, amount) -- Blade Storm
 	end
 end
 -- Fury
 specialEvents.SPELL_CAST_SUCCESS[184367] = function(srcGUID) -- Rampage
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
+	if info and info.talents[112285] then -- Anger Management
 		local rage = 80
 		local per = 20
 		local amount = rage/per
 
 		resetCooldown(info, 1719, amount) -- Recklessness
+		resetCooldown(info, 152277, amount) -- Ravager
 	end
 end
 -- Protection
 specialEvents.SPELL_CAST_SUCCESS[6572] = function(srcGUID) -- Revenge
 	local info = infoCache[srcGUID]
-	if info and info.talents[18] then
-		local rage = 20
+	if info and info.talents[112166] then -- Anger Management
+		local rage = info.talents[112244] and 30 or 20 -- Class: Barbaric Training
 		local per = 10
 		local amount = rage/per
+
 		-- XXX how does this work with free Revenges
 		resetCooldown(info, 107574, amount) -- Avatar
 		resetCooldown(info, 871, amount) -- Shield Wall

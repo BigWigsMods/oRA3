@@ -444,9 +444,7 @@ do
 
 			wipe(cache.talents)
 			for talentId, talentInfo in next, info.talents do
-				-- easier to look up by index than to try and check multiple talent spell ids
-				local index = 3 * (talentInfo.tier - 1) + talentInfo.column
-				cache.talents[index] = talentId
+				cache.talents[talentId] = talentInfo.rank
 			end
 		end
 		self.callbacks:Fire("OnPlayerUpdate", guid, unit, cache)

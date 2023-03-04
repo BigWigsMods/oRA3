@@ -27,7 +27,7 @@ local infoCache = {}
 local spellsOnCooldown, chargeSpellsOnCooldown = nil, nil
 local deadies = {}
 local playerGUID = UnitGUID("player")
-local _, playerClass = UnitClass("player")
+local playerClass = UnitClassBase("player")
 local instanceType, instanceDifficulty = nil, nil
 
 local spells = cooldownData.spells
@@ -84,6 +84,18 @@ function module:IsSpellUsable(guid, spellId)
 		talent = talent[info.spec]
 		if talent == nil then
 			return false
+		elseif type(talent) == "table" then
+			local talentId, replacementTalentId, additionalId = talent[1], talent[2], talent[3]
+			if replacementTalentId < 0 then
+				-- talent that can be replaced by another talent
+				if (not info.talents[talentId] and not info.talents[additionalId]) or info.talents[-replacementTalentId] then
+					return false
+				end
+			elseif not info.talents[talentId] and not info.talents[replacementTalentId] and not info.talents[additionalId] then
+				-- multiple talents grant the ability
+				return false
+			end
+			talent = nil
 		end
 		if type(level) == "table" then
 			level = level[info.spec]
@@ -226,8 +238,33 @@ local function resetCooldown(info, spellId, change, charges)
 			spellsOnCooldown[spellId][guid] = nil
 		end
 		callbacks:Fire("oRA3CD_CooldownReady", guid, player, class, spellId)
+
 		if charges then
-			callbacks:Fire("oRA3CD_UpdateCharges", guid, player, class, spellId, module:GetCooldown(guid, spellId), charges, charges)
+			local maxCharges = module:GetCharges(guid, spellId)
+			if maxCharges > 0 then
+				local expires = chargeSpellsOnCooldown[spellId][guid]
+				if expires then
+					-- clean up expired in case we got here first
+					local t = GetTime() + 0.05
+					local changed = nil
+					for i = #expires, 1, -1 do
+						if expires[i] < t then
+							changed = true
+							tremove(expires, i)
+						end
+					end
+					-- grant charges
+					for i = 1, math.min(charges, #expires) do
+						changed = true
+						tremove(expires, #expires)
+					end
+					-- fire update
+					if changed then
+						local newCharges = maxCharges - #expires
+						callbacks:Fire("oRA3CD_UpdateCharges", guid, player, class, spellId, module:GetCooldown(guid, spellId), newCharges, maxCharges, true)
+					end
+				end
+			end
 		end
 	end
 end
@@ -1290,9 +1327,9 @@ function module:OnPlayerUpdate(_, guid, unit, info)
 		levelCooldowns[info.class](info)
 	end
 
-	for talentIndex, talentId in next, info.talents do
+	for talentId, rank in next, info.talents do
 		if talentCooldowns[talentId] then
-			talentCooldowns[talentId](info, playerGUID)
+			talentCooldowns[talentId](info, rank)
 		end
 	end
 
@@ -1440,9 +1477,21 @@ do
 		end
 
 		-- Special cooldown conditions
-		local func = specialEvents[event] and specialEvents[event][spellId]
-		if func then
-			func(srcGUID, destGUID, spellId, ...)
+		local specialEvent = specialEvents[event]
+		if specialEvent then
+			if event == "SPELL_INTERRUPT" or event == "SPELL_DISPEL" then
+				-- Swap spellId with extraSpellId because that's what we care about.
+				local extraSpellId = ...
+				local func = specialEvent[extraSpellId] --or specialEvent["*"]
+				if func then
+					func(srcGUID, destGUID, spellId, ...)
+				end
+			else
+				local func = specialEvent[spellId]
+				if func then
+					func(srcGUID, destGUID, spellId, ...)
+				end
+			end
 		end
 	end
 	combatLogHandler:SetScript("OnEvent", function()
