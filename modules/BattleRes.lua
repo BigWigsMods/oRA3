@@ -10,8 +10,8 @@ local badBuffs = {
 	27827, -- Spirit of Redemption
 	5384, -- Feign Death
 }
-local engineerItem = 184308 -- Disposable Spectrophasic Reanimator
-local engineerIcon = 3610508
+local engineerItem = 201409 -- Tinker: Arclight Vital Correctors
+local engineerIcon = 4548853 -- inv_10_engineering_device_gadget1_color2
 local resSpells = {
 	[20484] = true, -- Rebirth
 	[61999] = true, -- Raise Ally
@@ -282,7 +282,7 @@ do
 					brez.remaining:SetTextColor(0,1,0)
 				end
 				if isEngineer then
-					local count = GetItemCount(engineerItem)
+					local count = 1 -- GetItemCount(engineerItem)
 					if count > 0 then
 						brez.icon:SetVertexColor(1, 1, 1)
 					else
@@ -301,7 +301,7 @@ do
 		end
 	end
 
-	local p = {}
+	local p = { 1, 9 }
 	local function canGroupRes()
 		isEngineer = false
 		for _, player in next, oRA:GetGroupMembers() do
@@ -311,15 +311,25 @@ do
 			end
 		end
 
-		p[1], p[2] = GetProfessions()
+		-- p[1], p[2] = GetProfessions()
+		-- for i = 1, 2 do
+		-- 	local index = p[i]
+		-- 	if index then
+		-- 		local _, _, rank, _, _, _, _, _, _, _, skillLineName = GetProfessionInfo(index)
+		-- 		if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2755) and rank > 50 then -- Shadowlands Engineering
+		-- 			isEngineer = true
+		-- 			return true
+		-- 		end
+		-- 	end
+		-- end
+
+		-- Check head and wrist for Tinker: Arclight Vital Correctors
 		for i = 1, 2 do
-			local index = p[i]
-			if index then
-				local _, _, rank, _, _, _, _, _, _, _, skillLineName = GetProfessionInfo(index)
-				if skillLineName == C_TradeSkillUI.GetTradeSkillDisplayName(2755) and rank > 50 then -- Shadowlands Engineering
-					isEngineer = true
-					return true
-				end
+			local slot = p[i]
+			local itemLink = GetInventoryItemLink("player", slot)
+			if tonumber(itemLink:match("item:%d+:%d*:(%d*):")) == engineerItem then
+				isEngineer = true
+				return true
 			end
 		end
 
