@@ -139,29 +139,29 @@ do
 end
 
 local raidBuffs = {
-	{ -- Intellect
-		1459,   -- Arcane Intellect
+	{ -- Attack Power
+		6673,   -- Battle Shout
 	},
 	{ -- Stamina
 		21562,  -- Power Word: Fortitude
 	},
-	{ -- Attack Power
-		6673,   -- Battle Shout
+	{ -- Intellect
+		1459,   -- Arcane Intellect
 	},
 	{ -- Versatility
 		1126,   -- Mark of the Wild
 	},
 }
 local raidBuffNames = {
-	(GetSpellInfo(1459)),  -- ITEM_MOD_INTELLECT_SHORT,
-	(GetSpellInfo(21562)), -- ITEM_MOD_STAMINA_SHORT,
 	(GetSpellInfo(6673)),  -- ITEM_MOD_ATTACK_POWER_SHORT,
+	(GetSpellInfo(21562)), -- ITEM_MOD_STAMINA_SHORT,
+	(GetSpellInfo(1459)),  -- ITEM_MOD_INTELLECT_SHORT,
 	(GetSpellInfo(1126)),  -- ITEM_MOD_VERSATILITY,
 }
 local raidBuffProviders = {
-	"MAGE",
-	"PRIEST",
 	"WARRIOR",
+	"PRIEST",
+	"MAGE",
 	"DRUID",
 }
 

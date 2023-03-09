@@ -328,7 +328,7 @@ local function addIconAndName(frame)
 	-- Mark of the Wild
 	name, _, icon = GetSpellInfo(1126)
 	frame.GroupBuff4 = addBuffFrame("GroupBuff4", frame, name, icon, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0)
-	frame.GroupBuff4.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
+	frame.GroupBuff4.groupBuff = name -- ITEM_MOD_VERSATILITY
 	frame.GroupBuff4.classProvider = "DRUID"
 
 	-- consumable buffs
