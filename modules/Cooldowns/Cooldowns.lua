@@ -1426,6 +1426,9 @@ do
 	local pet = bit.bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_TYPE_PET)
 
 	local function handler(_, event, _, srcGUID, source, srcFlags, _, destGUID, destName, dstFlags, _, spellId, spellName, _, ...)
+		if source then source = Ambiguate(source, "none") end
+		if destName then destName = Ambiguate(destName, "none") end
+
 		if event == "UNIT_DIED" then
 			if band(dstFlags, group) ~= 0 and UnitIsPlayer(destName) and not UnitIsFeignDeath(destName) then
 				callbacks:Fire("oRA3CD_UpdatePlayer", destGUID, destName)

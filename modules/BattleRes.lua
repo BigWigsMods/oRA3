@@ -369,6 +369,9 @@ end
 
 updateFunc = function()
 	local ts, event, _, _, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
+	if name then name = Ambiguate(name, "none") end
+	if tarName then tarName = Ambiguate(tarName, "none") end
+
 	if event == "SPELL_RESURRECT" then
 		if resSpells[spellId] then
 			brez.scroll:AddMessage(("%s >> %s"):format(coloredNames[name], coloredNames[tarName]))
