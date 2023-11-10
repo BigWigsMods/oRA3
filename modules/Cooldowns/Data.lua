@@ -1,6 +1,5 @@
 
 local _, scope = ...
-local module = nil
 
 scope.cooldownData = {}
 local data = scope.cooldownData
@@ -1368,7 +1367,6 @@ local infoCache = {}
 local resetCooldown = nil
 
 data.SetupCLEU = function(playerTable, resetFunc)
-	module = scope.addon:GetModule("Cooldowns")
 	infoCache = playerTable
 	resetCooldown = resetFunc
 end
