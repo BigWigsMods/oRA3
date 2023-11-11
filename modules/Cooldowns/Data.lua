@@ -1402,7 +1402,7 @@ specialEvents.SPELL_CAST_SUCCESS[49998] = function(srcGUID)
 		if info.talents[96277] then -- Ossuary
 			-- While you have at least 5 Bone Shield charges, the
 			-- cost of Death Strike is reduced by 5 Runic Power.
-			local stacks = scratch[srcGUID]
+			local stacks = scratch[srcGUID] -- bone shield stacks
 			if stacks and stacks > 4 then
 				amount = 4
 			end
@@ -1486,14 +1486,14 @@ end
 local function icecapCast(srcGUID, _, spellId)
 	local info = infoCache[srcGUID]
 	if info and info.talents[96162] then -- Icecap
-		if not scratch[srcGUID] then scratch[srcGUID] = {} end
+		if not scratch[srcGUID .. "ic"] then scratch[srcGUID .. "ic"] = {} end
 		local id = 0
 		if spellId == 222024 or spellId == 66198 then
 			id = 1
 		elseif spellId == 222026 or spellId == 66196 then
 			id = 2
 		end
-		scratch[srcGUID][id] = true
+		scratch[srcGUID .. "ic"][id] = true
 	end
 end
 specialEvents.SPELL_CAST_SUCCESS[49020] = icecapCast -- Obliterate
@@ -1501,7 +1501,7 @@ specialEvents.SPELL_CAST_SUCCESS[49143] = icecapCast -- Frost Strike
 
 local function icecap(srcGUID, _, spellId, ...)
 	local info = infoCache[srcGUID]
-	if info and scratch[srcGUID] then -- Icecap
+	if info and scratch[srcGUID .. "ic"] then -- Icecap
 		-- only count it once x.x
 		local id = 0
 		if spellId == 222024 or spellId == 66198 then
@@ -1509,12 +1509,12 @@ local function icecap(srcGUID, _, spellId, ...)
 		elseif spellId == 222026 or spellId == 66196 then
 			id = 2
 		end
-		if scratch[srcGUID][id] then
+		if scratch[srcGUID .. "ic"][id] then
 			local crit = select(7, ...)
 			if crit then
 				resetCooldown(info, 51271, 2) -- Pillar of Frost
 			end
-			scratch[srcGUID][id] = nil
+			scratch[srcGUID .. "ic"][id] = nil
 		end
 	end
 end
@@ -1899,7 +1899,7 @@ specialEvents.SPELL_CAST_SUCCESS[585] = function(srcGUID)
 		local cdMod = 4
 		if info.talents[103764] then -- Light of the Naaru
 			cdMod = cdMod + info.talents[103764] / 10 * cdMod
-		elseif info.talents[103743] and scratch[srcGUID.."ap"] then -- Apotheosis active
+		elseif info.talents[103743] and scratch[srcGUID .. "ap"] then -- Apotheosis active
 			cdMod = 12
 		end
 		resetCooldown(info, 88625, cdMod) -- Holy Word: Chastise
@@ -1988,19 +1988,19 @@ specialEvents.SPELL_CAST_SUCCESS[34861] = holyWordSalvation -- Holy Word: Sancti
 
 -- Guardian Spirit
 specialEvents.SPELL_AURA_APPLIED[47788] = function(srcGUID)
-	scratch[srcGUID.."gs"] = GetTime()
+	scratch[srcGUID .. "gs"] = GetTime()
 end
 specialEvents.SPELL_AURA_REMOVED[47788] = function(srcGUID)
 	local info = infoCache[srcGUID]
-	if info and info.talents[103773] and scratch[srcGUID.."gs"] then -- Guardian Angel
+	if info and info.talents[103773] and scratch[srcGUID .. "gs"] then -- Guardian Angel
 		-- When Guardian Spirit expires without saving
 		-- the target from death, reduce its remaining
 		-- cooldown to 60 seconds.
-		if GetTime() - scratch[srcGUID.."gs"] > 9.7 then
+		if GetTime() - scratch[srcGUID .. "gs"] > 9.7 then
 			resetCooldown(info, 47788, 110) -- 180 - 10 - 60
 		end
 	end
-	scratch[srcGUID] = nil
+	scratch[srcGUID .. "gs"] = nil
 end
 
 -- Symbol of Hope
@@ -2056,7 +2056,7 @@ end
 specialEvents.SPELL_AURA_APPLIED[200183] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info then
-		scratch[srcGUID.."ap"] = true
+		scratch[srcGUID .. "ap"] = true
 		resetCooldown(info, 2050) -- Holy Word: Serenty
 		resetCooldown(info, 34861) -- Holy Word: Sanctify
 		resetCooldown(info, 88625) -- Holy Word: Chastise
@@ -2065,7 +2065,7 @@ end
 specialEvents.SPELL_AURA_REMOVED[200183] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info then
-		scratch[srcGUID.."ap"] = nil
+		scratch[srcGUID .. "ap"] = nil
 	end
 end
 
@@ -2155,7 +2155,7 @@ specialEvents.SPELL_CAST_SUCCESS[196932] = totemCasts -- Voodoo Totem
 local function sopStarters(srcGUID)
 	local info = infoCache[srcGUID]
 	if info and info.talents[101873] then -- Surge of Power
-		scratch[srcGUID.."sp"] = GetTime()
+		scratch[srcGUID .. "sp"] = GetTime()
 	end
 end
 specialEvents.SPELL_CAST_SUCCESS[8042] = sopStarters -- Earth Shock
@@ -2164,12 +2164,12 @@ specialEvents.SPELL_CAST_SUCCESS[61882] = sopStarters -- Earthquake
 
 local function sopCasts(srcGUID, _, spellId)
 	local info = infoCache[srcGUID]
-	if info and scratch[srcGUID.."sp"] then -- Surge of Power
-		if spellId == 51505 and GetTime() - scratch[srcGUID.."sp"] < 14.7 then -- Lava Burst
+	if info and scratch[srcGUID .. "sp"] then -- Surge of Power
+		if spellId == 51505 and GetTime() - scratch[srcGUID .. "sp"] < 14.7 then -- Lava Burst
 			resetCooldown(info, 192249, 6) -- Storm Elemental
 			resetCooldown(info, 198067, 6) -- Fire Elemental
 		end
-		scratch[srcGUID.."sp"] = nil
+		scratch[srcGUID .. "sp"] = nil
 	end
 end
 specialEvents.SPELL_CAST_SUCCESS[188389] = sopCasts -- Flame Shock
@@ -2190,7 +2190,7 @@ specialEvents.SPELL_DAMAGE[46968] = function(srcGUID)
 		scratch[srcGUID .. "sw"] = scratch[srcGUID .. "sw"] + 1
 		if scratch[srcGUID] > 2 then
 			resetCooldown(info, 46968, 15) -- Shockwave
-			scratch[srcGUID] = nil
+			scratch[srcGUID .. "sw"] = nil
 		end
 	end
 end
@@ -2204,8 +2204,8 @@ specialEvents.SPELL_DAMAGE[6343] = function(srcGUID)
 	if info and info.talents[112162] and scratch[srcGUID .. "tc"] then -- Thunderlord
 		scratch[srcGUID .. "tc"] = scratch[srcGUID .. "tc"] + 1
 		resetCooldown(info, 1160, 1.5) -- Demoralizing Shout
-		if scratch[srcGUID] > 2 then
-			scratch[srcGUID] = nil
+		if scratch[srcGUID .. "tc"] > 2 then
+			scratch[srcGUID .. "tc"] = nil
 		end
 	end
 end
