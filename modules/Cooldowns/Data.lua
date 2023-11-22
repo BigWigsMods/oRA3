@@ -2188,7 +2188,7 @@ specialEvents.SPELL_DAMAGE[46968] = function(srcGUID)
 	local info = infoCache[srcGUID]
 	if info and info.talents[112241] and scratch[srcGUID .. "sw"] then -- Rumbling Earth
 		scratch[srcGUID .. "sw"] = scratch[srcGUID .. "sw"] + 1
-		if scratch[srcGUID] > 2 then
+		if scratch[srcGUID .. "sw"] > 2 then
 			resetCooldown(info, 46968, 15) -- Shockwave
 			scratch[srcGUID .. "sw"] = nil
 		end
