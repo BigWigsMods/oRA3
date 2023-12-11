@@ -609,7 +609,8 @@ end
 
 function module:CrowdControl(srcOutput, dstOutput, spellOutput, extraSpellOuput)
 	if extraSpellOuput then -- SPELL_AURA_BROKEN_SPELL
-		self:Spam("crowdControl", L["%s on %s removed by %s's %s"]:format(spellOutput, dstOutput, srcOutput, extraSpellOuput))
+		-- self:Spam("crowdControl", L["%s on %s removed by %s's %s"]:format(spellOutput, dstOutput, srcOutput, extraSpellOuput))
+		self:SpamMultiRemoved("crowdControl", srcOutput, dstOutput, spellOutput, extraSpellOuput)
 	else -- SPELL_AURA_BROKEN
 		self:Spam("crowdControl", L["%s on %s removed by %s"]:format(spellOutput, dstOutput, srcOutput))
 	end
