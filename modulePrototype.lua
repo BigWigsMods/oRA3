@@ -51,7 +51,7 @@ do
 end
 
 do
-	local UnitAura = UnitAura
+	local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
 	--- Get the buff info of a unit.
 	-- @string unit unit token or unit name
 	-- @string list the table full of buff names to scan for
@@ -61,6 +61,11 @@ do
 		local num = #list
 		for i = 1, 100 do
 			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			if type(name) == "table" then
+				expirationTime = name.expirationTime
+				spellId = name.spellId
+				name = name.name
+			end
 			if not spellId then return end
 
 			for j = 1, num do
@@ -80,6 +85,11 @@ do
 		local num = #list
 		for i = 1, 100 do
 			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			if type(name) == "table" then
+				expirationTime = name.expirationTime
+				spellId = name.spellId
+				name = name.name
+			end
 			if not spellId then return end
 
 			for j = 1, num do

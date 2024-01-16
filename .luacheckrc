@@ -122,6 +122,7 @@ globals = {
 	"C_Timer",
 	"C_TradeSkillUI",
 	"C_UIWidgetManager",
+	"C_UnitAuras",
 	"ChatFrame_ImportAllListsToHash",
 	"ChatTypeInfo",
 	"CheckInteractDistance",
