@@ -117,6 +117,7 @@ function module:OnCommReceived(_, sender, prefix, ilvl, gems, enchants)
 end
 
 do
+	local GetItemStats = C_Item and C_Item.GetItemStats or GetItemStats
 	local enchantableItems = {
 		false, -- INVSLOT_HEAD -- 1
 		false, -- INVSLOT_NECK -- 2
@@ -152,11 +153,12 @@ do
 				-- Handle missing gems
 				local totalItemSockets = 0
 
-				local statsTable = {}
-				GetItemStats(itemLink, statsTable)
-				for k, v in next, statsTable do
-					if k:find("EMPTY_SOCKET_", nil, true) then
-						totalItemSockets = totalItemSockets + v
+				local statsTable = GetItemStats(itemLink)
+				if statsTable then
+					for k, v in next, statsTable do
+						if k:find("EMPTY_SOCKET_", nil, true) then
+							totalItemSockets = totalItemSockets + v
+						end
 					end
 				end
 
