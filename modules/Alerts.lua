@@ -384,7 +384,7 @@ do
 		local index = source..spell..extra
 		if not targets[index] then
 			targets[index] = {}
-			self:ScheduleTimer(spam, 0.2, key, index, L["%s on %s removed by %s's %s"], extra, targets[index], source, spell)
+			self:ScheduleTimer(spam, 0.2, key, index, L["%s on %s removed by %s's %s"], spell, targets[index], source, extra)
 		end
 		tinsert(targets[index], dest)
 	end
@@ -645,7 +645,7 @@ function module:Dispel(srcOutput, dstOutput, spellOutput, extraSpellOuput)
 end
 
 function module:MassDispel(srcOutput, dstOutput, spellOutput, extraSpellOuput)
-	self:SpamMultiRemoved("dispel", srcOutput, dstOutput, spellOutput, extraSpellOuput)
+	self:SpamMultiRemoved("dispel", srcOutput, dstOutput, extraSpellOuput, spellOutput) -- Mass Dispel has the spell/extra spell flipped
 end
 
 function module:Interrupt(srcOutput, dstOutput, spellOutput, extraSpellOuput)
