@@ -12,7 +12,7 @@ local L = scope.locale
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local LGIST = LibStub("LibGroupInSpecT-1.1")
-local LibDialog = LibStub("LibDialog-1.0")
+local LibDialog = LibStub("LibDialog-1.0n")
 
 BINDING_HEADER_oRA3 = addonName
 BINDING_NAME_TOGGLEORA3 = L.togglePane

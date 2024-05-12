@@ -8,7 +8,7 @@ local module = oRA:NewModule("Cooldowns", "AceTimer-3.0")
 local L = scope.locale
 local cooldownData = scope.cooldownData
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
-local LibDialog = LibStub("LibDialog-1.0")
+local LibDialog = LibStub("LibDialog-1.0n")
 
 -- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide CombatLogGetCurrentEventInfo
 
