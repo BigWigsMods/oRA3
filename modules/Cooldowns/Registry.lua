@@ -7,6 +7,8 @@ local module = oRA3:GetModule("Cooldowns")
 -- Layouts
 --
 
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+
 local layoutRegistry = {}
 local layoutNames = {}
 local layoutDescriptions = {}
@@ -98,7 +100,7 @@ function module:CreateDisplay(type, name)
 		end
 		local spellDB = moduleDB.spells[name]
 		for spellId in next, spellDB do -- clean up
-			if not GetSpellInfo(spellId) then
+			if not GetSpellName(spellId) then
 				spellDB[spellId] = nil
 			end
 		end

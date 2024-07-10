@@ -16,6 +16,9 @@ local LibDialog = LibStub("LibDialog-1.0n")
 -- Locals
 --
 
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+
 local activeDisplays = {}
 local frame = nil -- main options panel
 local showPane, hidePane
@@ -473,7 +476,7 @@ do
 	end
 
 	local function sortBySpellName(a, b)
-		return GetSpellInfo(a) < GetSpellInfo(b)
+		return GetSpellName(a) < GetSpellName(b)
 	end
 
 	local function sortByClass(a, b)
@@ -482,7 +485,7 @@ do
 		if classA == "RACIAL" then classA = "ARACIAL" end
 		if classB == "RACIAL" then classB = "ARACIAL" end
 		if classA == classB then
-			return GetSpellInfo(a) < GetSpellInfo(b)
+			return GetSpellName(a) < GetSpellName(b)
 		else
 			return classA < classB
 		end
@@ -650,7 +653,8 @@ do
 			else
 				sort(tmp, sortByClass)
 				for _, spellId in ipairs(tmp) do
-					local name, _, icon = GetSpellInfo(spellId)
+					local name = GetSpellName(spellId)
+					local icon = GetSpellTexture(spellId)
 					if name then
 						local color = oRA.classColors[classLookup[spellId]]
 						local checkbox = AceGUI:Create("CheckBox")
@@ -674,7 +678,8 @@ do
 			end
 			sort(tmp, sortBySpellName)
 			for _, spellId in ipairs(tmp) do
-				local name, _, icon = GetSpellInfo(spellId)
+				local name = GetSpellName(spellId)
+				local icon = GetSpellTexture(spellId)
 				if name then
 					local checkbox = AceGUI:Create("CheckBox")
 					checkbox:SetRelativeWidth(0.5)

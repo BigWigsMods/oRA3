@@ -10,6 +10,9 @@ local classColors = oRA3.classColors
 local media = LibStub("LibSharedMedia-3.0")
 local Masque = LibStub("Masque", true)
 
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+
 ---------------------------------------
 -- Icon factory
 
@@ -355,7 +358,8 @@ function prototype:TestCooldown(player, class, spellId, remaining)
 	local frame = self:GetCD(player, spellId) or IconProvider:New(self)
 	self.icons[frame] = true
 
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	frame:Set("ora3cd:guid", player)
 	frame:Set("ora3cd:player", player)
 	frame:Set("ora3cd:class", class)
@@ -380,7 +384,8 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, remaini
 	self.icons[frame] = true
 
 	local duration = oRA3CD:GetCooldown(guid, spellId)
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	frame:Set("ora3cd:guid", guid)
 	frame:Set("ora3cd:player", player)
 	frame:Set("ora3cd:class", class)
@@ -407,7 +412,8 @@ function prototype:CooldownReady(guid, player, class, spellId)
 	local frame = self:GetCD(guid, spellId) or IconProvider:New(self)
 	self.icons[frame] = true
 
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	frame:Set("ora3cd:guid", guid)
 	frame:Set("ora3cd:player", player)
 	frame:Set("ora3cd:class", class)

@@ -10,7 +10,9 @@ local max, ceil, floor = math.max, math.ceil, math.floor
 local concat, wipe, tinsert = table.concat, table.wipe, table.insert
 local select, next, ipairs, print = select, next, ipairs, print
 local UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible = UnitIsConnected, UnitIsDeadOrGhost, UnitIsVisible
-local GetSpellInfo, GetRaidRosterInfo = GetSpellInfo, GetRaidRosterInfo
+local GetRaidRosterInfo = GetRaidRosterInfo
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers = GetInstanceInfo, GetNumGroupMembers, GetNumSubgroupMembers
 local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime
 local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
@@ -247,7 +249,8 @@ do
 		self.tooltip = nil
 		if id and id < 0 then id = -id end
 
-		local name, _, icon = GetSpellInfo(id or 0)
+		local name = GetSpellName(id or 0)
+		local icon = GetSpellTexture(id or 0)
 		if not name then
 			self.name = nil
 			self.tooltip = self.defaultTooltip
@@ -312,25 +315,29 @@ local function addIconAndName(frame)
 	frame.OutOfRange = oor
 
 	-- Battle Shout
-	local name, _, icon = GetSpellInfo(6673)
+	local name = GetSpellName(6673)
+	local icon = GetSpellTexture(6673)
 	frame.GroupBuff1 = addBuffFrame("GroupBuff1", frame, name, icon, "RIGHT", -6 - (0*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff1.groupBuff = name -- ITEM_MOD_ATTACK_POWER_SHORT
 	frame.GroupBuff1.classProvider = "WARRIOR"
 
 	-- Power Word: Fortitude
-	name, _, icon = GetSpellInfo(21562)
+	name = GetSpellName(21562)
+	icon = GetSpellTexture(21562)
 	frame.GroupBuff2 = addBuffFrame("GroupBuff2", frame, name, icon, "RIGHT", -6 - (1*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff2.groupBuff = name -- ITEM_MOD_STAMINA_SHORT
 	frame.GroupBuff2.classProvider = "PRIEST"
 
 	-- Arcane Intellect
-	name, _, icon = GetSpellInfo(1459)
+	name = GetSpellName(1459)
+	icon = GetSpellTexture(1459)
 	frame.GroupBuff3 = addBuffFrame("GroupBuff3", frame, name, icon, "RIGHT", -6 - (2*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff3.groupBuff = name -- ITEM_MOD_INTELLECT_SHORT
 	frame.GroupBuff3.classProvider = "MAGE"
 
 	-- Mark of the Wild
-	name, _, icon = GetSpellInfo(1126)
+	name = GetSpellName(1126)
+	icon = GetSpellTexture(1126)
 	frame.GroupBuff4 = addBuffFrame("GroupBuff4", frame, name, icon, "RIGHT", -6 - (3*BUFF_ICON_SIZE), 0)
 	frame.GroupBuff4.groupBuff = name -- ITEM_MOD_VERSATILITY
 	frame.GroupBuff4.classProvider = "DRUID"

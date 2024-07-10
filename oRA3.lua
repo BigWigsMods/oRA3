@@ -300,6 +300,7 @@ function addon:OnInitialize()
 		end
 	end
 	RaidFrame:HookScript("OnHide", OnRaidHide)
+	local IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 	if not IsAddOnLoaded("Blizzard_RaidUI") then
 		self.rehookAfterRaidUILoad = true
 	end

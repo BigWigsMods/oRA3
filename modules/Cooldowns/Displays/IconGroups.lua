@@ -9,6 +9,9 @@ local classColors = oRA3.classColors
 
 local Masque = LibStub("Masque", true)
 
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+
 ---------------------------------------
 -- Icon factory
 
@@ -317,7 +320,8 @@ local function CreateIcon(parent, class, spellId)
 	local icon = IconProvider:New(parent)
 	icon.UpdateTooltip = UpdateTooltip
 
-	local spell, _, texture = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local texture = GetSpellTexture(spellId)
 	icon:Set("ora3cd:class", class)
 	icon:Set("ora3cd:icon", texture)
 	icon:Set("ora3cd:spell", spell)
@@ -386,7 +390,8 @@ function prototype:TestCooldown(player, class, spellId, remaining)
 	local frame = self:GetCD(player, spellId) or IconProvider:New(self)
 	self.icons[frame] = true
 
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	frame:Set("ora3cd:guid", player)
 	frame:Set("ora3cd:player", player)
 	frame:Set("ora3cd:class", class)

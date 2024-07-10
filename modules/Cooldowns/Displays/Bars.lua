@@ -17,6 +17,9 @@ local barStyles = oRA3CD:GetBarStyles()
 
 local After = C_Timer.After
 
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+
 ---------------------------------------
 -- Display
 
@@ -316,7 +319,8 @@ function prototype:TestCooldown(player, class, spellId, remaining)
 	local bar = self:GetBar(player, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	bar:Set("ora3cd:guid", player)
 	bar:Set("ora3cd:player", player)
 	bar:Set("ora3cd:class", class)
@@ -344,7 +348,8 @@ function prototype:oRA3CD_StartCooldown(_, guid, player, class, spellId, remaini
 	self.bars[bar] = true
 
 	local duration = oRA3CD:GetCooldown(guid, spellId)
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	bar:Set("ora3cd:guid", guid)
 	bar:Set("ora3cd:player", player)
 	bar:Set("ora3cd:class", class)
@@ -374,7 +379,8 @@ function prototype:CooldownReady(guid, player, class, spellId)
 	local bar = self:GetBar(guid, spellId) or candy:New(DEFAULT_BAR, self:GetWidth(), self.db.barHeight)
 	self.bars[bar] = true
 
-	local spell, _, icon = GetSpellInfo(spellId)
+	local spell = GetSpellName(spellId)
+	local icon = GetSpellTexture(spellId)
 	bar:Set("ora3cd:guid", guid)
 	bar:Set("ora3cd:player", player)
 	bar:Set("ora3cd:class", class)
