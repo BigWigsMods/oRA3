@@ -10,14 +10,14 @@ local cooldownData = scope.cooldownData
 local callbacks = LibStub("CallbackHandler-1.0"):New(module)
 local LibDialog = LibStub("LibDialog-1.0n")
 
--- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide CombatLogGetCurrentEventInfo
-
 --------------------------------------------------------------------------------
 -- Locals
 --
 
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+-- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide CombatLogGetCurrentEventInfo
+local GetSpellName = C_Spell.GetSpellName
+local GetSpellTexture = C_Spell.GetSpellTexture
+local GetSpellCooldown = C_Spell.GetSpellCooldown
 
 local activeDisplays = {}
 local frame = nil -- main options panel

@@ -5,6 +5,8 @@ local module = oRA:NewModule("BattleRes", "AceTimer-3.0")
 local L = scope.locale
 local coloredNames = oRA.coloredNames
 
+local GetSpellLink = C_Spell.GetSpellLink
+
 local resAmount = 0
 local badBuffs = {
 	27827, -- Spirit of Redemption
@@ -271,11 +273,11 @@ function module:OnPlayerRemove(_, guid)
 end
 
 do
-	local GetTime, GetSpellCharges = GetTime, GetSpellCharges
+	local GetTime, GetSpellCharges = GetTime, C_Spell.GetSpellCharges
 	local function updateTime()
-		local charges, _, started, duration = GetSpellCharges(20484) -- Rebirth
-		if not charges then return end
-		local time = duration - (GetTime() - started)
+		local chargeInfo = GetSpellCharges(20484) -- Rebirth
+		if not chargeInfo then return end
+		local time = chargeInfo.cooldownDuration - (GetTime() - chargeInfo.cooldownStartTime)
 		local m = floor(time/60)
 		local s = mod(time, 60)
 		brez.timer:SetFormattedText("%d:%02d", m, s)
@@ -297,8 +299,9 @@ do
 
 	local timeUpdater = nil
 	local function updateStatus()
-		local charges = GetSpellCharges(20484) -- Rebirth
-		if charges then
+		local chargeInfo = GetSpellCharges(20484) -- Rebirth
+		if chargeInfo then
+			local charges = chargeInfo.currentCharges
 			if not inCombat then
 				inCombat = true
 				theDead = {}
@@ -323,7 +326,7 @@ do
 					end
 				end
 			end
-		elseif inCombat and not charges then
+		elseif inCombat and not chargeInfo then
 			inCombat = false
 			resAmount = 0
 			brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

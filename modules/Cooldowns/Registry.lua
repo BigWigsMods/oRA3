@@ -3,11 +3,11 @@ local _, scope = ...
 local oRA3 = scope.addon
 local module = oRA3:GetModule("Cooldowns")
 
+local GetSpellName = C_Spell.GetSpellName
+
 --------------------------------------------------------------------------------
 -- Layouts
 --
-
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 
 local layoutRegistry = {}
 local layoutNames = {}

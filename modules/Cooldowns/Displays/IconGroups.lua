@@ -9,8 +9,8 @@ local classColors = oRA3.classColors
 
 local Masque = LibStub("Masque", true)
 
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellName = C_Spell.GetSpellName
+local GetSpellTexture = C_Spell.GetSpellTexture
 
 ---------------------------------------
 -- Icon factory

@@ -10,6 +10,8 @@ local oRA3CD = oRA3:GetModule("Cooldowns")
 local media = LibStub("LibSharedMedia-3.0")
 
 -- luacheck: globals ChatFontNormal
+local GetSpellLink = C_Spell.GetSpellLink
+local GetSpellTexture = C_Spell.GetSpellTexture
 
 ---------------------------------------
 -- Display

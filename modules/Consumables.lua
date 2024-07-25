@@ -4,14 +4,13 @@ local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
 local L = scope.locale
 
+-- luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter
 local format = string.format
 local tconcat, sort, wipe = table.concat, table.sort, table.wipe
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellName = C_Spell.GetSpellName
 local UnitIsUnit, IsInGroup, IsInRaid, IsInInstance = UnitIsUnit, IsInGroup, IsInRaid, IsInInstance
 local UnitName, UnitIsConnected, UnitIsVisible = UnitName, UnitIsConnected, UnitIsVisible
 local GetTime, UnitIsDeadOrGhost = GetTime, UnitIsDeadOrGhost
-
---luacheck: globals oRA3CheckButton ChatFrame_AddMessageEventFilter
 
 local GROUP_CHECK_THROTTLE = 0.8
 local PLAYER_CHECK_THROTTLE = 0.3

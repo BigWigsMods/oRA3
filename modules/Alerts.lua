@@ -17,6 +17,7 @@ local GetOptions
 local LE_PARTY_CATEGORY_INSTANCE = _G.LE_PARTY_CATEGORY_INSTANCE
 local bit_band, bit_bor = bit.band, bit.bor
 local tconcat = table.concat
+local GetSpellLink = C_Spell.GetSpellLink
 
 local outputValues = { -- channel list
 	-- ["self"] = L["Self"],

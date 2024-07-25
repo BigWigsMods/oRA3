@@ -17,8 +17,8 @@ local barStyles = oRA3CD:GetBarStyles()
 
 local After = C_Timer.After
 
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellName = C_Spell.GetSpellName
+local GetSpellTexture = C_Spell.GetSpellTexture
 
 ---------------------------------------
 -- Display
