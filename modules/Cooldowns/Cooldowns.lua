@@ -17,7 +17,6 @@ local LibDialog = LibStub("LibDialog-1.0n")
 -- luacheck: globals GameFontHighlight GameFontHighlightLarge GameTooltip_Hide CombatLogGetCurrentEventInfo
 local GetSpellName = C_Spell.GetSpellName
 local GetSpellTexture = C_Spell.GetSpellTexture
-local GetSpellCooldown = C_Spell.GetSpellCooldown
 
 local activeDisplays = {}
 local frame = nil -- main options panel
@@ -1244,10 +1243,10 @@ function module:SPELL_UPDATE_COOLDOWN()
 	for spellId in next, syncSpells do
 		local expiry = spellsOnCooldown[spellId] and spellsOnCooldown[spellId][playerGUID]
 		if expiry then
-			local start, duration = GetSpellCooldown(spellId)
-			if start > 0 and duration > 0 then
-				if (start + duration + 0.1) < expiry then -- + 0.1 to avoid updating on trivial differences
-					local cd =  duration - (GetTime() - start)
+			local cooldownInfo = C_Spell.GetSpellCooldown(spellId)
+			if cooldownInfo and cooldownInfo.startTime > 0 and cooldownInfo.duration > 0 then
+				if (cooldownInfo.startTime + cooldownInfo.duration + 0.1) < expiry then -- + 0.1 to avoid updating on trivial differences
+					local cd =  cooldownInfo.duration - (GetTime() - cooldownInfo.startTime)
 					module:SendComm("CooldownUpdate", spellId, round(cd)) -- round to the precision of GetTime (%.3f)
 				end
 			else -- off cooldown
@@ -1305,9 +1304,9 @@ function module:OnGroupChanged(_, groupStatus, groupMembers)
 	end
 
 	if playerClass == "SHAMAN" then
-		local start, duration = GetSpellCooldown(20608)
-		if start > 0 and duration > 1.5 then
-			local cd = duration - (GetTime() - start)
+		local cooldownInfo = C_Spell.GetSpellCooldown(20608)
+		if cooldownInfo and cooldownInfo.startTime > 0 and cooldownInfo.duration > 1.5 then
+			local cd = cooldownInfo.duration - (GetTime() - cooldownInfo.startTime)
 			self:SendComm("Reincarnation", round(cd))
 		end
 	end
