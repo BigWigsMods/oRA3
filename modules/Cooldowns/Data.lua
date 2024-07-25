@@ -583,18 +583,18 @@ data.talentCooldowns = {
 	[112315] = function(info) -- Arms: Valor in Victory
 		addMod(info.guid, 118038, 30) -- Die By the Sword
 	end,
-	[112258] = function(info) -- Fury: Storm of Steel
-		addMod(info.guid, 152277, 0, 2) -- Ravager
-	end,
+	-- [112258] = function(info) -- Fury: Storm of Steel
+	-- 	addMod(info.guid, 152277, 0, 2) -- Ravager
+	-- end,
 	[112115] = function(info) -- Protection: Bolster
 		addMod(info.guid, 12975, 60) -- Last Stand
 	end,
 	[112165] = function(info) -- Protection: Defender's Aegis
 		addMod(info.guid, 871, 30, 2) -- Shield Wall
 	end,
-	[112303] = function(info) -- Protection: Storm of Steel
-		addMod(info.guid, 152277, 0, 2) -- Ravager
-	end,
+	-- [112303] = function(info) -- Protection: Storm of Steel
+	-- 	addMod(info.guid, 152277, 0, 2) -- Ravager
+	-- end,
 }
 
 -- Specialization passive / spell ranks
@@ -687,7 +687,7 @@ data.chargeSpells = {
 	[5394] = 1, -- Healing Stream Totem
 	-- Warrior
 	[100] = 1, -- Charge
-	[152277] = 1, -- Ravager
+	-- [152277] = 1, -- Ravager
 	[871] = 1, -- Shield Wall
 }
 
@@ -1005,7 +1005,7 @@ data.spells = {
 
 		[122470] = {90, 1, 269, 101420}, -- Touch of Karma
 		[101545] = {25, 1, 269, 101432}, -- Flying Serpent Kick
-		[152173] = {90, 1, 269, 101428}, -- Serenity
+		-- [152173] = {90, 1, 269, 101428}, -- Serenity
 		[392983] = {40, 1, 269, 101491}, -- Strike of the Windlord
 		[123904] = {120, 1, 269, 101473}, -- Invoke Xuen, the White Tiger
 
@@ -1283,8 +1283,8 @@ data.spells = {
 		[184364] = {120, 1, 72, 112264}, -- Enraged Regeneration
 		[1719] = {90, 1, 72, 112281}, -- Recklessness
 		[385059] = {45, 1, 72, 112289}, -- Odyn's Fury
-		[152277] = {90, 1, nil, {[72]=112256,[73]=112304}}, -- Ravager
-		[228920] = 152277, -- Ravager (Protection)
+		-- [152277] = {90, 1, nil, {[72]=112256,[73]=112304}}, -- Ravager
+		-- [228920] = 152277, -- Ravager (Protection)
 
 		[1160] = {45, 1, 73, 112159}, -- Demoralizing Shout
 		[12975] = {180, 1, 73, 112151}, -- Last Stand
@@ -2257,7 +2257,7 @@ specialEvents.SPELL_CAST_SUCCESS[2565] = function(srcGUID) -- Shield Block
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
-			resetCooldown(info, 152277, amount) -- Ravager
+			-- resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -2276,7 +2276,7 @@ specialEvents.SPELL_CAST_SUCCESS[1464] = function(srcGUID) -- Slam
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
-			resetCooldown(info, 152277, amount) -- Ravager
+			-- resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -2295,7 +2295,7 @@ specialEvents.SPELL_CAST_SUCCESS[202168] = function(srcGUID) -- Impending Victor
 			resetCooldown(info, 227847, amount) -- Blade Storm
 		elseif info.spec == 72 then
 			resetCooldown(info, 1719, amount) -- Recklessness
-			resetCooldown(info, 152277, amount) -- Ravager
+			-- resetCooldown(info, 152277, amount) -- Ravager
 		elseif info.spec == 73 then
 			resetCooldown(info, 107574, amount) -- Avatar
 			resetCooldown(info, 871, amount) -- Shield Wall
@@ -2362,7 +2362,7 @@ specialEvents.SPELL_CAST_SUCCESS[184367] = function(srcGUID) -- Rampage
 		local amount = rage/per
 
 		resetCooldown(info, 1719, amount) -- Recklessness
-		resetCooldown(info, 152277, amount) -- Ravager
+		-- resetCooldown(info, 152277, amount) -- Ravager
 	end
 end
 -- Protection
