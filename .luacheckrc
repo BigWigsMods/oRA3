@@ -196,8 +196,6 @@ globals = {
 	"GetSpecializationRole",
 	"GetSpecializationRoleByID",
 	"GetSubZoneText",
-	"GetTexCoordsForRole",
-	"GetTexCoordsForRoleSmallCircle",
 	"GetTime",
 	"GetTrackedAchievements",
 	"GuildControlGetNumRanks",

@@ -8,6 +8,18 @@ local module = oRA:NewModule("RoleIcons")
 -- Icons on the player buttons
 local updateIcons
 do
+	-- Deprecated then added back, just leaving the function here for now
+	local function GetTexCoordsForOldRoleSmallCircle(role)
+		if role == "TANK" then
+			return 0, 19 / 64, 22 / 64, 41 / 64
+		elseif role == "HEALER" then
+			return 20 / 64, 39 / 64, 1 / 64, 20 / 64
+		elseif role == "DAMAGER" then
+			return 20 / 64, 39 / 64, 22 / 64, 41 / 64
+		else
+			error("Unknown role: " .. tostring(role))
+		end
+	end
 	local roleIcons = setmetatable({}, { __index = function(t,i)
 		local parent = _G["RaidGroupButton"..i]
 		local icon = CreateFrame("Frame", nil, parent)
@@ -43,7 +55,7 @@ do
 				local icon = roleIcons[i]
 				local role = UnitGroupRolesAssigned("raid"..i)
 				if role and role ~= "NONE" then
-					icon.texture:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
+					icon.texture:SetTexCoord(GetTexCoordsForOldRoleSmallCircle(role))
 					icon:Show()
 				else
 					icon:Hide()
