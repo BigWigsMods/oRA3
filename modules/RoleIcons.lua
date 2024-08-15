@@ -73,18 +73,23 @@ do
 	local function sortColoredNames(a, b) return a:sub(11) < b:sub(11) end
 
 	local function onEnter(self)
-		if not IsInRaid() then return end
 		local role = self.role
-		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:SetText(_G["INLINE_" .. role .. "_ICON"] .. _G[role])
+		local found = nil
 		for i = 1, GetNumGroupMembers() do
 			local name, _, group, _, _, class, _, _, _, _, _, groupRole = GetRaidRosterInfo(i)
 			if name and groupRole == role then
 				local color = oRA.classColors[class]
 				local coloredName = ("|cff%02x%02x%02x%s"):format(color.r * 255, color.g * 255, color.b * 255, name:gsub("%-.+", "*"))
 				tinsert(roster[group], coloredName)
+				found = true
 			end
 		end
+		if not found then
+			return
+		end
+
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetText(_G["INLINE_" .. role .. "_ICON"] .. _G[role])
 		for group, list in ipairs(roster) do
 			sort(list, sortColoredNames)
 			for _, name in ipairs(list) do
