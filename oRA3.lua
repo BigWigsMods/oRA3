@@ -300,8 +300,7 @@ function addon:OnInitialize()
 		end
 	end
 	RaidFrame:HookScript("OnHide", OnRaidHide)
-	local IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded
-	if not IsAddOnLoaded("Blizzard_RaidUI") then
+	if not C_AddOns.IsAddOnLoaded("Blizzard_RaidUI") then
 		self.rehookAfterRaidUILoad = true
 	end
 
@@ -309,7 +308,7 @@ function addon:OnInitialize()
 		if addon:IsEnabled() and db.toggleWithRaid then
 			addon:ShowUIPanel()
 		end
-		if addon.rehookAfterRaidUILoad and IsAddOnLoaded("Blizzard_RaidUI") then
+		if addon.rehookAfterRaidUILoad and C_AddOns.IsAddOnLoaded("Blizzard_RaidUI") then
 			-- Blizzard_RaidUI overwrites the RaidFrame "OnHide" script squashing the hook registered above, so re-hook.
 			addon.rehookAfterRaidUILoad = nil
 			RaidFrame:HookScript("OnHide", OnRaidHide)

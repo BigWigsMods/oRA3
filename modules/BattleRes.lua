@@ -318,7 +318,7 @@ do
 					brez.remaining:SetTextColor(0,1,0)
 				end
 				if next(hasEngineer) then
-					local count = 1 -- GetItemCount(engineerItem)
+					local count = 1 -- C_Item.GetItemCount(engineerItem)
 					if count > 0 then
 						brez.engineerIcon:SetVertexColor(1, 1, 1)
 					else

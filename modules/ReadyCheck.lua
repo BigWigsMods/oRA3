@@ -213,21 +213,18 @@ local function shouldShowBuffs()
 	return false
 end
 
-local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
 local function Frame_Tooltip(self)
 	if self.name then
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		local unit = self:GetParent().player
 		for i = 1, 100 do
-			local name = UnitAura(unit, i, "HELPFUL")
-			if type(name) == "table" then
-				name = name.name
-			end
-			if not name then
+			local aura = UnitAura(unit, i, "HELPFUL")
+			if not aura then
 				GameTooltip:SetText(self.name) -- we're out of sync
 				break
 			end
-			if name == self.name then
+			if aura.name == self.name then
 				GameTooltip:SetUnitBuff(unit, i)
 				break
 			end

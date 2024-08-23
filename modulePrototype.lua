@@ -51,26 +51,20 @@ do
 end
 
 do
-	local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
+	local UnitAura = C_UnitAuras.GetAuraDataByIndex
 	--- Get the buff info of a unit.
 	-- @string unit unit token or unit name
 	-- @string list the table full of buff names to scan for
 	-- @return spellName, expirationTime, spellId
 	function prototype:UnitBuffByNames(unit, list)
-		local name, expirationTime, spellId, _
 		local num = #list
 		for i = 1, 100 do
-			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-			if type(name) == "table" then
-				expirationTime = name.expirationTime
-				spellId = name.spellId
-				name = name.name
-			end
-			if not spellId then return end
+			local aura = UnitAura(unit, i, "HELPFUL")
+			if not aura then return end
 
 			for j = 1, num do
-				if list[j] == name then
-					return name, expirationTime, spellId
+				if list[j] == aura.name then
+					return aura.name, aura.expirationTime, aura.spellId
 				end
 			end
 		end
@@ -81,20 +75,14 @@ do
 	-- @string list the table full of spell IDs to scan for
 	-- @return spellName, expirationTime, spellId
 	function prototype:UnitBuffByIDs(unit, list)
-		local name, expirationTime, spellId, _
 		local num = #list
 		for i = 1, 100 do
-			name, _, _, _, _, expirationTime, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-			if type(name) == "table" then
-				expirationTime = name.expirationTime
-				spellId = name.spellId
-				name = name.name
-			end
-			if not spellId then return end
+			local aura = UnitAura(unit, i, "HELPFUL")
+			if not aura then return end
 
 			for j = 1, num do
-				if list[j] == spellId then
-					return name, expirationTime, spellId
+				if list[j] == aura.spellId then
+					return aura.name, aura.expirationTime, aura.spellId
 				end
 			end
 		end
