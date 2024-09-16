@@ -129,6 +129,13 @@ do
 		371386, -- Phial of Charged Isolation
 		373257, -- Phial of Glacial Fury
 		374000, -- Iced Phial of Corrupting Rage
+		-- The War Within
+		431971, -- Flask of Tempered Aggression
+		431972, -- Flask of Tempered Swiftness
+		431973, -- Flask of Tempered Versatility
+		431974, -- Flask of Tempered Mastery
+		432021, -- Flask of Alchemical Chaos
+		432473, -- Flask of Saving Graces
 	}
 
 	function getFlask(player)
