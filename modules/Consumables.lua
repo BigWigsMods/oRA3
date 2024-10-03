@@ -150,7 +150,7 @@ end
 local getFood
 do
 	local eating = { spells[192002] } -- Food & Drink (Eating)
-	local wellFed = { spells[19705] } -- Well Fed
+	local wellFed = { spells[19705], spells[462187] } -- Well Fed & Hearty Well Fed
 
 	function getFood(player)
 		local _, _, id = module:UnitBuffByNames(player, wellFed)
