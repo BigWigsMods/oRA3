@@ -38,37 +38,15 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
-		-- Vault of the Incarnates
-		[384192] = 2480, [384201] = 2480, [384203] = 2480, -- Eranog
-		[384214] = 2486, [384215] = 2486, [384216] = 2486, -- The Primal Council
-		[384208] = 2500, [384209] = 2500, [384210] = 2500, -- Terros
-		[384221] = 2482, [384220] = 2482, [384222] = 2482, -- Sennarth
-		[384227] = 2502, [384228] = 2502, [384229] = 2502, -- Dathea
-		[384239] = 2491, [384240] = 2491, [384241] = 2491, -- Kurog
-		[384233] = 2493, [384234] = 2493, [384235] = 2493, -- Diurna
-		[384245] = 2499, [384246] = 2499, [384247] = 2499, -- Raszageth
-
-		-- Aberrus
-		[409626] = 2524, [411523] = 2524, [411526] = 2524, -- Assault of the Zaqali
-		[409618] = 2523, [411536] = 2523, [411537] = 2523, -- Echo of Neltharion
-		[409619] = 2522, [411469] = 2522, [411507] = 2522, [411513] = 2522, -- Kazzara, the Hellforged
-		[409640] = 2527, [411534] = 2527, [411535] = 2527, -- Magmorax
-		[409627] = 2525, [411527] = 2525, [411528] = 2525, -- Rashok, the Elder
-		[409644] = 2520, [411538] = 2520, [411539] = 2520, -- Scalecommander Sarkareth
-		[409622] = 2529, [411514] = 2529, [411515] = 2529, -- The Amalgamation Chamber
-		[409624] = 2530, [411516] = 2530, [411517] = 2530, -- The Forgotten Experiments
-		[409638] = 2532, [411530] = 2532, [411532] = 2532, -- The Vigilant Steward, Zskarn
-
-		-- Amirdrassil
-		[425905] = 2564, [425934] = 2564, [425943] = 2564, -- Gnarlroot
-		[425906] = 2554, [425935] = 2554, [425944] = 2554, -- Igira the Cruel
-		[425907] = 2557, [425936] = 2557, [425945] = 2557, -- Volcoross
-		[425908] = 2555, [425937] = 2555, [425946] = 2555, -- Council of Dreams
-		[425909] = 2553, [425938] = 2553, [425947] = 2553, -- Larodar, Keeper of the Flame
-		[425910] = 2556, [425939] = 2556, -- Nymue, Weaver of the Cycle (XXX missing r3?)
-		[425911] = 2563, [425940] = 2563, [425951] = 2563, -- Smolderon
-		[425912] = 2565, [425941] = 2565, [425948] = 2565, -- Tindral Sageswift
-		[425913] = 2519, [425949] = 2519, [425942] = 2519, -- Fyrakk
+		-- Nerub-ar Palace
+		[457610] = 2607, -- Ulgrax
+		[458701] = 2611, -- The Bloodbound Horror
+		[458702] = 2599, -- Sikran
+		[458703] = 2609, -- Rasha'nan
+		[458704] = 2612, -- Broodtwister Ovi'nax
+		[458705] = 2601, -- Nexus-Princess Ky'veza
+		[458706] = 2608, -- The Silken Court
+		[458707] = 2602, -- Queen Ansurek
 	}
 
 	local buffs = {}
@@ -96,6 +74,7 @@ end
 local getRune
 do
 	local runes = {
+		453250, -- Crystallization
 		270058, -- Battle-Scarred Augmentation
 		347901, -- Veiled Augmentation
 		367405, -- Eternal Augmentation
@@ -118,6 +97,7 @@ do
 		307166, -- Eternal Flask (Cauldron)
 		307185, -- Spectral Flask of Power
 		307187, -- Spectral Stamina Flask
+
 		-- Dragonflight
 		370652, -- Phial of Static Empowerment
 		371036, -- Phial of Icy Preservation
@@ -129,6 +109,7 @@ do
 		371386, -- Phial of Charged Isolation
 		373257, -- Phial of Glacial Fury
 		374000, -- Iced Phial of Corrupting Rage
+
 		-- The War Within
 		431971, -- Flask of Tempered Aggression
 		431972, -- Flask of Tempered Swiftness
@@ -371,29 +352,22 @@ end
 do
 	local best = {
 		-- Food
-		[396092] = true, -- Fated Fortune Cookie/Feast (76 primary stat)
-		[382145] = true, -- haste
-		[382146] = true, -- crit
-		[382149] = true, -- vers
-		[382150] = true, -- mastery
-		[382152] = true, -- haste/crit
-		[382153] = true, -- haste/vers
-		[382154] = true, -- haste/mastery
-		[382155] = true, -- crit/vers
-		[382156] = true, -- crit/mastery
-		[382157] = true, -- vers/mastery
+		[457284] = true, [462210] = true, -- primary stat
+		[462177] = true, -- haste
+		[461959] = true, -- crit
+		[461958] = true, -- vers
+		[461957] = true, -- mastery
 
 		-- Flasks
-		[373257] = true, -- Phial of Glacial Fury
-		[371172] = true, -- Phial of Tepid Versatility
-		[371339] = true, -- Phial of Elemental Chaos
-		[370652] = true, -- Phial of Static Empowerment
-		[371354] = true, -- Phial of the Eye in the Storm
-		[374000] = true, -- Iced Phial of Corrupting Rage
-		[371386] = true, -- Phial of Charged Isolation
+		[431971] = true, -- Flask of Tempered Aggression
+		[431972] = true, -- Flask of Tempered Swiftness
+		[431973] = true, -- Flask of Tempered Versatility
+		[431974] = true, -- Flask of Tempered Mastery
+		[432021] = true, -- Flask of Alchemical Chaos
+		[432473] = true, -- Flask of Saving Graces
 
 		-- Rune
-		[393438] = true, -- Draconic Augmentation
+		[453250] = true, -- Crystallization
 	}
 
 	function module:IsBest(id)
@@ -479,6 +453,13 @@ do
 		[382247] = 90, -- sta
 		[393372] = 176, -- Feast (+lowest stat)
 		[396092] = 76, -- Fated Fortune Cookie/Feast (+primary stat)
+
+		-- The War Within
+		-- [457284] = true, [462210] = true, -- primary stat
+		-- [462177] = true, -- haste
+		-- [461959] = true, -- crit
+		-- [461958] = true, -- vers
+		-- [461957] = true, -- mastery
 	}
 
 	function module:GetFoodValue(id)
