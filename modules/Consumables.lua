@@ -47,6 +47,16 @@ do
 		[458705] = 2601, -- Nexus-Princess Ky'veza
 		[458706] = 2608, -- The Silken Court
 		[458707] = 2602, -- Queen Ansurek
+
+		-- Liberation of Undermine
+		[472593] = 2644, -- The One-Armed Bandit
+		[472597] = 2640, -- Cauldron of Carnage
+		[472591] = 2646, -- Chrome King Gallywix
+		[472594] = 2653, -- Sprocketmonger Lockenstock
+		[472592] = 2645, -- Mug'Zee, Heads of Security
+		[472596] = 2641, -- Rik Reverb
+		[472595] = 2642, -- Stix Bunkjunker
+		[472541] = 2639, -- Vexie and the Geargrinders
 	}
 
 	local buffs = {}
