@@ -13,7 +13,7 @@ local badBuffs = {
 	5384, -- Feign Death
 }
 local engineerItem = { 201409, 201408, 201407 } -- Tinker: Arclight Vital Correctors
-local engineerIcon = 4548853 -- inv_10_engineering_device_gadget1_color2
+local engineerIcon = 4548869 -- inv_10_engineering_manufacturedparts_electricalparts_color3
 local resSpells = {
 	[20484] = true, -- Rebirth
 	[61999] = true, -- Raise Ally
@@ -21,6 +21,7 @@ local resSpells = {
 	[391054] = true, -- Intercession
 	[345130] = true, -- Disposable Spectrophasic Reanimator
 	[385403] = true, -- Tinker: Arclight Vital Correctors
+	[384893] = true, -- Convincingly Realistic Jumper Cables
 }
 local theDead = {}
 local updateFunc
