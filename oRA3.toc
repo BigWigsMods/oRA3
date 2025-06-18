@@ -12,7 +12,7 @@
 ## Notes-esES: Raid and Party Assist
 ## Notes-esMX: Raid and Party Assist
 ## Version: @project-version@
-## Author: Funkydude, Nebula
+## Author: Funkeh, Nebula
 
 ## X-Credits: Cladhaire, Ammo, Rabbit
 ## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
