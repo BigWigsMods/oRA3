@@ -336,8 +336,8 @@ function module:Spam(key, msg)
 	elseif not outputValues[output] and output ~= "self" then
 		local type = output:sub(1,1)
 		local index = tonumber(output:sub(2))
-		output = "self"
 		if index then
+			output = "self"
 			if type == "c" and GetChannelName(index) > 0 then
 				SendChatMessage(chatMsg, "CHANNEL", nil, index)
 			elseif type == "t" then
@@ -345,6 +345,15 @@ function module:Spam(key, msg)
 				if frame and frame ~= _G.COMBATLOG and (frame.isDocked or select(7, _G.GetChatWindowInfo(index))) then
 					chatframe = frame
 				end
+			end
+		else
+			local info = strsplittable(":", output)
+			if info[1] == "chattynator" and Chattynator and Chattynator.API then
+				local window, tab = info[2], info[3]
+				Chattynator.API.AddMessageToWindowAndTab(window, tab, ("|Hgarrmission:oRA:%s|h|cff33ff99oRA3|r|h: %s"):format(chatMsg:gsub("|", "@"), msg))
+				return
+			else
+				output = "self"
 			end
 		end
 	end
@@ -963,12 +972,22 @@ function GetOptions()
 			outputValuesWithChannels["c"..index] = ("/%d %s"):format(index, name)
 		end
 	end
-	for i = 1, _G.NUM_CHAT_WINDOWS do
-		local frame = _G["ChatFrame"..i]
-		local _, _, _, _, _, _, shown = _G.GetChatWindowInfo(i)
-		if frame ~= _G.COMBATLOG and (shown or frame.isDocked) then
-			local key = frame == _G.DEFAULT_CHAT_FRAME and "self" or "t"..i
-			outputValuesWithChannels[key] = L["ChatFrame: %s"]:format(frame.name)
+	if Chattynator and Chattynator.API then
+		outputValuesWithChannels["self"] = L["self"]
+		for windowIndex, tabs in pairs(Chattynator.API.GetWindowsAndTabs()) do
+			for tabIndex, tabName in pairs(tabs) do
+				local key = ("chattynator:%d:%d"):format(windowIndex, tabIndex)
+				outputValuesWithChannels[key] = L["ChatFrame: %s"]:format(tabName)
+			end
+		end
+	else
+		for i = 1, _G.NUM_CHAT_WINDOWS do
+			local frame = _G["ChatFrame"..i]
+			local _, _, _, _, _, _, shown = _G.GetChatWindowInfo(i)
+			if frame ~= _G.COMBATLOG and (shown or frame.isDocked) then
+				local key = frame == _G.DEFAULT_CHAT_FRAME and "self" or "t"..i
+				outputValuesWithChannels[key] = L["ChatFrame: %s"]:format(frame.name)
+			end
 		end
 	end
 
