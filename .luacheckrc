@@ -15,6 +15,7 @@ ignore = {
 }
 globals = {
 	-- Addons
+	"Chattynator",
 	"ElvUI",
 	"LibStub",
 	"Tukui",
@@ -78,6 +79,7 @@ globals = {
 	"strrep",
 	"strrev",
 	"strsplit",
+	"strsplittable",
 	"strsub",
 	"strtrim",
 	"strupper",
