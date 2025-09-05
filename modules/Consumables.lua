@@ -57,6 +57,16 @@ do
 		[472596] = 2641, -- Rik Reverb
 		[472595] = 2642, -- Stix Bunkjunker
 		[472541] = 2639, -- Vexie and the Geargrinders
+
+		-- Manaforge Omega
+		[1236892] = 2684, -- Plexus Sentinel
+		[1236893] = 2686, -- Loom'ithar
+		[1236894] = 2685, -- Soulbinder Naazindhri
+		[1236895] = 2687, -- Forgeweaver Araz
+		[1236896] = 2688, -- The Soul Hunters
+		[1236897] = 2747, -- Fractillus
+		[1236898] = 2690, -- Nexus-King Salhadaar
+		[1236899] = 2691, -- Dimensius, the All-Devouring
 	}
 
 	local buffs = {}
@@ -84,6 +94,7 @@ end
 local getRune
 do
 	local runes = {
+		1234969, -- Ethereal Augmentation
 		453250, -- Crystallization
 		270058, -- Battle-Scarred Augmentation
 		347901, -- Veiled Augmentation
@@ -378,6 +389,7 @@ do
 
 		-- Rune
 		[453250] = true, -- Crystallization
+		[1234969] = true, -- Ethereal Augmentation
 	}
 
 	function module:IsBest(id)
