@@ -94,6 +94,7 @@ end
 local getRune
 do
 	local runes = {
+		1242347, -- Soulgorged Augmentation
 		1234969, -- Ethereal Augmentation
 		453250, -- Crystallization
 		270058, -- Battle-Scarred Augmentation
@@ -390,6 +391,7 @@ do
 		-- Rune
 		[453250] = true, -- Crystallization
 		[1234969] = true, -- Ethereal Augmentation
+		[1242347] = true, -- Soulgorged Augmentation
 	}
 
 	function module:IsBest(id)
