@@ -82,6 +82,7 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[32182] = "Bloodlust", -- Heroism (Shaman)
 	[80353] = "Bloodlust", -- Time Warp (Mage)
 	[264667] = "Bloodlust", -- Primal Rage (Hunter)
+	[466904] = "Bloodlust", -- Harrier's Cry (Hunter)
 	[390386] = "Bloodlust", -- Fury of the Aspects (Evoker)
 	-- Drums (15%)
 	[146555] = "Bloodlust", -- Drums of Rage (lv50)
@@ -91,6 +92,7 @@ combatLogMap.SPELL_CAST_SUCCESS = {
 	[292686] = "Bloodlust", -- Mallet of Thunderous Skins (BfA) (lv50)
 	[309658] = "Bloodlust", -- Drums of Deathly Ferocity (Shadowlands) (lv60)
 	[381301] = "Bloodlust", -- Feral Hide Drums (DF)
+	[444257] = "Bloodlust", -- Thunderous Drums (TWW)
 }
 combatLogMap.SPELL_AURA_APPLIED = {
 	-- Taunts
