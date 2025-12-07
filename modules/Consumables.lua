@@ -524,7 +524,14 @@ do
 			end
 			sort(list)
 			if module.db.profile.output == 3 then -- group
-				SendChatMessage(format("%s (%d): %s", title, #list, tconcat(list, ", ")), IsInRaid() and "RAID" or "PARTY")
+				local count = #list
+				local names = tconcat(list, ", ")
+				while title:len() + 7 + names:len() > 255 do
+					-- XXX maybe resend the rest? meh, this is enough spam as is
+					table.remove(list)
+					names = tconcat(list, ", ") .. format(", (+%d)", count - #list)
+				end
+				SendChatMessage(format("%s (%d): %s", title, count, names), IsInRaid() and "RAID" or "PARTY")
 			elseif module.db.profile.output == 2 then -- self
 				print(format("|cff33ff99oRA3|r: |cffff8040%s (%d)|r: %s", title, #list, tconcat(list, ", ")))
 			end
