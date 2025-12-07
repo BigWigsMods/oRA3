@@ -1,4 +1,4 @@
-## Interface: 110107, 110200, 110205
+## Interface: 110207, 110205
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
