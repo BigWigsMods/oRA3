@@ -445,7 +445,7 @@ do -- COMBAT_LOG_EVENT_UNFILTERED
 		elseif name and bit_band(flags, FILTER_FRIENDLY_PLAYERS) == FILTER_FRIENDLY_PLAYERS then
 			return ("|c%s|Hplayer:%s|h%s|h|r"):format(getClassColor(name) or color, name, name:gsub("%-.*", ""))
 		end
-		return ("|c%s%s|r"):format(color, name or UNKNOWN)
+		return ("|c%s%s|r"):format(getClassColor(name) or color, name or UNKNOWN)
 	end
 
 	local extraUnits = {"target", "focus", "focustarget", "mouseover", "boss1", "boss2", "boss3", "boss4", "boss5"}
