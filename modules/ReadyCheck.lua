@@ -18,7 +18,7 @@ local GetReadyCheckStatus, GetReadyCheckTimeLeft, GetTime = GetReadyCheckStatus,
 local IsInRaid, IsInGroup, UnitGroupRolesAssigned = IsInRaid, IsInGroup, UnitGroupRolesAssigned
 local PlaySound, DoReadyCheck, StopSound = PlaySound, DoReadyCheck, StopSound
 
--- luacheck: globals ChatTypeInfo ChatFrame_GetMessageEventFilters GameFontNormal UISpecialFrames
+-- luacheck: globals ChatTypeInfo ChatFrameUtil GameFontNormal UISpecialFrames
 -- luacheck: globals READY_CHECK_READY_TEXTURE READY_CHECK_AFK_TEXTURE READY_CHECK_NOT_READY_TEXTURE READY_CHECK_WAITING_TEXTURE
 -- luacheck: globals GameTooltip_Hide
 
@@ -878,22 +878,14 @@ do
 
 	function sysprint(msg)
 		-- allow other addons to remove/modify the ready check messages via the filter system
-		local filters = ChatFrame_GetMessageEventFilters("CHAT_MSG_SYSTEM")
-		if filters then
-			for _, func in next, filters do
-				local filter, newMsg = func(nil, "CHAT_MSG_SYSTEM", msg)
-				if filter then
-					return true
-				elseif newMsg then
-					msg = newMsg
-				end
-			end
-		end
-
+		local filters = ChatFrameUtil.GetMessageEventFilters()
 		for frame in next, hooks do
 			for _, msgType in ipairs(frame.messageTypeList) do
 				if msgType == "SYSTEM" then
-					frame:AddMessage(msg, system.r, system.g, system.b, "oRA")
+					local filter, newMsg = filters:ProcessFilters(frame, "CHAT_MSG_SYSTEM", msg)
+					if not filter then
+						frame:AddMessage(newMsg or msg, system.r, system.g, system.b, "oRA")
+					end
 					break
 				end
 			end
