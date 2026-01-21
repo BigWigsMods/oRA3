@@ -657,7 +657,7 @@ local function setupGUI()
 	toplefticon:SetWidth(60)
 	toplefticon:SetHeight(60)
 	toplefticon:SetPoint("TOPLEFT", 7, -6)
-	SetPortraitToTexture(toplefticon, 311226) --"Interface\\WorldMap\\Gear_64Grey"
+	--SetPortraitToTexture(toplefticon, 311226) --"Interface\\WorldMap\\Gear_64Grey"
 
 	local topright = frame:CreateTexture(nil, "ARTWORK")
 	topright:SetTexture(136559) --"Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
