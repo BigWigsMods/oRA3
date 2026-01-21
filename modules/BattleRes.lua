@@ -24,7 +24,7 @@ local resSpells = {
 	[384893] = true, -- Convincingly Realistic Jumper Cables
 }
 local theDead = {}
-local updateFunc
+--local updateFunc
 local brez
 local inCombat = false
 local hasEngineer = {}
@@ -47,7 +47,7 @@ local function createFrame()
 	brez:SetMovable(true)
 	brez:SetScript("OnDragStart", function(frame) frame:StartMoving() end)
 	brez:SetScript("OnDragStop", function(frame) frame:StopMovingOrSizing() oRA:SavePosition("oRA3BattleResMonitor") end)
-	brez:SetScript("OnEvent", updateFunc)
+	--brez:SetScript("OnEvent", updateFunc)
 
 	local bg = brez:CreateTexture()
 	bg:SetAllPoints(brez)
@@ -307,7 +307,7 @@ do
 				inCombat = true
 				theDead = {}
 				timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
-				brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				--brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 				brez.scroll:Clear()
 			end
 			if charges ~= resAmount then
@@ -330,7 +330,7 @@ do
 		elseif inCombat and not chargeInfo then
 			inCombat = false
 			resAmount = 0
-			brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			--brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			module:CancelTimer(timeUpdater)
 			brez.remaining:SetText(resAmount)
 			brez.timer:SetText("0:00")
@@ -373,7 +373,7 @@ end
 function module:Close()
 	if brez then
 		brez:Hide()
-		brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		--brez:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:CancelAllTimers()
 		brez.remaining:SetText("0")
 		brez.timer:SetText("0:00")
@@ -381,7 +381,7 @@ function module:Close()
 		resAmount = 0
 	end
 end
-
+--[[
 updateFunc = function()
 	local ts, event, _, _, name, _, _, tarGuid, tarName, _, _, spellId = CombatLogGetCurrentEventInfo()
 	if name then name = Ambiguate(name, "none") end
@@ -409,3 +409,4 @@ updateFunc = function()
 		theDead[tarName] = ts + 1 -- timeout for REMOVED->DIED
 	end
 end
+]]
