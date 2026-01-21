@@ -1,4 +1,4 @@
-## Interface: 110207, 110205
+## Interface: 120001, 110207, 120000
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
@@ -40,10 +40,10 @@ oRA3.lua
 modulePrototype.lua
 
 # module order in options
-modules\Alerts.lua
+#modules\Alerts.lua
 modules\BattleRes.lua
 modules\Consumables.lua
-modules\Cooldowns\module.xml
+#modules\Cooldowns\module.xml
 modules\ReadyCheck.lua
 # modules with no settings
 modules\Difficulty.lua
