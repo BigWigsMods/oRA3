@@ -48,6 +48,7 @@ globals = {
 	"gmatch",
 	"gsub",
 	"hooksecurefunc",
+	"issecretvalue",
 	"issecure",
 	"issecurevariable",
 	"ldexp",
