@@ -3,6 +3,12 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 	return
 end
 
+-- API Compatibility for newer Classic clients (TBC Anniversary, etc.)
+local SOUND_LABEL = SOUND_LABEL or SOUND or "Sound"
+local INLINE_TANK_ICON = INLINE_TANK_ICON or "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:0:19:22:41|t"
+local INLINE_HEALER_ICON = INLINE_HEALER_ICON or "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:1:20|t"
+local INLINE_DAMAGER_ICON = INLINE_DAMAGER_ICON or "|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t"
+
 local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("ReadyCheck", "AceTimer-3.0")

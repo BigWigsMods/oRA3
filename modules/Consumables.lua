@@ -3,6 +3,9 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 	return
 end
 
+-- API Compatibility for newer Classic clients (TBC Anniversary, etc.)
+local LE_PARTY_CATEGORY_INSTANCE = LE_PARTY_CATEGORY_INSTANCE or 2
+
 local _, scope = ...
 local oRA = scope.addon
 local module = oRA:NewModule("Consumables", "AceTimer-3.0")
