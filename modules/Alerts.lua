@@ -18,7 +18,7 @@ local classColors = oRA.classColors
 local combatLogHandler = CreateFrame("Frame")
 local GetOptions
 
-local LE_PARTY_CATEGORY_INSTANCE = _G.LE_PARTY_CATEGORY_INSTANCE
+local LE_PARTY_CATEGORY_INSTANCE = _G.LE_PARTY_CATEGORY_INSTANCE or 2
 local bit_band, bit_bor = bit.band, bit.bor
 local tconcat = table.concat
 

@@ -3,6 +3,9 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 	return
 end
 
+-- API Compatibility for newer Classic clients (TBC Anniversary, etc.)
+local LE_PARTY_CATEGORY_INSTANCE = LE_PARTY_CATEGORY_INSTANCE or 2
+
 --------------------------------------------------------------------------------
 -- Setup
 --
@@ -228,7 +231,7 @@ local talentCooldowns = {
 	[19237] = function(info) -- Outlaw: Retractable Hook
 		addMod(info.guid, 195457, 30) -- Grappling Hook
 	end,
-	[19237] = function(info) -- Outlaw: Blinding Powder
+	[21188] = function(info) -- Outlaw: Blinding Powder
 		addMod(info.guid, 2094, 30) -- Blind
 	end,
 	[22336] = function(info) -- Subtlety: Enveloping Shadows

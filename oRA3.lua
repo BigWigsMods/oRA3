@@ -4,6 +4,12 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 	return
 end
 
+-- API Compatibility for newer Classic clients (TBC Anniversary, etc.)
+local IsAddOnLoaded = IsAddOnLoaded or (C_AddOns and C_AddOns.IsAddOnLoaded)
+local GuildRoster = GuildRoster or (C_GuildInfo and C_GuildInfo.GuildRoster) or function() end
+local GuildControlGetNumRanks = GuildControlGetNumRanks or (C_GuildInfo and C_GuildInfo.GuildControlGetNumRanks) or function() return 0 end
+local GuildControlGetRankName = GuildControlGetRankName or (C_GuildInfo and C_GuildInfo.GuildControlGetRankName) or function() return "" end
+
 local addonName, scope = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceTimer-3.0")
 scope.addon = addon
@@ -150,8 +156,8 @@ local function colorize(input) return string.format("|cfffed000%s|r", input) end
 local options = {
 	name = "oRA",
 	type = "group",
-	get = function(info) return db[info[#info]] end,
-	set = function(info, value) db[info[#info]] = value end,
+	get = function(info) return db and db[info[#info]] end,
+	set = function(info, value) if db then db[info[#info]] = value end end,
 	args = {
 		general = {
 			order = 1,
@@ -296,7 +302,7 @@ function addon:OnInitialize()
 	options.args.general.args.profileOptions.args.desc.fontSize = "medium"
 
 	local function OnRaidHide()
-		if addon:IsEnabled() and db.toggleWithRaid then
+		if addon:IsEnabled() and db and db.toggleWithRaid then
 			addon:HideUIPanel()
 		end
 	end
@@ -306,7 +312,7 @@ function addon:OnInitialize()
 	end
 
 	RaidFrame:HookScript("OnShow", function()
-		if addon:IsEnabled() and db.toggleWithRaid then
+		if addon:IsEnabled() and db and db.toggleWithRaid then
 			addon:ShowUIPanel()
 		end
 		if addon.rehookAfterRaidUILoad and IsAddOnLoaded("Blizzard_RaidUI") then
