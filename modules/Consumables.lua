@@ -606,7 +606,7 @@ function module:CheckPlayer(player)
 	end
 
 	if not cache then
-		playerBuffs[player] = {}
+		playerBuffs[player] = {[0] = t}
 		cache = playerBuffs[player]
 	end
 
@@ -624,7 +624,6 @@ function module:CheckPlayer(player)
 		end
 	end
 
-	cache[0] = t
 	cache[1] = food
 	cache[2] = flask
 	cache[3] = rune
