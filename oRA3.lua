@@ -630,9 +630,12 @@ function addon:SendComm(...)
 	end
 end
 
-function addon:OnCommReceived(prefix, message, distribution, sender)
-	if prefix == "oRA" then
-		self.callbacks:Fire("OnCommReceived", Ambiguate(sender, "none"), strsplit(" ", message))
+do
+	local issecretvalue = issecretvalue or function() return false end
+	function addon:OnCommReceived(prefix, message, distribution, sender)
+		if not issecretvalue(message) and prefix == "oRA" then
+			self.callbacks:Fire("OnCommReceived", Ambiguate(sender, "none"), strsplit(" ", message))
+		end
 	end
 end
 

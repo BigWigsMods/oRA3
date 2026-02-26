@@ -858,8 +858,9 @@ do
 	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it traumatized Funkeh and now he can't stand to even look at it
 	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending on other hooks)
 	local hooks = {}
+	local issecretvalue = issecretvalue or function() return false end
 	local function hookFunc(self, msg, r, g, b, id, ...)
-		if readychecking and id == system.id then
+		if not issecretvalue(msg) and readychecking and id == system.id then
 			for _, string in next, messages do
 				if msg:match(string) then return end
 			end

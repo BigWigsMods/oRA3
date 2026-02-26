@@ -233,7 +233,9 @@ local function checkKeywords(msg, ...)
 	end
 end
 
+local issecretvalue = issecretvalue or function() return false end
 local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount)
+	if issecretvalue(msg) then return end
 	if not canInvite() then return end
 	if db.raidonly and not IsInRaid() then return end
 	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or isInQueue() then return end
