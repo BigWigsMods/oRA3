@@ -11,7 +11,7 @@ local L = scope.locale
 -- luacheck: globals RAID_CLASS_COLORS StoreFrame_IsShown
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
-local LGIST = LibStub("LibGroupInSpecT-1.1")
+--local LGIST = LibStub("LibGroupInSpecT-1.1")
 local LibDialog = LibStub("LibDialog-1.0n")
 
 BINDING_HEADER_oRA3 = addonName
@@ -329,9 +329,9 @@ function addon:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("CHAT_MSG_ADDON", "OnCommReceived")
-	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
-	LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
-	LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_Update")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_Remove")
+	--LGIST.RegisterCallback(self, "GroupInSpecT_InspectReady")
 
 	SLASH_ORA1 = "/ora"
 	SLASH_ORA2 = "/ora3"
@@ -463,7 +463,7 @@ do
 	end
 
 	function addon:InspectGroup(guid)
-		LGIST:Rescan(guid)
+		--LGIST:Rescan(guid)
 	end
 
 	function addon:GetPlayerInfo(guid)
