@@ -201,4 +201,5 @@ globals = {
 	"UnitLevel",
 	"UnitName",
 	"UnitRace",
+	"UnitTokenFromGUID",
 }
