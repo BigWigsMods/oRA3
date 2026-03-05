@@ -94,8 +94,9 @@ end
 local getRune
 do
 	local runes = {
-		1242347, -- Soulgorged Augmentation
-		1234969, -- Ethereal Augmentation
+		1264426, -- Void-Touched (Midnight)
+		1242347, -- Soulgorged Augmentation (The War Within)
+		1234969, -- Ethereal Augmentation (The War Within)
 		453250, -- Crystallization
 		270058, -- Battle-Scarred Augmentation
 		347901, -- Veiled Augmentation
@@ -139,6 +140,12 @@ do
 		431974, -- Flask of Tempered Mastery
 		432021, -- Flask of Alchemical Chaos
 		432473, -- Flask of Saving Graces
+
+		-- Midnight
+		1235110, -- Flask of the Blood Knights
+		1235111, -- Flask of the Shattered Sun
+		1235108, -- Flask of the Magisters
+		1235057, -- Flask of Thalassian Resistance
 	}
 
 	function getFlask(player)
@@ -381,17 +388,13 @@ do
 		[461957] = true, -- mastery
 
 		-- Flasks
-		[431971] = true, -- Flask of Tempered Aggression
-		[431972] = true, -- Flask of Tempered Swiftness
-		[431973] = true, -- Flask of Tempered Versatility
-		[431974] = true, -- Flask of Tempered Mastery
-		[432021] = true, -- Flask of Alchemical Chaos
-		[432473] = true, -- Flask of Saving Graces
+		[1235110] = true, -- Flask of the Blood Knights
+		[1235111] = true, -- Flask of the Shattered Sun
+		[1235108] = true, -- Flask of the Magisters
+		[1235057] = true, -- Flask of Thalassian Resistance
 
 		-- Rune
-		[453250] = true, -- Crystallization
-		[1234969] = true, -- Ethereal Augmentation
-		[1242347] = true, -- Soulgorged Augmentation
+		[1264426] = true, -- Void-Touched
 	}
 
 	function module:IsBest(id)
