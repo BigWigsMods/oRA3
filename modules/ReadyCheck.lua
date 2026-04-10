@@ -208,7 +208,7 @@ local options = {
 local function shouldShowBuffs()
 	if module.db.profile.showBuffs then
 		local _, type, diff = GetInstanceInfo()
-		return true
+		return type == "raid" or (type == "party" and (diff == 8 or diff == 23)) -- in raid or mythic dungeon
 	end
 	return false
 end
