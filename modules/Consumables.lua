@@ -74,8 +74,8 @@ do
 		buffs[#buffs + 1] = k
 	end
 
-	function getVantus(player)
-		local _, _, id = module:UnitBuffByIDs(player, buffs)
+	function getVantus(unit)
+		local _, _, id = module:UnitBuffByIDs(unit, buffs)
 		if id then
 			return id
 		end
@@ -104,8 +104,8 @@ do
 		393438, -- Draconic Augmentation
 	}
 
-	function getRune(player)
-		local _, _, id = module:UnitBuffByIDs(player, runes)
+	function getRune(unit)
+		local _, _, id = module:UnitBuffByIDs(unit, runes)
 		if id then
 			return id
 		end
@@ -148,8 +148,8 @@ do
 		1235057, -- Flask of Thalassian Resistance
 	}
 
-	function getFlask(player)
-		local _, expires, id = module:UnitBuffByIDs(player, flasks)
+	function getFlask(unit)
+		local _, expires, id = module:UnitBuffByIDs(unit, flasks)
 		if id then
 			return id, expires
 		end
@@ -162,12 +162,12 @@ do
 	local eating = { spells[192002] } -- Food & Drink (Eating)
 	local wellFed = { spells[19705], spells[462187] } -- Well Fed & Hearty Well Fed
 
-	function getFood(player)
-		local _, _, id = module:UnitBuffByNames(player, wellFed)
+	function getFood(unit)
+		local _, _, id = module:UnitBuffByNames(unit, wellFed)
 		if id then
 			return id
 		else -- should probably map food -> well fed buffs but bleeh
-			_, _, id = module:UnitBuffByNames(player, eating)
+			_, _, id = module:UnitBuffByNames(unit, eating)
 			if id then
 				return -id -- negative value for eating, not well fed yet
 			end
@@ -228,25 +228,25 @@ local options = {
 			set = function(info, value)
 				module.db.profile.output = value
 				if oRA3CheckButton then
-					oRA3CheckButton:SetEnabled(value > 1 or module.db.profile.whisper)
+					oRA3CheckButton:SetEnabled(value > 1) -- or module.db.profile.whisper)
 				end
 			end,
 			order = 2
 		},
-		whisper = {
-			type = "toggle",
-			name = colorize(L.whisperMissing),
-			desc = L.whisperMissingDesc,
-			descStyle = "inline",
-			set = function(info, value)
-				module.db.profile.whisper = value
-				if oRA3CheckButton then
-					oRA3CheckButton:SetEnabled(module.db.profile.output > 1 or value)
-				end
-			end,
-			order = 3,
-			width = "full",
-		},
+		--whisper = {
+		--	type = "toggle",
+		--	name = colorize(L.whisperMissing),
+		--	desc = L.whisperMissingDesc,
+		--	descStyle = "inline",
+		--	set = function(info, value)
+		--		module.db.profile.whisper = value
+		--		if oRA3CheckButton then
+		--			oRA3CheckButton:SetEnabled(module.db.profile.output > 1 or value)
+		--		end
+		--	end,
+		--	order = 3,
+		--	width = "full",
+		--},
 		checks = {
 			name = L.checkBuffs,
 			type = "group",
@@ -294,7 +294,7 @@ function module:OnRegister()
 			checkBuffs = true,
 			output = 1, -- 1 = disabled
 			checkReadyCheck = 2, -- 2 = started by you
-			whisper = false,
+			--whisper = false,
 		}
 	})
 	oRA:RegisterModuleOptions("Consumables", options)
@@ -511,12 +511,12 @@ end
 -- Output Results
 
 do
-	local function send(name, text)
-		SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
-	end
-	local function whisper(name, text)
-		module:ScheduleTimer(send, 0.2, name, text) -- send after print spam
-	end
+	--local function send(name, text)
+	--	SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
+	--end
+	--local function whisper(name, text)
+	--	module:ScheduleTimer(send, 0.2, name, text) -- send after print spam
+	--end
 
 	local list = {}
 	local function out(title, tbl)
@@ -551,37 +551,32 @@ do
 		local noFood, noFlasks, noRunes, noBuffs = self:CheckGroup()
 
 		local db = self.db.profile
-		if db.whisper then
-			local t = GetTime()
-
-			for _, player in next, oRA:GetGroupMembers() do
-				wipe(warnings)
-
-				if db.checkFood and noFood[player] then
-					warnings[#warnings + 1] = L.noFood
-				end
-
-				if db.checkFlask then
-					if noFlasks[player] then
-						warnings[#warnings + 1] = L.noFlask
-					else
-						local _, expires = getFlask(player)
-						local remaining = expires and (expires - t) or 0
-						if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
-							whisper(player, L.flaskExpires)
-						end
-					end
-				end
-
-				if db.checkRune and noRunes[player] then
-					warnings[#warnings + 1] = L.noRune
-				end
-
-				if #warnings > 0 then
-					whisper(player, tconcat(warnings, ", "))
-				end
-			end
-		end
+		--if db.whisper then
+		--	local t = GetTime()
+		--	for _, player in next, oRA:GetGroupMembers() do
+		--		wipe(warnings)
+		--		if db.checkFood and noFood[player] then
+		--			warnings[#warnings + 1] = L.noFood
+		--		end
+		--		if db.checkFlask then
+		--			if noFlasks[player] then
+		--				warnings[#warnings + 1] = L.noFlask
+		--			else
+		--				local _, expires = getFlask(player)
+		--				local remaining = expires and (expires - t) or 0
+		--				if remaining > 0 and remaining < 600 then -- triggers weirdly sometimes, not sure why
+		--					whisper(player, L.flaskExpires)
+		--				end
+		--			end
+		--		end
+		--		if db.checkRune and noRunes[player] then
+		--			warnings[#warnings + 1] = L.noRune
+		--		end
+		--		if #warnings > 0 then
+		--			whisper(player, tconcat(warnings, ", "))
+		--		end
+		--	end
+		--end
 
 		if db.checkFood then
 			out(L.noFood, noFood)
@@ -601,7 +596,7 @@ end
 -------------------
 -- Player Check
 
-function module:CheckPlayer(player)
+function module:CheckPlayer(unit, player)
 	local cache = playerBuffs[player]
 	local t = GetTime()
 	if cache and t-cache[0] < PLAYER_CHECK_THROTTLE then
@@ -613,14 +608,14 @@ function module:CheckPlayer(player)
 		cache = playerBuffs[player]
 	end
 
-	local flask = getFlask(player)
-	local food = getFood(player)
-	local rune = getRune(player)
-	local vantus = getVantus(player)
+	local flask = getFlask(unit)
+	local food = getFood(unit)
+	local rune = getRune(unit)
+	local vantus = getVantus(unit)
 	local buffs = cache[5] or {}
 	for i = 1, #raidBuffs do
 		if oRA:HasClassMembers(raidBuffProviders[i]) then
-			local _, _, id = self:UnitBuffByIDs(player, raidBuffs[i])
+			local _, _, id = self:UnitBuffByIDs(unit, raidBuffs[i])
 			buffs[i] = id or false
 		else
 			buffs[i] = nil
@@ -662,50 +657,52 @@ do
 			end
 		end
 
-		local groupMembers = oRA:GetGroupMembers()
-		if not groupMembers[1] then groupMembers[1] = UnitName("player") end
-		for _, player in next, groupMembers do
-			if UnitIsConnected(player) and not UnitIsDeadOrGhost(player) and UnitIsVisible(player) then
-				local food, flask, rune, vantus, buffs = self:CheckPlayer(player)
-				local numBuffs = 0
+		for unit in self:IterateGroup() do
+			local guid = UnitGUID(unit)
+			if guid then
+				local playerName = oRA:UnitName(unit)
+				if UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitIsVisible(unit) then
+					local food, flask, rune, vantus, buffs = self:CheckPlayer(unit, playerName)
+					local numBuffs = 0
 
-				if not food then
-					missingFood[player] = true
-				end
-
-				if not flask then
-					missingFlasks[player] = true
-				end
-
-				if not rune then
-					missingRunes[player] = true
-				end
-
-				for i = 1, #raidBuffs do
-					if buffs[i] then
-						numBuffs = numBuffs + 1
-					elseif buffs[i] == false then -- missing while available
-						missingBuffs[raidBuffNames[i]] = true
+					if not food then
+						missingFood[playerName] = true
 					end
-				end
 
-				consumablesList[#consumablesList + 1] = {
-					player:gsub("%-.*", ""),
-					food and (food < 0 and spells[161715] or self:GetFoodValue(food) or YES) or NO, -- 161715 = Eating
-					flask and (self:GetFlaskValue(flask) or YES) or NO,
-					rune and YES or NO,
-					getVantusBoss(vantus) or NO,
-					("%d/%d"):format(numBuffs, numRaidBuffs),
-				}
-			else
-				consumablesList[#consumablesList + 1] = {
-					player:gsub("%-.*", ""),
-					nil,
-					nil,
-					nil,
-					nil,
-					nil,
-				}
+					if not flask then
+						missingFlasks[playerName] = true
+					end
+
+					if not rune then
+						missingRunes[playerName] = true
+					end
+
+					for i = 1, #raidBuffs do
+						if buffs[i] then
+							numBuffs = numBuffs + 1
+						elseif buffs[i] == false then -- missing while available
+							missingBuffs[raidBuffNames[i]] = true
+						end
+					end
+
+					consumablesList[#consumablesList + 1] = {
+						playerName:gsub("%-.*", ""),
+						food and (food < 0 and spells[161715] or self:GetFoodValue(food) or YES) or NO, -- 161715 = Eating
+						flask and (self:GetFlaskValue(flask) or YES) or NO,
+						rune and YES or NO,
+						getVantusBoss(vantus) or NO,
+						("%d/%d"):format(numBuffs, numRaidBuffs),
+					}
+				else
+					consumablesList[#consumablesList + 1] = {
+						playerName:gsub("%-.*", ""),
+						nil,
+						nil,
+						nil,
+						nil,
+						nil,
+					}
+				end
 			end
 		end
 

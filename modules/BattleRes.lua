@@ -23,7 +23,7 @@ local resSpells = {
 	[385403] = true, -- Tinker: Arclight Vital Correctors
 	[384893] = true, -- Convincingly Realistic Jumper Cables
 }
-local theDead = {}
+--local theDead = {}
 --local updateFunc
 local brez
 local inCombat = false
@@ -283,19 +283,19 @@ do
 		local s = mod(time, 60)
 		brez.timer:SetFormattedText("%d:%02d", m, s)
 
-		if next(theDead) then
-			for k, v in next, theDead do
-				if module:UnitBuffByIDs(k, badBuffs) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
-					theDead[k] = nil
-				elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) then
-					local _, type = GetInstanceInfo()
-					if v == true and (type == "raid" and UnitAffectingCombat(k)) or (type == "party" and UnitHealth(k)/UnitHealthMax(k) < .7) then -- Soulstone is 60% hp, releasing is 80%
-						brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k])) -- Soulstone
-					end
-					theDead[k] = nil
-				end
-			end
-		end
+		--if next(theDead) then
+		--	for k, v in next, theDead do
+		--		if module:UnitBuffByIDs(k, badBuffs) or UnitIsFeignDeath(k) then -- The backup plan, you need one with Blizz
+		--			theDead[k] = nil
+		--		elseif not UnitIsDeadOrGhost(k) and UnitIsConnected(k) then
+		--			local _, type = GetInstanceInfo()
+		--			if v == true and (type == "raid" and UnitAffectingCombat(k)) or (type == "party" and UnitHealth(k)/UnitHealthMax(k) < .7) then -- Soulstone is 60% hp, releasing is 80%
+		--				brez.scroll:AddMessage(("%s >> %s"):format(GetSpellLink(20707), coloredNames[k])) -- Soulstone
+		--			end
+		--			theDead[k] = nil
+		--		end
+		--	end
+		--end
 	end
 
 	local timeUpdater = nil
@@ -305,7 +305,7 @@ do
 			local charges = chargeInfo.currentCharges
 			if not inCombat then
 				inCombat = true
-				theDead = {}
+				--theDead = {}
 				timeUpdater = module:ScheduleRepeatingTimer(updateTime, 1)
 				--brez:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 				brez.scroll:Clear()

@@ -208,7 +208,7 @@ local options = {
 local function shouldShowBuffs()
 	if module.db.profile.showBuffs then
 		local _, type, diff = GetInstanceInfo()
-		return type == "raid" or (type == "party" and (diff == 8 or diff == 23)) -- in raid or challenge mode
+		return true
 	end
 	return false
 end
@@ -407,7 +407,7 @@ local function anchorBuffs(f)
 	f.FoodBuff:SetPoint("RIGHT", -6 - ((i+1)*BUFF_ICON_SIZE), 0)
 end
 
-local function setMemberStatus(num, bottom, name, class, update)
+local function setMemberStatus(num, bottom, name, class, update, token)
 	if not name or not class then return end
 	local f
 	if bottom then
@@ -418,11 +418,11 @@ local function setMemberStatus(num, bottom, name, class, update)
 	f.player = name
 
 	local ready = true
-	if showBuffFrame and UnitIsConnected(name) and not UnitIsDeadOrGhost(name) and UnitIsVisible(name) then
+	if showBuffFrame and UnitIsConnected(token) and not UnitIsDeadOrGhost(token) and UnitIsVisible(token) then
 		f.OutOfRange:Hide()
 		if update then
 			anchorBuffs(f)
-			local food, flask, rune, vantus, buffs = consumables:CheckPlayer(name)
+			local food, flask, rune, vantus, buffs = consumables:CheckPlayer(token, name)
 			local showMissing = module.db.profile.showBuffs == 1
 			local onlyMax = module.db.profile.showMissingMaxStat
 			ready = food and flask and (not module.db.profile.showMissingRunes or rune) and true
@@ -511,7 +511,7 @@ local function setMemberStatus(num, bottom, name, class, update)
 
 	local color = oRA.classColors[class]
 	local cleanName = name:gsub("%-.+", "*")
-	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(name)], cleanName)
+	f.NameText:SetFormattedText("%s%s", roleIcons[UnitGroupRolesAssigned(token)], cleanName)
 	f.NameText:SetTextColor(color.r, color.g, color.b)
 	f:SetAlpha(1)
 	f:Show()
@@ -569,12 +569,13 @@ function updateWindow(force)
 		local bottom, top = 0, 0
 		for i = 1, GetNumGroupMembers() do
 			local name, _, subgroup, _, _, class = GetRaidRosterInfo(i)
+			local token = "raid".. i
 			if subgroup < highgroup then
 				top = top + 1
-				setMemberStatus(top, false, name, class, update)
+				setMemberStatus(top, false, name, class, update, token)
 			else
 				bottom = bottom + 1
-				setMemberStatus(bottom, true, name, class, update)
+				setMemberStatus(bottom, true, name, class, update, token)
 			end
 		end
 		height = ceil(top / 2) * 14 + 43
@@ -589,12 +590,12 @@ function updateWindow(force)
 			window.bar:Show()
 		end
 	else
-		setMemberStatus(1, false, playerName, playerClass, update)
+		setMemberStatus(1, false, playerName, playerClass, update, "player")
 		for i = 1, GetNumSubgroupMembers() do
 			local unit = ("party%d"):format(i)
 			local name = module:UnitName(unit)
 			local class = UnitClassBase(unit)
-			setMemberStatus(i+1, false, name, class, update)
+			setMemberStatus(i+1, false, name, class, update, "party"..i)
 		end
 	end
 
@@ -905,7 +906,7 @@ function module:OnEnable()
 	self:RegisterEvent("READY_CHECK")
 	self:RegisterEvent("READY_CHECK_CONFIRM")
 	self:RegisterEvent("READY_CHECK_FINISHED")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("ENCOUNTER_START")
 
 	SLASH_ORAREADYCHECK1 = "/rar"
 	SLASH_ORAREADYCHECK2 = "/raready"
@@ -922,7 +923,7 @@ function module:OnEnable()
 	end
 end
 
-function module:PLAYER_REGEN_DISABLED()
+function module:ENCOUNTER_START()
 	if self.db.profile.hideOnCombat and window and window:IsShown() then
 		window:Hide()
 	end
