@@ -796,14 +796,19 @@ local function createWindow()
 	local fader = animFader:CreateAnimation("Alpha")
 	fader:SetFromAlpha(1)
 	fader:SetToAlpha(0)
-	fader:SetStartDelay(2.5)
-	fader:SetDuration(1)
+	fader:SetStartDelay(3)
+	fader:SetDuration(2)
 	fader:SetScript("OnFinished", function(self) f:Hide() end)
 	f.animFader = animFader
 
 	local animUpdater = f:CreateAnimationGroup()
 	animUpdater:SetLooping("REPEAT")
 	animUpdater:SetScript("OnLoop", function(self)
+		if C_ChatInfo.InChatMessagingLockdown() then
+			window:Hide()
+			return
+		end
+
 		updateWindow()
 		local timer = GetReadyCheckTimeLeft()
 		if readychecking and timer > 0.5 then
@@ -829,6 +834,12 @@ local function createWindow()
 		wipe(delayedSpellUpdates)
 		animUpdater:Stop()
 		animFader:Stop()
+		module:UnregisterEvent("READY_CHECK_CONFIRM")
+		module:UnregisterEvent("READY_CHECK_FINISHED")
+		if readychecking then
+			self:CancelTimer(readychecking)
+			readychecking = nil
+		end
 	end)
 end
 
@@ -904,8 +915,6 @@ function module:OnEnable()
 	oRA.RegisterCallback(self, "OnGroupChanged")
 	-- Ready Check Events
 	self:RegisterEvent("READY_CHECK")
-	self:RegisterEvent("READY_CHECK_CONFIRM")
-	self:RegisterEvent("READY_CHECK_FINISHED")
 	self:RegisterEvent("ENCOUNTER_START")
 
 	SLASH_ORAREADYCHECK1 = "/rar"
@@ -965,6 +974,8 @@ function module:OnGroupChanged(_, status, members)
 end
 
 function module:READY_CHECK(initiator, duration)
+	self:RegisterEvent("READY_CHECK_CONFIRM")
+	self:RegisterEvent("READY_CHECK_FINISHED")
 	if self.db.profile.sound then
 		-- Play in Master for those that have SFX off or very low.
 		-- Using false as third arg to avoid the "only one of each sound at a time" throttle.
