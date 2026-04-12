@@ -50,6 +50,7 @@ do
 	end
 end
 
+local issecretvalue = issecretvalue
 do
 	local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
 	--- Get the buff info of a unit.
@@ -63,7 +64,7 @@ do
 			if not aura then return end
 
 			for j = 1, num do
-				if list[j] == aura.name then
+				if not issecretvalue(aura.name) and list[j] == aura.name then
 					return aura.name, aura.expirationTime, aura.spellId
 				end
 			end
@@ -81,7 +82,7 @@ do
 		for i = 1, #list do
 			local spellID = list[i]
 			local aura = GetUnitAuraBySpellID(unit, spellID)
-			if aura then
+			if aura and not issecretvalue(aura.name) then
 				return aura.name, aura.expirationTime, spellID
 			end
 		end

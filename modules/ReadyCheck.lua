@@ -837,7 +837,7 @@ local function createWindow()
 		module:UnregisterEvent("READY_CHECK_CONFIRM")
 		module:UnregisterEvent("READY_CHECK_FINISHED")
 		if readychecking then
-			self:CancelTimer(readychecking)
+			module:CancelTimer(readychecking)
 			readychecking = nil
 		end
 	end)
