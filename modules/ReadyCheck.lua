@@ -1093,21 +1093,21 @@ do
 		if #noReply == 0 and #notReady == 0 then
 			sysprint(READY_CHECK_ALL_READY)
 			if send then
-				SendChatMessage(READY_CHECK_ALL_READY, "RAID")
+				C_ChatInfo.SendChatMessage(READY_CHECK_ALL_READY, "RAID")
 			end
 		else
 			if #noReply > 0 then
 				local playersAway = RAID_MEMBERS_AFK:format(concat(noReply, ", "))
 				sysprint(playersAway)
 				if send then
-					SendChatMessage(playersAway, "RAID")
+					C_ChatInfo.SendChatMessage(playersAway, "RAID")
 				end
 			end
 			if #notReady > 0 then
 				local playersNotReady = L.playersNotReady:format(concat(notReady, ", "))
 				sysprint(playersNotReady)
 				if send then
-					SendChatMessage(playersNotReady, "RAID")
+					C_ChatInfo.SendChatMessage(playersNotReady, "RAID")
 				end
 			end
 		end

@@ -512,7 +512,7 @@ end
 
 do
 	--local function send(name, text)
-	--	SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
+	--	C_ChatInfo.SendChatMessage(("oRA3> %s"):format(text), "WHISPER", nil, name)
 	--end
 	--local function whisper(name, text)
 	--	module:ScheduleTimer(send, 0.2, name, text) -- send after print spam
@@ -534,7 +534,7 @@ do
 					table.remove(list)
 					names = tconcat(list, ", ") .. format(", (+%d)", count - #list)
 				end
-				SendChatMessage(format("%s (%d): %s", title, count, names), IsInRaid() and "RAID" or "PARTY")
+				C_ChatInfo.SendChatMessage(format("%s (%d): %s", title, count, names), IsInRaid() and "RAID" or "PARTY")
 			elseif module.db.profile.output == 2 then -- self
 				print(format("|cff33ff99oRA3|r: |cffff8040%s (%d)|r: %s", title, #list, tconcat(list, ", ")))
 			end

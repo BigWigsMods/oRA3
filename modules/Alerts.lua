@@ -294,44 +294,44 @@ function module:Spam(key, msg)
 	if not IsInGroup() and outputValues[output] then
 		fallback = true
 	elseif output == "say" or output == "yell" then
-		SendChatMessage(chatMsg, output)
+		C_ChatInfo.SendChatMessage(chatMsg, output)
 	elseif output == "group" then
 		if isInstanceGroup then
 			if not self.db.profile.disableForLFG then
-				SendChatMessage(chatMsg, "INSTANCE_CHAT")
+				C_ChatInfo.SendChatMessage(chatMsg, "INSTANCE_CHAT")
 			else
 				fallback = true
 			end
 		else
-			SendChatMessage(chatMsg, "RAID")
+			C_ChatInfo.SendChatMessage(chatMsg, "RAID")
 		end
 	elseif output == "raid" then
 		if IsInRaid() and (not self.db.profile.disableForLFG or not isInstanceGroup) then
-			SendChatMessage(chatMsg, isInstanceGroup and "INSTANCE_CHAT" or "RAID")
+			C_ChatInfo.SendChatMessage(chatMsg, isInstanceGroup and "INSTANCE_CHAT" or "RAID")
 		else
 			fallback = true
 		end
 	elseif output == "raid_warning" then
 		if IsInRaid() and (UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or IsEveryoneAssistant()) then
-			SendChatMessage(chatMsg, output)
+			C_ChatInfo.SendChatMessage(chatMsg, output)
 		else
 			fallback = true
 		end
 	elseif output == "party" then
 		if not self.db.profile.disableForLFG or not isInstanceGroup then
-			SendChatMessage(chatMsg, isInstanceGroup and "INSTANCE_CHAT" or "PARTY")
+			C_ChatInfo.SendChatMessage(chatMsg, isInstanceGroup and "INSTANCE_CHAT" or "PARTY")
 		else
 			fallback = true
 		end
 	elseif output == "guild" then
 		if IsInGuild() then
-			SendChatMessage(chatMsg, output)
+			C_ChatInfo.SendChatMessage(chatMsg, output)
 		else
 			fallback = true
 		end
 	elseif output == "officer" then
 		if IsInGuild() then
-			SendChatMessage(chatMsg, output)
+			C_ChatInfo.SendChatMessage(chatMsg, output)
 		else
 			fallback = true
 		end
@@ -341,7 +341,7 @@ function module:Spam(key, msg)
 		output = "self"
 		if index then
 			if type == "c" and GetChannelName(index) > 0 then
-				SendChatMessage(chatMsg, "CHANNEL", nil, index)
+				C_ChatInfo.SendChatMessage(chatMsg, "CHANNEL", nil, index)
 			elseif type == "t" then
 				local frame = _G["ChatFrame"..index]
 				if frame and frame ~= _G.COMBATLOG and (frame.isDocked or select(7, _G.GetChatWindowInfo(index))) then
@@ -848,8 +848,8 @@ function module:OnRegister()
 		local _, ora, msg = strsplit(":", link, 3)
 		if ora == "oRA" and IsShiftKeyDown() then
 			msg = msg:gsub("@", "|")
-			local editBox = _G.ChatEdit_ChooseBoxForSend()
-			_G.ChatEdit_ActivateChat(editBox)
+			local editBox = _G.ChatFrameUtil.ChooseBoxForSend()
+			_G.ChatFrameUtil.ActivateChat(editBox)
 			editBox:SetText(msg)
 		end
 	end)
@@ -965,7 +965,7 @@ function GetOptions()
 			outputValuesWithChannels["c"..index] = ("/%d %s"):format(index, name)
 		end
 	end
-	for i = 1, _G.NUM_CHAT_WINDOWS do
+	for i = 1, 10 do
 		local frame = _G["ChatFrame"..i]
 		local _, _, _, _, _, _, shown = _G.GetChatWindowInfo(i)
 		if frame ~= _G.COMBATLOG and (shown or frame.isDocked) then

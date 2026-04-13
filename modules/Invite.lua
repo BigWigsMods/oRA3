@@ -121,7 +121,7 @@ local function inviteGuild()
 	if not canInvite() then return end
 	C_GuildInfo.GuildRoster()
 	local maxLevel = GetMaxLevelForLatestExpansion()
-	SendChatMessage(L.invitePrintMaxLevel, "GUILD")
+	C_ChatInfo.SendChatMessage(L.invitePrintMaxLevel, "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, maxLevel, nil, nil)
 end
 
@@ -129,16 +129,16 @@ local function inviteZone()
 	if not canInvite() then return end
 	C_GuildInfo.GuildRoster()
 	local currentZone = GetRealZoneText()
-	SendChatMessage((L.invitePrintZone):format(currentZone), "GUILD")
+	C_ChatInfo.SendChatMessage((L.invitePrintZone):format(currentZone), "GUILD")
 	module:ScheduleTimer(doGuildInvites, 10, nil, currentZone, nil)
 end
 
 local function inviteRank(rank, name, only)
 	if not canInvite() then return end
 	if only then
-		SendChatMessage((L.invitePrintRankOnly):format(name), "GUILD")
+		C_ChatInfo.SendChatMessage((L.invitePrintRankOnly):format(name), "GUILD")
 	else
-		SendChatMessage((L.invitePrintRank):format(name), "GUILD")
+		C_ChatInfo.SendChatMessage((L.invitePrintRank):format(name), "GUILD")
 	end
 	module:ScheduleTimer(doGuildInvites, 10, nil, nil, rank-1, only)
 end
@@ -255,9 +255,9 @@ local function handleWhisper(msg, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAc
 		local inInstance, instanceType = IsInInstance()
 		if (inInstance and instanceType == "party" and GetNumSubgroupMembers() == 4) or GetNumGroupMembers() == 40 then
 			if bnetIDAccount > 0 then
-				BNSendWhisper(bnetIDAccount, "<oRA> ".. L.inviteGroupIsFull)
+				C_BattleNet.SendWhisper(bnetIDAccount, "<oRA> ".. L.inviteGroupIsFull)
 			else
-				SendChatMessage("<oRA> ".. L.inviteGroupIsFull, "WHISPER", nil, sender)
+				C_ChatInfo.SendChatMessage("<oRA> ".. L.inviteGroupIsFull, "WHISPER", nil, sender)
 			end
 		else
 			peopleToInvite[#peopleToInvite + 1] = gameAccountID or sender
