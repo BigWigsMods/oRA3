@@ -38,35 +38,20 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
-		-- Nerub-ar Palace
-		[457610] = 2607, -- Ulgrax
-		[458701] = 2611, -- The Bloodbound Horror
-		[458702] = 2599, -- Sikran
-		[458703] = 2609, -- Rasha'nan
-		[458704] = 2612, -- Broodtwister Ovi'nax
-		[458705] = 2601, -- Nexus-Princess Ky'veza
-		[458706] = 2608, -- The Silken Court
-		[458707] = 2602, -- Queen Ansurek
+		-- TheVoidspire
+		[1276687] = 3176, -- Imperator Averzian
+		[1276691] = 3177, -- Vorasius
+		[1276705] = 3179, -- Fallen-King Salhadaar
+		[1276709] = 3178, -- Vaelgor & Ezzorak
+		[1276712] = 3180, -- Lightblinded Vanguard
+		[1276715] = 3181, -- Crown of the Cosmos
 
-		-- Liberation of Undermine
-		[472593] = 2644, -- The One-Armed Bandit
-		[472597] = 2640, -- Cauldron of Carnage
-		[472591] = 2646, -- Chrome King Gallywix
-		[472594] = 2653, -- Sprocketmonger Lockenstock
-		[472592] = 2645, -- Mug'Zee, Heads of Security
-		[472596] = 2641, -- Rik Reverb
-		[472595] = 2642, -- Stix Bunkjunker
-		[472541] = 2639, -- Vexie and the Geargrinders
+		-- TheDreamrift
+		[1276685] = 3306, -- Chimaerus the Undreamt God
 
-		-- Manaforge Omega
-		[1236892] = 2684, -- Plexus Sentinel
-		[1236893] = 2686, -- Loom'ithar
-		[1236894] = 2685, -- Soulbinder Naazindhri
-		[1236895] = 2687, -- Forgeweaver Araz
-		[1236896] = 2688, -- The Soul Hunters
-		[1236897] = 2747, -- Fractillus
-		[1236898] = 2690, -- Nexus-King Salhadaar
-		[1236899] = 2691, -- Dimensius, the All-Devouring
+		-- MarchOnQuelDanas
+		[1276669] = 3182, -- Belo'ren
+		[1276682] = 3183, -- Midnight Falls
 	}
 
 	local buffs = {}
