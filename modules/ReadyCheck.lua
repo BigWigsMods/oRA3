@@ -213,21 +213,27 @@ local function shouldShowBuffs()
 	return false
 end
 
-local UnitAura = C_UnitAuras.GetAuraDataByIndex
+local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
+local issecretvalue = issecretvalue or function() return false end
 local function Frame_Tooltip(self)
 	if self.name then
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-		local unit = self:GetParent().player
-		for i = 1, 100 do
-			local aura = UnitAura(unit, i, "HELPFUL")
-			if not aura then
-				GameTooltip:SetText(self.name) -- we're out of sync
-				break
+		local player = self:GetParent().player
+		local token = self:GetParent().token
+		if player and token then
+			for i = 1, 100 do
+				local aura = GetAuraDataByIndex(token, i, "HELPFUL")
+				if not aura or issecretvalue(aura.name) then
+					GameTooltip:SetText(self.name) -- we're out of sync
+					break
+				end
+				if aura.name == self.name then
+					GameTooltip:SetUnitBuff(token, i)
+					break
+				end
 			end
-			if aura.name == self.name then
-				GameTooltip:SetUnitBuff(unit, i)
-				break
-			end
+		else
+			GameTooltip:SetText(self.name) -- we're out of sync
 		end
 		if self.tooltip then
 			GameTooltip:AddLine("\n"..self.tooltip)
@@ -416,6 +422,7 @@ local function setMemberStatus(num, bottom, name, class, update, token)
 		f = topMemberFrames[num] or createTopFrame()
 	end
 	f.player = name
+	f.token = token
 
 	local ready = true
 	if showBuffFrame and UnitIsConnected(token) and not UnitIsDeadOrGhost(token) and UnitIsVisible(token) then
@@ -870,7 +877,6 @@ do
 	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it traumatized Funkeh and now he can't stand to even look at it
 	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending on other hooks)
 	local hooks = {}
-	local issecretvalue = issecretvalue or function() return false end
 	local function hookFunc(self, msg, r, g, b, id, ...)
 		if not issecretvalue(msg) and readychecking and id == system.id then
 			for _, string in next, messages do
