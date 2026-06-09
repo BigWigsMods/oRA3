@@ -1,4 +1,4 @@
-name: Package Retail
+name: Package addon
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
       - master
     tags:
       - '*'
-      - '!**-classic'
+    paths-ignore:
+      - '.github/**'
 
 jobs:
   build:
@@ -25,7 +26,7 @@ jobs:
         with:
           args: -q
 
-      - name: Package Retail
+      - name: Package
         uses: BigWigsMods/packager@master
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
