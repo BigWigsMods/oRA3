@@ -1,4 +1,5 @@
-## Interface: 120100, 120005, 120007
+## Interface: 120100, 120105, 120007
+## AllowLoadGameType: standard
 ## Title: oRA3
 ## Notes: Raid and Party Assist
 ## Notes-zhCN: Raid and Party Assist
