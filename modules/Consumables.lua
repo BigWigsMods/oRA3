@@ -38,6 +38,22 @@ local spells = setmetatable({}, {
 local getVantus, getVantusBoss
 do
 	local runes = {
+		--The Unbinding of Kith'ix
+		[1319286] = 3513, -- Kith'ix
+
+		-- The Venomous Abyss
+		[1303183] = 3455, -- Vashnik the Malignant
+		[1303187] = 3492, -- Ula'tek
+		[1303185] = 3421, -- The Twin Fangs
+		[1303184] = 3420, -- Sszorak
+		[1303181] = 3445, -- Entombed Sentinels
+		[1303180] = 3470, -- Nek'zali the Soulcoiler
+		[1303182] = 3497, -- The Lost Explorers
+		[1303186] = 3429, -- The Coiled Altar
+
+		-- Lairs
+		[1310439] = 3379, -- Nymrissa Wavecaller
+
 		-- TheVoidspire
 		[1276687] = 3176, -- Imperator Averzian
 		[1276691] = 3177, -- Vorasius
