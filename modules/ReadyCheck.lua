@@ -868,44 +868,40 @@ local sysprint
 do
 	-- filter all the ready check messages and direct print our own
 	local messages = {
-		RAID_MEMBER_NOT_READY:gsub("%%s", "(.-)"), -- %s is not ready
-		RAID_MEMBERS_AFK:gsub("%%s", "(.-)"),      -- The following players are Away: %s
-		READY_CHECK_ALL_READY,                     -- Everyone is Ready
+		"^" .. RAID_MEMBER_NOT_READY:gsub("%%s", ".-") .. "$", -- %s is not ready
+		"^" .. RAID_MEMBERS_AFK:gsub("%%s", ".-") .. "$",      -- The following players are Away: %s
+		"^" .. READY_CHECK_ALL_READY .. "$",                   -- Everyone is Ready
 	}
 	local system = ChatTypeInfo.SYSTEM
+	local printing
 
-	-- avoid ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM") because it traumatized Funkeh and now he can't stand to even look at it
-	-- ugly ass hooks it is! can't even anchor the searches because this is the final decorated output (depending on other hooks)
-	local hooks = {}
-	local function hookFunc(self, msg, r, g, b, id, ...)
-		if not issecretvalue(msg) and readychecking and id == system.id then
-			for _, string in next, messages do
-				if msg:match(string) then return end
+	local function filterFunc(_, _, msg)
+		if not printing and readychecking and not issecretvalue(msg) then
+			for _, str in next, messages do
+				if msg:match(str) then
+					return true
+				end
 			end
 		end
-		if id == "oRA" then
-			id = system.id
-		end
-		hooks[self](self, msg, r, g, b, id, ...)
 	end
-
-	for i = 1, 10 do
-		local frame = _G["ChatFrame"..i]
-		hooks[frame] = frame.AddMessage
-		frame.AddMessage = hookFunc
-	end
+	ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", filterFunc)
 
 	function sysprint(msg)
 		-- allow other addons to remove/modify the ready check messages via the filter system
 		local filters = ChatFrameUtil.GetMessageEventFilters()
-		for frame in next, hooks do
-			for _, msgType in ipairs(frame.messageTypeList) do
-				if msgType == "SYSTEM" then
-					local filter, newMsg = filters:ProcessFilters(frame, "CHAT_MSG_SYSTEM", msg)
-					if not filter then
-						frame:AddMessage(newMsg or msg, system.r, system.g, system.b, "oRA")
+		for i = 1, 10 do
+			local frame = _G["ChatFrame"..i]
+			if frame then
+				for _, msgType in ipairs(frame.messageTypeList) do
+					if msgType == "SYSTEM" then
+						printing = true
+						local filter, newMsg = filters:ProcessFilters(frame, "CHAT_MSG_SYSTEM", msg)
+						printing = nil
+						if not filter then
+							frame:AddMessage(newMsg or msg, system.r, system.g, system.b, system.id)
+						end
+						break
 					end
-					break
 				end
 			end
 		end
